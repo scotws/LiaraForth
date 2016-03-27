@@ -1,0 +1,61 @@
+Initial Design Manifest for 
+Liara Forth for the W65C265SXB (65816)
+Scot W. Stevenson scot.stevenson@gmail.com
+First version: 27. March 2016
+This version: 27. March 2016
+
+Liara Forth is a project to create a bare-metal ANSI(ish) Forth specifically for
+the W65C265SXB ("265SXB") single-board computer from WDC based on the 65816
+8/16-bit hybrid CPU. It is designed to be the "intial" or "first Forth" that
+users can install immediately after buying the board and some Flash memory. In
+its first form, it uses the Mensch Monitor routines as a basis, and is started
+from the Monitor. Later, these routines may be replaced by a alternate monitor
+that uses the same calls.
+
+
+TECHNICAL DETAILS
+
+- 16 bit cell size, subroutine threaded model
+- Single user, aim for cooperative round-robin multitasking
+- Max 24 Kb size, priorty is speed over size (within reason)
+- Dictionary keeps headers and code separate to allow fall-through 
+- All code in Bank 0, though tools provided to access other banks
+- Return Stack is the system stack. It starts at 03FF and grows "down" 
+  (towards 0000). The RSP points to the next free entry.
+- Direct Page starts at 0200 and grows "up" (towards FFFF). The DSP points to
+  the current top entry, not the next one. 
+- The system includes code to write to Flash memory, an editor, and XMODEM
+  protocol.
+
+
+DICTIONARY STRUCTURE
+
+Dictionary header entries are kept separately from the actual code. 
+
+               8bit     8bit
+ h_word --  +--------+--------+
+            | Status | Length |
+         +2 +--------+--------+
+            | Start of Code   |
+         +4 +-----------------+
+            | End of Code     |
+         +6 +-----------------+
+            | Next Header     |
+         +8 +--------+--------+
+            | Name   |        |
+            +--------+--------+
+            |        |        |
+            +--------+--------+
+            |        | ...    |
+         +n +--------+--------+
+
+Each header consists of a Status Byte (see below), a Length Byte - words can be
+up to 265 characters long, a 16-bit pointer to the start of the actual code, a
+16-bit pointer to the end of the actual code (used for compilation of words),
+followed by the name string. 
+
+The Status Byte contains three flags:
+    - Native (N) - if true, the word is a machine language primtive
+    - Compiled (C) - if true, the word is compiled into new words
+    - Immediate (I) - if true, word is immediately executed during compilation
+
