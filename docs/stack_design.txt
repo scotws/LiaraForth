@@ -1,0 +1,45 @@
+Stack Design for Liara Forth for the W65C265SXB 
+Scot W. Stevenson <scot.stevenson@gmail.com>
+First version: 27. Mär 2016
+This version: 27. Mär 2016
+
+The "Königskinder" (King's Children) Stack Design
+
+Liara Forth puts the Direct Page (DP) at 00:200 to avoid the default Direct
+Page and Stack use of the Mensch Monitor. The Data Stack (DS) begins in this
+area after any variables that are used. It then grows "up" (towards 00:FFFF),
+not down. The Direct Stack Pointer (DSP) is X, and points to the top entry on
+the Data Stack (TOS). The Return Stack (RS) is the normal system stack. It starts at 00:03FF and groes "down" (towards 00:0000) and points to the next free entry. 
+
+
+    00:200 -> +-------------------------+ <- Direct Page start
+              |                         |
+              | Direct Page Variables   |
+              |                         |
+ (unknown) -> +-------------------------+ <- Data Stack Pointer Start (DSP0)
+              |                   |     |
+              | Data Stack        |     |
+              |                   V     | <- DSP (X)
+              |                         |
+
+              /~~~~~~~~~~~~~~~~~~~~~~~~~/
+
+              |                         |
+              |                   ^     | <- RSP (S)
+              | Return Stack      |     |
+              |                   |     |
+    00:3FF -> +-------------------------+ <- Stack Pointer (RSP0)
+
+
+This configuration means that both Stacks grow towards each other, eating up the space between them. Though the DS is limited to 128 16-bit entries, in theory, the Return Stack could keep growing. We can test for a collision of the stacks -- an overflow of either the RS or DS -- by making sure that DSP != RSP: One points to the next entry, the other to the current entry. 
+
+Depending on how many entries are required for variables, it might be possible to get away with only using one page for both stacks.
+
+The name comes from the German song "Es waren zwei Königskinder" (https://de.wikipedia.org/wiki/Es_waren_zwei_K%C3%B6nigskinder) who really liked each other, but could never meet because the water was too deep. 
+
+Es waren zwei Königskinder,
+die hatten einander so lieb,
+sie konnten beisammen nicht kommen,
+das Wasser war viel zu tief.
+
+The people you hear in the background clearing their throats are the Germans here who remember how the story ends (both die). That, dear children, is why you always remember to check for overflow.
