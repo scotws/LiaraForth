@@ -14,3 +14,6 @@ started with a 6502 system.
 
 This project is in the very, _very_ early design stage. See the Initial Design
 Manifest in the docs folder for details. 
+
+There is a discussion thread for Liara Forth [at
+6502.org](http://forum.6502.org/viewtopic.php?f=9&t=3649).
