@@ -2,7 +2,7 @@ Initial Design Manifest for
 Liara Forth for the W65C265SXB (65816)
 Scot W. Stevenson scot.stevenson@gmail.com
 First version: 27. March 2016
-This version: 27. March 2016
+This version: 28. March 2016
 
 Liara Forth is a project to create a bare-metal ANSI(ish) Forth specifically for
 the W65C265SXB ("265SXB") single-board computer from WDC based on the 65816
@@ -33,26 +33,26 @@ DICTIONARY STRUCTURE
 Dictionary header entries are kept separately from the actual code. 
 
                8bit     8bit
- h_word --  +--------+--------+
+ h_word ->  +--------+--------+
             | Status | Length |
          +2 +--------+--------+
-            | Start of Code   |
+            | Start of Code   | -> s_word 
          +4 +-----------------+
-            | End of Code     |
+            | End of Code     | -> e_word
          +6 +-----------------+
-            | Next Header     |
+            | Next Header     | -> h_word2
          +8 +--------+--------+
             | Name   |        |
             +--------+--------+
             |        |        |
             +--------+--------+
-            |        | ...    |
+            |        |  ...   |
          +n +--------+--------+
 
 Each header consists of a Status Byte (see below), a Length Byte - words can be
 up to 265 characters long, a 16-bit pointer to the start of the actual code, a
 16-bit pointer to the end of the actual code (used for compilation of words),
-followed by the name string. 
+followed by the name string. The name string is not terminated by a zero. 
 
 The Status Byte contains three flags:
     - Native (N) - if true, the word is a machine language primtive
