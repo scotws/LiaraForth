@@ -1,0 +1,39 @@
+Multitasking in Liara Forth 
+Scot W. Stevenson <scot.stevenson@gmail.com>
+First version: 28. Mär 2016
+This version: 28. Mär 2016
+
+Liara Forth uses a round-robin scheme for cooperative multitasking, the classical form used by Forths. The terminology and structure follows Brad Rodriguez' paper http://www.bradrodriguez.com/papers/mtasking.html . Note we use the term "task" instead of "thread" to avoid confusion with CPU threads.
+
+
+PLANNED WORDS
+
+MULTI ( -- ) Turn multitasking on.
+
+SINGLE ( -- ) Turn multitasking off (default). Replaces PAUSE with a NOP
+sequence.  
+
+TASK: ( u -- addr ) Takes the number of bytes to reserve for a new task and
+binds the address of that task to the word that follows as a constant. Example:
+400 TASK: FROG. Also inserts the link in the round-robin structure.
+
+ACTIVATE ( addr -- ) Compile-only. Expects address of the task (created with
+TASK:), and is followed by high-level code to be executed.
+
+PAUSE ( -- ) Save the structures of the current Forth task, load the next task,
+continue execution there. PAUSE is a deferred word that can be replaced with
+NOP when multitaksing is off.
+
+SLEEP ( addr -- ) Puts the task at addr asleep by having it skipped in the
+round-robin. However, task is not terminated.
+
+WAKE ( addr -- ) Reverse of SLEEP, activates task in the round-robin queue.
+
+STOP ( addr -- ) SLEEP PAUSE.
+
+WAIT ( addr -- ) Get semaphore, waiting if not available.
+
+SIGNAL ( addr -- ) Makes the semaphore available.
+        
+
+

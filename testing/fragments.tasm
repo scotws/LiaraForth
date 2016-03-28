@@ -1,0 +1,25 @@
+; Code fragments for later inclusion in Liara Forth 
+; Scot W. Stevenson <scot.stevenson@gmail.com>
+; First version: 28. Mär 2016
+; This version: 28. Mär 2016
+
+; DELETE THESE AS THEY ARE INCLUDED IN FINAL CODE
+
+; ON ( -- f) - links to TRUE; 265SXB specific
+; OFF ( -- f ) - links to code of FALSE; 265SXB specific
+
+
+; LED ( f --) Turn 265SXB LED on or off. Flags: N, 15b, 22 cycles
+; use: ON LED, OFF LED
+; Note this code screws the other flags in LEDADDR (Port 7) if they are not
+; supposed to be unset ("0"). Consider rewriting code to preserve them.
+
+h_led:          .a8
+                lda.dx 00       ; load TOS LSB
+                eor.# ff        ; flip bits
+                and.# 04        ; mask bit 2 that triggers LED
+                sta LEDADDR
+                .a16
+                inx
+e_led:          inx
+                rts

@@ -4,7 +4,7 @@ This table is an alphabetical list of the words used by Liara Forth, including
 their status and other information. The information here is currently not
 complete. 
 
-Last update: 28. March 2016
+Last update: ***28. March 2016***
 
 | Word | Status | Group | Flags | Size | Cycles |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -21,8 +21,10 @@ non-ANSI. Words written especially for the board are marked "265SXB".
 ***Flags*** - N (native word), C (compiled word), I (immediate word), or "-"
 for "none"
 
-***Size*** - If a native word, number of bytes the code uses (without the
-final RTS); if Forth word, number of characters. 
+***Size*** - If a native word, number of bytes the code uses (without the final
+RTS); if Forth word, number of characters. If the information is not available
+yet, size is "(TBA)".
 
 ***Cycles*** - For native words, the number of machine cycles the routine uses.
-For Forth words, this will be "n/a" because of the effort involved.
+For Forth words, this will be "n/a" because of the effort involved.  If the
+information is not available yet, size is "(TBA)".
