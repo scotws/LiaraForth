@@ -36,9 +36,9 @@ Dictionary header entries are kept separately from the actual code.
  h_word ->  +--------+--------+
             | Status | Length |
          +2 +--------+--------+
-            | Start of Code   | -> s_word 
+            | Start of Code   | -> a_word 
          +4 +-----------------+
-            | End of Code     | -> e_word
+            | End of Code     | -> z_word
          +6 +-----------------+
             | Next Header     | -> h_word2
          +8 +--------+--------+
