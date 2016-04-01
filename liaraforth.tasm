@@ -1,0 +1,166 @@
+; Liara Forth for the W65C265SXB 
+; Scot W. Stevenson <scot.stevenson@gmail.com>
+; First version: 01. Apr 2016
+; This version: 01. Apr 2016
+
+; This code is written in Typist's Assembler Notation for the 65c02/65816
+
+
+
+        .mpu 65816
+        .origin 8000
+
+; ===================================================================
+; TOP INCLUDES
+
+        .include definitions.tasm
+        .include macros.tasm
+
+; ===================================================================
+; SETUP 
+
+; ===================================================================
+; DICTIONARY ROUTINES
+
+
+
+; -------------------------------------------------------------------
+; COLD ( -- ) 
+; Reboot the system. This word may not be compiled. 
+a_cold          .native         ; paranoid
+                .axy16
+                sei 
+
+                ; TODO switch to Single Task mode
+                ; TODO setup Direct Page stuff
+                ; TODO setup CP
+                ; TODO setup DP
+                ; TODO initiate TIB
+                ; TODO initiate PAD
+                ; TODO initiate User variables
+
+                ; print boot strings
+                .a8
+                lda.# 00         ; bank byte
+
+                jsr.l SEND_CR
+                ldx.# s_title
+                jsr printstring
+                ldx.# s_version
+                jsr printstring
+                ldx.# s_author
+                jsr printstring
+                ldx.# s_disclaimer
+                jsr printstring
+                ldx.# s_typebye
+                jsr printstring
+
+                cli
+
+z_cold          ; dummy value, word may not be compiled
+                ; drop through to QUIT
+
+; -------------------------------------------------------------------
+; QUIT ( -- )  
+; Reset the input, clearning Return Stack. Jumps to QUIT do not have to be
+; subroutine jumps as the Return Stack is cleared anyway
+
+a_quit          
+                ; TODO clear Return Stack
+                ; TODO put 0 in SOURCE-ID
+                ; TODO switch to interpret mode
+                
+                ; TODO start ACCEPT LOOP
+z_quit
+
+; ===================================================================
+; *** TESTING STOP START ***
+
+                stp             ; TODO for testing only
+
+; *** TESTING STOP END ***
+; ===================================================================
+
+; -------------------------------------------------------------------
+; BYE ( -- ) 
+; Leave Liara Forth, returning to Mensch Monitor
+
+a_bye                           ; single-instruction word
+z_bye           
+                brk 00          ; status byte 00 required for assembler
+                rts             ; dummy, never reached
+
+
+; ===================================================================
+; DICTIONARY HEADERS
+
+; Dictionary headers are kept separately from the code. For each word, the
+; structure is: 
+
+;               8bit     8bit
+; h_word ->  +--------+--------+
+;            | Status | Length |
+;         +2 +--------+--------+
+;            | Start of Code   | -> a_word 
+;         +4 +-----------------+
+;            | End of Code     | -> z_word
+;         +6 +-----------------+
+;            | Next Header     | -> h_next_word
+;         +8 +--------+--------+
+;            | Name   |        |
+;            +--------+--------+
+;            |        |        |
+;            +--------+--------+
+;            |        |  ...   |
+;         +n +--------+--------+
+
+; The last word in the Dictionary is always COLD. 
+; The link to the Next Word is 0000. 
+
+h_cold          
+                .byte 00        ; status byte (never compile)
+                .byte 04        ; length of word string
+                .word a_cold    ; start of code 
+                .word z_cold    ; end of code (without RTS)
+                .word 0000      ; next word in dictionary
+                .str "cold"     ; lowercase word name
+
+h_bye           
+                .byte NF        ; status byte
+                .byte 03        ; length of word string
+                .word a_bye     ; start of code 
+                .word z_bye     ; end of code (without RTS)
+                .word h_cold    ; next word in dictionary (COLD)
+                .str "bye"      ; lowercase word name
+
+h_quit          
+                .byte 00        ; status byte
+                .byte 04        ; length of word string
+                .word a_quit    ; start of code 
+                .word z_quit    ; end of code (without RTS)
+                .word h_bye     ; next word in dictionary (BYE)
+                .str "quit"     ; lowercase word name
+
+
+; ===================================================================
+; HELPER FUNCTIONS, LOW-LEVEL
+
+; Print a string with a CR added on. Thin wrapper to PUT_STR. Assumes
+; bank byte in A8 and address of zero-terminated string in X16
+printstring
+        jsr.l PUT_STR
+        jsr.l SEND_CR
+        rts
+
+; ===================================================================
+; BOTTOM INCLUDES
+
+        .include strings.tasm 
+
+
+; ===================================================================
+; END
+
+        .end
+
+

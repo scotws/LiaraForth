@@ -1,0 +1,136 @@
+A Tinkerer's Assembler for the 6502/65c02/65816
+Version BETA  23. February 2016
+Copyright 2015, 2016 Scot W. Stevenson <scot.stevenson@gmail.com>
+This program comes with ABSOLUTELY NO WARRANTY
+Code listing for file liaraforth.tasm
+Generated on Fri Apr  1 04:25:56 2016
+Target MPU: 65816
+External files loaded: 3
+Number of passes executed: 27
+Number of steps executed: 7
+Assembly time: 0.21388 seconds
+Code origin: 008000
+Bytes of machine code: 522
+
+LISTING:
+       Line Address  Bytes       Instruction
+    1    30 00:8000  18          xce
+    2    30 00:8001  fb          clc
+    3    31 00:8002  c2 30       rep 30
+    4    32 00:8004  78          sei
+    5    43 00:8005  e2 20       sep 20
+    6    44 00:8007  a9 00       lda.# 00
+    7    46 00:8009  22 66 e0 00 jsr.l send_cr
+    8    47 00:800d  a2 5c 80    ldx.# s_title
+    9    48 00:8010  20 53 80    jsr printstring
+   10    49 00:8013  a2 7b 80    ldx.# s_version
+   11    50 00:8016  20 53 80    jsr printstring
+   12    51 00:8019  a2 98 80    ldx.# s_author
+   13    52 00:801c  20 53 80    jsr printstring
+   14    53 00:801f  a2 c5 80    ldx.# s_disclaimer
+   15    54 00:8022  20 53 80    jsr printstring
+   16    55 00:8025  a2 f3 80    ldx.# s_typebye
+   17    56 00:8028  20 53 80    jsr printstring
+   18    58 00:802b  58          cli
+   19    79 00:802c  db          stp
+   20    90 00:802d  00 00       brk 00
+   21    91 00:802f  60          rts
+   22   121 00:8030  00          .byte 00
+   23   122 00:8031  04          .byte 04
+   24   123 00:8032  00 80       .word a_cold
+   25   124 00:8034  2c 80       .word z_cold
+   26   125 00:8036  00 00       .word 0000
+   27   126 00:8038  63 6f 6c 64 .str "cold"
+   28   129 00:803c  80          .byte nf
+   29   130 00:803d  03          .byte 03
+   30   131 00:803e  2d 80       .word a_bye
+   31   132 00:8040  2d 80       .word z_bye
+   32   133 00:8042  30 80       .word h_cold
+   33   134 00:8044  62 79 65    .str "bye"
+   34   137 00:8047  00          .byte 00
+   35   138 00:8048  04          .byte 04
+   36   139 00:8049  2c 80       .word a_quit
+   37   140 00:804b  2c 80       .word z_quit
+   38   141 00:804d  3c 80       .word h_bye
+   39   142 00:804f  71 75 69 74 .str "quit"
+   40   151 00:8053  22 4e e0 00 jsr.l put_str
+   41   152 00:8057  22 66 e0 00 jsr.l send_cr
+   42   153 00:805b  60          rts
+   43   158 00:805c  4c 69 (...) alphastr
+   44   158 00:807b  56 65 (...) .str "0123456789abcdefghijklmnopqrstuvwyz"
+   45   158 00:8098  53 63 (...) .str0 "Digit larger than base"
+   46   158 00:80c5  4c 69 (...) .str0 "Not in interpret mode"
+   47   158 00:80f3  54 79 (...) .str0 "DEFERed word not defined yet"
+   48   158 00:8106  41 63 (...) .str0 "Unknown word"
+   49   158 00:8120  49 6e (...) (data)
+   50   158 00:8141  44 45 (...) (data)
+   51   158 00:815e  44 69 (...) (data)
+   52   158 00:816f  20 28 (...) (data)
+   53   158 00:8178  3e 3e (...) (data)
+   54   158 00:8184  4e 6f (...) (data)
+   55   158 00:819a  50 61 (...) (data)
+   56   158 00:81aa  44 69 (...) (data)
+   57   158 00:81c1  53 74 (...) (data)
+   58   158 00:81da  55 6e (...) (data)
+   59   158 00:81e7  30 31 (...) (data)
+
+MACROS:
+            (none)
+
+SYMBOL TABLE:
+                     >in : 000204
+                   a_bye : 00802d
+                  a_cold : 008000
+                  a_quit : 00802c
+                alphastr : 0081e7
+                   ascbs : 000008
+                   asccc : 000003
+                   asccr : 00000d
+                  ascdel : 00007f
+                  ascesc : 00001b
+                   asclf : 00000a
+                   ascsp : 000020
+                 buffers : 007c00
+                      cf : 000040
+                      cp : 000200
+              directpage : 000200
+     directpage-multiple : 007400
+                      dp : 000202
+              es_channel : 008106
+             es_componly : 008120
+                es_defer : 008141
+              es_divzero : 00815e
+                es_empty : 00816f
+                es_error : 008178
+              es_intonly : 008184
+               es_noname : 00819a
+                es_radix : 0081aa
+                es_stack : 0081c1
+               es_syntax : 0081da
+                 get_str : 00e03f
+                   h_bye : 00803c
+                  h_cold : 008030
+                  h_quit : 008047
+                      if : 000020
+         maxram-multiple : 006fff
+           maxram-single : 007bff
+                      nf : 000080
+             physicalram : 007fff
+             printstring : 008053
+                 put_chr : 00e04b
+                 put_str : 00e04e
+                    ram0 : 000200
+                s_author : 008098
+            s_disclaimer : 0080c5
+                 s_title : 00805c
+               s_typebye : 0080f3
+               s_version : 00807b
+                 send_cr : 00e066
+                   stack : 007fff
+          stack-multiple : 007000
+                 taskmap : 000208
+                    tmpx : 000206
+                   z_bye : 00802d
+                  z_cold : 00802c
+                  z_quit : 00802c
+

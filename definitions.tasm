@@ -1,0 +1,68 @@
+; Definitions for Liara Forth for the W65C265SXB
+; Scot W. Stevenson <scot.stevenson@gmail.com>
+; First version: 01. Apr 2016
+; This version: 01. Apr 2016
+
+; This file is included by liaraforth.tasm
+
+; Note that Typist's Assembler Notation does not distinguish between upper and
+; lower case. Variations in case are for human readers only.
+
+; ===================================================================
+; MEMORY MAP
+
+   ram0 = 0200                  ; start of available RAM
+   physicalram = 07fff          ; end of installed RAM
+   maxram-single = 07bff        ; end of available RAM (single task mode)
+   maxram-multiple = 06fff      ; end of available RAM (multitask mode)
+
+; RAM from 0000 to 01ff is left for the Mensch Monitor to use
+
+   directpage = 0200            ; single task Direct Page (DP) start
+   stack = 7fff                 ; single task Stack (S) start (bottom)
+   stack-multiple = 7000        ; multitask Stack (S) area start
+   directpage-multiple = 7400   ; multitask Direct Page (DP) area start
+   buffers = 7c00               ; buffer area start
+
+
+; ===================================================================
+; DIRECT PAGE ADDRESSES
+
+   cp = directpage + 0          ; Compiler Pointer, 2 bytes 
+   dp = directpage + 2          ; Dictionary Pointer, 2 bytes
+   >in = directpage + 4         ; Input Buffer Pointer, 2 bytes
+   tmpx = directpage + 6        ; Temporary X storage, 2 bytes
+   taskmap = directpage + 8     ; Bitmap for tasks in multitask mode
+
+
+; ===================================================================
+; MENSCH MONITOR ROUTINE LOCATIONS
+
+; These must be accessed by long subroutine jumps (jsr.l)
+; See https://github.com/scotws/265SXB-Guide/blob/master/monitor.md
+
+   GET_STR = 0e03f      ; Get string: Bank -> A8, buffer address -> X16
+   PUT_STR = 0e04e      ; Put string: Bank -> A8, string address -> X16
+   PUT_CHR = 0e04b      ; Put character: ASCII of character -> A8
+   SEND_CR = 0e066      ; Send a CR character
+
+
+; ===================================================================
+; HELPER DEFINITIONS
+
+; ASCII character set
+
+   AscCC  = 03          ; break (Control-C) ASCII character
+   AscBS  = 08          ; backspace ASCII character
+   AscLF  = 0A          ; line feed ASCII character
+   AscCR  = 0D          ; carriage return ASCII character
+   AscESC = 1B          ; Escape ASCII character
+   AscSP  = 20          ; space ASCII character
+   AscDEL = 7F          ; DEL ASCII character
+
+; Dictionary flags
+
+   NF = %10000000       ; Native Compile
+   CF = %01000000       ; Compile Only
+   IF = %00100000       ; Immediate
+

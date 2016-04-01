@@ -1,0 +1,45 @@
+; List of Strings for Liara Forth for the W65C265SXB 
+; Scot W. Stevenson <scot.stevenson@gmail.com>
+; First version: 01. Apr 2016
+; This version: 01. Apr 2016
+
+; This file is included by liaraforth.tasm
+
+
+; ===================================================================
+; GENERAL 
+
+; All general strings must be zero-terminated, names start with "s_"
+
+s_title         .str0   "Liara Forth for the W65C265SXB"
+s_version       .str0   "Version ALPHA 01. April 2016"
+s_author        .str0   "Scot W. Stevenson <scot.stevenson@gmail.com>"
+s_disclaimer    .str0   "Liara Forth comes with absolutely NO WARRANTY"
+s_typebye       .str0   "Type 'bye' to exit"
+
+
+; ===================================================================
+; ERROR STRINGS
+
+; All error strings must be zero-terminated, names start with "es_"
+; These are currently the same errors as in Tali Forth
+
+es_channel      .str0 "Accessing unknown channel"
+es_componly     .str0 "Interpreting a compile-only word"
+es_defer        .str0 "DEFERed word not defined yet"
+es_divzero      .str0 "Division by zero"
+es_empty        .str0 " (empty)"
+es_error        .str0 ">>>Error<<<"
+es_intonly      .str0 "Not in interpret mode"
+es_noname       .str0 "Parsing failure"
+es_radix        .str0 "Digit larger than base"
+es_stack        .str0 "Stack over- or underflow"
+es_syntax       .str0 "Unknown word"
+
+; ===================================================================
+; ALPHABET STRINGS
+
+; Leave alphastr as the last entry in the source code to make it easier to 
+; see where this section ends. This cannot be a zero-terminated string
+
+alphastr        .str  "0123456789abcdefghijklmnopqrstuvwyz"
