@@ -1,4 +1,4 @@
-# Manual for Liara for the W65C265SXB
+# Manual for Liara Forth for the W65C265SXB
 
 (THIS TEXT IS UNDER DEVELOPMENT AND MERELY A COLLECTION OF NOTES)
 

@@ -3,15 +3,46 @@ Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 05. Apr 2016
 This version: 05. Apr 2016
 
-All instructions are assumed to be in 16 bit mode. Size is in bytes (b), execution speed in cycles (c). Note some instructions' execution speed varies, depending on if a page boundry is crossed.
+All instructions are assumed to be in 16 bit mode. Size is in bytes (b),
+execution speed in cycles (c). Note some instructions' execution speed varies,
+depending on if a page boundry is crossed.
 
 
 SINGLE INSTRUCTIONS
 
+cpx.#   3 b, 3 c
+cpx.d   3 b, 4 c
+dec.dx  2 b, 7 c
+dex     1 b, 2 c
+inc.dx  2 b, 7 c
+inx     1 b, 2 c
+jmp     2 b, 3 c
+jsr     3 b, 6 c
+lda.#   3 b, 3 c
+lda.d   2 b, 4 c
+lda.dx  2 b, 5 c 
+ldy.dx  2 b, 5 c 
+pha     1 b, 4 c
+phe.#   3 b, 5 c
+pla     1 b, 5 c
+pld     1 b, 5 c
+rep     2 b, 3 c
+rts     1 b, 6 c
+sep     2 b, 3 c
+sta.d   2 b, 4 c
+sta.dx  2 b, 5 c
+sty.dx  2 b, 5 c
+tax     1 b, 2 c
+tcd     1 b, 2 c
+tsc     1 b, 2 c
+
 
 COMMON COMBINATIONS
 
-JSR aaaa/RTS    - 4 b, 12c
+jsr/rts         4 b, 12 c
+lda.#/pha       3 b, 7 c
 
 
 SOURCE
+
+- "Programming the 65816", David Eyes and Ron Lichty, The Western Design Center
