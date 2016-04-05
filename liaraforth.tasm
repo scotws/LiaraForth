@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 01. Apr 2016
+; This version: 04. Apr 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 
@@ -85,10 +85,8 @@ z_quit
 ; BYE ( -- ) 
 ; Leave Liara Forth, returning to Mensch Monitor
 
-a_bye                           ; single-instruction word
-z_bye           
-                brk 00          ; status byte 00 required for assembler
-                rts             ; dummy, never reached
+a_bye           brk 00          ; status byte 00 required for assembler
+z_bye           rts             ; dummy, never reached
 
 
 ; ===================================================================
@@ -126,7 +124,7 @@ h_cold
                 .str "cold"     ; lowercase word name
 
 h_bye           
-                .byte NF        ; status byte
+                .byte PR+NC     ; status byte
                 .byte 03        ; length of word string
                 .word a_bye     ; start of code 
                 .word z_bye     ; end of code (without RTS)
