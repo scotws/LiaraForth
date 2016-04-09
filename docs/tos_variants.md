@@ -7,5 +7,11 @@ bytes/cycles used. Bold entries are the fastest, _not_ the smallest.
 
 
 | Word | TOS DP | TOS A reg | TOS Y reg |
-| :--- | --- | --- | --- |
+| :--- | ---- | ---- | ---- |
+| @ | 4/12 | **4/7-8** | **4/7-8** |
+| DROP | **2/4** | 4/9 | 4/9 |
 | DUP | 6/14 | **4/9** | **4/9** |
+| NIP | 6/14 | **4/9** | **4/9 ** |
+| SWAP | 8/20 | **5/12** | **5/12** |
+| TUCK | 12/29 | **8/19** | **8/19** |
+

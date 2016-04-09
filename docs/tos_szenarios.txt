@@ -3,8 +3,43 @@ Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 09. Apr 2016
 This version: 09. Apr 2016
 
-Liara Forth can either place the first entry in the Forth Data Stack (the "Top of Stack", TOS) in Direct Page (DP), in register Y (X is used for the Data Stack Pointer, DSP), or the accumulator A. The following is a comparison of common, native-coded ("primitive") Forth words for each of these scenarios. For a summary, see the table at tos_variants. Numbers after the code are size in bytes and speed in cycles.
+Liara Forth can either place the first entry in the Forth Data Stack (the "Top
+of Stack", TOS) in Direct Page (DP), in register Y (X is used for the Data
+Stack Pointer, DSP), or the accumulator A. The following is a comparison of
+common, native-coded ("primitive") Forth words for each of these scenarios. For
+a summary, see the table at tos_variants. 
+
+The 65816 is assumed to be in native mode with all registers 16 bit wide. The
+RTS instruction at the end is assumed, but not counted. Data Stack (DS) is in
+direct page, with top entry (TOS for DP Scenario, NOS for Y and A regs) at
+offset 00. 
+
+           TOS DP             TOS A REG            TOS Y REG  
 
 
+        === DROP =================================================
+
+        inx        1/2      lda.dx 00  2/5   
+        inx        1/2      inx        1/2    ( as A bit with ldy.dx)
+                            inx        1/2 
+                  -----               -----               -----
+                   2/4                 4/9                 4/9
+
+        === DUP ==================================================
+
+        lda.dx 00  2/5      dex        1/2 
+        dex        1/2      dex        1/2     (as A but with sty.dx)
+        dex        1/2      sta.dx 00  2/5 
+        sta.dx 00  2/5
+                  -----              ------               -----
+                  6/14                 4/9                 4/9
 
 
+        === SWAP =================================================
+
+        lda.dx 00  2/5      ldy.dx 00  2/5      lda.dx 00  2/5
+        ldy.dx 02  2/5      sta.dx 00  2/5      sty.dx 00  2/5
+        sta.dx 02  2/5      tya        1/2      tay        1/2
+        sty.dx 00  2/5
+                  -----               -----               -----
+                  8/20                5/12                5/12
