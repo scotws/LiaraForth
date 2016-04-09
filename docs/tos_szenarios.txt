@@ -16,30 +16,43 @@ offset 00.
 
            TOS DP             TOS A REG            TOS Y REG  
 
+        === ! ====================================================
+
+        lda.dx 02   2/5      tay         1/2      lda.dx 00   2/5
+        ldy.dx 00   2/5      lda.dx 00   2/5      sta.y 0000  3/6
+        sta.y 0000  3/6      sta.y 0000  3/6      ldy.dx 02   2/5
+        inx         1/2      lda.dx 02   2/5      inx         1/2
+        inx         1/2      inx         1/2      inx         1/2
+        inx         1/2      inx         1/2      inx         1/2
+        inx         1/2      inx         1/2      inx         1/2
+                             inx         1/2
+                   -----               ------                -----
+                  11/24                12/26                11/24
+
 
         === DROP =================================================
 
-        inx        1/2      lda.dx 00  2/5   
-        inx        1/2      inx        1/2    ( as A bit with ldy.dx)
-                            inx        1/2 
-                  -----               -----               -----
-                   2/4                 4/9                 4/9
+        inx         1/2      lda.dx 00   2/5   
+        inx         1/2      inx         1/2    ( as A bit with ldy.dx)
+                             inx         1/2 
+                   -----                -----               -----
+                    2/4                  4/9                 4/9
 
         === DUP ==================================================
 
-        lda.dx 00  2/5      dex        1/2 
-        dex        1/2      dex        1/2     (as A but with sty.dx)
-        dex        1/2      sta.dx 00  2/5 
-        sta.dx 00  2/5
-                  -----              ------               -----
-                  6/14                 4/9                 4/9
+        lda.dx 00   2/5      dex         1/2 
+        dex         1/2      dex         1/2     (as A but with sty.dx)
+        dex         1/2      sta.dx 00   2/5 
+        sta.dx 00   2/5
+                   -----               ------               -----
+                   6/14                  4/9                 4/9
 
 
         === SWAP =================================================
 
-        lda.dx 00  2/5      ldy.dx 00  2/5      lda.dx 00  2/5
-        ldy.dx 02  2/5      sta.dx 00  2/5      sty.dx 00  2/5
-        sta.dx 02  2/5      tya        1/2      tay        1/2
-        sty.dx 00  2/5
-                  -----               -----               -----
-                  8/20                5/12                5/12
+        lda.dx 00   2/5      ldy.dx 00   2/5      lda.dx 00  2/5
+        ldy.dx 02   2/5      sta.dx 00   2/5      sty.dx 00  2/5
+        sta.dx 02   2/5      tya         1/2      tay        1/2
+        sty.dx 00   2/5
+                   -----                -----               -----
+                   8/20                 5/12                5/12

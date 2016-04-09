@@ -9,7 +9,7 @@ three variants are the same speed, none is bold.
 
 | Word | TOS DP b/c | TOS A b/c | TOS Y b/c |
 | :--- | --- | --- | --- |
-| ! | 11/24 | 12/26 | **11/24** |
+| ! | **11/24** | 12/26 | **11/24** |
 | + | 10/21 | **5/11** | 7/15 |
 | = | 18/33 | **14/20-23** | 15/22-25 | 
 | >R | 5/13 | 5/13 | 5/13 |
@@ -23,4 +23,7 @@ three variants are the same speed, none is bold.
 | ROT | 12/30 | **8/20** | **8/20** |
 | SWAP | 8/20 | **5/12** | **5/12** |
 | TUCK | 12/29 | **8/19** | **8/19** |
+
+Note that except for DROP, the TOS A and TOS Y variants are always faster. TOS A
+and TOS Y are usually the same speed. 
 
