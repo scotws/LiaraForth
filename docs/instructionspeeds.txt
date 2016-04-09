@@ -1,0 +1,68 @@
+Size and Execution Speed of Commonly Used Instructions
+Scot W. Stevenson <scot.stevenson@gmail.com>
+First version: 05. Apr 2016
+This version: 09. Apr 2016
+
+All instructions are assumed to be in 16 bit mode. Size is in bytes (b),
+execution speed in cycles (c). Note some instructions' execution speed varies,
+depending on if a page boundry is crossed.
+
+
+SINGLE INSTRUCTIONS (bytes/cycles)
+
+adc.dx     2/5
+and.#      3/3
+
+bne        2/2-4
+bra        2/3-4
+
+cmp.dx     2/5
+cpx.#      3/3 
+cpx.d      3/4 
+
+dec.dx     2/7 
+dex        1/2 
+
+eor.#      3/3
+
+inc.dx     2/7 
+inx        1/2 
+
+jmp        2/3 
+jsr        3/6 
+
+lda.#      3/3 
+lda.d      2/4 
+lda.dx     2/5  
+lda.dxi    2/7
+lda.y      3/5-6
+ldy.dx     2/5  
+
+pha        1/4 
+phe.#      3/5 
+pla        1/5 
+pld        1/5 
+
+rep        2/3 
+rts        1/6 
+
+sep        2/3 
+sta.d      2/4 
+sta.dx     2/5 
+sta.y      3/6
+sty.dx     2/5 
+
+tax        1/2 
+tcd        1/2 
+tsc        1/2 
+
+
+COMMON COMBINATIONS
+
+jsr/rts         4/12 
+lda.#/pha       3/7
+
+
+SOURCE
+
+- "Programming the 65816", David Eyes and Ron Lichty, The Western Design Center

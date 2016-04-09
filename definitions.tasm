@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 04. Apr 2016
+; This version: 09. Apr 2016
 
 ; This file is included by liaraforth.tasm
 
@@ -15,6 +15,9 @@
    physicalram = 07fff          ; end of installed RAM
    maxram-single = 07bff        ; end of available RAM (single task mode)
    maxram-multiple = 06fff      ; end of available RAM (multitask mode)
+
+   buffer1 = 07c00              ; start of 256 byte input buffer 1
+   buffer2 = 07d00              ; start of 256 byte input buffer 2
 
 ; RAM from 0000 to 01ff is left for the Mensch Monitor to use
 
@@ -31,8 +34,9 @@
    cp = directpage + 0          ; Compiler Pointer, 2 bytes 
    dp = directpage + 2          ; Dictionary Pointer, 2 bytes
    >in = directpage + 4         ; Input Buffer Pointer, 2 bytes
-   tmpx = directpage + 6        ; Temporary X storage, 2 bytes
-   taskmap = directpage + 8     ; Bitmap for tasks in multitask mode
+   curbuf = directpage + 6      ; Current Input Buffer, 7c00 or 7d00
+   tmpx = directpage + 8        ; Temporary X storage, 2 bytes
+   taskmap = directpage + 0a    ; Bitmap for tasks in multitask mode
 
 
 ; ===================================================================

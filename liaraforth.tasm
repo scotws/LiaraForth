@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 04. Apr 2016
+; This version: 09. Apr 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 
@@ -18,6 +18,12 @@
 
 ; ===================================================================
 ; SETUP 
+
+                ; start with first input buffer
+                ; assumes A16
+                .a16
+                lda.# buffer1
+                sta curbuf
 
 ; ===================================================================
 ; DICTIONARY ROUTINES

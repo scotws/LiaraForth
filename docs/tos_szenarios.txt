@@ -1,0 +1,10 @@
+Comparison of Top of Stack (TOS) Scenarios
+Scot W. Stevenson <scot.stevenson@gmail.com>
+First version: 09. Apr 2016
+This version: 09. Apr 2016
+
+Liara Forth can either place the first entry in the Forth Data Stack (the "Top of Stack", TOS) in Direct Page (DP), in register Y (X is used for the Data Stack Pointer, DSP), or the accumulator A. The following is a comparison of common, native-coded ("primitive") Forth words for each of these scenarios. For a summary, see the table at tos_variants. Numbers after the code are size in bytes and speed in cycles.
+
+
+
+

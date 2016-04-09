@@ -1,16 +1,22 @@
 Proposed memory map for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 01. Apr 2016
-This version: 01. Apr 2016
+This version: 09. Apr 2016
 
 
-Liara Forth was written to run on the 265SXB "out of the box, with extras", which means a Flash memory chip installed in the socket (see https://github.com/scotws/265SXB-Guide/blob/master/flash.md for details). 
+Liara Forth was written to run on the 265SXB "out of the box, with extras",
+which means a Flash memory chip installed in the socket (see
+https://github.com/scotws/265SXB-Guide/blob/master/flash.md for details). 
 
-Liara Forth completely avoids the Direct Page (DP) and Stack (S) areas used by the Mensch Machine monitor in 00:0000 and 00:0100. 
+Liara Forth completely avoids the Direct Page (DP) and Stack (S) areas used by
+the Mensch Machine monitor in 00:0000 and 00:0100. 
 
 The DP for single-task mode starts at 00:0200; S goes from 00:7f00 00:7fff. 
 There is one 1k of buffers for I/O and other temporary mass storage from 
 00:7c00 to 00:7eff. 
+
+Input Buffer 1: 00:7c00-7cff
+Input Buffer 2: 00:7d00-7dff
 
 For multi-task mode, Liara Forth reserves one 1k-segment for stacks and one 2k-segment for direct pages: 
 
