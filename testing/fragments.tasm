@@ -23,3 +23,26 @@ h_led:          .a8
                 inx
 e_led:          inx
                 rts
+
+
+; BUFFER CODE
+
+; Two input buffers at 7d00 and 7c00, current buffer address is stored 
+; at CURBUF in DP. Use bit flip to switch buffers
+
+; Switch buffers. Assumes .A16
+;
+                lda.d curbuf
+                eor.# 0100
+                sta.d curbuf
+
+; Clear current buffer. Assumes .A16
+
+                sty.d tmptos
+                ldy.# 0000
+                tya
+*               sta.diy curbuf  ; STA (curbuf),Y
+                dey
+                dey
+                bne -
+                ldy.d tmptos
