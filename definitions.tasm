@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 09. Apr 2016
+; This version: 11. Apr 2016 (Commander Shepard's Birthday)
 
 ; This file is included by liaraforth.tasm
 
@@ -22,11 +22,14 @@
 ; RAM from 0000 to 01ff is left for the Mensch Monitor to use
 
    directpage = 0200            ; single task Direct Page (DP) start
-   stack = 7fff                 ; single task Stack (S) start (bottom)
    stack-multiple = 7000        ; multitask Stack (S) area start
    directpage-multiple = 7400   ; multitask Direct Page (DP) area start
    buffers = 7c00               ; buffer area start
 
+; Initial values
+
+   stack0 = 7fff                ; single task Stack (S) start (bottom)
+   dsp0 = 02ff                  ; initial Data Stack Pointer (X)
 
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
@@ -35,9 +38,9 @@
    dp = directpage + 2          ; Dictionary Pointer, 2 bytes
    >in = directpage + 4         ; Input Buffer Pointer, 2 bytes
    curbuf = directpage + 6      ; Current Input Buffer, 7c00 or 7d00
-   tmpx = directpage + 8        ; Temporary X storage, 2 bytes
-   taskmap = directpage + 0a    ; Bitmap for tasks in multitask mode
-
+   tmpdsp = directpage + 8      ; Temporary DSP (X) storage, 2 bytes
+   tmptos = directpage + 0a     ; Temporary TOS (Y) storage, 2 bytes
+   taskmap = directpage + 0c    ; Bitmap for tasks in multitask mode
 
 ; ===================================================================
 ; MENSCH MONITOR ROUTINE LOCATIONS

@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 09. Apr 2016
+; This version: 11. Apr 2016  (Commander Shepard's Birthday)
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 
@@ -18,10 +18,10 @@
 
 ; ===================================================================
 ; SETUP 
+                .native
+                .axy16
 
                 ; start with first input buffer
-                ; assumes A16
-                .a16
                 lda.# buffer1
                 sta curbuf
 
@@ -33,8 +33,7 @@
 ; -------------------------------------------------------------------
 ; COLD ( -- ) 
 ; Reboot the system. This word may not be compiled. 
-a_cold          .native         ; paranoid
-                .axy16
+a_cold          .axy16          ; paranoid
                 sei 
 
                 ; TODO switch to Single Task mode
@@ -44,6 +43,7 @@ a_cold          .native         ; paranoid
                 ; TODO initiate TIB
                 ; TODO initiate PAD
                 ; TODO initiate User variables
+                ; TODO clear current input buffer
 
                 ; print boot strings
                 .a8
@@ -63,6 +63,8 @@ a_cold          .native         ; paranoid
 
                 cli
 
+                .a16
+
 z_cold          ; dummy value, word may not be compiled
                 ; drop through to QUIT
 
@@ -72,7 +74,10 @@ z_cold          ; dummy value, word may not be compiled
 ; subroutine jumps as the Return Stack is cleared anyway
 
 a_quit          
-                ; TODO clear Return Stack
+                ; clear Return Stack
+                lda.# stack0
+                tcs
+
                 ; TODO put 0 in SOURCE-ID
                 ; TODO switch to interpret mode
                 
@@ -118,8 +123,8 @@ z_bye           rts             ; dummy, never reached
 ;            |        |  ...   |
 ;         +n +--------+--------+
 
-; The last word in the Dictionary is always COLD. 
-; The link to the Next Word is 0000. 
+; The last word in the Dictionary is always COLD, signaled to FIND
+; by a 0000 in the link to the Next Word field
 
 h_cold          
                 .byte 00        ; status byte (never compile)
@@ -130,7 +135,7 @@ h_cold
                 .str "cold"     ; lowercase word name
 
 h_bye           
-                .byte PR+NC     ; status byte
+                .byte PW + NC   ; status byte
                 .byte 03        ; length of word string
                 .word a_bye     ; start of code 
                 .word z_bye     ; end of code (without RTS)
