@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 11. Apr 2016 (Commander Shepard's Birthday)
+; This version: 30. Apr 2016 (Commander Shepard's Birthday)
 
 ; This file is included by liaraforth.tasm
 
@@ -34,13 +34,13 @@
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
 
-   cp = directpage + 0          ; Compiler Pointer, 2 bytes 
-   dp = directpage + 2          ; Dictionary Pointer, 2 bytes
-   >in = directpage + 4         ; Input Buffer Pointer, 2 bytes
-   curbuf = directpage + 6      ; Current Input Buffer, 7c00 or 7d00
-   tmpdsp = directpage + 8      ; Temporary DSP (X) storage, 2 bytes
-   tmptos = directpage + 0a     ; Temporary TOS (Y) storage, 2 bytes
-   taskmap = directpage + 0c    ; Bitmap for tasks in multitask mode
+   cp = { directpage + 0 }        ; Compiler Pointer, 2 bytes 
+   dp = { directpage + 2 }        ; Dictionary Pointer, 2 bytes
+   >in = { directpage + 4 }       ; Input Buffer Pointer, 2 bytes
+   curbuf = { directpage + 6 }    ; Current Input Buffer, 7c00 or 7d00
+   tmpdsp = { directpage + 8 }    ; Temporary DSP (X) storage, 2 bytes
+   tmptos = { directpage + 0a }   ; Temporary TOS (Y) storage, 2 bytes
+   taskmap = { directpage + 0c }  ; Bitmap for tasks in multitask mode
 
 ; ===================================================================
 ; MENSCH MONITOR ROUTINE LOCATIONS
@@ -69,7 +69,7 @@
 
 ; Dictionary flags
 
-   PW = %10000000       ; Primitive Word
+   PW = %10000000       ; Primitive (Native) Word
    CO = %01000000       ; Compile Only
    IM = %00100000       ; Immediate Word
    NC = %00010000       ; Native (inline) Compile

@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 11. Apr 2016  (Commander Shepard's Birthday)
+; This version: 30. Apr 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 
@@ -18,8 +18,8 @@
 
 ; ===================================================================
 ; SETUP 
-                .native
-                .axy16
+        .native
+        .axy16
 
                 ; start with first input buffer
                 lda.# buffer1
@@ -43,7 +43,9 @@ a_cold          .axy16          ; paranoid
                 ; TODO initiate TIB
                 ; TODO initiate PAD
                 ; TODO initiate User variables
-                ; TODO clear current input buffer
+                
+                ; clear current input buffer
+                jsr clearbuffer
 
                 ; print boot strings
                 .a8
@@ -135,7 +137,7 @@ h_cold
                 .str "cold"     ; lowercase word name
 
 h_bye           
-                .byte PW + NC   ; status byte
+                .byte { PW + NC } ; status byte
                 .byte 03        ; length of word string
                 .word a_bye     ; start of code 
                 .word z_bye     ; end of code (without RTS)
@@ -157,9 +159,33 @@ h_quit
 ; Print a string with a CR added on. Thin wrapper to PUT_STR. Assumes
 ; bank byte in A8 and address of zero-terminated string in X16
 printstring
-        jsr.l PUT_STR
-        jsr.l SEND_CR
-        rts
+                jsr.l PUT_STR
+                jsr.l SEND_CR
+                rts
+
+; Swap the two input buffers. Assumes A16. Destroys Y.
+swapbuffers
+                tay
+                lda.d curbuf
+                eor.# 0100      ; flip 07d00 / 07c00
+                sta.d curbuf
+                tya
+                rts
+
+; Clear current buffer. Assumes buffer size 256 bytes and A16. Destroys Y.
+clearbuffer
+                sta.d tmptos
+                lda.# 0000
+                tay
+
+@               sta.diy curbuf  ; STA (curbuf),y
+                dey
+                dey
+                bne -
+
+                lda.d tmptos
+                rts
+                
 
 ; ===================================================================
 ; BOTTOM INCLUDES

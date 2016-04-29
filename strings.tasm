@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 01. Apr 2016
+; This version: 30. Apr 2016
 
 ; This file is included by liaraforth.tasm
 
@@ -12,7 +12,7 @@
 ; All general strings must be zero-terminated, names start with "s_"
 
 s_title         .str0   "Liara Forth for the W65C265SXB"
-s_version       .str0   "Version ALPHA 01. April 2016"
+s_version       .str0   "Version ALPHA 30. April 2016"
 s_author        .str0   "Scot W. Stevenson <scot.stevenson@gmail.com>"
 s_disclaimer    .str0   "Liara Forth comes with absolutely NO WARRANTY"
 s_typebye       .str0   "Type 'bye' to exit"
