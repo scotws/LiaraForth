@@ -1,9 +1,169 @@
 ; Code fragments for later inclusion in Liara Forth 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 28. Mär 2016
-; This version: 28. Mär 2016
+; This version: 22. August 2016
 
 ; DELETE THESE AS THEY ARE INCLUDED IN FINAL CODE
+
+
+; ===================================================
+; FORTH WORDS
+; All assume A is TOS, RTS not counted in byte/cycle count
+; ===================================================
+
+; ---------------------------------------------------
+; ALLOT ( n -- ) 20 bytes/ xx cycles
+; force testing of flags for TOS
+                cmp.# 0000 
+
+; if n is zero, we're done
+                beq _done
+                bmi _minus
+
+; positive value, reserve space
+                clc
+                adc.d CP
+                bra _changed
+
+_minus
+                sec
+                sbc.d CP
+_changed        sta.d CP
+
+_done           lda.dx 0        ; DROP
+                inx
+                inx
+
+                rts
+                
+; ---------------------------------------------------
+; UNUSED ( -- n ) 10 bytes/ xx cycles
+
+                dex             ; PUSH
+                dex
+                sta.dx 0
+
+                lda.# RamEnd
+                sec
+                sbc.d CP
+
+                rts
+
+; ---------------------------------------------------
+; HERE ( -- n ) 6 bytes / xx cycles
+                
+                dex             ; PUSH
+                dex
+                sta.dx 0
+
+                lda.d CP
+
+                rts
+
+; ---------------------------------------------------
+; ZERO ( -- 0 ) 7 bytes / xx cycles
+
+                dex             ; PUSH
+                dex
+                sta.dx 0
+
+                lda.# 0000
+
+                rts
+
+; ---------------------------------------------------
+; PLUS ( n m -- n+m ) 5 bytes / xx cycles
+
+                clc
+                adc.dx 0
+                inx
+                inx
+
+                rts
+
+; ---------------------------------------------------
+; 1+  ( n -- n+1 )  1 byte / 2 cycles
+
+                inc.a 
+                rts
+
+; ---------------------------------------------------
+; COMMA ( n -- )  12 bytes / xx cycles
+
+                sta.di CP       ; sta (CP)
+
+                ; update CP. This is faster by two cycles than 
+                ; INC.D CP twice because we discard A anyway
+                lda.d CP
+                inc.a
+                inc.a
+                sta.d CP 
+
+                lda.dx 0        ; DROP
+                inx
+                inx
+
+                rts
+
+; ---------------------------------------------------
+; TUCK ( n m -- m n m )  8 bytes / xx cycles
+
+        dex
+        dex
+        ldy.dx 2
+        sty.dx 0
+        sta.dx 2
+
+        rts
+
+; ---------------------------------------------------
+; NIP ( n m -- m ) 2 bytes / 4 cycles
+;
+        inx
+        inx
+
+        rts
+
+; ---------------------------------------------------
+; DUP ( n -- n n ) 4 bytes / x cycles
+
+        dex
+        dex
+        sta.dx 0
+
+        rts
+
+; ---------------------------------------------------
+; FILL ( add u n -- ) xx bytes / xx cycles
+; TODO test this 
+
+        ; TODO check if enough parameters on stack
+
+        ; save addr to temp location
+        ldy.dx 2
+        sty.d scratch
+
+        ; get counter from NOS
+        ldy.dx 0
+
+        .a8
+@       sta.diy scratch
+        dey
+        bne -
+
+        ldy.dx 4        ; get next TOS
+
+        .a16
+        txa
+        sec
+        sbc.# 6
+        tax
+        tya
+
+        rts
+
+; ---------------------------------------------------
+; 
 
 ; ON ( -- f) - links to TRUE; 265SXB specific
 ; OFF ( -- f ) - links to code of FALSE; 265SXB specific
@@ -46,3 +206,5 @@ e_led:          inx
                 dey
                 bne -
                 ldy.d tmptos
+
+
