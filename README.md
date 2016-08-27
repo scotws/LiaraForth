@@ -1,5 +1,7 @@
 # Liara Forth, an "initial" ANSI(ish) Forth for the W65C265SXB (65816 CPU)
 
+*THE CODE IS CURRENTLY BEING REFORMATED TO THE NEW TINKASM STANDARD.*
+
 This is a project to create a (mostly) ANSI-compliant Forth for the 
 W65C265SXB ("265SXB") that will work with the basic board and a single Flash
 memory chip out of the box. 
