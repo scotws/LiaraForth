@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 30. Apr 2016
+; This version: 23. Aug 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 
@@ -23,11 +23,17 @@
 
                 ; start with first input buffer
                 lda.# buffer1
-                sta curbuf
+                sta.d cib
+
+                ; start the machine
+                jmp a_cold
 
 ; ===================================================================
 ; DICTIONARY ROUTINES
 
+; Dictionary routines are listed alphabetically to make it easier to 
+; find them unless there is a reason to change that (for example, QUIT drops
+; through to ABORT).
 
 
 ; -------------------------------------------------------------------
@@ -73,7 +79,8 @@ z_cold          ; dummy value, word may not be compiled
 ; -------------------------------------------------------------------
 ; QUIT ( -- )  
 ; Reset the input, clearning Return Stack. Jumps to QUIT do not have to be
-; subroutine jumps as the Return Stack is cleared anyway
+; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
+; the ANSI Forth recommendation to use REFILL.
 
 a_quit          
                 ; clear Return Stack
@@ -83,7 +90,7 @@ a_quit
                 ; TODO put 0 in SOURCE-ID
                 ; TODO switch to interpret mode
                 
-                ; TODO start ACCEPT LOOP
+                ; TODO start REFILL
 z_quit
 
 ; ===================================================================
@@ -125,8 +132,8 @@ z_bye           rts             ; dummy, never reached
 ;            |        |  ...   |
 ;         +n +--------+--------+
 
-; The last word in the Dictionary is always COLD, signaled to FIND
-; by a 0000 in the link to the Next Word field
+; The last word in is always COLD, signaled to FIND
+; by a 0000 in the link to the Next Word field. 
 
 h_cold          
                 .byte 00        ; status byte (never compile)
@@ -178,7 +185,7 @@ clearbuffer
                 lda.# 0000
                 tay
 
-@               sta.diy curbuf  ; STA (curbuf),y
+@               sta.diy cib     ; STA (cib),y
                 dey
                 dey
                 bne -

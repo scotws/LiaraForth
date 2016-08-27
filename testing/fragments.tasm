@@ -1,7 +1,7 @@
 ; Code fragments for later inclusion in Liara Forth 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 28. Mär 2016
-; This version: 22. August 2016
+; This version: 23. August 2016
 
 ; DELETE THESE AS THEY ARE INCLUDED IN FINAL CODE
 
@@ -12,9 +12,9 @@
 ; ===================================================
 
 ; ---------------------------------------------------
-; ALLOT ( n -- ) 20 bytes/ xx cycles
+; ALLOT ( n -- ) 19 bytes/ xx cycles
 ; force testing of flags for TOS
-                cmp.# 0000 
+                tay
 
 ; if n is zero, we're done
                 beq _done
