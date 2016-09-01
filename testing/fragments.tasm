@@ -1,7 +1,7 @@
 ; Code fragments for later inclusion in Liara Forth 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
-; First version: 28. Mär 2016
-; This version: 23. August 2016
+; First version: 28. March 2016
+; This version: 01. Sep 2016
 
 ; DELETE THESE AS THEY ARE INCLUDED IN FINAL CODE
 
@@ -121,15 +121,6 @@ _done           lda.dx 0        ; DROP
 ;
         inx
         inx
-
-        rts
-
-; ---------------------------------------------------
-; DUP ( n -- n n ) 4 bytes / x cycles
-
-        dex
-        dex
-        sta.dx 0
 
         rts
 

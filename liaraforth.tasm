@@ -1,11 +1,9 @@
-; Liara Forth for the W65C265SXB 
+; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 23. Aug 2016
+; This version: 01. Sep 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
-
-
 
         .mpu 65816
         .origin 8000
@@ -17,7 +15,7 @@
         .include macros.tasm
 
 ; ===================================================================
-; SETUP 
+; SETUP
         .native
         .axy16
 
@@ -31,16 +29,16 @@
 ; ===================================================================
 ; DICTIONARY ROUTINES
 
-; Dictionary routines are listed alphabetically to make it easier to 
+; Dictionary routines are listed alphabetically to make it easier to
 ; find them unless there is a reason to change that (for example, QUIT drops
 ; through to ABORT).
 
 
 ; -------------------------------------------------------------------
-; COLD ( -- ) 
-; Reboot the system. This word may not be compiled. 
-a_cold          .axy16          ; paranoid
-                sei 
+; COLD ( -- )
+; Reboot the system. This word may not be compiled.
+a_cold  .axy16  ; paranoid
+                sei
 
                 ; TODO switch to Single Task mode
                 ; TODO setup Direct Page stuff
@@ -49,13 +47,13 @@ a_cold          .axy16          ; paranoid
                 ; TODO initiate TIB
                 ; TODO initiate PAD
                 ; TODO initiate User variables
-                
+
                 ; clear current input buffer
                 jsr clearbuffer
 
                 ; print boot strings
-                .a8
-                lda.# 00         ; bank byte
+        .a8
+                lda.# 00  ; bank byte
 
                 jsr.l SEND_CR
                 ldx.# s_title
@@ -71,55 +69,70 @@ a_cold          .axy16          ; paranoid
 
                 cli
 
-                .a16
+        .a16
 
-z_cold          ; dummy value, word may not be compiled
+; dummy value, word may not be compiled
                 ; drop through to QUIT
 
+; ===================================================================
+; WORD CODE
+;
+; Word code routines are sorted alphabetically, except for the first one, 
+; QUIT. The byte and cycle values are calculated without the RTS 
+; instruction.
+
 ; -------------------------------------------------------------------
-; QUIT ( -- )  
+; QUIT ( -- )
 ; Reset the input, clearning Return Stack. Jumps to QUIT do not have to be
 ; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
 ; the ANSI Forth recommendation to use REFILL.
 
-a_quit          
+z_cold
                 ; clear Return Stack
-                lda.# stack0
+a_quit          lda.# stack0
                 tcs
 
                 ; TODO put 0 in SOURCE-ID
                 ; TODO switch to interpret mode
-                
+
                 ; TODO start REFILL
-z_quit
 
 ; ===================================================================
 ; *** TESTING STOP START ***
 
-                stp             ; TODO for testing only
+z_quit          stp  ; TODO for testing only
 
 ; *** TESTING STOP END ***
 ; ===================================================================
 
 ; -------------------------------------------------------------------
-; BYE ( -- ) 
+; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
 
-a_bye           brk 00          ; status byte 00 required for assembler
-z_bye           rts             ; dummy, never reached
+a_bye           brk 00  ; status byte 00 required for assembler
+z_bye           rts  ; dummy for compiling, never reached
+
+
+; -------------------------------------------------------------------
+; DUP  ( n -- n n ) 4 bytes / xx cycles
+
+a_dup           dex
+                dex
+                sta.dx 00
+z_dup           rts
 
 
 ; ===================================================================
 ; DICTIONARY HEADERS
 
 ; Dictionary headers are kept separately from the code. For each word, the
-; structure is: 
+; structure is:
 
 ;               8bit     8bit
 ; h_word ->  +--------+--------+
 ;            | Status | Length |
 ;         +2 +--------+--------+
-;            | Start of Code   | -> a_word 
+;            | Start of Code   | -> a_word
 ;         +4 +-----------------+
 ;            | End of Code     | -> z_word
 ;         +6 +-----------------+
@@ -132,77 +145,67 @@ z_bye           rts             ; dummy, never reached
 ;            |        |  ...   |
 ;         +n +--------+--------+
 
-; The last word in is always COLD, signaled to FIND
-; by a 0000 in the link to the Next Word field. 
+; The last word in is always COLD, signaled to FIND by a 0000 in the link 
+; to the Next Word field. The words are sorted with the more common ones
+; first. 
 
-h_cold          
-                .byte 00        ; status byte (never compile)
-                .byte 04        ; length of word string
-                .word a_cold    ; start of code 
-                .word z_cold    ; end of code (without RTS)
-                .word 0000      ; next word in dictionary
-                .str "cold"     ; lowercase word name
+h_cold  .byte 00  ; status byte (never compile)
+        .byte 04  ; length of word string
+        .word a_cold  ; start of code
+        .word z_cold  ; end of code (points to RTS)
+        .word 0000  ; next word in dictionary, 0000 means end of dictionary
+        .byte "cold"  ; lowercase word name
 
-h_bye           
-                .byte { PW + NC } ; status byte
-                .byte 03        ; length of word string
-                .word a_bye     ; start of code 
-                .word z_bye     ; end of code (without RTS)
-                .word h_cold    ; next word in dictionary (COLD)
-                .str "bye"      ; lowercase word name
+h_bye   .byte { PW + NC }, 03
+        .word a_bye, z_byte, h_cold 
+        .byte "bye"
 
-h_quit          
-                .byte 00        ; status byte
-                .byte 04        ; length of word string
-                .word a_quit    ; start of code 
-                .word z_quit    ; end of code (without RTS)
-                .word h_bye     ; next word in dictionary (BYE)
-                .str "quit"     ; lowercase word name
+h_quit  .byte 00, 04 
+        .word a_quit, z_quit h_bye
+        .byte "quit"
 
+h_dup   .byte 00, 03
+        .word a_dup, z_dup, h_quit
+        .byte "dup"
 
 ; ===================================================================
 ; HELPER FUNCTIONS, LOW-LEVEL
 
 ; Print a string with a CR added on. Thin wrapper to PUT_STR. Assumes
 ; bank byte in A8 and address of zero-terminated string in X16
-printstring
-                jsr.l PUT_STR
+printstring     jsr.l PUT_STR
                 jsr.l SEND_CR
                 rts
 
 ; Swap the two input buffers. Assumes A16. Destroys Y.
-swapbuffers
-                tay
-                lda.d curbuf
-                eor.# 0100      ; flip 07d00 / 07c00
-                sta.d curbuf
+swapbuffers     tay
+                lda.d cib
+                eor.# 0100  ; flip 07d00 / 07c00
+                sta.d cib
                 tya
                 rts
 
 ; Clear current buffer. Assumes buffer size 256 bytes and A16. Destroys Y.
-clearbuffer
-                sta.d tmptos
+clearbuffer     sta.d tmptos
                 lda.# 0000
                 tay
 
-@               sta.diy cib     ; STA (cib),y
+@               sta.diy cib  ; STA (cib),y
                 dey
                 dey
                 bne -
 
                 lda.d tmptos
                 rts
-                
+
 
 ; ===================================================================
 ; BOTTOM INCLUDES
 
-        .include strings.tasm 
+        .include strings.tasm
 
 
 ; ===================================================================
 ; END
 
         .end
-
-

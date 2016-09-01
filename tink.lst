@@ -1,16 +1,16 @@
 A Tinkerer's Assembler for the 6502/65c02/65816
-Version BETA  20. April 2016
+Version BETA  28. August 2016
 Copyright 2015, 2016 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 Code listing for file liaraforth.tasm
-Generated on Sat Apr 30 01:27:20 2016
+Generated on Sat Aug 27 20:05:55 2016
 Target MPU: 65816
 External files loaded: 3
 Number of passes executed: 32
 Number of steps executed: 7
-Assembly time: 0.33993 seconds
+Assembly time: 0.70046 seconds
 Code origin: 008000
-Bytes of machine code: 564
+Bytes of machine code: 567
 
 LISTING:
        Line Address  Bytes        Instruction
@@ -18,93 +18,94 @@ LISTING:
     2    21 00:8001  fb           xce
     3    22 00:8002  c2 30        rep 30
     4    25 00:8004  a9 00 7c     lda.# 007c00
-    5    26 00:8007  8d 06 02     sta curbuf
-    6    36 00:800a  c2 30        a_cold
-    7    37 00:800c  78           sei
-    8    48 00:800d  20 7b 80     jsr clearbuffer
-    9    51 00:8010  e2 20        sep 20
-   10    52 00:8012  a9 00        lda.# 00
-   11    54 00:8014  22 66 e0 00  jsr.l 00e066
-   12    55 00:8018  a2 8a 80     ldx.# s_title
-   13    56 00:801b  20 68 80     jsr printstring
-   14    57 00:801e  a2 a9 80     ldx.# s_version
-   15    58 00:8021  20 68 80     jsr printstring
-   16    59 00:8024  a2 c6 80     ldx.# s_author
-   17    60 00:8027  20 68 80     jsr printstring
-   18    61 00:802a  a2 f3 80     ldx.# s_disclaimer
-   19    62 00:802d  20 68 80     jsr printstring
-   20    63 00:8030  a2 21 81     ldx.# s_typebye
-   21    64 00:8033  20 68 80     jsr printstring
-   22    66 00:8036  58           cli
-   23    68 00:8037  c2 20        rep 20
-   24    80 00:8039  a9 ff 7f     lda.# 007fff
-   25    81 00:803c  1b           tcs
-   26    92 00:803d  db           stp
-   27   101 00:803e  00 00        a_bye
-   28   102 00:8040  60           z_bye
-   29   132 00:8041  00           .byte 00
-   30   133 00:8042  04           .byte 04
-   31   134 00:8043  0a 80        .word a_cold
-   32   135 00:8045  39 80        .word z_cold
-   33   136 00:8047  00 00        .word 0000
-   34   137 00:8049  63 6f 6c 64  .str "cold"
-   35   140 00:804d  90           .byte { 000080 + 000010 }
-   36   141 00:804e  03           .byte 03
-   37   142 00:804f  3e 80        .word a_bye
-   38   143 00:8051  40 80        .word z_bye
-   39   144 00:8053  41 80        .word h_cold
-   40   145 00:8055  62 79 65     .str "bye"
-   41   148 00:8058  00           .byte 00
-   42   149 00:8059  04           .byte 04
-   43   150 00:805a  39 80        .word a_quit
-   44   151 00:805c  3d 80        .word z_quit
-   45   152 00:805e  4d 80        .word h_bye
-   46   153 00:8060  71 75 69 74  .str "quit"
-   47   162 00:8064  22 4e e0 00  jsr.l 00e04e
-   48   163 00:8068  22 66 e0 00  jsr.l 00e066
-   49   164 00:806c  60           rts
-   50   168 00:806d  a8           tay
-   51   169 00:806e  a5 06        lda.d curbuf
-   52   170 00:8070  49 00 01     eor.# 0100
-   53   171 00:8073  85 06        sta.d curbuf
-   54   172 00:8075  98           tya
-   55   173 00:8076  60           rts
-   56   177 00:8077  85 0a        sta.d tmptos
-   57   178 00:8079  a9 00 00     lda.# 0000
-   58   179 00:807c  a8           tay
-   59   181 00:807d  91 06        @
-   60   182 00:807f  88           dey
-   61   183 00:8080  88           dey
-   62   184 00:8081  d0 fa        bne -
-   63   186 00:8083  a5 0a        lda.d tmptos
-   64   187 00:8085  60           rts
-   65   193 00:8086  4c 69 (...)  alphastr
-   66   193 00:80a5  56 65 (...)  .str "0123456789abcdefghijklmnopqrstuvwyz"
-   67   193 00:80c2  53 63 (...)  .str0 "Digit larger than base"
-   68   193 00:80ef  4c 69 (...)  .str0 "Not in interpret mode"
-   69   193 00:811d  54 79 (...)  .str0 "DEFERed word not defined yet"
-   70   193 00:8130  41 63 (...)  .str0 "Unknown word"
-   71   193 00:814a  49 6e (...)  (data)
-   72   193 00:816b  44 45 (...)  (data)
-   73   193 00:8188  44 69 (...)  (data)
-   74   193 00:8199  20 28 (...)  (data)
-   75   193 00:81a2  3e 3e (...)  (data)
-   76   193 00:81ae  4e 6f (...)  (data)
-   77   193 00:81c4  50 61 (...)  (data)
-   78   193 00:81d4  44 69 (...)  (data)
-   79   193 00:81eb  53 74 (...)  (data)
-   80   193 00:8204  55 6e (...)  (data)
-   81   193 00:8211  30 31 (...)  (data)
+    5    26 00:8007  85 06        sta.d cib
+    6    29 00:8009  4c 0c 80     jmp a_cold
+    7    43 00:800c  c2 30        rep 30
+    8    44 00:800e  78           sei
+    9    55 00:800f  20 79 80     jsr clearbuffer
+   10    58 00:8012  e2 20        sep 20
+   11    59 00:8014  a9 00        lda.# 00
+   12    61 00:8016  22 66 e0 00  jsr.l 00e066
+   13    62 00:801a  a2 88 80     ldx.# s_title
+   14    63 00:801d  20 66 80     jsr printstring
+   15    64 00:8020  a2 a7 80     ldx.# s_version
+   16    65 00:8023  20 66 80     jsr printstring
+   17    66 00:8026  a2 c5 80     ldx.# s_author
+   18    67 00:8029  20 66 80     jsr printstring
+   19    68 00:802c  a2 f2 80     ldx.# s_disclaimer
+   20    69 00:802f  20 66 80     jsr printstring
+   21    70 00:8032  a2 20 81     ldx.# s_typebye
+   22    71 00:8035  20 66 80     jsr printstring
+   23    73 00:8038  58           cli
+   24    75 00:8039  c2 20        rep 20
+   25    88 00:803b  a9 ff 7f     lda.# 007fff
+   26    89 00:803e  1b           tcs
+   27   100 00:803f  db           stp
+   28   109 00:8040  00 00        a_bye
+   29   110 00:8042  60           z_bye
+   30   140 00:8043  00           .byte 00
+   31   141 00:8044  04           .byte 04
+   32   142 00:8045  0c 80        .word a_cold
+   33   143 00:8047  3b 80        .word z_cold
+   34   144 00:8049  00 00        .word 0000
+   35   145 00:804b  63 6f 6c 64  .byte 63, 6f, 6c, 64
+   36   148 00:804f  90           .byte { 000080 + 000010 }
+   37   149 00:8050  03           .byte 03
+   38   150 00:8051  40 80        .word a_bye
+   39   151 00:8053  42 80        .word z_bye
+   40   152 00:8055  43 80        .word h_cold
+   41   153 00:8057  62 79 65     .byte 62, 79, 65
+   42   156 00:805a  00           .byte 00
+   43   157 00:805b  04           .byte 04
+   44   158 00:805c  3b 80        .word a_quit
+   45   159 00:805e  3f 80        .word z_quit
+   46   160 00:8060  4f 80        .word h_bye
+   47   161 00:8062  71 75 69 74  .byte 71, 75, 69, 74
+   48   170 00:8066  22 4e e0 00  jsr.l 00e04e
+   49   171 00:806a  22 66 e0 00  jsr.l 00e066
+   50   172 00:806e  60           rts
+   51   176 00:806f  a8           tay
+   52   177 00:8070  a5 06        lda.d cib
+   53   178 00:8072  49 00 01     eor.# 0100
+   54   179 00:8075  85 06        sta.d cib
+   55   180 00:8077  98           tya
+   56   181 00:8078  60           rts
+   57   185 00:8079  85 0a        sta.d tmptos
+   58   186 00:807b  a9 00 00     lda.# 0000
+   59   187 00:807e  a8           tay
+   60   189 00:807f  91 06        @
+   61   190 00:8081  88           dey
+   62   191 00:8082  88           dey
+   63   192 00:8083  d0 fa        bne -
+   64   194 00:8085  a5 0a        lda.d tmptos
+   65   195 00:8087  60           rts
+   66   201 00:8088  4c 69 (...)  alphastr
+   67   201 00:80a7  56 65 (...)  .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f, 70, 71, 72, 73, 74, 75, 76, 77, 79, 7a
+   68   201 00:80c5  53 63 (...)  .byte 44, 69, 67, 69, 74, 20, 6c, 61, 72, 67, 65, 72, 20, 74, 68, 61, 6e, 20, 62, 61, 73, 65, 0
+   69   201 00:80f2  4c 69 (...)  .byte 4e, 6f, 74, 20, 69, 6e, 20, 69, 6e, 74, 65, 72, 70, 72, 65, 74, 20, 6d, 6f, 64, 65, 0
+   70   201 00:8120  54 79 (...)  .byte 44, 45, 46, 45, 52, 65, 64, 20, 77, 6f, 72, 64, 20, 6e, 6f, 74, 20, 64, 65, 66, 69, 6e, 65, 64, 20, 79, 65, 74, 0
+   71   201 00:8133  41 63 (...)  .byte 55, 6e, 6b, 6e, 6f, 77, 6e, 20, 77, 6f, 72, 64, 0
+   72   201 00:814d  49 6e (...)  (data)
+   73   201 00:816e  44 45 (...)  (data)
+   74   201 00:818b  44 69 (...)  (data)
+   75   201 00:819c  20 28 (...)  (data)
+   76   201 00:81a5  3e 3e (...)  (data)
+   77   201 00:81b1  4e 6f (...)  (data)
+   78   201 00:81c7  50 61 (...)  (data)
+   79   201 00:81d7  44 69 (...)  (data)
+   80   201 00:81ee  53 74 (...)  (data)
+   81   201 00:8207  55 6e (...)  (data)
+   82   201 00:8214  30 31 (...)  (data)
 
 MACROS:
             (none)
 
 SYMBOL TABLE:
                      >in : 000204
-                   a_bye : 00803e
-                  a_cold : 00800a
-                  a_quit : 008039
-                alphastr : 008215
+                   a_bye : 008040
+                  a_cold : 00800c
+                  a_quit : 00803b
+                alphastr : 008214
                    ascbs : 000008
                    asccc : 000003
                    asccr : 00000d
@@ -115,52 +116,52 @@ SYMBOL TABLE:
                  buffer1 : 007c00
                  buffer2 : 007d00
                  buffers : 007c00
-             clearbuffer : 00807b
+                     cib : 000206
+             clearbuffer : 008079
                       co : 000040
                       cp : 000200
-                  curbuf : 000206
               directpage : 000200
      directpage-multiple : 007400
                       dp : 000202
                     dsp0 : 0002ff
-              es_channel : 008134
-             es_componly : 00814e
-                es_defer : 00816f
-              es_divzero : 00818c
-                es_empty : 00819d
-                es_error : 0081a6
-              es_intonly : 0081b2
-               es_noname : 0081c8
-                es_radix : 0081d8
-                es_stack : 0081ef
-               es_syntax : 008208
+              es_channel : 008133
+             es_componly : 00814d
+                es_defer : 00816e
+              es_divzero : 00818b
+                es_empty : 00819c
+                es_error : 0081a5
+              es_intonly : 0081b1
+               es_noname : 0081c7
+                es_radix : 0081d7
+                es_stack : 0081ee
+               es_syntax : 008207
                  get_str : 00e03f
-                   h_bye : 00804d
-                  h_cold : 008041
-                  h_quit : 00805c
+                   h_bye : 00804f
+                  h_cold : 008043
+                  h_quit : 00805a
                       im : 000020
          maxram-multiple : 006fff
            maxram-single : 007bff
                       nc : 000010
              physicalram : 007fff
-             printstring : 008068
+             printstring : 008066
                  put_chr : 00e04b
                  put_str : 00e04e
                       pw : 000080
                     ram0 : 000200
-                s_author : 0080c6
-            s_disclaimer : 0080f3
-                 s_title : 00808a
-               s_typebye : 008121
-               s_version : 0080a9
+                s_author : 0080c5
+            s_disclaimer : 0080f2
+                 s_title : 008088
+               s_typebye : 008120
+               s_version : 0080a7
                  send_cr : 00e066
           stack-multiple : 007000
                   stack0 : 007fff
-             swapbuffers : 008071
+             swapbuffers : 00806f
                  taskmap : 00020c
                   tmpdsp : 000208
                   tmptos : 00020a
-                   z_bye : 008040
-                  z_cold : 008039
-                  z_quit : 00803d
+                   z_bye : 008042
+                  z_cold : 00803b
+                  z_quit : 00803f
 

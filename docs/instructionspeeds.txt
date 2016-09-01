@@ -1,7 +1,7 @@
 Size and Execution Speed of Commonly Used Instructions
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 05. Apr 2016
-This version: 09. Apr 2016
+This version: 01. Sep 2016
 
 All instructions are assumed to be in 16 bit mode. Size is in bytes (b),
 execution speed in cycles (c). Note some instructions' execution speed varies,
@@ -25,10 +25,11 @@ dex        1/2
 
 eor.#      3/3
 
+inc.a      1/2
 inc.dx     2/7 
 inx        1/2 
 
-jmp        2/3 
+jmp        3/3 
 jsr        3/6 
 
 lda.#      3/3 

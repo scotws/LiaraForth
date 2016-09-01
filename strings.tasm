@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB 
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 30. Apr 2016
+; This version: 27. Aug 201627. Aug 2016
 
 ; This file is included by liaraforth.tasm
 
@@ -11,11 +11,11 @@
 
 ; All general strings must be zero-terminated, names start with "s_"
 
-s_title         .str0   "Liara Forth for the W65C265SXB"
-s_version       .str0   "Version ALPHA 30. April 2016"
-s_author        .str0   "Scot W. Stevenson <scot.stevenson@gmail.com>"
-s_disclaimer    .str0   "Liara Forth comes with absolutely NO WARRANTY"
-s_typebye       .str0   "Type 'bye' to exit"
+s_title      .byte "Liara Forth for the W65C265SXB", 0
+s_version    .byte "Version ALPHA 27. August 2016", 0
+s_author     .byte "Scot W. Stevenson <scot.stevenson@gmail.com>", 0
+s_disclaimer .byte "Liara Forth comes with absolutely NO WARRANTY", 0
+s_typebye    .byte "Type 'bye' to exit", 0
 
 
 ; ===================================================================
@@ -24,17 +24,17 @@ s_typebye       .str0   "Type 'bye' to exit"
 ; All error strings must be zero-terminated, names start with "es_"
 ; These are currently the same errors as in Tali Forth
 
-es_channel      .str0 "Accessing unknown channel"
-es_componly     .str0 "Interpreting a compile-only word"
-es_defer        .str0 "DEFERed word not defined yet"
-es_divzero      .str0 "Division by zero"
-es_empty        .str0 " (empty)"
-es_error        .str0 ">>>Error<<<"
-es_intonly      .str0 "Not in interpret mode"
-es_noname       .str0 "Parsing failure"
-es_radix        .str0 "Digit larger than base"
-es_stack        .str0 "Stack over- or underflow"
-es_syntax       .str0 "Unknown word"
+es_channel  .byte "Accessing unknown channel", 0
+es_componly .byte "Interpreting a compile-only word", 0
+es_defer    .byte "DEFERed word not defined yet", 0
+es_divzero  .byte "Division by zero", 0
+es_empty    .byte " (empty)", 0
+es_error    .byte ">>>Error<<<", 0
+es_intonly  .byte "Not in interpret mode", 0
+es_noname   .byte "Parsing failure", 0
+es_radix    .byte "Digit larger than base", 0
+es_stack    .byte "Stack over- or underflow", 0
+es_syntax   .byte "Unknown word", 0
 
 ; ===================================================================
 ; ALPHABET STRINGS
@@ -42,4 +42,4 @@ es_syntax       .str0 "Unknown word"
 ; Leave alphastr as the last entry in the source code to make it easier to 
 ; see where this section ends. This cannot be a zero-terminated string
 
-alphastr        .str  "0123456789abcdefghijklmnopqrstuvwyz"
+alphastr .byte "0123456789abcdefghijklmnopqrstuvwyz"
