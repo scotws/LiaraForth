@@ -114,7 +114,7 @@ z_bye           rts  ; dummy for compiling, never reached
 
 
 ; -------------------------------------------------------------------
-; DUP  ( n -- n n ) 4 bytes / xx cycles
+; DUP  ( n -- n n ) 4 bytes / 9 cycles
 
 a_dup           dex
                 dex
