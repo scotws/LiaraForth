@@ -11,36 +11,36 @@
 ; ===================================================================
 ; MEMORY MAP
 
-        .equ ram0 0200             ; start of available RAM
-        .equ physicalram 07fff     ; end of installed RAM
-        .equ maxram-single 07bff   ; end of available RAM (single task mode)
-        .equ maxram-multiple 06fff ; end of available RAM (multitask mode)
+        .equ ram0            0200  ; start of available RAM
+        .equ physicalram     07fff  ; end of installed RAM
+        .equ maxram-single   07bff  ; end of available RAM (single task mode)
+        .equ maxram-multiple 06fff  ; end of available RAM (multitask mode)
 
-        .equ buffer1 07c00 ; start of 256 byte input buffer 1
-        .equ buffer2 07d00 ; start of 256 byte input buffer 2
+        .equ buffer1 07c00  ; start of 256 byte input buffer 1
+        .equ buffer2 07d00  ; start of 256 byte input buffer 2
 
 ; RAM from 0000 to 01ff is left for the Mensch Monitor to use
 
-        .equ directpage 0200          ; single task Direct Page (DP) start
-        .equ stack-multiple 7000      ; multitask Stack (S) area start
-        .equ directpage-multiple 7400 ; multitask Direct Page (DP) area start
-        .equ buffers 7c00             ; buffer area start
+        .equ directpage          0200  ; single task Direct Page (DP) start
+        .equ stack-multiple      7000  ; multitask Stack (S) area start
+        .equ directpage-multiple 7400  ; multitask Direct Page (DP) area start
+        .equ buffers             7c00  ; buffer area start
 
 ; Initial values
 
-        .equ stack0 7fff ; single task Stack (S) start (bottom)
-        .equ dsp0 02ff   ; initial Data Stack Pointer (X)
+        .equ stack0 7fff  ; single task Stack (S) start (bottom)
+        .equ dsp0   02ff  ; initial Data Stack Pointer (X)
 
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
 
-        .equ cp { directpage + 0 }       ; Compiler Pointer, 2 bytes 
-        .equ dp { directpage + 2 }       ; Dictionary Pointer, 2 bytes
-        .equ >in { directpage + 4 }      ; Input Buffer Pointer, 2 bytes
-        .equ cib { directpage + 6 }      ; Current Input Buffer, 7c00 or 7d00
-        .equ tmpdsp { directpage + 8 }   ; Temporary DSP (X) storage, 2 bytes
-        .equ tmptos { directpage + 0a }  ; Temporary TOS (Y) storage, 2 bytes
-        .equ taskmap { directpage + 0c } ; Bitmap for tasks in multitask mode
+        .equ cp      { directpage + 0 }  ; Compiler Pointer, 2 bytes
+        .equ dp      { directpage + 2 }  ; Dictionary Pointer, 2 bytes
+        .equ >in     { directpage + 4 }  ; Input Buffer Pointer, 2 bytes
+        .equ cib     { directpage + 6 }  ; Current Input Buffer, 7c00 or 7d00
+        .equ tmpdsp  { directpage + 8 }  ; Temporary DSP (X) storage, 2 bytes
+        .equ tmptos  { directpage + 0a }  ; Temporary TOS (Y) storage, 2 bytes
+        .equ taskmap { directpage + 0c }  ; Bitmap for tasks in multitask mode
 
 ; ===================================================================
 ; MENSCH MONITOR ROUTINE LOCATIONS
@@ -48,10 +48,10 @@
 ; These must be accessed by long subroutine jumps (jsr.l)
 ; See https://github.com/scotws/265SXB-Guide/blob/master/monitor.md
 
-        .equ GET_STR 0e03f ; Get string: Bank -> A8, buffer address -> X16
-        .equ PUT_STR 0e04e ; Put string: Bank -> A8, string address -> X16
-        .equ PUT_CHR 0e04b ; Put character: ASCII of character -> A8
-        .equ SEND_CR 0e066 ; Send a CR character
+        .equ GET_STR 0e03f  ; Get string: Bank -> A8, buffer address -> X16
+        .equ PUT_STR 0e04e  ; Put string: Bank -> A8, string address -> X16
+        .equ PUT_CHR 0e04b  ; Put character: ASCII of character -> A8
+        .equ SEND_CR 0e066  ; Send a CR character
 
 
 ; ===================================================================
@@ -59,18 +59,18 @@
 
 ; ASCII character set
 
-        .equ AscCC 03  ; break (Control-C) ASCII character
-        .equ AscBS 08  ; backspace ASCII character
-        .equ AscLF 0A  ; line feed ASCII character
-        .equ AscCR 0D  ; carriage return ASCII character
-        .equ AscESC 1B ; Escape ASCII character
-        .equ AscSP 20  ; space ASCII character
-        .equ AscDEL 7F ; DEL ASCII character
+        .equ AscCC  03  ; break (Control-C) ASCII character
+        .equ AscBS  08  ; backspace ASCII character
+        .equ AscLF  0A  ; line feed ASCII character
+        .equ AscCR  0D  ; carriage return ASCII character
+        .equ AscESC 1B  ; Escape ASCII character
+        .equ AscSP  20  ; space ASCII character
+        .equ AscDEL 7F  ; DEL ASCII character
 
 ; Dictionary flags
 
-        .equ PW %10000000 ; Primitive (Native) Word
-        .equ CO %01000000 ; Compile Only
-        .equ IM %00100000 ; Immediate Word
-        .equ NC %00010000 ; Native (inline) Compile
+        .equ PW %10000000  ; Primitive (Native) Word
+        .equ CO %01000000  ; Compile Only
+        .equ IM %00100000  ; Immediate Word
+        .equ NC %00010000  ; Native (inline) Compile
 

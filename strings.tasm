@@ -1,4 +1,4 @@
-; List of Strings for Liara Forth for the W65C265SXB 
+; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
 ; This version: 27. Aug 201627. Aug 2016
@@ -7,7 +7,7 @@
 
 
 ; ===================================================================
-; GENERAL 
+; GENERAL
 
 ; All general strings must be zero-terminated, names start with "s_"
 
@@ -39,7 +39,7 @@ es_syntax   .byte "Unknown word", 0
 ; ===================================================================
 ; ALPHABET STRINGS
 
-; Leave alphastr as the last entry in the source code to make it easier to 
+; Leave alphastr as the last entry in the source code to make it easier to
 ; see where this section ends. This cannot be a zero-terminated string
 
 alphastr .byte "0123456789abcdefghijklmnopqrstuvwyz"
