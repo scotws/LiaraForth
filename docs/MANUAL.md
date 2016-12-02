@@ -25,12 +25,6 @@ Priority is "speed over size" (within reason).
 "Liara Forth Memory Map")
 
 
-## Further Information
-
-There is a discussion thread at
-[6502.org](http://forum.6502.org/viewtopic.php?f=9&t=3649) for Liara Forth.
-
-
 ## Setting Up the Hardware
 
 The information in this section is based on the [Most Very Unofficial Guide to
@@ -38,9 +32,44 @@ the W65C265SXB](https://github.com/scotws/265SXB-Guide).
 
 ### Accessing the 265SXB via a Terminal
 
+(Based on [Setting up the
+265SXB](https://github.com/scotws/265SXB-Guide/blob/master/setup.md))
+
+Getting the 265SXB up and running requires the board itself, a USB cable, and a
+host computer. The board draws power via the USB connection, which is also used
+for the terminal. This gives you access to the built-in monitor program.
+
+**For Linux (Ubuntu):**
+
+1. Attach a USB cable to the board at J6, the power jack in the bottom middle.
+Attach the other end to your computer. This should make the power LED light up.
+
+2. On the Ubuntu machine, we will use `putty` as a terminal program. If not
+   already present, install it with `sudo apt-get install putty` from a shell.
+   To start the terminal program, you might need to type `sudo putty` instead of
+   just `putty`. Instead of putty, the command-line program `minicom` can be
+   used. 
+
+3. To find out which USB port on the host computer we are using, run `dmesg |
+   grep tty` from the shell. In our case, the port is `/dev/ttyUSB0`.
+
+4. Configure putty: Under the Terminal setting, enable "implicit LF in every
+   CR". Under the Session setting, select "Serial" and use the port address
+   found in the previous set as the Serial Line. Click "Open" at the bottom of
+   the window to create the connection.
+
+5. On the 265SXB, push the Reset button to the right of the power jack J6. This
+   should bring up the Mensch Monitor
+
+
 ### Adding Flash Memory
 
+(see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
+
 ### Uploading Liara Forth
+
+
+## Getting Started
 
 
 ## Liara Forth Internals
@@ -111,12 +140,26 @@ jurisdiction. Put briefly, use this at your own risk.
 
 ### About the Name
 
-[Tali Forth](https://github.com/scotws/TaliForth) started as name I liked, but
-(probably unavoidably) morphed into a reference to the "Mass Effect" character
-Tali'Zorah vas Normandy, created by BioWare / Electronic Arts (EA). When it
-became time to pick an name for the bigger, more powerful version for the
-265SXB, the Asari character [Liara
-T'Soni](http://masseffect.wikia.com/wiki/Liara_T'Soni) was the obvious
-choice. This software has absolutely nothing to do with either the game or the
-companies and neither do I, expect that I've played the games and enjoyed them.
+[Tali Forth](https://github.com/scotws/TaliForth) started simply as name I
+liked, but (probably unavoidably) morphed into a reference to the "Mass Effect"
+character Tali'Zorah vas Normandy, created by BioWare / Electronic Arts (EA).
+When it became time to pick an name for the bigger, more powerful version for
+the 265SXB, the Asari character [Liara
+T'Soni](http://masseffect.wikia.com/wiki/Liara_T'Soni) was the obvious choice.
+This software has absolutely nothing to do with either the game or the companies
+and neither do I, expect that I've played the games and enjoyed them.
 
+### Further Information
+
+There is a discussion thread at
+[6502.org](http://forum.6502.org/viewtopic.php?f=9&t=3649) for Liara Forth.
+
+
+### Links
+
+See also the [list of
+links](https://github.com/scotws/265SXB-Guide/blob/master/links.md) of the 
+265SXB guide.
+
+http://www.westerndesigncenter.com/wdc/documentation/W65C265SXB.pdf
+265SXB Data Sheet
