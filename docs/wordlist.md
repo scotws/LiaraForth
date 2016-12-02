@@ -1,16 +1,16 @@
 # Wordlist for Liara Forth
 
-This table is an alphabetical list of the words used by Liara Forth, including
+This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. The information here is currently not
 complete. 
 
 Last update: ***02. Dec 2016***
 
-| Word | Status | Group | Flags | Size | Cycles |
-| --- | --- | --- | --- | --- | --- | --- |
-| BYE | coded | ANSI tools | PW, NC | 2 | 7-8 | 
-| DUP | coded | ANSI core | PW, NC | 4 | 9 |
-| QUIT | fragment | ANSI core | - | (TBA) | n/a |
+| Word        | Status   | Group      | Flags  | Size  | Cycles |
+| :---------- | -------- | ---------- | ------ | ----: | -----: | 
+| BYE         | coded    | ANSI tools | PW, NC | 2     |    7-8 | 
+| DUP         | coded    | ANSI core  | PW, NC | 4     |      9 |
+| QUIT        | fragment | ANSI core  | -      | (TBA) |    n/a |
 
 ### Entries
 
