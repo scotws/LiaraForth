@@ -4,7 +4,7 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information. The information here is currently not
 complete. 
 
-Last update: ***02. Dec 2016***
+Last update: **02. Dec 2016**
 
 | Word        | Status   | Group      | Flags  | Size  | Cycles |
 | :---------- | -------- | ---------- | ------ | ----: | -----: | 
@@ -14,15 +14,15 @@ Last update: ***02. Dec 2016***
 
 ### Entries
 
-***Status*** - State of development. Goes from planned, fragment, coded to
-tested.
+***Status*** - State of development. Goes from **planned, fragment, coded** to
+**tested**.
 
 ***Group*** - Which word group the word belongs to, especially ANSI or
 non-ANSI. Words written especially for the board are marked "265SXB". See [the
 Forth Standard](https://forth-standard.org/) for basis.
 
-***Flags*** - PW (Primitive Word), CO (compile only), IM (immediate word), 
-NC (Native Compile), or "-" for none
+***Flags*** - **PW** (Primitive Word), **CO** (compile only), **IM** (immediate word), 
+**NC** (Native Compile), or "-" for none
 
 ***Size*** - If a native word, number of bytes the code uses (without the final
 RTS); if Forth word, number of characters. If the information is not available
