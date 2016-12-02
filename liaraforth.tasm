@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 01. Sep 2016
+; This version: 02. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 
@@ -71,7 +71,7 @@ a_cold  .axy16  ; paranoid
 
         .a16
 
-; dummy value, word may not be compiled
+z_cold  ; dummy value, word may not be compiled
                 ; drop through to QUIT
 
 ; ===================================================================
@@ -97,20 +97,20 @@ a_quit          lda.# stack0
 
                 ; TODO start REFILL
 
-; ===================================================================
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ; *** TESTING STOP START ***
 
 z_quit          stp  ; TODO for testing only
 
 ; *** TESTING STOP END ***
-; ===================================================================
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
 
 a_bye           brk 00  ; status byte 00 required for assembler
-z_bye           rts  ; dummy for compiling, never reached
+z_bye           rts     ; dummy for compiling, never reached
 
 
 ; -------------------------------------------------------------------
@@ -145,7 +145,15 @@ z_dup           rts
 ;            |        |  ...   |
 ;         +n +--------+--------+
 
-; The last word in is always COLD, signaled to FIND by a 0000 in the link 
+; Status bytes are created by adding dictionary flags defined in
+; definitions.tasm:
+;
+;       PW - Primitive Word (natively coded)
+;       CO - Compile Only
+;       IM - Immediate Word
+;       NC - Native Compile (inline compile)
+
+; The last word is always COLD, signaled to FIND by a 0000 in the link 
 ; to the Next Word field. The words are sorted with the more common ones
 ; first. 
 
@@ -153,7 +161,7 @@ h_cold  .byte 00  ; status byte (never compile)
         .byte 04  ; length of word string
         .word a_cold  ; start of code
         .word z_cold  ; end of code (points to RTS)
-        .word 0000  ; next word in dictionary, 0000 means end of dictionary
+        .word 0000    ; next word in dictionary, 0000 signals is end
         .byte "cold"  ; lowercase word name
 
 h_bye   .byte { PW + NC }, 03
@@ -161,10 +169,10 @@ h_bye   .byte { PW + NC }, 03
         .byte "bye"
 
 h_quit  .byte 00, 04 
-        .word a_quit, z_quit h_bye
+        .word a_quit, z_quit, h_bye
         .byte "quit"
 
-h_dup   .byte 00, 03
+h_dup   .byte { PW + NC }, 03
         .word a_dup, z_dup, h_quit
         .byte "dup"
 
@@ -177,7 +185,7 @@ printstring     jsr.l PUT_STR
                 jsr.l SEND_CR
                 rts
 
-; Swap the two input buffers. Assumes A16. Destroys Y.
+; Swap the two input buffers. Assumes A16, destroys Y.
 swapbuffers     tay
                 lda.d cib
                 eor.# 0100  ; flip 07d00 / 07c00
@@ -185,7 +193,7 @@ swapbuffers     tay
                 tya
                 rts
 
-; Clear current buffer. Assumes buffer size 256 bytes and A16. Destroys Y.
+; Clear current buffer. Assumes buffer size 256 bytes and A16, destroys Y.
 clearbuffer     sta.d tmptos
                 lda.# 0000
                 tay

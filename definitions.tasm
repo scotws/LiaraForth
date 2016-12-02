@@ -11,7 +11,7 @@
 ; ===================================================================
 ; MEMORY MAP
 
-        .equ ram0            0200  ; start of available RAM
+        .equ ram0            0200   ; start of available RAM
         .equ physicalram     07fff  ; end of installed RAM
         .equ maxram-single   07bff  ; end of available RAM (single task mode)
         .equ maxram-multiple 06fff  ; end of available RAM (multitask mode)

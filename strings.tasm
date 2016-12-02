@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 27. Aug 201627. Aug 2016
+; This version:  27. Aug 2016
 
 ; This file is included by liaraforth.tasm
 
@@ -22,7 +22,7 @@ s_typebye    .byte "Type 'bye' to exit", 0
 ; ERROR STRINGS
 
 ; All error strings must be zero-terminated, names start with "es_"
-; These are currently the same errors as in Tali Forth
+; These are currently the same error strings as in Tali Forth
 
 es_channel  .byte "Accessing unknown channel", 0
 es_componly .byte "Interpreting a compile-only word", 0
