@@ -133,6 +133,15 @@ a_dup           dex
                 sta.dx 00
 z_dup           rts
 
+; -------------------------------------------------------------------
+; SWAP ( -- ) 5 bytes / 12 cycles
+; Exchange TOS with NOS, destroys Y
+
+a_swap          ldy.dx 00
+                sta.dx 00
+                tya 
+z_swap          rts
+
 
 ; ===================================================================
 ; DICTIONARY HEADERS
@@ -183,6 +192,10 @@ h_bye   .byte { PW + NC }, 03
 h_quit  .byte 00, 04 
         .word a_quit, z_quit, h_bye
         .byte "quit"
+
+h_swap  .byte { PW + NC }, 04
+        .word a_swap, z_swap, h_quit
+        .byte "swap"
 
 h_dup   .byte { PW + NC }, 03
         .word a_dup, z_dup, h_quit

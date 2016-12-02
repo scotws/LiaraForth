@@ -27,7 +27,7 @@ z_{2}           rts
 """
 
 dict_template = """
-h_{0}   .byte {{ xx + xx }}, 00
+h_{0}   .byte {{ xx + xx }}, {2}
         .word a_{0}, z_{0}, h_{1}
         .byte "{0}"
 """
@@ -45,6 +45,7 @@ while True:
 
     i_name_lower = i_name.strip().lower()
     i_name_upper = i_name_lower.upper()
+    i_name_len = hex(len(i_name_lower))[2:]
 
     i_desc = input("Word description? ")
     i_group = input("Code group (eg 'ANSI core')? ")
@@ -53,5 +54,5 @@ while True:
     i_next = i_next.strip().lower()
 
     print(code_template.format(i_name_upper, i_desc, i_name_lower)) 
-    print(dict_template.format(i_name_lower, i_next)) 
+    print(dict_template.format(i_name_lower, i_next, i_name_len)) 
     print(entry_template.format(i_name_upper, i_group))

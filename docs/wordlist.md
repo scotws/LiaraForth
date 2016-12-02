@@ -12,6 +12,8 @@ Last update: **02. Dec 2016**
 | DROP        | coded    | ANSI core  | PW, NC | 4     |      9 |
 | DUP         | coded    | ANSI core  | PW, NC | 4     |      9 |
 | QUIT        | fragment | ANSI core  | -      | (TBA) |    n/a |
+| SWAP        | coded    | ANSI core  | PW, NC | 5     |     12 |
+
 
 ### Entries
 
