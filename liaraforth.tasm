@@ -113,27 +113,26 @@ z_quit          stp  ; TODO for testing only
 a_bye           brk 00  ; status byte 00 required for assembler
 z_bye           rts     ; dummy for compiling, never reached
 
+; -------------------------------------------------------------------
+; DROP ( n -- ) 4 bytes / 9 cycles
+; Drop first entry on Data Stack. Destroys Y
+
+a_drop          
+                lda.dx 00 
+                inx
+                inx
+z_drop          rts
+
 
 ; -------------------------------------------------------------------
 ; DUP  ( n -- n n ) 4 bytes / 9 cycles
+; Duplicate first entry on Data Stack
 
 a_dup           dex
                 dex
                 sta.dx 00
 z_dup           rts
 
-
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; TEMPLATE FOR NEW WORDS, TODO REMOVE WHEN FINISHED
-
-; -------------------------------------------------------------------
-; FEHLT ( -- ) X bytes / X cycles
-; TEXT FEHLT
-
-a_bye           nop
-z_bye           rts
-
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ; ===================================================================
 ; DICTIONARY HEADERS
@@ -189,16 +188,9 @@ h_dup   .byte { PW + NC }, 03
         .word a_dup, z_dup, h_quit
         .byte "dup"
 
-
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; TEMPLATE FOR NEW DICTIONARY ENTRIES; TODO REMOVE WHEN DONE
- 
-h_xxx   .byte { xx + xx }, 00
-        .word a_xxx, z_xxx, h_yyyy
-        .byte "XXX"
-
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+h_drop  .byte { PW + NC }, 04
+        .word a_drop, z_drop, h_dup
+        .byte "drop"
 
 ; ===================================================================
 ; HELPER FUNCTIONS, LOW-LEVEL

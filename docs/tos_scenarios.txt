@@ -32,7 +32,7 @@ offset 00.
         === DROP =================================================
 
         inx         1/2      lda.dx 00   2/5   
-        inx         1/2      inx         1/2    ( as A bit with ldy.dx)
+        inx         1/2      inx         1/2    ( as A but with ldy.dx)
                              inx         1/2 
                    -----                -----               -----
                     2/4                  4/9                 4/9
