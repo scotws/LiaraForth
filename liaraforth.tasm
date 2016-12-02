@@ -4,6 +4,7 @@
 ; This version: 02. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
+; See docs/MANUAL.md for more information
 
         .mpu 65816
         .origin 8000
@@ -122,6 +123,18 @@ a_dup           dex
 z_dup           rts
 
 
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+; TEMPLATE FOR NEW WORDS, TODO REMOVE WHEN FINISHED
+
+; -------------------------------------------------------------------
+; FEHLT ( -- ) X bytes / X cycles
+; TEXT FEHLT
+
+a_bye           nop
+z_bye           rts
+
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ; ===================================================================
 ; DICTIONARY HEADERS
 
@@ -153,9 +166,9 @@ z_dup           rts
 ;       IM - Immediate Word
 ;       NC - Native Compile (inline compile)
 
-; The last word is always COLD, signaled to FIND by a 0000 in the link 
-; to the Next Word field. The words are sorted with the more common ones
-; first. 
+; The last word (top word in code) is always COLD, signaled to FIND by a 0000 in
+; the link to the Next Word field. The words are sorted with the more common
+; ones first (further down in code). 
 
 h_cold  .byte 00  ; status byte (never compile)
         .byte 04  ; length of word string
@@ -175,6 +188,17 @@ h_quit  .byte 00, 04
 h_dup   .byte { PW + NC }, 03
         .word a_dup, z_dup, h_quit
         .byte "dup"
+
+
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+; TEMPLATE FOR NEW DICTIONARY ENTRIES; TODO REMOVE WHEN DONE
+ 
+h_xxx   .byte { xx + xx }, 00
+        .word a_xxx, z_xxx, h_yyyy
+        .byte "XXX"
+
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 ; ===================================================================
 ; HELPER FUNCTIONS, LOW-LEVEL
