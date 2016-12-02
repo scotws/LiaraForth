@@ -1,7 +1,9 @@
 Size and Execution Speed of Commonly Used Instructions
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 05. Apr 2016
-This version: 01. Sep 2016
+This version: 02. Dec 2016
+
+This is a list of commonly used instructions and instruction combinations to make calculating the speed and size of Forth word implementations easier.
 
 All instructions are assumed to be in 16 bit mode. Size is in bytes (b),
 execution speed in cycles (c). Note some instructions' execution speed varies,
@@ -16,12 +18,13 @@ and.#      3/3
 bne        2/2-4
 bra        2/3-4
 
+clc        1/2 (as all "clear" and "set" instructions)
 cmp.dx     2/5
 cpx.#      3/3 
 cpx.d      3/4 
 
 dec.dx     2/7 
-dex        1/2 
+dex        1/2 (as dec.a and dey)
 
 eor.#      3/3
 
@@ -31,6 +34,7 @@ inx        1/2
 
 jmp        3/3 
 jsr        3/6 
+jsr.l      4/8
 
 lda.#      3/3 
 lda.d      2/4 
@@ -40,18 +44,22 @@ lda.y      3/5-6
 ldy.dx     2/5  
 
 pha        1/4 
-phe.#      3/5 
+phe.#      3/5  ("PEA")
 pla        1/5 
 pld        1/5 
+plx        1/5
 
 rep        2/3 
 rts        1/6 
+rts.l      1/6
 
 sep        2/3 
 sta.d      2/4 
 sta.dx     2/5 
 sta.y      3/6
 sty.dx     2/5 
+stz        3/5
+stz.d      2/4
 
 tax        1/2 
 tcd        1/2 
@@ -60,8 +68,8 @@ tsc        1/2
 
 COMMON COMBINATIONS
 
-jsr/rts         4/12 
-lda.#/pha       3/7
+jsr/rts    4/12 
+lda.#/pha  3/7  (compare with phe.# of 3/5)
 
 
 SOURCE

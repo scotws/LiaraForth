@@ -1,0 +1,20 @@
+Roadmap for Liara Forth 
+Scot W. Stevenson <scot.stevenson@gmail.com>
+First version: 02. Dez 2016
+This version: 02. Dez 2016
+
+
+TODO 
+
+- Print intro text (tests access to Mensch Monitor)
+- Echo keyboard entries (temporary loop)
+- Code basic word set
+- Parse entry (temporary version)
+- Set up basic Dictionary lookup 
+- Rewrite parsing with new words
+
+
+FINISHED
+
+- Define constants
+

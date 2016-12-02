@@ -3,7 +3,10 @@ Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 28. Mar 2016
 This version: 01. April 2016
 
-Liara Forth uses a round-robin scheme for cooperative multitasking, the classical form used by Forths. The terminology and structure follows Brad Rodriguez' paper http://www.bradrodriguez.com/papers/mtasking.html . Note we use the term "task" instead of "thread" to avoid confusion with CPU threads.
+Liara Forth uses a round-robin scheme for cooperative multitasking, the
+classical form used by Forths. The terminology and structure follows Brad
+Rodriguez' paper http://www.bradrodriguez.com/papers/mtasking.html . Note we
+use the term "task" instead of "thread" to avoid confusion with CPU threads.
 
 
 PLANNED WORDS
