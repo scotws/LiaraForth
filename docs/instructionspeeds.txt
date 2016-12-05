@@ -1,7 +1,7 @@
 Size and Execution Speed of Commonly Used Instructions
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 05. Apr 2016
-This version: 02. Dec 2016
+This version: 05. Dec 2016
 
 This is a list of commonly used instructions and instruction combinations to make calculating the speed and size of Forth word implementations easier.
 
@@ -68,9 +68,9 @@ tsc        1/2
 
 COMMON COMBINATIONS
 
-jsr/rts    4/12 
-lda.#/pha  3/7  (compare with phe.# of 3/5)
-
+jsr/rts            4/12 
+lda.#/pha          3/7  (compare with phe.# of 3/5)
+dex/dex/sta.dx 00  4/9  ("push")
 
 SOURCE
 

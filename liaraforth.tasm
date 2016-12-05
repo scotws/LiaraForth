@@ -134,6 +134,7 @@ a_drop
                 lda.dx 00 
                 inx
                 inx
+
 z_drop          rts
 
 
@@ -144,16 +145,69 @@ z_drop          rts
 a_dup           dex
                 dex
                 sta.dx 00
+
 z_dup           rts
 
 ; -------------------------------------------------------------------
-; SWAP ( -- ) 5 bytes / 12 cycles
+; FALSE ( -- f ) 7 bytes / 12 cycles
+; Pushes value $0000 for Forth true on Data Stack
+; This is the same code as for ZERO, see there
+
+
+; -------------------------------------------------------------------
+; HERE ( -- u ) 6 bytes / 13 cycles
+; Push Compiler Pointer address on the Data Stack
+
+a_here          dex
+                dex
+                sta.dx 00
+                lda.d cp
+
+z_here          rts
+
+; -------------------------------------------------------------------
+; SWAP ( n m -- m n ) 5 bytes / 12 cycles
 ; Exchange TOS with NOS, destroys Y
 
 a_swap          ldy.dx 00
                 sta.dx 00
                 tya 
+
 z_swap          rts
+
+; -------------------------------------------------------------------
+; TRUE ( -- f ) 7 bytes / 12 cycles
+; Pushes value $FFFF for Forth true on Data Stack
+
+a_true          dex
+                dex
+                sta.dx 00 
+                lda.# 0ffff
+
+z_true          rts
+
+; -------------------------------------------------------------------
+; ONE ( -- ) 7 bytes / 12 cycles
+; Pushes the number 1 on the Data Stack
+
+a_one           dex
+                dex
+                sta.dx 00
+                lda.# 0001 
+   
+z_one           rts
+
+; -------------------------------------------------------------------
+; ZERO ( -- 0 ) 7 bytes / 12 cycles
+; Pushes the number 0000 on the Data Stack
+
+a_zero          dex
+                dex
+                sta.dx 00 
+                lda.# 0000
+
+z_zero          rts
+
 
 
 ; ===================================================================

@@ -31,37 +31,58 @@
 ;       IM - Immediate Word
 ;       NC - Native Compile (inline compile)
 
-; The last word (top word in code) is always COLD, signaled to FIND by a 0000 in
+; The last word (top word in code) is always BYE, signaled to FIND by a 0000 in
 ; the link to the Next Word field. The words are sorted with the more common
 ; ones first (further down in code). 
 
-h_cold  .byte 00  ; status byte
-        .byte 04  ; length of word string
-        .word a_cold  ; start of code
-        .word z_cold  ; end of code (points to RTS)
-        .word 0000    ; next word in dictionary, 0000 signals is end
-        .byte "cold"  ; lowercase word name
+h_bye   .byte { PW + NC } ; status byte
+        .byte 03    ; length of word string
+        .word a_bye ; start of code
+        .word z_bye ; end of code (points to RTS)
+        .word 0000  ; next word in dictionary, 0000 signals is end
+        .byte "bye" ; lowercase word name
+
+h_cold  .byte 00, 04  
+        .word a_cold, z_cold, h_bye
+        .byte "cold"  
 
 h_abort .byte { CO }, 05
         .word a_abort, z_abort, h_cold
         .byte "abort"
 
-h_bye   .byte { PW + NC }, 03
-        .word a_bye, z_bye, h_abort
-        .byte "bye"
-
 h_quit  .byte 00, 04 
-        .word a_quit, z_quit, h_bye
+        .word a_quit, z_quit, h_abort
         .byte "quit"
 
+h_false .byte { PW + NC }, 5
+        .word a_zero, z_zero, h_quit
+        .byte "false"
+
+h_true  .byte { PW + NC }, 4
+        .word a_true, z_true, h_false
+        .byte "true"
+
+h_one   .byte { PW + NC }, 3
+        .word a_one, z_one, h_true
+        .byte "one"
+
+h_zero  .byte { PW + NC }, 4
+        .word a_zero, z_zero, h_one
+        .byte "zero"
+
+h_here  .byte { PW + NC }, 4
+        .word a_here, z_here, h_zero
+        .byte "here"
+
 h_swap  .byte { PW + NC }, 04
-        .word a_swap, z_swap, h_quit
+        .word a_swap, z_swap, h_here
         .byte "swap"
 
 h_dup   .byte { PW + NC }, 03
-        .word a_dup, z_dup, h_quit
+        .word a_dup, z_dup, h_swap
         .byte "dup"
 
 h_drop  .byte { PW + NC }, 04
         .word a_drop, z_drop, h_dup
         .byte "drop"
+
