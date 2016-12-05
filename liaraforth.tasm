@@ -119,6 +119,7 @@ z_quit          stp  ; TODO for testing only
 ; *** TESTING STOP END ***
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
@@ -166,6 +167,43 @@ a_here          dex
 z_here          rts
 
 ; -------------------------------------------------------------------
+; NIP ( n m -- m ) 2 bytes / 4 cycles
+; Delete entry that is NOS
+;
+a_nip           inx
+                inx
+z_nip           rts
+
+; -------------------------------------------------------------------
+; 1 "ONE" ( -- 1 ) 7 bytes / 12 cycles
+; Pushes the number 1 on the Data Stack
+
+a_one           dex
+                dex
+                sta.dx 00
+                lda.# 0001 
+   
+z_one           rts
+
+; -------------------------------------------------------------------
+; 1+ "ONE-PLUS" ( n -- n+1 ) 1 bytes / 2 cycles
+; Add 1 to TOS
+
+a_one-plus      inc.a
+z_one-plus      rts
+
+; -------------------------------------------------------------------
+; + "PLUS" ( n m -- n+m ) 5 bytes / 11 cycles
+; Add TOS and NOS
+
+a_plus          clc
+                adc.dx 00
+                inx
+                inx 
+
+z_plus          rts
+
+; -------------------------------------------------------------------
 ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
 ; Exchange TOS with NOS, destroys Y
 
@@ -187,18 +225,19 @@ a_true          dex
 z_true          rts
 
 ; -------------------------------------------------------------------
-; ONE ( -- ) 7 bytes / 12 cycles
-; Pushes the number 1 on the Data Stack
+; TUCK ( n m -- m n m ) 8 bytes / 19 cycles
+; Insert TOS below NOS
 
-a_one           dex
+a_tuck          dex
                 dex
-                sta.dx 00
-                lda.# 0001 
-   
-z_one           rts
+                ldy.dx 2
+                sty.dx 0
+                sta.dx 2
+                
+z_tuck          rts
 
 ; -------------------------------------------------------------------
-; ZERO ( -- 0 ) 7 bytes / 12 cycles
+; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
 ; Pushes the number 0000 on the Data Stack
 
 a_zero          dex

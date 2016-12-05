@@ -42,20 +42,28 @@ h_bye   .byte { PW + NC } ; status byte
         .word 0000  ; next word in dictionary, 0000 signals is end
         .byte "bye" ; lowercase word name
 
-h_cold  .byte 00, 04  
+h_cold  .byte 00, 4  
         .word a_cold, z_cold, h_bye
         .byte "cold"  
 
-h_abort .byte { CO }, 05
+h_abort .byte { CO }, 5
         .word a_abort, z_abort, h_cold
         .byte "abort"
 
-h_quit  .byte 00, 04 
+h_quit  .byte 00, 4 
         .word a_quit, z_quit, h_abort
         .byte "quit"
 
+h_plus  .byte { PW + NC }, 1
+        .word a_plus, z_plus, h_quit
+        .byte "+"
+
+h_one-plus .byte { PW + NC }, 2
+        .word a_one-plus, z_one-plus, h_plus
+        .byte "1+"
+
 h_false .byte { PW + NC }, 5
-        .word a_zero, z_zero, h_quit
+        .word a_zero, z_zero, h_one-plus
         .byte "false"
 
 h_true  .byte { PW + NC }, 4
@@ -70,8 +78,16 @@ h_zero  .byte { PW + NC }, 4
         .word a_zero, z_zero, h_one
         .byte "zero"
 
+h_tuck  .byte { PW + NC }, 4
+        .word a_tuck, z_tuck, h_zero
+        .byte "tuck"
+
+h_nip   .byte { PW + NC }, 3
+        .word a_nip, z_nip, h_zero
+        .byte "nip"
+
 h_here  .byte { PW + NC }, 4
-        .word a_here, z_here, h_zero
+        .word a_here, z_here, h_nip
         .byte "here"
 
 h_swap  .byte { PW + NC }, 04
