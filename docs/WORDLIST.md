@@ -4,10 +4,11 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information. The information here is currently not
 complete. 
 
-Last update: **02. Dec 2016**
+Last update: **05. Dec 2016**
 
 | Word        | Status   | Group      | Flags  | Size  | Cycles |
 | :---------- | -------- | ---------- | ------ | ----: | -----: | 
+| ABORT       | fragment | ANSI core  | CO     | (TBA) |  (TBA) | 
 | BYE         | coded    | ANSI tools | PW, NC | 2     |    7-8 | 
 | DROP        | coded    | ANSI core  | PW, NC | 4     |      9 |
 | DUP         | coded    | ANSI core  | PW, NC | 4     |      9 |

@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 02. Dec 2016
+; This version: 05. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -24,15 +24,14 @@
                 lda.# buffer1
                 sta.d cib
 
-                ; start the machine
-                jmp a_cold
+                ; drops through to cold
 
 ; ===================================================================
 ; DICTIONARY ROUTINES
 
 ; Dictionary routines are listed alphabetically to make it easier to
-; find them unless there is a reason to change that (for example, QUIT drops
-; through to ABORT).
+; find them unless there is a reason to change that (for example, ABORT drops
+; through to QUIT 
 
 
 ; -------------------------------------------------------------------
@@ -79,8 +78,20 @@ z_cold  ; dummy value, word may not be compiled
 ; WORD CODE
 ;
 ; Word code routines are sorted alphabetically, except for the first one, 
-; QUIT. The byte and cycle values are calculated without the RTS 
+; ABORT. The byte and cycle values are calculated without the RTS 
 ; instruction.
+
+; -------------------------------------------------------------------
+; ABORT ( -- ) 
+; Reset the parameter (data) stack pointer and continue as QUIT 
+; We can jump here via subroutine because we reset the stack pointer
+; anyway
+a_abort         ; clear Data Stack
+                ldx.# dsp0
+
+                ; TODO set output and input to 
+
+z_abort         ; dummy value for compilation
 
 ; -------------------------------------------------------------------
 ; QUIT ( -- )
@@ -88,15 +99,17 @@ z_cold  ; dummy value, word may not be compiled
 ; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
 ; the ANSI Forth recommendation to use REFILL.
 
-z_cold
-                ; clear Return Stack
-a_quit          lda.# stack0
+                
+a_quit          ; clear Return Stack
+                lda.# stack0
                 tcs
 
                 ; TODO put 0 in SOURCE-ID
                 ; TODO switch to interpret mode
-
                 ; TODO start REFILL
+                
+                ; see
+                ; https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Input-Stream.html
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ; *** TESTING STOP START ***
@@ -144,66 +157,9 @@ z_swap          rts
 
 
 ; ===================================================================
-; DICTIONARY HEADERS
+; MIDDLE INCLUDES
 
-; Dictionary headers are kept separately from the code. For each word, the
-; structure is:
-
-;               8bit     8bit
-; h_word ->  +--------+--------+
-;            | Status | Length |
-;         +2 +--------+--------+
-;            | Start of Code   | -> a_word
-;         +4 +-----------------+
-;            | End of Code     | -> z_word
-;         +6 +-----------------+
-;            | Next Header     | -> h_next_word
-;         +8 +--------+--------+
-;            | Name   |        |
-;            +--------+--------+
-;            |        |        |
-;            +--------+--------+
-;            |        |  ...   |
-;         +n +--------+--------+
-
-; Status bytes are created by adding dictionary flags defined in
-; definitions.tasm:
-;
-;       PW - Primitive Word (natively coded)
-;       CO - Compile Only
-;       IM - Immediate Word
-;       NC - Native Compile (inline compile)
-
-; The last word (top word in code) is always COLD, signaled to FIND by a 0000 in
-; the link to the Next Word field. The words are sorted with the more common
-; ones first (further down in code). 
-
-h_cold  .byte 00  ; status byte (never compile)
-        .byte 04  ; length of word string
-        .word a_cold  ; start of code
-        .word z_cold  ; end of code (points to RTS)
-        .word 0000    ; next word in dictionary, 0000 signals is end
-        .byte "cold"  ; lowercase word name
-
-h_bye   .byte { PW + NC }, 03
-        .word a_bye, z_byte, h_cold 
-        .byte "bye"
-
-h_quit  .byte 00, 04 
-        .word a_quit, z_quit, h_bye
-        .byte "quit"
-
-h_swap  .byte { PW + NC }, 04
-        .word a_swap, z_swap, h_quit
-        .byte "swap"
-
-h_dup   .byte { PW + NC }, 03
-        .word a_dup, z_dup, h_quit
-        .byte "dup"
-
-h_drop  .byte { PW + NC }, 04
-        .word a_drop, z_drop, h_dup
-        .byte "drop"
+        .include dict_headers.tasm
 
 ; ===================================================================
 ; HELPER FUNCTIONS, LOW-LEVEL
