@@ -12,7 +12,6 @@ if sys.version_info.major != 3:
     print("FATAL: Python 3 required. Aborting.")
     sys.exit(1)
 
-
 print("Word Template Generator for Liara Forth")
 print("Scot W. Stevenson <scot.stevenson@gmail.com")
 
@@ -21,19 +20,19 @@ code_template = """
 ; {0} ( -- ) X bytes / X cycles
 ; {1}
 
-a_{2}           nop
+a_{2:<14}nop
                 nop
-z_{2}           rts
+z_{2:<14}rts
 """
 
 dict_template = """
-h_{0}   .byte {{ xx + xx }}, {2}
+h_{0:<5} .byte {{ xx + xx }}, {2}
         .word a_{0}, z_{0}, h_{1}
         .byte "{0}"
 """
 
 entry_template = """
-| {0}   | coded    | {1} | PW, NC | X     |    X |
+| {0:<15}| coded    | {1:<13} | PW, NC | X     |      X |
 """
 
 while True:
