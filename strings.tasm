@@ -1,21 +1,22 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  27. Aug 2016
+; This version:  07. Dec 2016
 
 ; This file is included by liaraforth.tasm
-
 
 ; ===================================================================
 ; GENERAL
 
 ; All general strings must be zero-terminated, names start with "s_"
+; TODO see if "ok" needs trailing space
 
 s_title      .byte "Liara Forth for the W65C265SXB", 0
-s_version    .byte "Version ALPHA 27. August 2016", 0
+s_version    .byte "Version PRE-ALPHA 07. December 2016", 0
 s_author     .byte "Scot W. Stevenson <scot.stevenson@gmail.com>", 0
 s_disclaimer .byte "Liara Forth comes with absolutely NO WARRANTY", 0
 s_typebye    .byte "Type 'bye' to exit", 0
+s_ok         .byte "ok", 0
 
 
 ; ===================================================================
@@ -33,6 +34,7 @@ es_error    .byte ">>>Error<<<", 0
 es_intonly  .byte "Not in interpret mode", 0
 es_noname   .byte "Parsing failure", 0
 es_radix    .byte "Digit larger than base", 0
+es_refill   .byte "Could not get input line (REFILL failed during QUIT)", 0
 es_stack    .byte "Stack over- or underflow", 0
 es_syntax   .byte "Unknown word", 0
 

@@ -1,0 +1,12 @@
+TODO List for Liara Forth 
+Scot W. Stevenson <scot.stevenson@gmail.com>
+First version: 07. Dez 2016
+This version: 07. Dez 2016
+
+Well, first of all, code the damn thing.
+
+DESIGN
+
+- Figure out how to handle Data Stack underflow (check for negative X by
+  forcing check of n flag by TXY?)
+

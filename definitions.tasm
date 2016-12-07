@@ -42,6 +42,7 @@
         .equ tmpdsp  { directpage + &10 } ; Temporary DSP (X) storage, 2 bytes
         .equ tmptos  { directpage + &12 } ; Temporary TOS (Y) storage, 2 bytes
         .equ taskmap { directpage + &14 } ; Bitmap for tasks in multitask mode
+        .equ state   { directpage + &16 } ; STATE: 1 compile, 0 interpret
 
 ; ===================================================================
 ; MENSCH MONITOR ROUTINE LOCATIONS

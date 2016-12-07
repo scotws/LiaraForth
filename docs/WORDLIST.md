@@ -11,7 +11,7 @@ Last update: **07. Dec 2016**
 | 0 (ZERO)       | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1 (ONE)        | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1+ (ONE-PLUS)  | coded    | ANSI core     | PW, NC | 1     |      2 |
-| ABORT          | coded    | ANSI core     | (TBA)  | 3+    |  3+    | 
+| ABORT          | coded    | ANSI core     | (TBA)  | 3+    |     3+ | 
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
@@ -22,6 +22,7 @@ Last update: **07. Dec 2016**
 | QUIT           | fragment | ANSI core     | -      | (TBA) |    n/a |
 | REFILL         | fragment | ANSI core ext | PW     | (TBA) |  (TBA) |
 | SOURCE-ID      | coded    | ANSI core ext | PW, NC | 6     |     13 |
+| STATE          | coded    | ANSI core     | PW, NC | 7     |     12 |
 | SWAP           | coded    | ANSI core     | PW, NC | 5     |     12 |
 | TRUE           | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | TUCK           | coded    | ANSI core ext | PW, NC | 8     |     19 |

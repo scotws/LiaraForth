@@ -13,8 +13,9 @@ declared otherwise.
 ## The Data Stack
 
 The Data Stack (DS) starts at 00:02ff and grows downwards (towards 00:0000). The
-Data Stack Pointer (DSP) - the X register - points to the _current_ second element
-on the stack (Next On Stack, NOS). 
+Data Stack Pointer (DSP) - the X register - points to the _second_
+element on the stack (Next On Stack, NOS), whereas the top entry (Top of Stack,
+TOS) is the A register. 
 
 ## The Return Stack
 

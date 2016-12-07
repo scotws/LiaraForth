@@ -46,7 +46,7 @@ h_cold  .byte 00, 4
         .word a_cold, z_cold, h_bye
         .byte "cold"  
 
-h_abort .byte { CO }, 5
+h_abort .byte 00 , 5 ; TODO check flags
         .word a_abort, z_abort, h_cold
         .byte "abort"
 
@@ -54,8 +54,12 @@ h_quit  .byte 00, 4
         .word a_quit, z_quit, h_abort
         .byte "quit"
 
+h_state .byte { PW + NC }, 5
+        .word a_state, z_state, h_quit
+        .byte "state"
+
 h_plus  .byte { PW + NC }, 1
-        .word a_plus, z_plus, h_quit
+        .word a_plus, z_plus, h_state
         .byte "+"
 
 h_one-plus .byte { PW + NC }, 2

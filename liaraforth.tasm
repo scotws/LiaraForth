@@ -15,71 +15,55 @@
         .include definitions.tasm
         .include macros.tasm
 
-; ===================================================================
-; SETUP
-        .native
-        .axy16
-
-                ; start with first input buffer
-                lda.# buffer1
-                sta.d cib
-
-                ; drops through to cold
 
 ; ===================================================================
 ; DICTIONARY ROUTINES
 
-; Dictionary routines are listed alphabetically to make it easier to
-; find them unless there is a reason to change that (for example, ABORT drops
-; through to QUIT 
+; Word code routines are sorted alphabetically, except for the first three
+; - COLD, ABORT, and QUIT - which flow into each other.  The byte and cycle
+; values are calculated without the RTS instruction.
 
 
 ; -------------------------------------------------------------------
-; COLD ( -- )
-; Reboot the system. This word may not be compiled.
-a_cold  .axy16  ; paranoid
+; COLD ( -- ) X bytes / X Cycles
+; Reboot the system. TODO determine how to compile this word
+
+a_cold  
+        .native
+        .axy16
                 sei
 
                 ; TODO switch to Single Task mode
-                ; TODO setup Direct Page stuff
-                ; TODO setup CP
-                ; TODO setup DP
+                ; TODO set up Direct Page stuff
+                ; TODO set up CP
+                ; TODO set up DP
                 ; TODO initiate TIB
                 ; TODO initiate PAD
                 ; TODO initiate User variables
-
-                ; clear current input buffer
+                ; TODO initiate high-level words 
+                
+                ; start with first input buffer
+                lda.# buffer1
+                sta.d cib
                 jsr clearbuffer
 
                 ; print boot strings
-        .a8
-                lda.# 00  ; bank byte
-
-                jsr.l SEND_CR
-                ldx.# s_title
+                lda.# s_title
                 jsr printstring
-                ldx.# s_version
+                lda.# s_version
                 jsr printstring
-                ldx.# s_author
+                lda.# s_author
                 jsr printstring
-                ldx.# s_disclaimer
+                lda.# s_disclaimer
                 jsr printstring
-                ldx.# s_typebye
+                lda.# s_typebye
                 jsr printstring
 
                 cli
 
-        .a16
 
-z_cold  ; dummy value, word may not be compiled
+z_cold  ; dummy value, determine how to compile
                 ; drop through to QUIT
-
-; ===================================================================
-; WORD CODES
-
-; Word code routines are sorted alphabetically, except for the first two, ABORT
-; and QUIT, which COLD runs into. The byte and cycle values are calculated
-; without the RTS instruction.
 
 ; -------------------------------------------------------------------
 ; ABORT ( -- ) 3 bytes / 3+ cycles
@@ -88,15 +72,17 @@ z_cold  ; dummy value, word may not be compiled
 ; anyway. Flows into QUIT.
 
 a_abort         ; clear Data Stack
+                lda.# 0000
                 ldx.# dsp0
 
-; Drops through to QUIT, so z_abort is the same as z_quit.
+; drops through to QUIT; z_abort is the same as z_quit.
 
 ; -------------------------------------------------------------------
 ; QUIT ( -- ) X bytes / X cycles
 ; Reset the input, clearning Return Stack. Jumps to QUIT do not have to be
 ; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
-; the ANSI Forth recommendation to use REFILL.
+; the ANSI Forth recommendation to use REFILL. Note we don't display the "ok"
+; system prompt until after the first output.
                 
 a_quit          ; clear Return Stack
                 lda.# stack0
@@ -104,28 +90,67 @@ a_quit          ; clear Return Stack
 
                 ; switch SOURCE-ID to zero (keyboard input)
                 stz.d insrc
-
-                ; TODO put 0 in SOURCE-ID
                 
-                ; TODO switch to interpret mode
+                ; switch to interpret mode (STATE is zero)
+                stz.d state
                
-                ; TODO start REFILL
+                ; start with first input buffer
+                lda.# buffer1
+                sta.d cib
+                jsr clearbuffer
+
+quit_main_loop
+                ; accept a line from the current input source
+                jsr a_refill
                 
-                ; see
-                ; https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Input-Stream.html
+                tay ; force flag test
+                beq quit_refill_ok
+
+                ; If REFILL returned a FALSE flag, something went wrong and we
+                ; need to print an error message and reset the machine. We don't
+                ; need to save A because we're going to clober it anyway when we
+                ; go back to ABORT.
+                
+                lda.# es_refill
+                jsr printstring
+        
+                bra a_abort
+
+quit_refill_ok
+                ; Set >IN to zero (pointer to beginning of current input buffer)
+                stz.d to-in
+
+                ; HIER HIER HIER 
+                ; TODO Interpret by calling REFILL
+                
+                ; Display system prompt if all went well
+                pha
+                lda.# s_ok
+                jsr printstring
+                pla
+        
+       
+                
+                bra quit_main_loop
+
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; *** TESTING STOP START ***
+; *** TESTING ***
 
-z_quit          stp  ; TODO for testing only
+                stp  ; TODO for testing only
+
+; *** TESTING ***
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+z_cold
 z_abort         
-
-; *** TESTING STOP END ***
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+z_quit          nop  ; DUMMY, TODO figure out compilation goal
+                
 
 ; -------------------------------------------------------------------
-; ACCEPT ( addr n -- n ) X bytes / X cycles
-; Receive a string of at most n characters
+; ACCEPT ( addr n1 -- n2 ) X bytes / X cycles
+; Receive a string of at most n1 characters, placing them at addr. Return the
+; actual number of characters as n2
 
 a_accept        nop
                 nop
@@ -162,9 +187,9 @@ z_dup           rts
 
 ; -------------------------------------------------------------------
 ; FALSE ( -- f ) 7 bytes / 12 cycles
-; Pushes value $0000 for Forth true on Data Stack
-; This is the same code as for ZERO, see there
-
+; Pushes value $0000 for Forth true on Data Stack. This is the same code as for 
+; ZERO, see there. Dictionary entry should have a_zero/z_zero instead of
+; a_false/z_false
 
 ; -------------------------------------------------------------------
 ; HERE ( -- u ) 6 bytes / 13 cycles
@@ -223,9 +248,19 @@ z_plus          rts
 ; containing no characters is considered successful. If there is no input
 ; available from the current input source, return false. When the input source
 ; is a string from EVALUATE, return false and perform no other action."
+; See https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Input-Stream.html
 
-a_refill        nop
-                nop
+a_refill        
+                ; TODO return false if we're working on strings from 
+                ; EVALUATE
+
+                ; TODO Call ACCEPT to get a string from user (normal case)
+                
+                ; TODO LATER Get a string from a block
+                ; TODO LATER Get a string from a file
+                
+                ; TODO store flag as TOS
+
 z_refill        rts
 
 ; -------------------------------------------------------------------
@@ -238,6 +273,19 @@ a_source-id     dex
                 lda.d insrc
                 
 z_source-id     rts
+
+; -------------------------------------------------------------------
+; STATE ( -- addr ) 7 bytes / 12 cycles
+; Return the address of a cell containing the compilation-state flag. STATE
+; is true when in compilation state, false otherwise. STATE cannot be changed
+; directly by the user.
+
+a_state         dex
+                dex
+                sta.dx 00
+                lda.# state
+                
+z_state         rts
 
 
 ; -------------------------------------------------------------------
@@ -292,14 +340,25 @@ z_zero          rts
         .include dict_headers.tasm
 
 ; ===================================================================
-; HELPER FUNCTIONS, LOW-LEVEL
+; LOW LEVEL HELPER FUNCTIONS
 
-; Print a string with a CR added on. Thin wrapper to PUT_STR. Assumes
-; bank byte in A8 and address of zero-terminated string in X16
-printstring     jsr.l PUT_STR
+; ------------------------------------------------------------------- 
+; Print a string with a CR added on. Thin wrapper to PUT_STR. Assumes that A has
+; been saved by caller and contains address of string in a16. 
+printstring     
+                ; don't use tmpdsp for X because we don't know if the user has
+                ; used it for something already
+                phx
+                tax ; x16 contains address of string
+        .a8
+                lda.# 00 ; bank byte
+                jsr.l PUT_STR
                 jsr.l SEND_CR
+        .a16
+                plx
                 rts
 
+; -------------------------------------------------------------------
 ; Swap the two input buffers. Assumes A16, destroys Y.
 swapbuffers     tay
                 lda.d cib
@@ -308,7 +367,9 @@ swapbuffers     tay
                 tya
                 rts
 
+; -------------------------------------------------------------------
 ; Clear current buffer. Assumes buffer size 256 bytes and A16, destroys Y.
+; Does not affect >IN (to-in)
 clearbuffer     sta.d tmptos
                 lda.# 0000
                 tay
