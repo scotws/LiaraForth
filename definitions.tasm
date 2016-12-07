@@ -34,13 +34,14 @@
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
 
-        .equ cp      { directpage + 0 }  ; Compiler Pointer, 2 bytes
-        .equ dp      { directpage + 2 }  ; Dictionary Pointer, 2 bytes
-        .equ to-in   { directpage + 4 }  ; Input Buffer Pointer >IN, 2 bytes
-        .equ cib     { directpage + 6 }  ; Current Input Buffer, 7c00 or 7d00
-        .equ tmpdsp  { directpage + 8 }  ; Temporary DSP (X) storage, 2 bytes
-        .equ tmptos  { directpage + 0a }  ; Temporary TOS (Y) storage, 2 bytes
-        .equ taskmap { directpage + 0c }  ; Bitmap for tasks in multitask mode
+        .equ cp      { directpage + &0 }  ; Compiler Pointer, 2 bytes
+        .equ dp      { directpage + &2 }  ; Dictionary Pointer, 2 bytes
+        .equ to-in   { directpage + &4 }  ; Input Buffer Pointer >IN, 2 bytes
+        .equ cib     { directpage + &6 }  ; Current Input Buffer, 7c00 or 7d00
+        .equ insrc   { directpage + &8 }  ; Input Source for SOURCE-ID
+        .equ tmpdsp  { directpage + &10 } ; Temporary DSP (X) storage, 2 bytes
+        .equ tmptos  { directpage + &12 } ; Temporary TOS (Y) storage, 2 bytes
+        .equ taskmap { directpage + &14 } ; Bitmap for tasks in multitask mode
 
 ; ===================================================================
 ; MENSCH MONITOR ROUTINE LOCATIONS
