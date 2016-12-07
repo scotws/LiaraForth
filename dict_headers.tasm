@@ -82,8 +82,12 @@ h_refill .byte { PW }, 6 ; TODO check flags
         .word a_refill, z_refill, h_zero
         .byte "refill"
 
+h_source-id .byte { PW + NC }, 9
+        .word a_source-id, z_source-id, h_refill
+        .byte "source-id"
+
 h_accept .byte 00, 6 ; TODO check flags
-        .word a_accept, z_accept, h_refill
+        .word a_accept, z_accept, h_source-id
         .byte "accept"
 
 h_tuck  .byte { PW + NC }, 4

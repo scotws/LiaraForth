@@ -21,6 +21,7 @@ Last update: **07. Dec 2016**
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
 | QUIT           | fragment | ANSI core     | -      | (TBA) |    n/a |
 | REFILL         | fragment | ANSI core ext | PW     | (TBA) |  (TBA) |
+| SOURCE-ID      | fragment | ANSI core ext | PW, NC | (TBA) |  (TBA) |
 | SWAP           | coded    | ANSI core     | PW, NC | 5     |     12 |
 | TRUE           | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | TUCK           | coded    | ANSI core ext | PW, NC | 8     |     19 |

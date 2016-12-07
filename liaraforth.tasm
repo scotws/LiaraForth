@@ -105,7 +105,9 @@ a_quit          ; clear Return Stack
                 tcs
 
                 ; TODO put 0 in SOURCE-ID
+                
                 ; TODO switch to interpret mode
+               
                 ; TODO start REFILL
                 
                 ; see
@@ -223,6 +225,15 @@ z_plus          rts
 a_refill        nop
                 nop
 z_refill        rts
+
+; -------------------------------------------------------------------
+; SOURCE-ID ( -- f ) X bytes / X cycles
+; Identify the input source
+
+a_source-id     nop
+                nop
+z_source-id     rts
+
 
 ; -------------------------------------------------------------------
 ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
