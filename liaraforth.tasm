@@ -75,34 +75,35 @@ z_cold  ; dummy value, word may not be compiled
                 ; drop through to QUIT
 
 ; ===================================================================
-; WORD CODE
-;
-; Word code routines are sorted alphabetically, except for the first two, 
-; ABORT and QUIT. The byte and cycle values are calculated without the RTS 
-; instruction.
+; WORD CODES
+
+; Word code routines are sorted alphabetically, except for the first two, ABORT
+; and QUIT, which COLD runs into. The byte and cycle values are calculated
+; without the RTS instruction.
 
 ; -------------------------------------------------------------------
-; ABORT ( -- ) 
+; ABORT ( -- ) 3 bytes / 3+ cycles
 ; Reset the parameter (data) stack pointer and continue as QUIT 
 ; We can jump here via subroutine because we reset the stack pointer
-; anyway
+; anyway. Flows into QUIT.
+
 a_abort         ; clear Data Stack
                 ldx.# dsp0
 
-                ; TODO set output and input to 
-
-z_abort         ; dummy value for compilation
+; Drops through to QUIT, so z_abort is the same as z_quit.
 
 ; -------------------------------------------------------------------
-; QUIT ( -- )
+; QUIT ( -- ) X bytes / X cycles
 ; Reset the input, clearning Return Stack. Jumps to QUIT do not have to be
 ; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
 ; the ANSI Forth recommendation to use REFILL.
-
                 
 a_quit          ; clear Return Stack
                 lda.# stack0
                 tcs
+
+                ; switch SOURCE-ID to zero (keyboard input)
+                stz.d insrc
 
                 ; TODO put 0 in SOURCE-ID
                 
@@ -117,6 +118,7 @@ a_quit          ; clear Return Stack
 ; *** TESTING STOP START ***
 
 z_quit          stp  ; TODO for testing only
+z_abort         
 
 ; *** TESTING STOP END ***
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
