@@ -50,44 +50,6 @@ _done           lda.dx 0        ; DROP
                 rts
 
 ; ---------------------------------------------------
-; HERE ( -- n ) 6 bytes / xx cycles
-                
-                dex             ; PUSH
-                dex
-                sta.dx 0
-
-                lda.d CP
-
-                rts
-
-; ---------------------------------------------------
-; ZERO ( -- 0 ) 7 bytes / xx cycles
-
-                dex             ; PUSH
-                dex
-                sta.dx 0
-
-                lda.# 0000
-
-                rts
-
-; ---------------------------------------------------
-; PLUS ( n m -- n+m ) 5 bytes / xx cycles
-
-                clc
-                adc.dx 0
-                inx
-                inx
-
-                rts
-
-; ---------------------------------------------------
-; 1+  ( n -- n+1 )  1 byte / 2 cycles
-
-                inc.a 
-                rts
-
-; ---------------------------------------------------
 ; COMMA ( n -- )  12 bytes / xx cycles
 
                 sta.di CP       ; sta (CP)
@@ -104,25 +66,6 @@ _done           lda.dx 0        ; DROP
                 inx
 
                 rts
-
-; ---------------------------------------------------
-; TUCK ( n m -- m n m )  8 bytes / xx cycles
-
-        dex
-        dex
-        ldy.dx 2
-        sty.dx 0
-        sta.dx 2
-
-        rts
-
-; ---------------------------------------------------
-; NIP ( n m -- m ) 2 bytes / 4 cycles
-;
-        inx
-        inx
-
-        rts
 
 ; ---------------------------------------------------
 ; FILL ( add u n -- ) xx bytes / xx cycles

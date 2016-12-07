@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 05. Dec 2016
+; This version: 07. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -77,8 +77,8 @@ z_cold  ; dummy value, word may not be compiled
 ; ===================================================================
 ; WORD CODE
 ;
-; Word code routines are sorted alphabetically, except for the first one, 
-; ABORT. The byte and cycle values are calculated without the RTS 
+; Word code routines are sorted alphabetically, except for the first two, 
+; ABORT and QUIT. The byte and cycle values are calculated without the RTS 
 ; instruction.
 
 ; -------------------------------------------------------------------
@@ -119,6 +119,13 @@ z_quit          stp  ; TODO for testing only
 ; *** TESTING STOP END ***
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+; -------------------------------------------------------------------
+; ACCEPT ( addr n -- n ) X bytes / X cycles
+; Receive a string of at most n characters
+
+a_accept        nop
+                nop
+z_accept        rts
 
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
@@ -202,6 +209,20 @@ a_plus          clc
                 inx 
 
 z_plus          rts
+
+; ------------------------------------------------------------------- 
+; REFILL ( -- f ) X bytes / X cycles
+; "Attempt to fill the input buffer from the input source, returning a true flag
+; if successful. When the input source is the user input device, attempt to
+; receive input into the terminal input buffer. If successful, make the result
+; the input buffer, set >IN to zero, and return true. Receipt of a line
+; containing no characters is considered successful. If there is no input
+; available from the current input source, return false. When the input source
+; is a string from EVALUATE, return false and perform no other action."
+
+a_refill        nop
+                nop
+z_refill        rts
 
 ; -------------------------------------------------------------------
 ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
