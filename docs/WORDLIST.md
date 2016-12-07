@@ -1,8 +1,7 @@
 # Wordlist for Liara Forth
 
 This table is an alphabetical list of the words provided by Liara Forth, including
-their status and other information. The information here is currently not
-complete. 
+their status and other information. 
 
 Last update: **07. Dec 2016**
 
@@ -30,7 +29,7 @@ Last update: **07. Dec 2016**
 ### Entries
 
 ***Status*** - State of development. Goes from **planned, fragment, coded** to
-**tested**.
+finally **tested**.
 
 ***Group*** - Which word group the word belongs to, especially ANSI or
 non-ANSI. Words written especially for the board are marked "265SXB". See [the
@@ -41,8 +40,9 @@ Forth Standard](https://forth-standard.org/) for basis.
 
 ***Size*** - If a native word, number of bytes the code uses (without the final
 RTS); if Forth word, number of characters. If the information is not available
-yet, size is "(TBA)".
+yet, size is "(TBA)". 
 
 ***Cycles*** - For native words, the number of machine cycles the routine uses.
 For Forth words, this will usually be "n/a" because of the effort involved.  If
-the information is not available yet, size is "(TBA)".
+the information is not available yet, size is "(TBA)". If the routine calls
+other words, there will be a "+" after the cycle number. 
