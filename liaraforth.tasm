@@ -45,7 +45,7 @@ a_cold
                 ; start with first input buffer
                 lda.# buffer1
                 sta.d cib
-                jsr clearbuffer
+                jsr clearbuffer ; TODO see if we need this here or below
 
                 ; print boot strings
                 lda.# s_title
@@ -60,6 +60,7 @@ a_cold
                 jsr printstring
 
                 cli
+
 
                 ; drop through to QUIT
 
@@ -102,7 +103,7 @@ quit_main_loop
                 jsr a_refill
                 
                 tay ; force flag test
-                beq quit_refill_ok
+                bne quit_refill_ok
 
                 ; If REFILL returned a FALSE flag, something went wrong and we
                 ; need to print an error message and reset the machine. We don't
@@ -256,6 +257,12 @@ a_refill
                 ; TODO LATER Get a string from a file
                 
                 ; TODO store flag as TOS
+                
+                ; TODO TESTING DUMMY fake all is well
+                dex
+                dex
+                sta.dx 00
+                lda.# 0ffff
 
 z_refill        rts
 
@@ -356,7 +363,8 @@ printstring
 
 ; -------------------------------------------------------------------
 ; Swap the two input buffers. Assumes A16, destroys Y.
-swapbuffers     tay
+swapbuffers     
+                tay
                 lda.d cib
                 eor.# 0100  ; flip 07d00 / 07c00
                 sta.d cib
@@ -365,14 +373,17 @@ swapbuffers     tay
 
 ; -------------------------------------------------------------------
 ; Clear current buffer. Assumes buffer size 256 bytes and A16, destroys Y.
-; Does not affect >IN (to-in)
-clearbuffer     sta.d tmptos
+; Does not affect >IN (to-in). Remember Y is 16 bit at this point.
+clearbuffer     
+                sta.d tmptos
                 lda.# 0000
                 tay
 
-@               sta.diy cib  ; STA (cib),y
-                dey
-                dey
+@
+                sta.diy cib  ; STA (cib),y
+                iny 
+                iny
+                cpy.# 0100
                 bne -
 
                 lda.d tmptos
