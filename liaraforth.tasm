@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 07. Dec 2016
+; This version: 08. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -61,8 +61,6 @@ a_cold
 
                 cli
 
-
-z_cold  ; dummy value, determine how to compile
                 ; drop through to QUIT
 
 ; -------------------------------------------------------------------
@@ -129,10 +127,6 @@ quit_refill_ok
                 jsr printstring
                 pla
         
-       
-                
-                bra quit_main_loop
-
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ; *** TESTING ***
@@ -141,6 +135,8 @@ quit_refill_ok
 
 ; *** TESTING ***
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                bra quit_main_loop
 
 z_cold
 z_abort         

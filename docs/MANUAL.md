@@ -89,6 +89,11 @@ Liara Forth is heavily based on [Tali Forth for the
 threaded structure. 
 
 
+## Assembling Liara Forth
+
+Liara Forth includes the source code to allow changes and modifications. See the
+file COPYING.txt for details on license issues.
+
 ### Typist's Assembler Notation (TAN)
 
 Liara Forth is written in [Typist's Assembler
@@ -104,6 +109,21 @@ automatic formatter that is part of the Tinkerer's Assembler.
 TAN provides various advantages over the traditional notation, especially when
 spotting errors. The first stable version of Liara Forth will probably include a
 version converted to traditional syntax.
+
+### Assembly with the Tinkerer's Assembler
+
+To assemble the source code, download [Tinkerer's
+Assembler](https://github.com/scotws/tinkasm) which is coded in Python 3. Then,
+in Liara Forth's main directory, run
+
+```
+python3 [PATH]/tinkasm -i liaraforth.tasm -v -d -l -x
+```
+
+where `[PATH]` is the correct file to where you stored the assembler. This will
+produce lots of output, as well as a listing (because of `-l`), a binary file
+`(tink.bin)` and a hex dump (`-x`). By default, the code is assembled to start
+at 00:0000. 
 
 
 ## Testing Liara Forth with an Emulator

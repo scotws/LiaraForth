@@ -3,131 +3,253 @@ Version BETA  03. September 2016
 Copyright 2015, 2016 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 Code listing for file liaraforth.tasm
-Generated on Mon Dec  5 16:45:19 2016
+Generated on Thu Dec  8 16:34:54 2016
 Target MPU: 65816
 External files loaded: 4
 Number of passes executed: 32
 Number of steps executed: 7
-Assembly time: 1.12846 seconds
+Assembly time: 0.82215 seconds
 Code origin: 008000
-Bytes of machine code: 631
+Bytes of machine code: 962
 
 LISTING:
        Line Address  Bytes        Instruction
-    1    20 00:8000  18           clc
-    2    20 00:8001  fb           xce
-    3    21 00:8002  c2 30        rep 30
-    4    24 00:8004  a9 00 7c     lda.# 007c00
-    5    25 00:8007  85 06        sta.d cib
-    6    40 00:8009  c2 30        a_cold
-    7    41 00:800b  78           sei
-    8    52 00:800c  20 b9 80     jsr clearbuffer
-    9    55 00:800f  e2 20        sep 20
-   10    56 00:8011  a9 00        lda.# 00
-   11    58 00:8013  22 66 e0 00  jsr.l 00e066
-   12    59 00:8017  a2 c8 80     ldx.# s_title
-   13    60 00:801a  20 a6 80     jsr printstring
-   14    61 00:801d  a2 e7 80     ldx.# s_version
-   15    62 00:8020  20 a6 80     jsr printstring
-   16    63 00:8023  a2 05 81     ldx.# s_author
-   17    64 00:8026  20 a6 80     jsr printstring
-   18    65 00:8029  a2 32 81     ldx.# s_disclaimer
-   19    66 00:802c  20 a6 80     jsr printstring
-   20    67 00:802f  a2 60 81     ldx.# s_typebye
-   21    68 00:8032  20 a6 80     jsr printstring
-   22    70 00:8035  58           cli
-   23    72 00:8036  c2 20        rep 20
-   24    90 00:8038  a2 ff 02     ldx.# 0002ff
-   25   104 00:803b  a9 ff 7f     lda.# 007fff
-   26   105 00:803e  1b           tcs
-   27   117 00:803f  db           z_quit
-   28   126 00:8040  00 00        a_bye
-   29   127 00:8042  60           z_bye
-   30   134 00:8043  b5 00        lda.dx 00
-   31   135 00:8045  e8           inx
-   32   136 00:8046  e8           inx
-   33   137 00:8047  60           z_drop
-   34   144 00:8048  ca           a_dup
-   35   145 00:8049  ca           dex
-   36   146 00:804a  95 00        sta.dx 00
-   37   147 00:804c  60           z_dup
-   38   153 00:804d  b4 00        a_swap
-   39   154 00:804f  95 00        sta.dx 00
-   40   155 00:8051  98           tya
-   41   156 00:8052  60           z_swap
-   42   162 00:8053  00           .byte 64, 72, 6f, 70
-   43   162 00:8054  04           .word a_drop, z_drop, h_dup
-   44   162 00:8055  09 80        h_drop
-   45   162 00:8057  38 80        h_dup
-   46   162 00:8059  00 00        h_quit
-   47   162 00:805b  63 6f 6c 64  (data)
-   48   162 00:805f  40 05        (data)
-   49   162 00:8061  38 80 (...)  (data)
-   50   162 00:8067  61 62 (...)  (data)
-   51   162 00:806c  90 03        (data)
-   52   162 00:806e  40 80 (...)  (data)
-   53   162 00:8074  62 79 65     (data)
-   54   162 00:8077  00 04        (data)
-   55   162 00:8079  3b 80 (...)  (data)
-   56   162 00:807f  71 75 69 74  (data)
-   57   162 00:8083  90 04        (data)
-   58   162 00:8085  4d 80 (...)  (data)
-   59   162 00:808b  73 77 61 70  (data)
-   60   162 00:808f  90 03        (data)
-   61   162 00:8091  48 80 (...)  (data)
-   62   162 00:8097  64 75 70     (data)
-   63   162 00:809a  90 04        (data)
-   64   162 00:809c  43 80 (...)  (data)
-   65   162 00:80a2  64 72 6f 70  (data)
-   66   169 00:80a6  22 4e e0 00  printstring
-   67   170 00:80aa  22 66 e0 00  jsr.l 00e066
-   68   171 00:80ae  60           rts
-   69   174 00:80af  a8           swapbuffers
-   70   175 00:80b0  a5 06        lda.d cib
-   71   176 00:80b2  49 00 01     eor.# 0100
-   72   177 00:80b5  85 06        sta.d cib
-   73   178 00:80b7  98           tya
-   74   179 00:80b8  60           rts
-   75   182 00:80b9  85 0a        clearbuffer
-   76   183 00:80bb  a9 00 00     lda.# 0000
-   77   184 00:80be  a8           tay
-   78   186 00:80bf  91 06        @
-   79   187 00:80c1  88           dey
-   80   188 00:80c2  88           dey
-   81   189 00:80c3  d0 fa        bne -
-   82   191 00:80c5  a5 0a        lda.d tmptos
-   83   192 00:80c7  60           rts
-   84   198 00:80c8  4c 69 (...)  alphastr
-   85   198 00:80e7  56 65 (...)  .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f, 70, 71, 72, 73, 74, 75, 76, 77, 79, 7a
-   86   198 00:8105  53 63 (...)  .byte 44, 69, 67, 69, 74, 20, 6c, 61, 72, 67, 65, 72, 20, 74, 68, 61, 6e, 20, 62, 61, 73, 65, 0
-   87   198 00:8132  4c 69 (...)  .byte 4e, 6f, 74, 20, 69, 6e, 20, 69, 6e, 74, 65, 72, 70, 72, 65, 74, 20, 6d, 6f, 64, 65, 0
-   88   198 00:8160  54 79 (...)  .byte 44, 45, 46, 45, 52, 65, 64, 20, 77, 6f, 72, 64, 20, 6e, 6f, 74, 20, 64, 65, 66, 69, 6e, 65, 64, 20, 79, 65, 74, 0
-   89   198 00:8173  41 63 (...)  .byte 55, 6e, 6b, 6e, 6f, 77, 6e, 20, 77, 6f, 72, 64, 0
-   90   198 00:818d  49 6e (...)  (data)
-   91   198 00:81ae  44 45 (...)  (data)
-   92   198 00:81cb  44 69 (...)  (data)
-   93   198 00:81dc  20 28 (...)  (data)
-   94   198 00:81e5  3e 3e (...)  (data)
-   95   198 00:81f1  4e 6f (...)  (data)
-   96   198 00:8207  50 61 (...)  (data)
-   97   198 00:8217  44 69 (...)  (data)
-   98   198 00:822e  53 74 (...)  (data)
-   99   198 00:8247  55 6e (...)  (data)
-  100   198 00:8254  30 31 (...)  (data)
+    1    32 00:8000  18           clc
+    2    32 00:8001  fb           xce
+    3    33 00:8002  c2 30        rep 30
+    4    34 00:8004  78           sei
+    5    46 00:8005  a9 00 7c     lda.# 007c00
+    6    47 00:8008  85 06        sta.d cib
+    7    48 00:800a  20 c6 81     jsr clearbuffer
+    8    51 00:800d  a9 d5 81     lda.# s_title
+    9    52 00:8010  20 aa 81     jsr printstring
+   10    53 00:8013  a9 f4 81     lda.# s_version
+   11    54 00:8016  20 aa 81     jsr printstring
+   12    55 00:8019  a9 18 82     lda.# s_author
+   13    56 00:801c  20 aa 81     jsr printstring
+   14    57 00:801f  a9 45 82     lda.# s_disclaimer
+   15    58 00:8022  20 aa 81     jsr printstring
+   16    59 00:8025  a9 73 82     lda.# s_typebye
+   17    60 00:8028  20 aa 81     jsr printstring
+   18    62 00:802b  58           cli
+   19    73 00:802c  a9 00 00     lda.# 0000
+   20    74 00:802f  a2 ff 02     ldx.# 0002ff
+   21    86 00:8032  a9 ff 7f     lda.# 007fff
+   22    87 00:8035  1b           tcs
+   23    90 00:8036  64 08        stz.d insrc
+   24    93 00:8038  64 10        stz.d state
+   25    96 00:803a  a9 00 7c     lda.# 007c00
+   26    97 00:803d  85 06        sta.d cib
+   27    98 00:803f  20 c6 81     jsr clearbuffer
+   28   102 00:8042  20 88 80     jsr a_refill
+   29   104 00:8045  a8           tay
+   30   105 00:8046  f0 08        beq quit_refill_ok
+   31   112 00:8048  a9 44 83     lda.# es_refill
+   32   113 00:804b  20 aa 81     jsr printstring
+   33   115 00:804e  80 dc        bra a_abort
+   34   119 00:8050  64 04        stz.d to-in
+   35   125 00:8052  48           pha
+   36   126 00:8053  a9 86 82     lda.# s_ok
+   37   127 00:8056  20 aa 81     jsr printstring
+   38   128 00:8059  68           pla
+   39   134 00:805a  db           stp
+   40   139 00:805b  80 e5        bra quit_main_loop
+   41   143 00:805d  ea           z_quit
+   42   151 00:805e  ea           a_accept
+   43   152 00:805f  ea           nop
+   44   153 00:8060  60           z_accept
+   45   159 00:8061  00 00        a_bye
+   46   160 00:8063  60           z_bye
+   47   167 00:8064  b5 00        lda.dx 00
+   48   168 00:8066  e8           inx
+   49   169 00:8067  e8           inx
+   50   171 00:8068  60           z_drop
+   51   178 00:8069  ca           a_dup
+   52   179 00:806a  ca           dex
+   53   180 00:806b  95 00        sta.dx 00
+   54   182 00:806d  60           z_dup
+   55   194 00:806e  ca           a_here
+   56   195 00:806f  ca           dex
+   57   196 00:8070  95 00        sta.dx 00
+   58   197 00:8072  a5 00        lda.d cp
+   59   199 00:8074  60           z_here
+   60   205 00:8075  e8           a_nip
+   61   206 00:8076  e8           inx
+   62   207 00:8077  60           z_nip
+   63   213 00:8078  ca           a_one
+   64   214 00:8079  ca           dex
+   65   215 00:807a  95 00        sta.dx 00
+   66   216 00:807c  a9 01 00     lda.# 0001
+   67   218 00:807f  60           z_one
+   68   224 00:8080  1a           a_one-plus
+   69   225 00:8081  60           z_one-plus
+   70   231 00:8082  18           a_plus
+   71   232 00:8083  75 00        adc.dx 00
+   72   233 00:8085  e8           inx
+   73   234 00:8086  e8           inx
+   74   236 00:8087  60           z_plus
+   75   260 00:8088  60           z_refill
+   76   266 00:8089  ca           a_source-id
+   77   267 00:808a  ca           dex
+   78   268 00:808b  95 00        sta.dx 00
+   79   269 00:808d  a5 08        lda.d insrc
+   80   271 00:808f  60           z_source-id
+   81   279 00:8090  ca           a_state
+   82   280 00:8091  ca           dex
+   83   281 00:8092  95 00        sta.dx 00
+   84   282 00:8094  a9 10 02     lda.# state
+   85   284 00:8097  60           z_state
+   86   291 00:8098  b4 00        a_swap
+   87   292 00:809a  95 00        sta.dx 00
+   88   293 00:809c  98           tya
+   89   295 00:809d  60           z_swap
+   90   301 00:809e  ca           a_true
+   91   302 00:809f  ca           dex
+   92   303 00:80a0  95 00        sta.dx 00
+   93   304 00:80a2  a9 ff ff     lda.# 0ffff
+   94   306 00:80a5  60           z_true
+   95   312 00:80a6  ca           a_tuck
+   96   313 00:80a7  ca           dex
+   97   314 00:80a8  b4 02        ldy.dx 2
+   98   315 00:80aa  94 00        sty.dx 0
+   99   316 00:80ac  95 02        sta.dx 2
+  100   318 00:80ae  60           z_tuck
+  101   324 00:80af  ca           a_zero
+  102   325 00:80b0  ca           dex
+  103   326 00:80b1  95 00        sta.dx 00
+  104   327 00:80b3  a9 00 00     lda.# 0000
+  105   329 00:80b6  60           z_zero
+  106   336 00:80b7  90           .byte 64, 72, 6f, 70
+  107   336 00:80b8  03           .word a_drop, z_drop, h_dup
+  108   336 00:80b9  61 80        h_dup
+  109   336 00:80bb  63 80        h_swap
+  110   336 00:80bd  00 00        h_drop
+  111   336 00:80bf  62 79 65     h_false
+  112   336 00:80c2  00 04        h_nip
+  113   336 00:80c4  00 80 (...)  (data)
+  114   336 00:80ca  63 6f 6c 64  (data)
+  115   336 00:80ce  00 05        (data)
+  116   336 00:80d0  2c 80 (...)  (data)
+  117   336 00:80d6  61 62 (...)  (data)
+  118   336 00:80db  00 04        (data)
+  119   336 00:80dd  32 80 (...)  (data)
+  120   336 00:80e3  71 75 69 74  (data)
+  121   336 00:80e7  90 05        (data)
+  122   336 00:80e9  90 80 (...)  (data)
+  123   336 00:80ef  73 74 (...)  (data)
+  124   336 00:80f4  90 01        (data)
+  125   336 00:80f6  82 80 (...)  (data)
+  126   336 00:80fc  2b           (data)
+  127   336 00:80fd  90 02        (data)
+  128   336 00:80ff  80 80 (...)  (data)
+  129   336 00:8105  31 2b        (data)
+  130   336 00:8107  90 05        (data)
+  131   336 00:8109  af 80 (...)  (data)
+  132   336 00:810f  66 61 (...)  (data)
+  133   336 00:8114  90 04        (data)
+  134   336 00:8116  9e 80 (...)  (data)
+  135   336 00:811c  74 72 75 65  (data)
+  136   336 00:8120  90 03        (data)
+  137   336 00:8122  78 80 (...)  (data)
+  138   336 00:8128  6f 6e 65     (data)
+  139   336 00:812b  90 04        (data)
+  140   336 00:812d  af 80 (...)  (data)
+  141   336 00:8133  7a 65 72 6f  (data)
+  142   336 00:8137  80 06        (data)
+  143   336 00:8139  88 80 (...)  (data)
+  144   336 00:813f  72 65 (...)  (data)
+  145   336 00:8145  90 09        (data)
+  146   336 00:8147  89 80 (...)  (data)
+  147   336 00:814d  73 6f (...)  (data)
+  148   336 00:8156  00 06        (data)
+  149   336 00:8158  5e 80 (...)  (data)
+  150   336 00:815e  61 63 (...)  (data)
+  151   336 00:8164  90 04        (data)
+  152   336 00:8166  a6 80 (...)  (data)
+  153   336 00:816c  74 75 63 6b  (data)
+  154   336 00:8170  90 03        (data)
+  155   336 00:8172  75 80 (...)  (data)
+  156   336 00:8178  6e 69 70     (data)
+  157   336 00:817b  90 04        (data)
+  158   336 00:817d  6e 80 (...)  (data)
+  159   336 00:8183  68 65 72 65  (data)
+  160   336 00:8187  90 04        (data)
+  161   336 00:8189  98 80 (...)  (data)
+  162   336 00:818f  73 77 61 70  (data)
+  163   336 00:8193  90 03        (data)
+  164   336 00:8195  69 80 (...)  (data)
+  165   336 00:819b  64 75 70     (data)
+  166   336 00:819e  90 04        (data)
+  167   336 00:81a0  64 80 (...)  (data)
+  168   336 00:81a6  64 72 6f 70  (data)
+  169   347 00:81aa  da           phx
+  170   348 00:81ab  aa           tax
+  171   349 00:81ac  e2 20        sep 20
+  172   350 00:81ae  a9 00        lda.# 00
+  173   351 00:81b0  22 4e e0 00  jsr.l 00e04e
+  174   352 00:81b4  22 66 e0 00  jsr.l 00e066
+  175   353 00:81b8  c2 20        rep 20
+  176   354 00:81ba  fa           plx
+  177   355 00:81bb  60           rts
+  178   359 00:81bc  a8           swapbuffers
+  179   360 00:81bd  a5 06        lda.d cib
+  180   361 00:81bf  49 00 01     eor.# 0100
+  181   362 00:81c2  85 06        sta.d cib
+  182   363 00:81c4  98           tya
+  183   364 00:81c5  60           rts
+  184   369 00:81c6  85 0c        clearbuffer
+  185   370 00:81c8  a9 00 00     lda.# 0000
+  186   371 00:81cb  a8           tay
+  187   373 00:81cc  91 06        @
+  188   374 00:81ce  88           dey
+  189   375 00:81cf  88           dey
+  190   376 00:81d0  d0 fa        bne -
+  191   378 00:81d2  a5 0c        lda.d tmptos
+  192   379 00:81d4  60           rts
+  193   385 00:81d5  4c 69 (...)  alphastr
+  194   385 00:81f4  56 65 (...)  .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f, 70, 71, 72, 73, 74, 75, 76, 77, 79, 7a
+  195   385 00:8218  53 63 (...)  .byte 55, 6e, 6b, 6e, 6f, 77, 6e, 20, 77, 6f, 72, 64, 0
+  196   385 00:8245  4c 69 (...)  .byte 3e, 3e, 3e, 45, 72, 72, 6f, 72, 3c, 3c, 3c, 0
+  197   385 00:8273  54 79 (...)  .byte 49, 6e, 74, 65, 72, 70, 72, 65, 74, 69, 6e, 67, 20, 61, 20, 63, 6f, 6d, 70, 69, 6c, 65, 2d, 6f, 6e, 6c, 79, 20, 77, 6f, 72, 64, 0
+  198   385 00:8286  6f 6b 00     .byte 43, 6f, 75, 6c, 64, 20, 6e, 6f, 74, 20, 67, 65, 74, 20, 69, 6e, 70, 75, 74, 20, 6c, 69, 6e, 65, 20, 28, 52, 45, 46, 49, 4c, 4c, 20, 66, 61, 69, 6c, 65, 64, 20, 64, 75, 72, 69, 6e, 67, 20, 51, 55, 49, 54, 29, 0
+  199   385 00:8289  41 63 (...)  (data)
+  200   385 00:82a3  49 6e (...)  (data)
+  201   385 00:82c4  44 45 (...)  (data)
+  202   385 00:82e1  44 69 (...)  (data)
+  203   385 00:82f2  20 28 (...)  (data)
+  204   385 00:82fb  3e 3e (...)  (data)
+  205   385 00:8307  4e 6f (...)  (data)
+  206   385 00:831d  50 61 (...)  (data)
+  207   385 00:832d  44 69 (...)  (data)
+  208   385 00:8344  43 6f (...)  (data)
+  209   385 00:8379  53 74 (...)  (data)
+  210   385 00:8392  55 6e (...)  (data)
+  211   385 00:839f  30 31 (...)  (data)
 
 MACROS:
             (none)
 
 SYMBOL TABLE:
-                     >in : 000204
-                 a_abort : 008038
-                   a_bye : 008040
-                  a_cold : 008009
-                  a_drop : 008043
-                   a_dup : 008048
-                  a_quit : 00803b
-                  a_swap : 00804d
-                alphastr : 008254
+                 a_abort : 00802c
+                a_accept : 00805e
+                   a_bye : 008061
+                  a_cold : 008000
+                  a_drop : 008064
+                   a_dup : 008069
+                  a_here : 00806e
+                   a_nip : 008075
+                   a_one : 008078
+              a_one-plus : 008080
+                  a_plus : 008082
+                  a_quit : 008032
+                a_refill : 008088
+             a_source-id : 008089
+                 a_state : 008090
+                  a_swap : 008098
+                  a_true : 00809e
+                  a_tuck : 0080a6
+                  a_zero : 0080af
+                alphastr : 00839f
                    ascbs : 000008
                    asccc : 000003
                    asccr : 00000d
@@ -139,59 +261,91 @@ SYMBOL TABLE:
                  buffer2 : 007d00
                  buffers : 007c00
                      cib : 000206
-             clearbuffer : 0080b9
+             clearbuffer : 0081c6
                       co : 000040
                       cp : 000200
               directpage : 000200
      directpage-multiple : 007400
                       dp : 000202
                     dsp0 : 0002ff
-              es_channel : 008173
-             es_componly : 00818d
-                es_defer : 0081ae
-              es_divzero : 0081cb
-                es_empty : 0081dc
-                es_error : 0081e5
-              es_intonly : 0081f1
-               es_noname : 008207
-                es_radix : 008217
-                es_stack : 00822e
-               es_syntax : 008247
+              es_channel : 008289
+             es_componly : 0082a3
+                es_defer : 0082c4
+              es_divzero : 0082e1
+                es_empty : 0082f2
+                es_error : 0082fb
+              es_intonly : 008307
+               es_noname : 00831d
+                es_radix : 00832d
+               es_refill : 008344
+                es_stack : 008379
+               es_syntax : 008392
                  get_str : 00e03f
-                 h_abort : 00805f
-                   h_bye : 00806c
-                  h_cold : 008053
-                  h_drop : 00809a
-                   h_dup : 00808f
-                  h_quit : 008077
-                  h_swap : 008083
+                 h_abort : 0080ce
+                h_accept : 008156
+                   h_bye : 0080b7
+                  h_cold : 0080c2
+                  h_drop : 00819e
+                   h_dup : 008193
+                 h_false : 008107
+                  h_here : 00817b
+                   h_nip : 008170
+                   h_one : 008120
+              h_one-plus : 0080fd
+                  h_plus : 0080f4
+                  h_quit : 0080db
+                h_refill : 008137
+             h_source-id : 008145
+                 h_state : 0080e7
+                  h_swap : 008187
+                  h_true : 008114
+                  h_tuck : 008164
+                  h_zero : 00812b
                       im : 000020
+                   insrc : 000208
          maxram-multiple : 006fff
            maxram-single : 007bff
                       nc : 000010
              physicalram : 007fff
-             printstring : 0080a6
+             printstring : 0081aa
                  put_chr : 00e04b
                  put_str : 00e04e
                       pw : 000080
+          quit_main_loop : 008042
+          quit_refill_ok : 008050
                     ram0 : 000200
-                s_author : 008105
-            s_disclaimer : 008132
-                 s_title : 0080c8
-               s_typebye : 008160
-               s_version : 0080e7
+                s_author : 008218
+            s_disclaimer : 008245
+                    s_ok : 008286
+                 s_title : 0081d5
+               s_typebye : 008273
+               s_version : 0081f4
                  send_cr : 00e066
           stack-multiple : 007000
                   stack0 : 007fff
-             swapbuffers : 0080af
-                 taskmap : 00020c
-                  tmpdsp : 000208
-                  tmptos : 00020a
-                 z_abort : 00803b
-                   z_bye : 008042
-                  z_cold : 008038
-                  z_drop : 008047
-                   z_dup : 00804c
-                  z_quit : 00803f
-                  z_swap : 008052
+                   state : 000210
+             swapbuffers : 0081bc
+                 taskmap : 00020e
+                  tmpdsp : 00020a
+                  tmptos : 00020c
+                   to-in : 000204
+                 z_abort : 00805d
+                z_accept : 008060
+                   z_bye : 008063
+                  z_cold : 00805d
+                  z_drop : 008068
+                   z_dup : 00806d
+                  z_here : 008074
+                   z_nip : 008077
+                   z_one : 00807f
+              z_one-plus : 008081
+                  z_plus : 008087
+                  z_quit : 00805d
+                z_refill : 008088
+             z_source-id : 00808f
+                 z_state : 008097
+                  z_swap : 00809d
+                  z_true : 0080a5
+                  z_tuck : 0080ae
+                  z_zero : 0080b6
 

@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 07. Dec 2016
+; This version: 08. Dec 2016
 
 ; Dictionary headers are kept separately from the code. For each word, the
 ; structure is:
@@ -60,7 +60,7 @@ h_state .byte { PW + NC }, 5
 
 h_plus  .byte { PW + NC }, 1
         .word a_plus, z_plus, h_state
-        .byte "+"
+        .byte '+'
 
 h_one-plus .byte { PW + NC }, 2
         .word a_one-plus, z_one-plus, h_plus
