@@ -13,7 +13,10 @@ declared otherwise.
 ## The Data Stack
 
 The Data Stack (DS) is located in an area that starts at 00:02ff and grows
-downwards (towards 00:0000). The Data Stack Pointer (DSP) - the X register -
+downwards (towards 00:0000). The DS itself starts at 00:02f0, leaving 15
+bytes as a "flood plain" in case of stack underflow. 
+
+The Data Stack Pointer (DSP) - the X register -
 points to the _current_ element on the stack (Next On Stack, NOS), whereas the
 top entry (Top of Stack, TOS) is the Y register. 
 

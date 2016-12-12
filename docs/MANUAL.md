@@ -17,7 +17,7 @@ Technically, Liara Forth based on the [Subroutine Threaded
 Model](http://www.bradrodriguez.com/papers/moving1.htm) (STC) with a 16 bit cell
 size. When complete, it will be a single-user system with round-robin
 multitasking. Priority is "speed over size" (within reason). Because of this,
-there is little safety checking done - Liara "runs with sissors". 
+there is little safety checking done - Liara "runs with scissors". 
 
 ### Memory Map
 

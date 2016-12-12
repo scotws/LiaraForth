@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 07. Dec 2016
+; This version: 10. Dec 2016
 
 ; This file is included by liaraforth.tasm
 
@@ -29,7 +29,7 @@
 ; Initial values
 
         .equ stack0 7fff  ; single task Stack (S) start (bottom)
-        .equ dsp0   02ff  ; initial Data Stack Pointer (X)
+        .equ dsp0   02f0  ; initial Data Stack Pointer (X)
 
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
