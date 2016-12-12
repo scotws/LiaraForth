@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 08. Dec 2016
+; This version: 10. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -71,7 +71,7 @@ a_cold
 ; anyway. Flows into QUIT.
 
 a_abort         ; clear Data Stack
-                lda.# 0000
+                ldy.# 0000
                 ldx.# dsp0
 
 ; drops through to QUIT; z_abort is the same as z_quit.
@@ -102,7 +102,7 @@ quit_main_loop
                 ; accept a line from the current input source
                 jsr a_refill
                 
-                tay ; force flag test
+                tya ; force flag test
                 bne quit_refill_ok
 
                 ; If REFILL returned a FALSE flag, something went wrong and we
@@ -162,10 +162,10 @@ z_bye           rts     ; dummy for compiling, never reached
 
 ; -------------------------------------------------------------------
 ; DROP ( n -- ) 4 bytes / 9 cycles
-; Drop first entry on Data Stack. Destroys Y
+; Drop first entry on Data Stack
 
 a_drop          
-                lda.dx 00 
+                ldy.dx 00 
                 inx
                 inx
 
@@ -178,7 +178,7 @@ z_drop          rts
 
 a_dup           dex
                 dex
-                sta.dx 00
+                sty.dx 00
 
 z_dup           rts
 
@@ -194,8 +194,8 @@ z_dup           rts
 
 a_here          dex
                 dex
-                sta.dx 00
-                lda.d cp
+                sty.dx 00
+                ldy.d cp
 
 z_here          rts
 
@@ -213,24 +213,27 @@ z_nip           rts
 
 a_one           dex
                 dex
-                sta.dx 00
-                lda.# 0001 
+                sty.dx 00
+                ldy.# 0001 
    
 z_one           rts
 
 ; -------------------------------------------------------------------
 ; 1+ "ONE-PLUS" ( n -- n+1 ) 1 bytes / 2 cycles
-; Add 1 to TOS
+; Add 1 to TOS. Because there is no checking if there is actually anything on
+; the Data Stack, this routine will fail silently if the stack is empty. 
 
-a_one-plus      inc.a
+a_one-plus      iny
 z_one-plus      rts
 
 ; -------------------------------------------------------------------
-; + "PLUS" ( n m -- n+m ) 5 bytes / 11 cycles
+; + "PLUS" ( n m -- n+m ) X bytes / X cycles
 ; Add TOS and NOS
 
-a_plus          clc
+a_plus          tya
+                clc
                 adc.dx 00
+                tay
                 inx
                 inx 
 
@@ -261,8 +264,8 @@ a_refill
                 ; TODO TESTING DUMMY fake all is well
                 dex
                 dex
-                sta.dx 00
-                lda.# 0ffff
+                sty.dx 00
+                ldy.# 0ffff
 
 z_refill        rts
 
@@ -272,8 +275,8 @@ z_refill        rts
 
 a_source-id     dex
                 dex
-                sta.dx 00
-                lda.d insrc
+                sty.dx 00
+                ldy.d insrc
                 
 z_source-id     rts
 
@@ -285,8 +288,8 @@ z_source-id     rts
 
 a_state         dex
                 dex
-                sta.dx 00
-                lda.# state
+                sty.dx 00
+                ldy.# state
                 
 z_state         rts
 
@@ -295,9 +298,9 @@ z_state         rts
 ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
 ; Exchange TOS with NOS, destroys Y
 
-a_swap          ldy.dx 00
-                sta.dx 00
-                tya 
+a_swap          lda.dx 00
+                sty.dx 00
+                tay 
 
 z_swap          rts
 
@@ -307,8 +310,8 @@ z_swap          rts
 
 a_true          dex
                 dex
-                sta.dx 00 
-                lda.# 0ffff
+                sty.dx 00 
+                ldy.# 0ffff
 
 z_true          rts
 
@@ -318,9 +321,9 @@ z_true          rts
 
 a_tuck          dex
                 dex
-                ldy.dx 2
-                sty.dx 0
-                sta.dx 2
+                lda.dx 2
+                sta.dx 0
+                sty.dx 2
                 
 z_tuck          rts
 
@@ -330,8 +333,8 @@ z_tuck          rts
 
 a_zero          dex
                 dex
-                sta.dx 00 
-                lda.# 0000
+                sty.dx 00 
+                ldy.# 0000
 
 z_zero          rts
 
@@ -362,20 +365,18 @@ printstring
                 rts
 
 ; -------------------------------------------------------------------
-; Swap the two input buffers. Assumes A16, destroys Y.
+; Swap the two input buffers. Assumes A16, destroys A.
 swapbuffers     
-                tay
                 lda.d cib
                 eor.# 0100  ; flip 07d00 / 07c00
                 sta.d cib
-                tya
                 rts
 
 ; -------------------------------------------------------------------
-; Clear current buffer. Assumes buffer size 256 bytes and A16, destroys Y.
+; Clear current buffer. Assumes buffer size 256 bytes and A16.
 ; Does not affect >IN (to-in). Remember Y is 16 bit at this point.
 clearbuffer     
-                sta.d tmptos
+                sty.d tmptos
                 lda.# 0000
                 tay
 
@@ -386,7 +387,7 @@ clearbuffer
                 cpy.# 0100
                 bne -
 
-                lda.d tmptos
+                ldy.d tmptos
                 rts
 
 
