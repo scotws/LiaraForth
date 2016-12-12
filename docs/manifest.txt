@@ -4,6 +4,8 @@ Scot W. Stevenson scot.stevenson@gmail.com
 First version: 27. March 2016
 This version: 28. March 2016
 
+THIS DOCUMENT IS OF HISTORICAL IMPORTANCE ONLY AND IS NOT MAINTAINED
+
 Liara Forth is a project to create a bare-metal ANSI(ish) Forth specifically for
 the W65C265SXB ("265SXB") single-board computer from WDC based on the 65816
 8/16-bit hybrid CPU. It is designed to be the "intial" or "first Forth" that

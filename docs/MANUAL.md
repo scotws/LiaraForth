@@ -16,7 +16,8 @@ final system includes an editor.
 Technically, Liara Forth based on the [Subroutine Threaded
 Model](http://www.bradrodriguez.com/papers/moving1.htm) (STC) with a 16 bit cell
 size. When complete, it will be a single-user system with round-robin
-multitasking.  Priority is "speed over size" (within reason). 
+multitasking. Priority is "speed over size" (within reason). Because of this,
+there is little safety checking done - Liara "runs with sissors". 
 
 ### Memory Map
 
@@ -64,10 +65,11 @@ Attach the other end to your computer. This should make the power LED light up.
 
 ### Adding Flash Memory
 
-(see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
+(TBA, see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
 
 ### Uploading Liara Forth
 
+(TBA) 
 
 ## Getting Started
 
@@ -107,8 +109,8 @@ converted to the traditional syntax with
 automatic formatter that is part of the Tinkerer's Assembler. 
 
 TAN provides various advantages over the traditional notation, especially when
-spotting errors. The first stable version of Liara Forth will probably include a
-version converted to traditional syntax.
+spotting errors. The first stable version of Liara Forth will include a version
+converted to a traditional syntax.
 
 ### Assembly with the Tinkerer's Assembler
 

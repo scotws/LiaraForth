@@ -5,17 +5,22 @@
 ## Use of Registers
 
 The 65816 only has three registers that can be used for general coding. Of
-these, Liara Forth uses the A register as the first element in the Data Stack
-(Top of Stack, TOS), the X register as the Data Stack Pointer (DSP), and Y for
+these, Liara Forth uses the Y register as the first element in the Data Stack
+(Top of Stack, TOS), the X register as the Data Stack Pointer (DSP), and A for
 various temporary use. All registers are assumed to be 16 bit wide unless
 declared otherwise. 
 
 ## The Data Stack
 
-The Data Stack (DS) starts at 00:02ff and grows downwards (towards 00:0000). The
-Data Stack Pointer (DSP) - the X register - points to the _second_
-element on the stack (Next On Stack, NOS), whereas the top entry (Top of Stack,
-TOS) is the A register. 
+The Data Stack (DS) is located in an area that starts at 00:02ff and grows
+downwards (towards 00:0000). The Data Stack Pointer (DSP) - the X register -
+points to the _current_ element on the stack (Next On Stack, NOS), whereas the
+top entry (Top of Stack, TOS) is the Y register. 
+
+The actual DS consists of the 128 bytes (64 entries) addressed by a seven-bit
+bit DSP. The eight bit of the DSP is used to detect over- or underflow
+conditions. Because Liara Forth "runs with scissors" to enable fast speeds, this
+bounds checking only takes place after the execution of a Forth word. 
 
 ## The Return Stack
 
