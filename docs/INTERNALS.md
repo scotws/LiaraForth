@@ -2,6 +2,20 @@
 
 (THIS TEXT IS UNDER DEVELOPMENT AND MERELY A COLLECTION OF NOTES)
 
+## Design Principles
+
+Liara Forth started with a bunch of general principles.
+
+1. **Speed over size (within reason).** Liara Forth aims to make up for the
+   relastively slow clock speed of the 65816 CPU in the 265SXB package. 
+2. **Run with scissors.** There is very little safety checking in the individual
+   words. Liara Forth will rarely tell you if there is an under- or overflow,
+   for instance. During the design phase, these sort of checks were considered,
+   but they added so much code that the first principle was violated.
+3. **Use only the most basic Mensch Monitor routines,** which are PUT_CHR and
+   GET_CHR. This is to make it easier for other people to port Liara Forth to
+   other 65816 machines. 
+
 ## Use of Registers
 
 The 65816 only has three registers that can be used for general coding. Of

@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 10. Dec 2016
+; This version: 22. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -13,7 +13,7 @@
 ; TOP INCLUDES
 
         .include definitions.tasm
-        .include macros.tasm
+;       .include macros.tasm
 
 
 ; ===================================================================
@@ -45,7 +45,7 @@ a_cold
                 ; start with first input buffer
                 lda.# buffer1
                 sta.d cib
-                jsr clearbuffer ; TODO see if we need this here or below
+;               jsr clearbuffer ; TODO see if we need this here or below
 
                 ; print boot strings
                 lda.# s_title
@@ -60,7 +60,6 @@ a_cold
                 jsr printstring
 
                 cli
-
 
                 ; drop through to QUIT
 
@@ -349,17 +348,25 @@ z_zero          rts
 ; LOW LEVEL HELPER FUNCTIONS
 
 ; ------------------------------------------------------------------- 
-; Print a string with a CR added on. Thin wrapper to PUT_STR. Assumes that A has
-; been saved by caller and contains address of string in a16. 
+; Print a zero terminated string to the console, adding a CR character. Takes
+; the address of the string in 16-bit A register, calls PUT_CHR from the Mensch
+; Monitor. A is destroyed.
 printstring     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
                 phx
                 tax ; x16 contains address of string
         .a8
-                lda.# 00 ; bank byte
-                jsr.l PUT_STR
-                jsr.l SEND_CR
+@
+                lda.x 0000
+                beq printstring_done
+                jsr.l PUT_CHR
+                inx
+                bra -
+
+printstring_done
+                lda.# AscLF     ; add LF, should be CR on some systems
+                jsr.l PUT_CHR
         .a16
                 plx
                 rts

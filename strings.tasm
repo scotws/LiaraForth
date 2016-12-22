@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  07. Dec 2016
+; This version:  22. Dec 2016
 
 ; This file is included by liaraforth.tasm
 
