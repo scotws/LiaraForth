@@ -1,20 +1,22 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 02. Dez 2016
+This version: 23. Dez 2016
 
 
-TODO 
+TODO (next on top)
 
-- Print intro text (tests access to Mensch Monitor)
 - Echo keyboard entries (temporary loop)
+- Test on real 265SXB, add entry to manual on how to upload
+- Code dual-buffer entry ("arrow up" functionality")
 - Code basic word set
 - Parse entry (temporary version)
 - Set up basic Dictionary lookup 
 - Rewrite parsing with new words
 
 
-FINISHED
+FINISHED (newest on top)
 
+- Print intro text (tests access to Mensch Monitor)
 - Define constants
 

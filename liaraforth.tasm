@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 22. Dec 2016
+; This version: 23. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -13,7 +13,6 @@
 ; TOP INCLUDES
 
         .include definitions.tasm
-;       .include macros.tasm
 
 
 ; ===================================================================
@@ -365,7 +364,7 @@ printstring
                 bra -
 
 printstring_done
-                lda.# AscLF     ; add LF, should be CR on some systems
+                lda.# AscLF     ; should be CR on some systems
                 jsr.l PUT_CHR
         .a16
                 plx
