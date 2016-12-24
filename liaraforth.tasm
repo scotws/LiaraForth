@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 23. Dec 2016
+; This version: 24. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -42,9 +42,11 @@ a_cold
                 ; TODO initiate high-level words 
                 
                 ; start with first input buffer
+                ; TODO see if we need this here or below
+
                 lda.# buffer1
                 sta.d cib
-;               jsr clearbuffer ; TODO see if we need this here or below
+;               jsr clearbuffer 
 
                 ; print boot strings
                 lda.# s_title
@@ -63,7 +65,7 @@ a_cold
                 ; drop through to QUIT
 
 ; -------------------------------------------------------------------
-; ABORT ( -- ) 3 bytes / 3+ cycles
+; ABORT ( -- ) 6+ bytes / 6+ cycles
 ; Reset the parameter (data) stack pointer and continue as QUIT 
 ; We can jump here via subroutine because we reset the stack pointer
 ; anyway. Flows into QUIT.
@@ -145,7 +147,7 @@ z_quit          nop  ; DUMMY, TODO figure out compilation goal
 ; -------------------------------------------------------------------
 ; ACCEPT ( addr n1 -- n2 ) X bytes / X cycles
 ; Receive a string of at most n1 characters, placing them at addr. Return the
-; actual number of characters as n2
+; actual number of characters as n2. Characters are echoed as they are received
 
 a_accept        nop
                 nop
@@ -157,6 +159,18 @@ z_accept        rts
 
 a_bye           brk 00  ; status byte 00 required for assembler
 z_bye           rts     ; dummy for compiling, never reached
+
+; -------------------------------------------------------------------
+; CR ( -- ) X bytes / X cycles
+; Cause following output to appear at beginning of next line
+
+a_cr            
+        .a8     
+                lda.# AscLF     ; test with AscCR for emulators
+                jsr.l PUT_CHR
+        .a16
+
+z_cr            rts
 
 ; -------------------------------------------------------------------
 ; DROP ( n -- ) 4 bytes / 9 cycles
@@ -349,7 +363,8 @@ z_zero          rts
 ; ------------------------------------------------------------------- 
 ; Print a zero terminated string to the console, adding a CR character. Takes
 ; the address of the string in 16-bit A register, calls PUT_CHR from the Mensch
-; Monitor. A is destroyed.
+; Monitor. A is destroyed. We could probably figure out some way to use TYPE
+; instead, but zero terminated strings are easier for the 65816 to use
 printstring     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
@@ -357,7 +372,7 @@ printstring
                 tax ; x16 contains address of string
         .a8
 @
-                lda.x 0000
+                lda.x 0000      ; LDA $0000,X 
                 beq printstring_done
                 jsr.l PUT_CHR
                 inx
@@ -387,7 +402,7 @@ clearbuffer
                 tay
 
 @
-                sta.diy cib  ; STA (cib),y
+                sta.diy cib     ; STA (cib),Y
                 iny 
                 iny
                 cpy.# 0100
