@@ -69,7 +69,32 @@ Attach the other end to your computer. This should make the power LED light up.
 
 ### Uploading Liara Forth
 
-(TBA) 
+(This based on the [265SXB
+Guide](https://github.com/scotws/265SXB-Guide/blob/master/entering_code.md)
+entry.)
+
+First, we need to convert the binary file to an S-record. For Ubuntu, install
+[srec_cat](http://srecord.sourceforge.net/man/man1/srec_examples.html) via
+```
+sudo apt-get install srecord
+```
+
+Convert the binary file (for example, ```tink.bin```) via
+```
+srec_cat tink.bin -binary -offset 0x8000 -o tink.s28 -address-length=3
+-execution-start-address=0x8000
+```
+To make sure we have the correct format, use ```srec_info mensch.s28``` to
+inspect the contents:
+```
+Format: Motorola S-Record
+Header: "http://srecord.sourceforge.net/"
+Execution Start Address: 00008000
+Data:   8000 - 2017
+```
+Note the useless Header field.
+
+
 
 ## Getting Started
 
