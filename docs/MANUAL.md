@@ -90,9 +90,9 @@ inspect the contents:
 Format: Motorola S-Record
 Header: "http://srecord.sourceforge.net/"
 Execution Start Address: 00008000
-Data:   8000 - 2017
+Data:   8000 - 83F2
 ```
-Note the useless Header field.
+The second number in the "Data" field will be different. 
 
 
 
