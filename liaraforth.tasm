@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 24. Dec 2016
+; This version: 25. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -149,8 +149,14 @@ z_quit          nop  ; DUMMY, TODO figure out compilation goal
 ; Receive a string of at most n1 characters, placing them at addr. Return the
 ; actual number of characters as n2. Characters are echoed as they are received
 
-a_accept        nop
-                nop
+a_accept        
+                ; TODO Testing version only: Echo characters to screen
+
+        .a8
+                jsr.l GET_CHR
+                jsr.l PUT_CHR
+                bra a_accept
+                
 z_accept        rts
 
 ; -------------------------------------------------------------------
@@ -266,7 +272,8 @@ a_refill
                 ; TODO return false if we're working on strings from 
                 ; EVALUATE
 
-                ; TODO Call ACCEPT to get a string from user (normal case)
+                ; Call ACCEPT to get a string from user (normal case)
+                jsr a_accept
                 
                 ; TODO LATER Get a string from a block
                 ; TODO LATER Get a string from a file
