@@ -1,22 +1,24 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 23. Dez 2016
+This version: 25. Dez 2016
 
 
 TODO (next on top)
 
-- Echo keyboard entries (temporary loop)
-- Test on real 265SXB, add entry to manual on how to upload
+- Test keyboard echo on real 265SXB, add entry to manual on how to upload
 - Code dual-buffer entry ("arrow up" functionality")
+
 - Code basic word set
 - Parse entry (temporary version)
-- Set up basic Dictionary lookup 
+- Set up basic Dictionary lookup (FIND)
 - Rewrite parsing with new words
-
+- Code EVALUATE to be able to add high-level words
+- Decide which words should be high-level
 
 FINISHED (newest on top)
 
+- Echo keyboard entries (temporary loop) 
 - Print intro text (tests access to Mensch Monitor)
 - Define constants
 
