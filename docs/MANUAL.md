@@ -3,14 +3,13 @@
 Scot W. Stevenson <scot.stevenson@gmail.com>
 
 (THIS TEXT IS UNDER DEVELOPMENT AND MERELY A COLLECTION OF NOTES)
-(SEE THE MANIFEST FOR AN OVERVIEW)
 
 ## Overview 
 
 Liara Forth is a bare-metal Forth written specifically for the W65C265SXB
 ("265SXB") single-board computer from WDC based on the 65816 8/16-bit hybrid
 CPU. It based on ANSI Forth and designed to be a "first Forth" that users can
-install immediately after buying the board. The final system includes an editor. 
+install immediately after buying the board. 
 
 Technically, Liara Forth based on the [Subroutine Threaded
 Model](http://www.bradrodriguez.com/papers/moving1.htm) (STC) with a 16 bit cell
@@ -20,8 +19,13 @@ there is little safety checking done - Liara "runs with scissors".
 
 ## Setting Up the Hardware
 
-The information in this section is based on the [Most Very Unofficial Guide to
-the W65C265SXB](https://github.com/scotws/265SXB-Guide). 
+First, be aware that you are doing all this at your own risk. See the file
+COPYING.txt for details and the section on the license at the end of this
+document. 
+
+On a more cheerful note, you might want to read the
+more detailed instructions in the [Most Very Unofficial Guide to the
+W65C265SXB](https://github.com/scotws/265SXB-Guide) for most of the steps here. 
 
 
 ### Accessing the 265SXB via a Terminal
@@ -54,8 +58,8 @@ Attach the other end to your computer. This should make the power LED light up.
 5. After configuration, you can call the 265sxb with `sudo minicom 265sxb`.
    Press the reset button on the 265sxb if you don't see anything at first.
 
-> The Mensch Monitor manual states that you have to connect the terminal to a
-> different UART port. In fact, it works fine out of the box with the single
+> The Mensch Monitor manual claims that you have to connect the terminal to a
+> second UART port. In fact, it works fine out of the box with the single
 > access at the bottom of the board.
 
 This drops you into the Mensch Monitor, a simple basic operating system. 
@@ -63,22 +67,21 @@ This drops you into the Mensch Monitor, a simple basic operating system.
 
 ### Uploading Liara Forth to RAM 
 
-(This based on the [265SXB
-Guide chapter on entering code](https://github.com/scotws/265SXB-Guide/blob/master/entering_code.md)
-entry.)
+At the beginning, you'll probably want to test Liara Forth by loading it to
+RAM. This is an option as long as the code base is small enough - it is expected
+that at some point, Liara will outgrow the available RAM.
 
-At the beginning, you'll probably want to test Liara Forth by loading it to RAM.
 Included in the main directory is a file `liaraforth.s28` (or possibly
-`tink.s28`) which is a "S-record" of the code that minicom (and other programs)
-know how to upload. It is coded to be saved at 00:6000, which is also the
-starting address. 
+`tink.s28` for PRE-ALPHA and ALPHA builds) which is a "S-record" of the code
+that minicom (and other programs) know how to upload. It is set up to be saved
+at 00:6000, which is also the starting address. 
 
 From minicom connected to the Mensch Monitor as described above, type `s`. The
 265sxb will now wait for the transmission of data to start. Now, type `CONTROL-a
-z` to enter the minicom menue. Type `s` to start the upload, and then pick
-`ascii`out of the following menue. You will be offered a file selector - mark
-the Liara Forth S28 file with SPACE, and select it with ENTER. You should see an
-upload indicator.
+z` to enter the minicom menu. Type `s` to start the upload, and then pick
+`ascii` out of the following menu of transmission protocols. You will be offered
+a file selector - mark the Liara Forth S28 file with SPACE, and select it with
+ENTER. You should see an upload indicator.
 
 ![Minicom S-record upload]
 (https://github.com/scotws/LiaraForth/blob/master/images/minicom_upload_20161227.png
@@ -203,6 +206,10 @@ S-record as described above.
 
 
 ## Installing Liara Forth to Flash memory
+
+If you decide you want to install Liara Forth permanently, you'll probably want
+to buy Flash memory chip and install it there. 
+
 
 ### Adding Flash Memory
 
