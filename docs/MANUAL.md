@@ -10,8 +10,7 @@ Scot W. Stevenson <scot.stevenson@gmail.com>
 Liara Forth is a bare-metal Forth written specifically for the W65C265SXB
 ("265SXB") single-board computer from WDC based on the 65816 8/16-bit hybrid
 CPU. It based on ANSI Forth and designed to be a "first Forth" that users can
-install immediately after buying the board and additional Flash memory. The
-final system includes an editor. 
+install immediately after buying the board. The final system includes an editor. 
 
 Technically, Liara Forth based on the [Subroutine Threaded
 Model](http://www.bradrodriguez.com/papers/moving1.htm) (STC) with a 16 bit cell
@@ -19,27 +18,17 @@ size. When complete, it will be a single-user system with round-robin
 multitasking. Priority is "speed over size" (within reason). Because of this,
 there is little safety checking done - Liara "runs with scissors". 
 
-### Memory Map
-
-![Liara Forth Memory Map]
-(https://github.com/scotws/LiaraForth/blob/master/images/memorymap_20160401.png
-"Liara Forth Memory Map")
-
-
 ## Setting Up the Hardware
 
 The information in this section is based on the [Most Very Unofficial Guide to
 the W65C265SXB](https://github.com/scotws/265SXB-Guide). 
 
-### Adding Flash Memory
-
-(TBA, see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
-
 
 ### Accessing the 265SXB via a Terminal
 
 (Based on [Setting up the
-265SXB](https://github.com/scotws/265SXB-Guide/blob/master/setup.md))
+265SXB](https://github.com/scotws/265SXB-Guide/blob/master/setup.md) in the
+Most Very Unofficial Guide)
 
 Getting the 265SXB up and running requires the board itself, a USB cable, and a
 host computer. The board draws power via the USB connection, which is also used
@@ -50,54 +39,59 @@ for the terminal. This gives you access to the built-in monitor program.
 1. Attach a USB cable to the board at J6, the power jack in the bottom middle.
 Attach the other end to your computer. This should make the power LED light up.
 
-2. On the Ubuntu machine, we will use `putty` as a terminal program. If not
-   already present, install it with `sudo apt-get install putty` from a shell.
-   To start the terminal program, you might need to type `sudo putty` instead of
-   just `putty`. Instead of putty, the command-line program `minicom` can be
-   used. 
+2. To find out which USB port on the host computer we are using, run `dmesg |
+   grep tty` from the shell. In my case, the port is `/dev/ttyUSB0`.
 
-3. To find out which USB port on the host computer we are using, run `dmesg |
-   grep tty` from the shell. In our case, the port is `/dev/ttyUSB0`.
+3. We will use `minicom` as the terminal program. If not already present,
+   install it with `sudo apt-get install minicom` from a shell. To start the
+   terminal program, you will need to type `sudo minicom -s` (sudo because Linux
+   won't let normal people play with the USB ports like this).
 
-4. Configure putty: Under the Terminal setting, enable "implicit LF in every
-   CR". Under the Session setting, select "Serial" and use the port address
-   found in the previous set as the Serial Line. Click "Open" at the bottom of
-   the window to create the connection.
+4. Configure the serial device as `/dev/ttyUSB0` and the Bps speed as `9600`.
+   Under the entry "Screen and keyboard", enable the adding of line feeds and
+   carriage returns. Save the configuration as "265sxb".
 
-5. On the 265SXB, push the Reset button to the right of the power jack J6. This
-   should bring up the Mensch Monitor
+5. After configuration, you can call the 265sxb with `sudo minicom 265sxb`.
+   Press the reset button on the 265sxb if you don't see anything at first.
+
+> The Mensch Monitor manual states that you have to connect the terminal to a
+> different UART port. In fact, it works fine out of the box with the single
+> access at the bottom of the board.
+
+This drops you into the Mensch Monitor, a simple basic operating system. 
 
 
-### Uploading Liara Forth to the 265SXB
+### Uploading Liara Forth to RAM 
 
 (This based on the [265SXB
-Guide](https://github.com/scotws/265SXB-Guide/blob/master/entering_code.md)
+Guide chapter on entering code](https://github.com/scotws/265SXB-Guide/blob/master/entering_code.md)
 entry.)
 
-First, we need to convert the binary file to an S-record. For Ubuntu, install
-[srec_cat](http://srecord.sourceforge.net/man/man1/srec_examples.html) via
-```
-sudo apt-get install srecord
-```
+At the beginning, you'll probably want to test Liara Forth by loading it to RAM.
+Included in the main directory is a file `liaraforth.s28` (or possibly
+`tink.s28`) which is a "S-record" of the code that minicom (and other programs)
+know how to upload. It is coded to be saved at 00:6000, which is also the
+starting address. 
 
-Convert the binary file (for example, ```tink.bin```) via
-```
-srec_cat tink.bin -binary -offset 0x8000 -o tink.s28 -address-length=3
--execution-start-address=0x8000
-```
-To make sure we have the correct format, use ```srec_info mensch.s28``` to
-inspect the contents:
-```
-Format: Motorola S-Record
-Header: "http://srecord.sourceforge.net/"
-Execution Start Address: 00008000
-Data:   8000 - 83F2
-```
-The second number in the "Data" field will be different. 
+From minicom connected to the Mensch Monitor as described above, type `s`. The
+265sxb will now wait for the transmission of data to start. Now, type `CONTROL-a
+z` to enter the minicom menue. Type `s` to start the upload, and then pick
+`ascii`out of the following menue. You will be offered a file selector - mark
+the Liara Forth S28 file with SPACE, and select it with ENTER. You should see an
+upload indicator.
 
+![Minicom S-record upload]
+(https://github.com/scotws/LiaraForth/blob/master/images/minicom_upload_20161227.png
+"Minicom S-record upload")
+
+The Mensch Monitor will offer the prompt again. To start Liara Forth, type `g`,
+and then enter `00:6000` as the starting address. This will start your Forth
+session. 
 
 
 ## Getting Started with Liara Forth
+
+### A Most Very Brief Introduction to Forth
 
 Forth is a command-line based language. 
 
@@ -105,6 +99,7 @@ Forth is a command-line based language.
 
 Liara Forth does not distinguish between upper and lower case. Internally, all
 words are converted to lower case.
+
 
 ## Liara Forth Internals
 
@@ -117,7 +112,7 @@ Liara Forth is heavily based on [Tali Forth for the
 threaded structure. 
 
 
-## Assembling Liara Forth
+## Modifying and Assembling Liara Forth
 
 Liara Forth includes the source code to allow changes and modifications. See the
 file COPYING.txt for details on license issues.
@@ -137,6 +132,7 @@ automatic formatter that is part of the Tinkerer's Assembler.
 TAN provides various advantages over the traditional notation, especially when
 spotting errors. The first stable version of Liara Forth will include a version
 converted to a traditional syntax.
+
 
 ### Assembly with the Tinkerer's Assembler
 
@@ -168,7 +164,7 @@ memory:
 gforth -m 64M
 ```
 Then include the Crude Emulator, switch to native 65816 mode, and start Liara
-Forth at 00:8000:
+Forth at 00:8000 (for testing the Flash version):
 
 ```
 include crude65816.fs
@@ -176,6 +172,49 @@ native
 8000 PC !
 run
 ```
+
+### Creating a new S-Record to upload
+
+After working on Liara Forth in the emulator, you will probably want to test it
+on the real hardware. To start with RAM tests, you'll need to be able to convert
+the binary file you assembled to a S-record we can upload. 
+
+**For Ubuntu**, install
+[srec_cat](http://srecord.sourceforge.net/man/man1/srec_examples.html) via
+```
+sudo apt-get install srecord
+```
+
+Convert the binary file (for example, ```tink.bin```) via
+```
+srec_cat tink.bin -binary -offset 0x6000 -o tink.s28 -address-length=3
+-execution-start-address=0x6000
+```
+To make sure we have the correct format, use ```srec_info mensch.s28``` to
+inspect the contents:
+```
+Format: Motorola S-Record
+Header: "http://srecord.sourceforge.net/"
+Execution Start Address: 00008000
+Data:   6000 - 63F2
+```
+The second number in the "Data" field will be different. Then, upload the
+S-record as described above.
+
+
+## Installing Liara Forth to Flash memory
+
+### Adding Flash Memory
+
+(TBA, see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
+
+
+### Memory Map with Flash
+
+![Liara Forth Memory Map]
+(https://github.com/scotws/LiaraForth/blob/master/images/memorymap_20160401.png
+"Liara Forth Memory Map")
+
 
 ## Various Stuff
 
