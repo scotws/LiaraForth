@@ -31,6 +31,11 @@ there is little safety checking done - Liara "runs with scissors".
 The information in this section is based on the [Most Very Unofficial Guide to
 the W65C265SXB](https://github.com/scotws/265SXB-Guide). 
 
+### Adding Flash Memory
+
+(TBA, see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
+
+
 ### Accessing the 265SXB via a Terminal
 
 (Based on [Setting up the
@@ -63,11 +68,7 @@ Attach the other end to your computer. This should make the power LED light up.
    should bring up the Mensch Monitor
 
 
-### Adding Flash Memory
-
-(TBA, see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
-
-### Uploading Liara Forth
+### Uploading Liara Forth to the 265SXB
 
 (This based on the [265SXB
 Guide](https://github.com/scotws/265SXB-Guide/blob/master/entering_code.md)
@@ -96,7 +97,7 @@ The second number in the "Data" field will be different.
 
 
 
-## Getting Started
+## Getting Started with Liara Forth
 
 Forth is a command-line based language. 
 

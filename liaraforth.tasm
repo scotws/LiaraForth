@@ -1,13 +1,14 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 25. Dec 2016
+; This version: 26. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
 
         .mpu 65816
-        .origin 8000
+;       .origin 8000    ; for production code, saved in Flash Memory
+        .origin 4000    ; for testing, saved in RAM
 
 ; ===================================================================
 ; TOP INCLUDES
@@ -43,7 +44,7 @@ a_cold
                 
                 ; start with first input buffer
                 ; TODO see if we need this here or below
-
+                
                 lda.# buffer1
                 sta.d cib
 ;               jsr clearbuffer 
@@ -61,7 +62,7 @@ a_cold
                 jsr printstring
 
                 cli
-
+                
                 ; drop through to QUIT
 
 ; -------------------------------------------------------------------
@@ -132,7 +133,8 @@ quit_refill_ok
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ; *** TESTING ***
 
-                stp  ; TODO for testing only
+                brk 00 ; BRK for 265sxb tests
+;               stp    ; STP for emulator tests
 
 ; *** TESTING ***
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -383,6 +385,7 @@ printstring
                 beq printstring_done
                 jsr.l PUT_CHR
                 inx
+              
                 bra -
 
 printstring_done
@@ -423,6 +426,15 @@ clearbuffer
 ; BOTTOM INCLUDES
 
         .include strings.tasm
+
+; ===================================================================
+; TESTING ROUTINES (UNCOMMENT FOR USE)
+                
+                ; --- TODO TESTING ---
+                ; lda.# 61
+                ; jsr.l 00:e04b
+                ; brk 00
+                ; --- TODO TESTING ---
 
 
 ; ===================================================================
