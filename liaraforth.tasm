@@ -44,9 +44,9 @@ a_cold
                 
                 ; start with first input buffer
                 ; TODO see if we need this here or below
-                lda.# buffer1
+                lda.# ibuffer1
                 sta.d cib
-;               jsr clearbuffer 
+              ; jsr clearbuffer 
 
                 cli             ; PUT_CHR in printstring uses interrupts
 
@@ -431,7 +431,8 @@ swapbuffers
 
 ; -------------------------------------------------------------------
 ; Clear current buffer. Assumes buffer size 256 bytes and A16.
-; Does not affect >IN (to-in). Remember Y is 16 bit at this point.
+; Does not affect >IN (to-in). 
+; TODO rewrite, TMP version
 clearbuffer     
                 sty.d tmptos
                 lda.# 0000

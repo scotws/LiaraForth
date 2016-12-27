@@ -51,8 +51,9 @@ sources as defined by BLK and SOURCE-ID (see above):
 Liara Forth accepts input lines of up to 256 characters. It remembers one
 previous input that can be accessed with CONTROL-p. 
 
-This is done by having two input buffers, `ibuffer1` `ibuffer2` and switching
-between them. 
+This is done by having two input buffers, `ibuffer1` `ibuffer2`, and switching
+between them. Which is the current one is stored in the current input buffer
+(CIB) variable.
 
 
 ### SAVE-INPUT and RESTORE-INPUT
