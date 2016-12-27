@@ -7,8 +7,8 @@
 ; See docs/MANUAL.md for more information
 
         .mpu 65816
-;       .origin 8000    ; for production code, if saved in Flash Memory
-        .origin 6000    ; for testing, if saved in RAM
+;       .origin 8000    ; start of code if saved to Flash memory
+        .origin 6000    ; start of code if saved to built-in RAM
 
 ; ===================================================================
 ; TOP INCLUDES
@@ -135,8 +135,8 @@ quit_refill_ok
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ; *** TESTING ***
 
-                brk 00 ; BRK for 265sxb tests
-;               stp    ; STP for emulator tests
+                brk 00 ; BRK for 265sxb tests (drops back to Mensch Monitor)
+;               stp    ; STP for crude65816 emulator tests
 
 ; *** TESTING ***
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,7 +249,7 @@ a_one-plus      iny
 z_one-plus      rts
 
 ; -------------------------------------------------------------------
-; + "PLUS" ( n m -- n+m ) X bytes / X cycles
+; + "PLUS" ( n m -- n+m ) 7 bytes / X cycles
 ; Add TOS and NOS
 
 a_plus          tya
@@ -376,6 +376,8 @@ z_zero          rts
 ; the address of the string in 16-bit A register, calls PUT_CHR from the Mensch
 ; Monitor. A is destroyed. We could probably figure out some way to use TYPE
 ; instead, but zero terminated strings are easier for the 65816 to use. 
+; This would be shorter with PUT_STR, but we want to keep the number of Monitor
+; routines called as small as possible to make porting the code easier
 printstring     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
@@ -387,7 +389,6 @@ printstring
                 beq printstring_done
                 jsr.l PUT_CHR
                 inx
-              
                 bra -
 
 printstring_done
@@ -399,6 +400,7 @@ printstring_done
 
 ; -------------------------------------------------------------------
 ; Swap the two input buffers. Assumes A16, destroys A.
+; TODO Rewrite
 swapbuffers     
                 lda.d cib
                 eor.# 0100  ; flip 07d00 / 07c00
