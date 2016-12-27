@@ -44,12 +44,11 @@ a_cold
                 
                 ; start with first input buffer
                 ; TODO see if we need this here or below
-                
                 lda.# buffer1
                 sta.d cib
 ;               jsr clearbuffer 
 
-                cli
+                cli             ; PUT_CHR in printstring uses interrupts
 
                 ; print boot strings
                 lda.# s_title
@@ -62,8 +61,6 @@ a_cold
                 jsr printstring
                 lda.# s_typebye
                 jsr printstring
-
-                cli
                 
                 ; drop through to QUIT
 
@@ -93,7 +90,7 @@ a_quit          ; clear Return Stack
                 ; switch SOURCE-ID to zero (keyboard input)
                 stz.d insrc
                 
-                ; switch to interpret mode (STATE is zero)
+                ; switch to interpret state (STATE is zero)
                 stz.d state
                
                 ; start with first input buffer
@@ -113,10 +110,10 @@ quit_main_loop
                 ; need to save A because we're going to clober it anyway when we
                 ; go back to ABORT.
                 
-                lda.# es_refill
+                lda.# es_refill1 
                 jsr printstring
         
-                bra a_abort
+                jmp a_abort
 
 quit_refill_ok
                 ; Set >IN to zero (pointer to beginning of current input buffer)
@@ -271,31 +268,55 @@ z_plus          rts
 ; available from the current input source, return false. When the input source
 ; is a string from EVALUATE, return false and perform no other action."
 ; See https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Input-Stream.html
-
+; and Conklin & Rather p. 156
 a_refill        
-                ; TODO return false if we're working on strings from 
-                ; EVALUATE
+                ; Get input source from SOURCE-ID. We don't have blocks in this
+                ; version, or else we would have to check BLK first. This is an
+                ; optimized version of a subroutine jump to SOURCE-ID
+                lda.d insrc
+                bne refill_source_is_not_keyboard
 
-                ; Call ACCEPT to get a string from user (normal case)
+                ; SOURCE-ID of zero means we're getting stuff from the keyboard
+                ; with ACCEPT
                 jsr a_accept
+
+                ; TODO handle input buffer stuff
                 
-                ; TODO LATER Get a string from a block
-                ; TODO LATER Get a string from a file
-                
-                ; TODO store flag as TOS
-                
-                ; TODO TESTING DUMMY fake all is well
+                ; Add success flag TRUE
                 dex
                 dex
                 sty.dx 00
                 ldy.# 0ffff
+                rts
 
-z_refill        rts
+refill_source_is_not_keyboard
+                ; If SOURCE-ID doesn't return a zero, it must be a string in
+                ; memory or a file (remember, no blocks in this version)
+                cmp.# 0ffff
+                bne refill_source_not_string
+
+                ; Simply return FALSE flag as per specification
+                dex
+                dex
+                sty.dx 00
+                ldy.# 0000
+                rts
+
+refill_source_is_not_string
+                ; Since we don't have blocks, this must mean that we are trying
+                ; to read from a file. However, we don't have files yet, so we 
+                ; report an error and jump to ABORT.
+                lda.# es_refill2 
+                jsr printstring
+                jmp a_abort
+
+z_refill        rts     ; dummy for compiling
 
 ; -------------------------------------------------------------------
-; SOURCE-ID ( -- f ) 6 bytes / 13 cycles
-; Identify the input source
-
+; SOURCE-ID ( -- n ) 6 bytes / 13 cycles
+; Identify the input source unless it is a block (s. Conklin & Rather p. 156).
+; Since we don't have blocks (yet), this will give the input source: 0 is
+; keyboard, -1 (0ffff) is character string, and a text file gives the fileid.
 a_source-id     dex
                 dex
                 sty.dx 00
@@ -306,8 +327,9 @@ z_source-id     rts
 ; -------------------------------------------------------------------
 ; STATE ( -- addr ) 7 bytes / 12 cycles
 ; Return the address of a cell containing the compilation-state flag. STATE
-; is true when in compilation state, false otherwise. STATE cannot be changed
-; directly by the user.
+; is true when in compilation state, false otherwise. STATE should be changed
+; directly by the user; see
+; http://forth.sourceforge.net/standard/dpans/dpans6.htm#6.1.2250
 
 a_state         dex
                 dex

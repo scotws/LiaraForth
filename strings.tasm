@@ -35,7 +35,8 @@ es_error    .byte ">>>Error<<<", 0
 es_intonly  .byte "Not in interpret mode", 0
 es_noname   .byte "Parsing failure", 0
 es_radix    .byte "Digit larger than base", 0
-es_refill   .byte "Could not get input line (REFILL failed during QUIT)", 0
+es_refill1  .byte "QUIT could not get input (REFILL returned -1)", 0
+es_refill2  .byte "Illegal SOURCE-ID during REFILL", 0
 es_stack    .byte "Stack over- or underflow", 0
 es_syntax   .byte "Unknown word", 0
 
