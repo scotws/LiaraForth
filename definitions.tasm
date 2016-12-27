@@ -1,12 +1,15 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 22. Dec 2016
+; This version: 27. Dec 2016
 
 ; This file is included by liaraforth.tasm
 
 ; Note that Typist's Assembler Notation does not distinguish between upper and
 ; lower case. Variations in case are for human readers only.
+
+; The definitions for multitasking are preliminary and will probably 
+; change
 
 ; ===================================================================
 ; MEMORY MAP
@@ -16,15 +19,15 @@
         .equ maxram-single   07bff  ; end of available RAM (single task mode)
         .equ maxram-multiple 06fff  ; end of available RAM (multitask mode)
 
-        .equ buffer1 07c00  ; start of 256 byte input buffer 1
-        .equ buffer2 07d00  ; start of 256 byte input buffer 2
+        .equ buffers  7c00   ; buffer area start
+        .equ ibuffer1 7c00   ; start of 256 byte input buffer 1
+        .equ ibuffer2 7d00   ; start of 256 byte input buffer 2
 
 ; RAM from 0000 to 01ff is left for the Mensch Monitor to use
 
         .equ directpage          0200  ; single task Direct Page (DP) start
         .equ stack-multiple      7000  ; multitask Stack (S) area start
         .equ directpage-multiple 7400  ; multitask Direct Page (DP) area start
-        .equ buffers             7c00  ; buffer area start
 
 ; Initial values
 
@@ -34,15 +37,20 @@
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
 
+; All are one cell (two bytes) long to prevent weird errors
+
         .equ cp      { directpage + &0 }  ; Compiler Pointer, 2 bytes
         .equ dp      { directpage + &2 }  ; Dictionary Pointer, 2 bytes
-        .equ to-in   { directpage + &4 }  ; Input Buffer Pointer >IN, 2 bytes
-        .equ cib     { directpage + &6 }  ; Current Input Buffer, 7c00 or 7d00
-        .equ insrc   { directpage + &8 }  ; Input Source for SOURCE-ID
-        .equ tmpdsp  { directpage + &10 } ; Temporary DSP (X) storage, 2 bytes
-        .equ tmptos  { directpage + &12 } ; Temporary TOS (Y) storage, 2 bytes
-        .equ taskmap { directpage + &14 } ; Bitmap for tasks in multitask mode
-        .equ state   { directpage + &16 } ; STATE: 1 compile, 0 interpret
+        .equ tmpdsp  { directpage + &4 } ; Temporary DSP (X) storage, 2 bytes
+        .equ tmptos  { directpage + &6 } ; Temporary TOS (Y) storage, 2 bytes
+        .equ to-in   { directpage + &8 }  ; Input Buffer Pointer >IN, 2 bytes
+        .equ insrc   { directpage + &10 }  ; Input Source for SOURCE-ID
+        .equ cib     { directpage + &12 }  ; Current Input Buffer, 7c00 or 7d00
+        .equ ciblen  { directpage + &14 } ; Length of current input buffer
+        .equ ib1len  { directpage + &16 } ; Length of input buffer 1
+        .equ ib2len  { directpage + &18 } ; Length of input buffer 2
+        .equ state   { directpage + &20 } ; STATE: 1 compile, 0 interpret
+        .equ taskmap { directpage + &22 } ; Bitmap for tasks in multitask mode
 
 ; ===================================================================
 ; MENSCH MONITOR ROUTINE LOCATIONS

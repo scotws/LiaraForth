@@ -5,9 +5,25 @@ This version: 27. Dez 2016
 
 Liara Forth follows the ANS input model with REFILL instead of older forms. 
 
-There are four possible input sources in Forth (C&D p. 155):
+There are up to four possible input sources in Forth (C&D p. 155):
 
-1. The keyboard ("user input device"):
+1. The keyboard ("user input device")
+
+2. A character string in memory
+
+3. A block file
+
+4. A text file
+
+To check which one is being used, we first would call BLK, which gives us the
+number of a mass storage block being used or 0 for the "user input device"
+(keyobard). In the second case, we use SOURCE-ID to find out where input is
+coming from: 0 for the keyboard, -1 (0ffff) for a string in memory, and a number
+n for a fileid.
+
+Since Liara Forth currently doesn't support blocks, we can skip the BLK
+instruction and go right to SOURCE-ID. 
+
 
 ## Starting up
 
@@ -17,7 +33,8 @@ COLD -> ABORT -> QUIT
 ``` 
 
 This is the same as with pre-ANSI Forths. However, QUIT calls REFILL to get the
-input. There are various cases there:
+input. There are four possible cases there, based on the four possible input
+sources as defined by BLK and SOURCE-ID (see above):
 
 1. **Keyboard entry.** This is the default. Get line of input via ACCEPT and
    return a TRUE flag even if the input string was empty.
@@ -27,6 +44,15 @@ input. There are various cases there:
 3. **Input from a buffer.** Not implemented yet.
 
 4. **Input from a file.** Not implemented yet.
+
+
+## The Command Line Interface
+
+Liara Forth accepts input lines of up to 256 characters. It remembers one
+previous input that can be accessed with CONTROL-p. 
+
+This is done by having two input buffers, `ibuffer1` `ibuffer2` and switching
+between them. 
 
 
 ### SAVE-INPUT and RESTORE-INPUT
