@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 27. Dec 2016
+; This version: 29. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -37,16 +37,15 @@ a_cold
                 ; TODO set up Direct Page stuff
                 ; TODO set up CP
                 ; TODO set up DP
-                ; TODO initiate TIB
                 ; TODO initiate PAD
                 ; TODO initiate User variables
                 ; TODO initiate high-level words 
                 
-                ; start with first input buffer
-                ; TODO see if we need this here or below
-                lda.# ibuffer1
+                ; Prepare input buffers
+                lda.# ibuffer1  ; start with first input buffer
                 sta.d cib
-              ; jsr clearbuffer 
+                stz.d ciblen    ; current input buffer is empty
+                stz.d piblen    ; previous input buffer is empty
 
                 cli             ; PUT_CHR in printstring uses interrupts
 
@@ -93,51 +92,58 @@ a_quit          ; clear Return Stack
                 ; switch to interpret state (STATE is zero)
                 stz.d state
                
-                ; start with first input buffer
-                lda.# buffer1
-                sta.d cib
-                jsr clearbuffer
+                ; empty current input buffer. Note the previous input line is
+                ; conserved even if we came here from an abort
+                stz.d ciblen
 
 quit_main_loop
                 ; accept a line from the current input source
                 jsr a_refill
                 
-                tya ; force flag test
+                tya             ; force flag test
                 bne quit_refill_ok
 
                 ; If REFILL returned a FALSE flag, something went wrong and we
                 ; need to print an error message and reset the machine. We don't
                 ; need to save A because we're going to clober it anyway when we
                 ; go back to ABORT.
-                
                 lda.# es_refill1 
                 jsr printstring
         
                 jmp a_abort
 
 quit_refill_ok
-                ; Set >IN to zero (pointer to beginning of current input buffer)
-                stz.d to-in
+                ; Assume we have successfully accepted a string of input from
+                ; a source, with address of buffer in cib and length of input in
+                ; ciblen
 
-                ; HIER HIER HIER 
-                ; TODO Interpret by calling REFILL
-                
+                ; TODO PARSE INPUT
+
                 ; Display system prompt if all went well
-                pha
                 lda.# s_ok
                 jsr printstring
-                pla
-        
 
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; *** TESTING ***
+                
+                ; ---------------
+                ; TESTING: Print line received from ACCEPT
+                lda.# tests_quit
+                jsr printstring
+                
+                ; add a zero to the end of the buffer to terminate the string
+                ; for printing
+                phx
+                ldx.d ciblen
+                inx
 
-                brk 00 ; BRK for 265sxb tests (drops back to Mensch Monitor)
-;               stp    ; STP for crude65816 emulator tests
+                lda.# 0000
+                sta.x cib
+                plx
+                
+                lda.d cib
+                jsr printstring
+                ; ---------------
 
-; *** TESTING ***
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+                
                 bra quit_main_loop
 
 z_cold
@@ -151,12 +157,46 @@ z_quit          nop  ; DUMMY, TODO figure out compilation goal
 ; actual number of characters as n2. Characters are echoed as they are received
 
 a_accept        
-                ; TODO Testing version only: Echo characters to screen
+                ; Set up loop
+                lda.dx 00       ; max number of chars to accept is NOS
+                bne accept_nonzero
+                                
+                tay             ; if we were told to get zero chars, just quit TODO TEST
+                inx
+                inx
+                rts
 
+accept_nonzero
+                sta.d tmp2      ; non-zero number requested, save in tmp2
+                sty.d tmp1      ; address of buffer to use in tmp1 
+                ldy.# 0000      ; TOS is dropped anyway, so don't save Y
         .a8
-                jsr.l GET_CHR
-                jsr.l PUT_CHR
-                bra a_accept
+
+accept_loop
+                jsr.l GET_CHR   ; blocks with Mensch Monitor. TODO see if KEY better
+
+                cmp.# AscLF     ; we quit on both line feed and carriage return
+                beq accept_eol
+
+                cmp.# AscCR
+                beq accept_eol
+
+                ; TODO control sequences such as BACKSPACE, DEL, CNTRL-P, etc
+
+                jsr.l PUT_CHR   ; echo character. TODO see if this should be EMIT
+
+                ; TODO multitasking: Add PAUSE here (or in EMIT?) 
+
+                sta.diy cib     ; STA (CIB),Y
+                iny
+                cpy.d tmp2      ; reached character limit? TODO TEST
+                bne accept_loop ; fall thru if buffer limit reached
+
+accept_eol
+                sty.d ciblen    ; Y contains number of chars accepted already
+                inx             
+                inx
+        .a16
                 
 z_accept        rts
 
@@ -270,6 +310,16 @@ z_plus          rts
 ; See https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Input-Stream.html
 ; and Conklin & Rather p. 156
 a_refill        
+                ; We handle buffer switches here so that regardless of input
+                ; source, we have access to the previous input. This is not in
+                ; the ANSI specification in any way.
+                lda.d cib
+                eor.# 0100      ; flip 07d00 / 07c00
+                sta.d cib
+                
+                lda.d ciblen
+                sta.d piblen
+
                 ; Get input source from SOURCE-ID. We don't have blocks in this
                 ; version, or else we would have to check BLK first. This is an
                 ; optimized version of a subroutine jump to SOURCE-ID
@@ -277,11 +327,20 @@ a_refill
                 bne refill_source_is_not_keyboard
 
                 ; SOURCE-ID of zero means we're getting stuff from the keyboard
-                ; with ACCEPT
+                ; with ACCEPT. 
+                dex                     ; push Data Stack down twice
+                dex
+                dex
+                dex
+                sty.dx 02
+
+                lda.# buffersize        ; 256 chars, ANSI demands at least 80 as NOS
+                sta.dx 00
+
+                ldy.d cib               ; address of current input buffer TOS 
+
                 jsr a_accept
 
-                ; TODO handle input buffer stuff
-                
                 ; Add success flag TRUE
                 dex
                 dex
@@ -293,7 +352,7 @@ refill_source_is_not_keyboard
                 ; If SOURCE-ID doesn't return a zero, it must be a string in
                 ; memory or a file (remember, no blocks in this version)
                 cmp.# 0ffff
-                bne refill_source_not_string
+                bne refill_source_is_not_string
 
                 ; Simply return FALSE flag as per specification
                 dex
@@ -308,6 +367,7 @@ refill_source_is_not_string
                 ; report an error and jump to ABORT.
                 lda.# es_refill2 
                 jsr printstring
+
                 jmp a_abort
 
 z_refill        rts     ; dummy for compiling
@@ -420,35 +480,6 @@ printstring_done
                 plx
                 rts
 
-; -------------------------------------------------------------------
-; Swap the two input buffers. Assumes A16, destroys A.
-; TODO Rewrite
-swapbuffers     
-                lda.d cib
-                eor.# 0100  ; flip 07d00 / 07c00
-                sta.d cib
-                rts
-
-; -------------------------------------------------------------------
-; Clear current buffer. Assumes buffer size 256 bytes and A16.
-; Does not affect >IN (to-in). 
-; TODO rewrite, TMP version
-clearbuffer     
-                sty.d tmptos
-                lda.# 0000
-                tay
-
-@
-                sta.diy cib     ; STA (cib),Y
-                iny 
-                iny
-                cpy.# 0100
-                bne -
-
-                ldy.d tmptos
-                rts
-
-
 ; ===================================================================
 ; BOTTOM INCLUDES
 
@@ -457,11 +488,18 @@ clearbuffer
 ; ===================================================================
 ; TESTING ROUTINES (UNCOMMENT FOR USE)
                 
-                ; --- TODO TESTING ---
+                ; --- TODO TESTING (PRINT A) ---
                 ; lda.# 61
                 ; jsr.l 00:e04b
                 ; brk 00
                 ; --- TODO TESTING ---
+                
+                ; --- TODO TESTING (HALT CPU) ---
+                ; brk 00 ; BRK for 265sxb tests (drops back to Mensch Monitor)
+                ; stp    ; STP for crude65816 emulator tests
+                ; --- TODO TESTING ---
+                
+; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 ; ===================================================================

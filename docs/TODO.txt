@@ -1,7 +1,11 @@
 TODO List for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 07. Dez 2016
-This version: 10. Dez 2016
+This version: 29. Dez 2016
 
-Well, first of all, code the damn thing.
+First of all, code the damn thing.
 
+
+MAYBE AT SOME POINT
+
+- Create real history for inputs, not just the previous input

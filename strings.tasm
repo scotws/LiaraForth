@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  27. Dec 2016
+; This version:  29. Dec 2016
 
 ; This file is included by liaraforth.tasm
 
@@ -17,7 +17,7 @@ s_version    .byte "Version PRE-ALPHA 27. Dec 2016", 0
 s_author     .byte "Scot W. Stevenson <scot.stevenson@gmail.com>", 0
 s_disclaimer .byte "Liara Forth comes with absolutely NO WARRANTY", 0
 s_typebye    .byte "Type 'bye' to exit", 0
-s_ok         .byte "ok", 0
+s_ok         .byte " ok", 0     ; note empty space at beginning
 
 
 ; ===================================================================
@@ -39,6 +39,15 @@ es_refill1  .byte "QUIT could not get input (REFILL returned -1)", 0
 es_refill2  .byte "Illegal SOURCE-ID during REFILL", 0
 es_stack    .byte "Stack over- or underflow", 0
 es_syntax   .byte "Unknown word", 0
+
+; ===================================================================
+; TESTING STRINGS
+
+; These strings are only used during testing and are removed as Liara Forth is
+; developed. All start with "tests_"
+
+tests_quit .byte "TESTING: Got string: ", 0
+
 
 ; ===================================================================
 ; ALPHABET STRINGS
