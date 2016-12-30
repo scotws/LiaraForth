@@ -1,14 +1,13 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 27. Dez 2016
+This version: 29. Dez 2016
 
 
 TODO (next on top)
 
 - Code basic editing of command line in ACCEPT (CTRL-H, etc)
 - Code dual-buffer entry (including "arrow up" functionality)
-- Code ACCEPT and REFILL
 - Code basic word set
 - Parse entry (temporary version)
 - Set up basic Dictionary lookup (FIND)
@@ -16,8 +15,10 @@ TODO (next on top)
 - Code EVALUATE to be able to add high-level words
 - Decide which words should be high-level
 
+
 FINISHED (newest on top)
 
+- Code ACCEPT and REFILL
 - Test keyboard echo on real 265SXB, add entry to manual on how to upload
 - Echo keyboard entries (temporary loop) 
 - Print intro text (tests access to Mensch Monitor)

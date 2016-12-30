@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 29. Dec 2016
+; This version: 30. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -206,6 +206,55 @@ z_accept        rts
 
 a_bye           brk 00  ; status byte 00 required for assembler
 z_bye           rts     ; dummy for compiling, never reached
+
+; -------------------------------------------------------------------
+; COMMA "," ( n -- ) 11 bytes / 29 cycles
+; Allot one cell and store TOS in memory. We ignore alignment issues, though
+; satisfy the ANSI requirement that an aligned compiler pointer will remain
+; aligned
+; There is another variant possible: 
+;               tya
+;               ldy.d cp
+;               sta.y 0000
+;               iny
+;               iny
+;               sty.d cp
+;               ldy.dx 00
+;               inx
+;               inx
+; This is as fast as the variant below, but three bytes longer
+
+a_comma         tya
+                sta.di cp       ; STA (CP)
+                inc.d cp
+                inc.d cp
+
+                ldy.dx 00
+                inx
+                inx
+
+z_comma         rts
+
+; -------------------------------------------------------------------
+; COUNT ( c-addr -- addr u ) 14 bytes / X cycles
+; Convert old-style character string to address-length pair. Note that the
+; length of the string c-addr ist stored in character length (8 bit), not cell
+; length (16 bit). This is rarely used these days, our version of FIND includes
+; this code for speed.
+
+a_count         tya
+                inc.a           ; String address starts one char later
+                dex
+                dex
+                sta.dx 00       ; NOS
+                
+                lda.y 0000      ; LDA $0000,Y  first byte is length
+                xba             ; move length to LSBS
+                and.# 00ff      ; get rid of whatever was MSB
+                tay             ; TOS
+                
+z_count         rts
+
 
 ; -------------------------------------------------------------------
 ; CR ( -- ) X bytes / X cycles
