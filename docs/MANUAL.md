@@ -94,6 +94,11 @@ session.
 
 ## Getting Started with Liara Forth
 
+Liara Forth is based on the ANSI, but heavily influenced by
+[Gforth](https://www.gnu.org/software/gforth/). Liara's code should run on
+Gforth without changes, or have a good reason not to. Words taken from Gforth
+are marked as such in the wordlist. 
+
 ### A Most Very Brief Introduction to Forth
 
 Forth is a command-line based language. 

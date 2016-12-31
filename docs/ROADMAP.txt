@@ -20,6 +20,7 @@ TODO NEXT (next on top)
 TODO LATER (next on top)
 - Code vt100 support
 - Code multitasking support with PAUSE etc
+- Add real multi-line history
 
 
 FINISHED (newest on top, with date if possible)

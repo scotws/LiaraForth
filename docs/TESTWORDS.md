@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 29. Dec 2016
+This version 31. Dec 2016
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
