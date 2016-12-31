@@ -3,12 +3,13 @@
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. 
 
-Last update: **30. Dec 2016**
+Last update: **31. Dec 2016**
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
 | , (COMMA)      | coded    | ANSI core     | PW, NC | 11    |     29 |
 | + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| > (TO-IN)      | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 | 0 (ZERO)       | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1 (ONE)        | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1+ (ONE-PLUS)  | coded    | ANSI core     | PW, NC | 1     |      2 |
@@ -23,6 +24,7 @@ Last update: **30. Dec 2016**
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
 | QUIT           | fragment | ANSI core     | -      | (TBA) |    n/a |
 | REFILL         | fragment | ANSI core ext | PW     | (TBA) |  (TBA) |
+| SOURCE         | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | SOURCE-ID      | coded    | ANSI core ext | PW, NC | 6     |     13 |
 | STATE          | coded    | ANSI core     | PW, NC | 7     |     12 |
 | SWAP           | coded    | ANSI core     | PW, NC | 5     |     12 |
@@ -35,9 +37,10 @@ Last update: **30. Dec 2016**
 ***Status*** - State of development. Goes from **planned, fragment, coded** to
 finally **tested**.
 
-***Group*** - Which word group the word belongs to, especially ANSI or
-non-ANSI. Words written especially for the board are marked "265SXB". See [the
-Forth Standard](https://forth-standard.org/) for basis.
+***Group*** - Which word group the word belongs to, especially ANSI or non-ANSI.
+Words written especially for the board are marked with "265SXB", words that come
+from Gforth with "Gforth". See [the Forth Standard](https://forth-standard.org/)
+for basis.
 
 ***Flags*** - **PW** (Primitive Word), **CO** (compile only), **IM** (immediate word), 
 **NC** (Native Compile), or "-" for none

@@ -60,7 +60,7 @@ h_count .byte { NC + PW }, 5
         .word a_count, z_count, h_cold
         .byte "count"
 
-h_abort .byte 00 , 5 ; TODO check flags
+h_abort .byte 00, 5 ; TODO check flags
         .word h_count, a_abort, z_abort
         .byte "abort"
 
@@ -76,8 +76,16 @@ h_state .byte { PW + NC }, 5
         .word h_cr, a_state, z_state
         .byte "state"
 
+h_to-in .byte { PW + NC }, 3
+        .word h_state, a_to-in, z_to-in
+        .byte ">IN"
+
+h_source .byte { PW + NC }, 6
+         .word h_to-in, a_source, z_source
+         .byte "source"
+
 h_plus  .byte { PW + NC }, 1
-        .word h_state, a_plus, z_plus
+        .word h_source, a_plus, z_plus
         .byte '+'
 
 h_one-plus .byte { PW + NC }, 2
@@ -110,7 +118,7 @@ h_source-id .byte { PW + NC }, 9
 
 h_comma .byte { PW + NC }, 1
         .word h_source-id, a_comma, z_comma
-        .byte ","
+        .byte ','
 
 h_accept .byte 00, 6 ; TODO check flags
         .word h_comma, a_accept, z_accept 

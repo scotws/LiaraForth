@@ -1,14 +1,14 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 30. Dec 2016
+; This version: 31. Dec 2016
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
 
         .mpu 65816
-;       .origin 8000    ; start of code if saved to Flash memory
-        .origin 6000    ; start of code if saved to built-in RAM
+;       .origin 8000    ; start of code to save to Flash memory
+        .origin 6000    ; start of code to save to built-in RAM
 
 ; ===================================================================
 ; TOP INCLUDES
@@ -73,7 +73,7 @@ a_abort         ; clear Data Stack
                 ldy.# 0000
                 ldx.# dsp0
 
-; drops through to QUIT; z_abort is the same as z_quit.
+; drops through to QUIT, z_abort is the same as z_quit.
 
 ; -------------------------------------------------------------------
 ; QUIT ( -- ) X bytes / X cycles
@@ -148,8 +148,64 @@ quit_refill_ok
 
 z_cold
 z_abort         
-z_quit          nop  ; DUMMY, TODO figure out compilation goal
-                
+z_quit          nop  ; dummy for compilation, TODO test if required
+
+; -------------------------------------------------------------------
+; >IN "TO-IN" ( -- addr ) 6 bytes / X cycles
+; Return address where pointer to current char in input buffer lives (>IN)
+
+a_to-in         dex
+                dex
+                sty.dx 00
+
+                ldy.# toin      ; >IN
+z_to-in         rts
+
+; -------------------------------------------------------------------
+; + "PLUS" ( n m -- n+m ) 7 bytes / X cycles
+; Add TOS and NOS
+
+a_plus          tya
+                clc
+                adc.dx 00
+                tay
+                inx
+                inx 
+
+z_plus          rts
+
+; -------------------------------------------------------------------
+; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
+; Pushes the number 0000 on the Data Stack
+
+a_zero          dex
+                dex
+                sty.dx 00 
+                ldy.# 0000
+
+z_zero          rts
+
+               
+; -------------------------------------------------------------------
+; 1 "ONE" ( -- 1 ) 7 bytes / 12 cycles
+; Pushes the number 1 on the Data Stack
+
+a_one           dex
+                dex
+                sty.dx 00
+                ldy.# 0001 
+   
+z_one           rts
+
+
+; -------------------------------------------------------------------
+; 1+ "ONE-PLUS" ( n -- n+1 ) 1 bytes / 2 cycles
+; Add 1 to TOS. Because there is no checking if there is actually anything on
+; the Data Stack, this routine will fail silently if the stack is empty. 
+
+a_one-plus      iny
+z_one-plus      rts
+
 
 ; -------------------------------------------------------------------
 ; ACCEPT ( addr n1 -- n2 ) X bytes / X cycles
@@ -239,8 +295,8 @@ z_comma         rts
 ; COUNT ( c-addr -- addr u ) 14 bytes / X cycles
 ; Convert old-style character string to address-length pair. Note that the
 ; length of the string c-addr ist stored in character length (8 bit), not cell
-; length (16 bit). This is rarely used these days, our version of FIND includes
-; this code for speed.
+; length (16 bit). This is rarely used these days, though COUNT can also be used
+; to step through a string character by character. 
 
 a_count         tya
                 inc.a           ; String address starts one char later
@@ -314,38 +370,6 @@ z_here          rts
 a_nip           inx
                 inx
 z_nip           rts
-
-; -------------------------------------------------------------------
-; 1 "ONE" ( -- 1 ) 7 bytes / 12 cycles
-; Pushes the number 1 on the Data Stack
-
-a_one           dex
-                dex
-                sty.dx 00
-                ldy.# 0001 
-   
-z_one           rts
-
-; -------------------------------------------------------------------
-; 1+ "ONE-PLUS" ( n -- n+1 ) 1 bytes / 2 cycles
-; Add 1 to TOS. Because there is no checking if there is actually anything on
-; the Data Stack, this routine will fail silently if the stack is empty. 
-
-a_one-plus      iny
-z_one-plus      rts
-
-; -------------------------------------------------------------------
-; + "PLUS" ( n m -- n+m ) 7 bytes / X cycles
-; Add TOS and NOS
-
-a_plus          tya
-                clc
-                adc.dx 00
-                tay
-                inx
-                inx 
-
-z_plus          rts
 
 ; ------------------------------------------------------------------- 
 ; REFILL ( -- f ) X bytes / X cycles
@@ -422,10 +446,29 @@ refill_source_is_not_string
 z_refill        rts     ; dummy for compiling
 
 ; -------------------------------------------------------------------
+; SOURCE ( -- addr u ) 12 bytes / X cycles
+; Return the address and size of current input buffer. Replaces TIB and #TIB in
+; ANSI Forth
+
+a_source        dex             ; make room on Data Stack
+                dex
+                dex
+                dex
+                sty.dx 02
+
+                lda.d cib       ; address of current input buffer as NOS
+                sta.dx 00
+
+                ldy.d ciblen    ; length of current input buffer as TOS
+                
+z_source        rts
+
+; -------------------------------------------------------------------
 ; SOURCE-ID ( -- n ) 6 bytes / 13 cycles
 ; Identify the input source unless it is a block (s. Conklin & Rather p. 156).
 ; Since we don't have blocks (yet), this will give the input source: 0 is
 ; keyboard, -1 (0ffff) is character string, and a text file gives the fileid.
+
 a_source-id     dex
                 dex
                 sty.dx 00
@@ -481,23 +524,11 @@ a_tuck          dex
                 
 z_tuck          rts
 
-; -------------------------------------------------------------------
-; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
-; Pushes the number 0000 on the Data Stack
-
-a_zero          dex
-                dex
-                sty.dx 00 
-                ldy.# 0000
-
-z_zero          rts
-
-
 
 ; ===================================================================
 ; MIDDLE INCLUDES
 
-        .include dict_headers.tasm
+        .include headers.tasm
 
 ; ===================================================================
 ; LOW LEVEL HELPER FUNCTIONS
