@@ -371,6 +371,129 @@ a_nip           inx
                 inx
 z_nip           rts
 
+; -------------------------------------------------------------------
+; PARSE-NAME ( "name" -- addr u ) 41+ bytes / X cycles
+; Find next word in input string, skipping leading spaces. This is a special
+; form of PARSE and drops through to that word. See PARSE for more detail. We
+; use this word internally for the interpreter because it is a lot easier to use
+
+a_parse-name    
+                ; skip leading spaces, changing >IN, then place SPACE 
+                ; character on data stack for PARSE
+                dex
+                dex
+                sty.dx 00
+
+        .a8
+                ldy.d toin              ; >IN 
+
+parse-name_loop
+                cpy.d ciblen            ; end of line?
+                beq parse-name_empty_line
+
+                lda.diy cib             ; LDA (CIB),Y
+                cmp.# AscSP
+                beq parse-name_found
+                iny
+                bra parse-name_loop
+
+parse-name_empty_line
+        .a16    
+                ; The Gforth documentation does not say what address is returned
+                ; if a string with only spaces is returned. Experiments with 
+                ; the word  : PNT ( "name" -- ) PARSE-NAME SWAP U. U. TYPE ; 
+                ; show that it returns the address of the last space in the
+                ; input, which is cib+ciblen. So we do that as well. 
+                dex
+                dex
+                lda.d cib
+                clc
+                adc.d ciblen
+                sta.dx 00               ; NOS
+
+                ldy.# 0000              ; TOS
+
+                rts                     ; don't have to go through PARSE
+
+parse-name_found
+        .a16
+                sty.d toin              ; new >IN
+                ldy.# AscSP             ; put space in TOS for PARSE
+
+                ; fall thru to PARSE
+
+
+; -------------------------------------------------------------------
+; PARSE ( c "name" -- addr u ) 45 bytes / X+ cycles
+; Find word in input string delimited by character given Do not skip leading
+; delimiters, this is an important difference to PARSE-NAME. PARSE and
+; PARSE-NAME replace WORD in modern systems. See the ANSI documentation at
+; http://www.forth200x.org/documents/html3/rationale.html#rat:core:PARSE 
+; PARSE-NAME drops through to here
+;
+;    cib   cib+toin    cib+ciblen
+;     v       v             v
+;     |#####################|              Length of found string: 
+;                                          ciblen - toin
+;     +------>|  toin (>IN)
+;     +-------------------->|  ciblen
+;
+; The input string is stored starting at the address in the Current Input Buffer
+; (CIB), the length of which is in CIBLEN. While searching for the delimiter,
+; TOIN (>IN) points to the where we currently are. Since PARSE does not skip
+; leading delimiters, we assume we are on a useful string.
+
+a_parse         
+                ; save beginning of new word (cib+toin) to NOS
+                dex
+                dex
+                lda.d cib
+                clc
+                adc.d toin
+                sta.dx 00       
+
+                sty.d tmp1      ; save delimiter, char is LSB
+                stz.d tmp2      ; offset for EOL/char found adjustment of >IN
+
+                ; prepare loop
+                lda.di toin     ; there is no LDY (TOIN), do it the hard way
+                tay
+        .a8
+
+parse_loop
+                cpy.d ciblen    ; check for EOL first
+                beq parse_eol
+
+                lda.diy cib     ; LDA (CIB),Y
+                cmp.d tmp1      ; found delimiter?
+                beq parse_found
+                iny
+                bra parse_loop
+
+parse_found
+                ; If we haven't reached the end of the line, but found
+                ; a delimiter, we want >IN to point to the next character after
+                ; the delimiter, not the delimiter itself. This is what the
+                ; offset is for
+                inc.d tmp2      
+
+parse_eol       
+                ; calculate length of string found (see ascii drawing)
+        .a16
+                tya
+                sec
+                sbc.d toin
+                tay             ; length stays in Y as TOS
+
+                ; calculate new >IN
+                clc
+                adc.d tmp2      ; offset for EOL vs found delimiter
+                sta.d toin
+                
+z_parse-name
+z_parse         rts
+
+_
 ; ------------------------------------------------------------------- 
 ; REFILL ( -- f ) X bytes / X cycles
 ; "Attempt to fill the input buffer from the input source, returning a true flag

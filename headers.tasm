@@ -64,8 +64,12 @@ h_abort .byte 00, 5 ; TODO check flags
         .word h_count, a_abort, z_abort
         .byte "abort"
 
+h_parse .byte 00, 5
+        .word h_quit, a_parse, z_parse
+        .byte "parse"
+
 h_quit  .byte 00, 4 
-        .word h_abort, a_quit, z_quit
+        .word h_parse, a_quit, z_quit
         .byte "quit"
 
 h_cr    .byte { PW + NC }, 2
@@ -112,8 +116,12 @@ h_refill .byte { PW }, 6 ; TODO check flags
         .word h_zero, a_refill, z_refill
         .byte "refill"
 
+h_parse-name .byte 0, &10
+        .word h_refill, a_parse-name, z_parse-name
+        .byte "parse-name"
+
 h_source-id .byte { PW + NC }, 9
-        .word h_refill, a_source-id, z_source-id
+        .word h_parse-name, a_source-id, z_source-id
         .byte "source-id"
 
 h_comma .byte { PW + NC }, 1

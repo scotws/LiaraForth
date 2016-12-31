@@ -22,6 +22,8 @@ Last update: **31. Dec 2016**
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
+| PARSE          | coded    | ANSI core ext | -      | 45    |    n/a |
+| PARSE-NAME     | coded    | Gforth        | -      | 41+   |    n/a |
 | QUIT           | fragment | ANSI core     | -      | (TBA) |    n/a |
 | REFILL         | fragment | ANSI core ext | PW     | (TBA) |  (TBA) |
 | SOURCE         | coded    | ANSI core     | PW, NC | 12    |  (TBA) |

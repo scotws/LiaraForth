@@ -3,14 +3,14 @@ Version BETA  24. December 2016
 Copyright 2015, 2016 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 Code listing for file liaraforth.tasm
-Generated on Sat Dec 31 17:01:11 2016
+Generated on Sat Dec 31 18:17:42 2016
 Target MPU: 65816
 External files loaded: 3
 Number of passes executed: 32
 Number of steps executed: 7
-Assembly time: 1.16400 seconds
+Assembly time: 1.34304 seconds
 Code origin: 006000
-Bytes of machine code: 1225
+Bytes of machine code: 1345
 
 LISTING:
        Line Address  Bytes        Instruction
@@ -23,16 +23,16 @@ LISTING:
     7    47 00:600a  64 0e        stz.d ciblen
     8    48 00:600c  64 10        stz.d piblen
     9    50 00:600e  58           cli
-   10    53 00:600f  a9 b0 62     lda.# s_title
-   11    54 00:6012  20 96 62     jsr printstring
-   12    55 00:6015  a9 d0 62     lda.# s_version
-   13    56 00:6018  20 96 62     jsr printstring
-   14    57 00:601b  a9 ef 62     lda.# s_author
-   15    58 00:601e  20 96 62     jsr printstring
-   16    59 00:6021  a9 1c 63     lda.# s_disclaimer
-   17    60 00:6024  20 96 62     jsr printstring
-   18    61 00:6027  a9 4a 63     lda.# s_typebye
-   19    62 00:602a  20 96 62     jsr printstring
+   10    53 00:600f  a9 28 63     lda.# s_title
+   11    54 00:6012  20 0e 63     jsr printstring
+   12    55 00:6015  a9 48 63     lda.# s_version
+   13    56 00:6018  20 0e 63     jsr printstring
+   14    57 00:601b  a9 67 63     lda.# s_author
+   15    58 00:601e  20 0e 63     jsr printstring
+   16    59 00:6021  a9 94 63     lda.# s_disclaimer
+   17    60 00:6024  20 0e 63     jsr printstring
+   18    61 00:6027  a9 c2 63     lda.# s_typebye
+   19    62 00:602a  20 0e 63     jsr printstring
    20    73 00:602d  a0 00 00     ldy.# 0000
    21    74 00:6030  a2 f0 02     ldx.# 0002f0
    22    86 00:6033  a9 ff 7f     lda.# 007fff
@@ -40,16 +40,16 @@ LISTING:
    24    90 00:6037  64 0a        stz.d insrc
    25    93 00:6039  64 14        stz.d state
    26    97 00:603b  64 0e        stz.d ciblen
-   27   101 00:603d  20 f9 60     jsr a_refill
+   27   101 00:603d  20 52 61     jsr a_refill
    28   103 00:6040  98           tya
    29   104 00:6041  d0 09        bne quit_refill_ok
-   30   110 00:6043  a9 1c 64     lda.# es_refill1
-   31   111 00:6046  20 96 62     jsr printstring
+   30   110 00:6043  a9 94 64     lda.# es_refill1
+   31   111 00:6046  20 0e 63     jsr printstring
    32   113 00:6049  4c 2d 60     jmp a_abort
-   33   123 00:604c  a9 5d 63     lda.# s_ok
-   34   124 00:604f  20 96 62     jsr printstring
-   35   129 00:6052  a9 90 64     lda.# tests_quit
-   36   130 00:6055  20 96 62     jsr printstring
+   33   123 00:604c  a9 d5 63     lda.# s_ok
+   34   124 00:604f  20 0e 63     jsr printstring
+   35   129 00:6052  a9 08 65     lda.# tests_quit
+   36   130 00:6055  20 0e 63     jsr printstring
    37   134 00:6058  da           phx
    38   135 00:6059  a6 0e        ldx.d ciblen
    39   136 00:605b  e8           inx
@@ -57,7 +57,7 @@ LISTING:
    41   139 00:605f  9d 0c 02     sta.x cib
    42   140 00:6062  fa           plx
    43   142 00:6063  a5 0c        lda.d cib
-   44   143 00:6065  20 96 62     jsr printstring
+   44   143 00:6065  20 0e 63     jsr printstring
    45   147 00:6068  80 d3        bra quit_main_loop
    46   151 00:606a  ea           z_quit
    47   157 00:606b  ca           a_to-in
@@ -150,189 +150,248 @@ LISTING:
   134   370 00:60f6  e8           a_nip
   135   371 00:60f7  e8           inx
   136   372 00:60f8  60           z_nip
-  137   389 00:60f9  a5 0c        lda.d cib
-  138   390 00:60fb  49 00 01     eor.# 0100
-  139   391 00:60fe  85 0c        sta.d cib
-  140   393 00:6100  a5 0e        lda.d ciblen
-  141   394 00:6102  85 10        sta.d piblen
-  142   399 00:6104  a5 0a        lda.d insrc
-  143   400 00:6106  d0 18        bne refill_source_is_not_keyboard
-  144   404 00:6108  ca           dex
-  145   405 00:6109  ca           dex
-  146   406 00:610a  ca           dex
-  147   407 00:610b  ca           dex
-  148   408 00:610c  94 02        sty.dx 02
-  149   410 00:610e  a9 ff 00     lda.# 0000ff
-  150   411 00:6111  95 00        sta.dx 00
-  151   413 00:6113  a4 0c        ldy.d cib
-  152   415 00:6115  20 8d 60     jsr a_accept
-  153   418 00:6118  ca           dex
-  154   419 00:6119  ca           dex
-  155   420 00:611a  94 00        sty.dx 00
-  156   421 00:611c  a0 ff ff     ldy.# 0ffff
-  157   422 00:611f  60           rts
-  158   427 00:6120  c9 ff ff     cmp.# 0ffff
-  159   428 00:6123  d0 08        bne refill_source_is_not_string
-  160   431 00:6125  ca           dex
-  161   432 00:6126  ca           dex
-  162   433 00:6127  94 00        sty.dx 00
-  163   434 00:6129  a0 00 00     ldy.# 0000
-  164   435 00:612c  60           rts
-  165   441 00:612d  a9 4a 64     lda.# es_refill2
-  166   442 00:6130  20 96 62     jsr printstring
-  167   444 00:6133  4c 2d 60     jmp a_abort
-  168   446 00:6136  60           z_refill
-  169   453 00:6137  ca           a_source
-  170   454 00:6138  ca           dex
-  171   455 00:6139  ca           dex
-  172   456 00:613a  ca           dex
-  173   457 00:613b  94 02        sty.dx 02
-  174   459 00:613d  a5 0c        lda.d cib
-  175   460 00:613f  95 00        sta.dx 00
-  176   462 00:6141  a4 0e        ldy.d ciblen
-  177   464 00:6143  60           z_source
-  178   472 00:6144  ca           a_source-id
-  179   473 00:6145  ca           dex
-  180   474 00:6146  94 00        sty.dx 00
-  181   475 00:6148  a4 0a        ldy.d insrc
-  182   477 00:614a  60           z_source-id
-  183   486 00:614b  ca           a_state
-  184   487 00:614c  ca           dex
-  185   488 00:614d  94 00        sty.dx 00
-  186   489 00:614f  a0 14 02     ldy.# state
-  187   491 00:6152  60           z_state
-  188   498 00:6153  b5 00        a_swap
-  189   499 00:6155  94 00        sty.dx 00
-  190   500 00:6157  a8           tay
-  191   502 00:6158  60           z_swap
-  192   508 00:6159  ca           a_true
-  193   509 00:615a  ca           dex
-  194   510 00:615b  94 00        sty.dx 00
-  195   511 00:615d  a0 ff ff     ldy.# 0ffff
-  196   513 00:6160  60           z_true
-  197   519 00:6161  ca           a_tuck
-  198   520 00:6162  ca           dex
-  199   521 00:6163  b5 02        lda.dx 2
-  200   522 00:6165  95 00        sta.dx 0
-  201   523 00:6167  94 02        sty.dx 2
-  202   525 00:6169  60           z_tuck
-  203   531 00:616a  90           .byte 64, 72, 6f, 70
-  204   531 00:616b  03           .word h_dup, a_drop, z_drop
-  205   531 00:616c  00 00        h_drop
-  206   531 00:616e  bc 60        h_here
-  207   531 00:6170  be 60        h_tuck
-  208   531 00:6172  62 79 65     h_dup
-  209   531 00:6175  00 04        h_refill
-  210   531 00:6177  6a 61 (...)  (data)
-  211   531 00:617d  63 6f 6c 64  (data)
-  212   531 00:6181  90 05        (data)
-  213   531 00:6183  cb 60 (...)  (data)
-  214   531 00:6189  63 6f (...)  (data)
-  215   531 00:618e  00 05        (data)
-  216   531 00:6190  81 61 (...)  (data)
-  217   531 00:6196  61 62 (...)  (data)
-  218   531 00:619b  00 04        (data)
-  219   531 00:619d  8e 61 (...)  (data)
-  220   531 00:61a3  71 75 69 74  (data)
-  221   531 00:61a7  90 02        (data)
-  222   531 00:61a9  9b 61 (...)  (data)
-  223   531 00:61af  63 72        (data)
-  224   531 00:61b1  90 05        (data)
-  225   531 00:61b3  a7 61 (...)  (data)
-  226   531 00:61b9  73 74 (...)  (data)
-  227   531 00:61be  90 03        (data)
-  228   531 00:61c0  b1 61 (...)  (data)
-  229   531 00:61c6  3e 49 4e     (data)
-  230   531 00:61c9  90 06        (data)
-  231   531 00:61cb  be 61 (...)  (data)
-  232   531 00:61d1  73 6f (...)  (data)
-  233   531 00:61d7  90 01        (data)
-  234   531 00:61d9  c9 61 (...)  (data)
-  235   531 00:61df  2b           (data)
-  236   531 00:61e0  90 02        (data)
-  237   531 00:61e2  d7 61 (...)  (data)
-  238   531 00:61e8  31 2b        (data)
-  239   531 00:61ea  90 05        (data)
-  240   531 00:61ec  e0 61 (...)  (data)
-  241   531 00:61f2  66 61 (...)  (data)
-  242   531 00:61f7  90 04        (data)
-  243   531 00:61f9  ea 61 (...)  (data)
-  244   531 00:61ff  74 72 75 65  (data)
-  245   531 00:6203  90 03        (data)
-  246   531 00:6205  f7 61 (...)  (data)
-  247   531 00:620b  6f 6e 65     (data)
-  248   531 00:620e  90 04        (data)
-  249   531 00:6210  03 62 (...)  (data)
-  250   531 00:6216  7a 65 72 6f  (data)
-  251   531 00:621a  80 06        (data)
-  252   531 00:621c  0e 62 (...)  (data)
-  253   531 00:6222  72 65 (...)  (data)
-  254   531 00:6228  90 09        (data)
-  255   531 00:622a  1a 62 (...)  (data)
-  256   531 00:6230  73 6f (...)  (data)
-  257   531 00:6239  90 01        (data)
-  258   531 00:623b  28 62 (...)  (data)
-  259   531 00:6241  2c           (data)
-  260   531 00:6242  00 06        (data)
-  261   531 00:6244  39 62 (...)  (data)
-  262   531 00:624a  61 63 (...)  (data)
-  263   531 00:6250  90 04        (data)
-  264   531 00:6252  42 62 (...)  (data)
-  265   531 00:6258  74 75 63 6b  (data)
-  266   531 00:625c  90 03        (data)
-  267   531 00:625e  50 62 (...)  (data)
-  268   531 00:6264  6e 69 70     (data)
-  269   531 00:6267  90 04        (data)
-  270   531 00:6269  5c 62 (...)  (data)
-  271   531 00:626f  68 65 72 65  (data)
-  272   531 00:6273  90 04        (data)
-  273   531 00:6275  67 62 (...)  (data)
-  274   531 00:627b  73 77 61 70  (data)
-  275   531 00:627f  90 03        (data)
-  276   531 00:6281  73 62 (...)  (data)
-  277   531 00:6287  64 75 70     (data)
-  278   531 00:628a  90 04        (data)
-  279   531 00:628c  7f 62 (...)  (data)
-  280   531 00:6292  64 72 6f 70  (data)
-  281   546 00:6296  da           phx
-  282   547 00:6297  aa           tax
-  283   548 00:6298  e2 20        sep 20
-  284   550 00:629a  bd 00 00     lda.x 0000
-  285   551 00:629d  f0 07        beq printstring_done
-  286   552 00:629f  22 4b e0 00  jsr.l 00e04b
-  287   553 00:62a3  e8           inx
-  288   554 00:62a4  80 f4        bra -
-  289   557 00:62a6  a9 0a        lda.# 00000a
-  290   558 00:62a8  22 4b e0 00  jsr.l 00e04b
-  291   559 00:62ac  c2 20        rep 20
-  292   560 00:62ae  fa           plx
-  293   561 00:62af  60           rts
-  294   566 00:62b0  0a 4c (...)  alphastr
-  295   566 00:62d0  56 65 (...)  .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f, 70, 71, 72, 73, 74, 75, 76, 77, 79, 7a
-  296   566 00:62ef  53 63 (...)  .byte 53, 74, 61, 63, 6b, 20, 6f, 76, 65, 72, 2d, 20, 6f, 72, 20, 75, 6e, 64, 65, 72, 66, 6c, 6f, 77, 0
-  297   566 00:631c  4c 69 (...)  .byte 54, 45, 53, 54, 49, 4e, 47, 3a, 20, 47, 6f, 74, 20, 73, 74, 72, 69, 6e, 67, 3a, 20, 0
-  298   566 00:634a  54 79 (...)  .byte 49, 6e, 74, 65, 72, 70, 72, 65, 74, 69, 6e, 67, 20, 61, 20, 63, 6f, 6d, 70, 69, 6c, 65, 2d, 6f, 6e, 6c, 79, 20, 77, 6f, 72, 64, 0
-  299   566 00:635d  20 6f 6b 00  .byte 51, 55, 49, 54, 20, 63, 6f, 75, 6c, 64, 20, 6e, 6f, 74, 20, 67, 65, 74, 20, 69, 6e, 70, 75, 74, 20, 28, 52, 45, 46, 49, 4c, 4c, 20, 72, 65, 74, 75, 72, 6e, 65, 64, 20, 2d, 31, 29, 0
-  300   566 00:6361  41 63 (...)  (data)
-  301   566 00:637b  49 6e (...)  (data)
-  302   566 00:639c  44 45 (...)  (data)
-  303   566 00:63b9  44 69 (...)  (data)
-  304   566 00:63ca  20 28 (...)  (data)
-  305   566 00:63d3  3e 3e (...)  (data)
-  306   566 00:63df  4e 6f (...)  (data)
-  307   566 00:63f5  50 61 (...)  (data)
-  308   566 00:6405  44 69 (...)  (data)
-  309   566 00:641c  51 55 (...)  (data)
-  310   566 00:644a  49 6c (...)  (data)
-  311   566 00:646a  53 74 (...)  (data)
-  312   566 00:6483  55 6e (...)  (data)
-  313   566 00:6490  54 45 (...)  (data)
-  314   566 00:64a6  30 31 (...)  (data)
+  137   383 00:60f9  ca           dex
+  138   384 00:60fa  ca           dex
+  139   385 00:60fb  94 00        sty.dx 00
+  140   387 00:60fd  e2 20        sep 20
+  141   388 00:60ff  a4 12        ldy.d toin
+  142   391 00:6101  c4 0e        cpy.d ciblen
+  143   392 00:6103  f0 09        beq parse-name_empty_line
+  144   394 00:6105  b1 0c        lda.diy cib
+  145   395 00:6107  c9 20        cmp.# 000020
+  146   396 00:6109  f0 12        beq parse-name_found
+  147   397 00:610b  c8           iny
+  148   398 00:610c  80 f3        bra parse-name_loop
+  149   401 00:610e  c2 20        rep 20
+  150   407 00:6110  ca           dex
+  151   408 00:6111  ca           dex
+  152   409 00:6112  a5 0c        lda.d cib
+  153   410 00:6114  18           clc
+  154   411 00:6115  65 0e        adc.d ciblen
+  155   412 00:6117  95 00        sta.dx 00
+  156   414 00:6119  a0 00 00     ldy.# 0000
+  157   416 00:611c  60           rts
+  158   419 00:611d  c2 20        rep 20
+  159   420 00:611f  84 12        sty.d toin
+  160   421 00:6121  a0 20 00     ldy.# 000020
+  161   448 00:6124  ca           dex
+  162   449 00:6125  ca           dex
+  163   450 00:6126  a5 0c        lda.d cib
+  164   451 00:6128  18           clc
+  165   452 00:6129  65 12        adc.d toin
+  166   453 00:612b  95 00        sta.dx 00
+  167   455 00:612d  84 16        sty.d tmp1
+  168   456 00:612f  64 16        stz.d tmp2
+  169   459 00:6131  b2 12        lda.di toin
+  170   460 00:6133  a8           tay
+  171   461 00:6134  e2 20        sep 20
+  172   464 00:6136  c4 0e        cpy.d ciblen
+  173   465 00:6138  f0 0b        beq parse_eol
+  174   467 00:613a  b1 0c        lda.diy cib
+  175   468 00:613c  c5 16        cmp.d tmp1
+  176   469 00:613e  f0 03        beq parse_found
+  177   470 00:6140  c8           iny
+  178   471 00:6141  80 f3        bra parse_loop
+  179   478 00:6143  e6 16        inc.d tmp2
+  180   482 00:6145  c2 20        rep 20
+  181   483 00:6147  98           tya
+  182   484 00:6148  38           sec
+  183   485 00:6149  e5 12        sbc.d toin
+  184   486 00:614b  a8           tay
+  185   489 00:614c  18           clc
+  186   490 00:614d  65 16        adc.d tmp2
+  187   491 00:614f  85 12        sta.d toin
+  188   494 00:6151  60           z_parse
+  189   512 00:6152  a5 0c        lda.d cib
+  190   513 00:6154  49 00 01     eor.# 0100
+  191   514 00:6157  85 0c        sta.d cib
+  192   516 00:6159  a5 0e        lda.d ciblen
+  193   517 00:615b  85 10        sta.d piblen
+  194   522 00:615d  a5 0a        lda.d insrc
+  195   523 00:615f  d0 18        bne refill_source_is_not_keyboard
+  196   527 00:6161  ca           dex
+  197   528 00:6162  ca           dex
+  198   529 00:6163  ca           dex
+  199   530 00:6164  ca           dex
+  200   531 00:6165  94 02        sty.dx 02
+  201   533 00:6167  a9 ff 00     lda.# 0000ff
+  202   534 00:616a  95 00        sta.dx 00
+  203   536 00:616c  a4 0c        ldy.d cib
+  204   538 00:616e  20 8d 60     jsr a_accept
+  205   541 00:6171  ca           dex
+  206   542 00:6172  ca           dex
+  207   543 00:6173  94 00        sty.dx 00
+  208   544 00:6175  a0 ff ff     ldy.# 0ffff
+  209   545 00:6178  60           rts
+  210   550 00:6179  c9 ff ff     cmp.# 0ffff
+  211   551 00:617c  d0 08        bne refill_source_is_not_string
+  212   554 00:617e  ca           dex
+  213   555 00:617f  ca           dex
+  214   556 00:6180  94 00        sty.dx 00
+  215   557 00:6182  a0 00 00     ldy.# 0000
+  216   558 00:6185  60           rts
+  217   564 00:6186  a9 c2 64     lda.# es_refill2
+  218   565 00:6189  20 0e 63     jsr printstring
+  219   567 00:618c  4c 2d 60     jmp a_abort
+  220   569 00:618f  60           z_refill
+  221   576 00:6190  ca           a_source
+  222   577 00:6191  ca           dex
+  223   578 00:6192  ca           dex
+  224   579 00:6193  ca           dex
+  225   580 00:6194  94 02        sty.dx 02
+  226   582 00:6196  a5 0c        lda.d cib
+  227   583 00:6198  95 00        sta.dx 00
+  228   585 00:619a  a4 0e        ldy.d ciblen
+  229   587 00:619c  60           z_source
+  230   595 00:619d  ca           a_source-id
+  231   596 00:619e  ca           dex
+  232   597 00:619f  94 00        sty.dx 00
+  233   598 00:61a1  a4 0a        ldy.d insrc
+  234   600 00:61a3  60           z_source-id
+  235   609 00:61a4  ca           a_state
+  236   610 00:61a5  ca           dex
+  237   611 00:61a6  94 00        sty.dx 00
+  238   612 00:61a8  a0 14 02     ldy.# state
+  239   614 00:61ab  60           z_state
+  240   621 00:61ac  b5 00        a_swap
+  241   622 00:61ae  94 00        sty.dx 00
+  242   623 00:61b0  a8           tay
+  243   625 00:61b1  60           z_swap
+  244   631 00:61b2  ca           a_true
+  245   632 00:61b3  ca           dex
+  246   633 00:61b4  94 00        sty.dx 00
+  247   634 00:61b6  a0 ff ff     ldy.# 0ffff
+  248   636 00:61b9  60           z_true
+  249   642 00:61ba  ca           a_tuck
+  250   643 00:61bb  ca           dex
+  251   644 00:61bc  b5 02        lda.dx 2
+  252   645 00:61be  95 00        sta.dx 0
+  253   646 00:61c0  94 02        sty.dx 2
+  254   648 00:61c2  60           z_tuck
+  255   654 00:61c3  90           .byte 64, 72, 6f, 70
+  256   654 00:61c4  03           .word h_dup, a_drop, z_drop
+  257   654 00:61c5  00 00        h_drop
+  258   654 00:61c7  bc 60        h_dup
+  259   654 00:61c9  be 60        h_comma
+  260   654 00:61cb  62 79 65     h_here
+  261   654 00:61ce  00 04        h_zero
+  262   654 00:61d0  c3 61 (...)  (data)
+  263   654 00:61d6  63 6f 6c 64  (data)
+  264   654 00:61da  90 05        (data)
+  265   654 00:61dc  cb 60 (...)  (data)
+  266   654 00:61e2  63 6f (...)  (data)
+  267   654 00:61e7  00 05        (data)
+  268   654 00:61e9  da 61 (...)  (data)
+  269   654 00:61ef  61 62 (...)  (data)
+  270   654 00:61f4  00 05        (data)
+  271   654 00:61f6  01 62 (...)  (data)
+  272   654 00:61fc  70 61 (...)  (data)
+  273   654 00:6201  00 04        (data)
+  274   654 00:6203  f4 61 (...)  (data)
+  275   654 00:6209  71 75 69 74  (data)
+  276   654 00:620d  90 02        (data)
+  277   654 00:620f  01 62 (...)  (data)
+  278   654 00:6215  63 72        (data)
+  279   654 00:6217  90 05        (data)
+  280   654 00:6219  0d 62 (...)  (data)
+  281   654 00:621f  73 74 (...)  (data)
+  282   654 00:6224  90 03        (data)
+  283   654 00:6226  17 62 (...)  (data)
+  284   654 00:622c  3e 49 4e     (data)
+  285   654 00:622f  90 06        (data)
+  286   654 00:6231  24 62 (...)  (data)
+  287   654 00:6237  73 6f (...)  (data)
+  288   654 00:623d  90 01        (data)
+  289   654 00:623f  2f 62 (...)  (data)
+  290   654 00:6245  2b           (data)
+  291   654 00:6246  90 02        (data)
+  292   654 00:6248  3d 62 (...)  (data)
+  293   654 00:624e  31 2b        (data)
+  294   654 00:6250  90 05        (data)
+  295   654 00:6252  46 62 (...)  (data)
+  296   654 00:6258  66 61 (...)  (data)
+  297   654 00:625d  90 04        (data)
+  298   654 00:625f  50 62 (...)  (data)
+  299   654 00:6265  74 72 75 65  (data)
+  300   654 00:6269  90 03        (data)
+  301   654 00:626b  5d 62 (...)  (data)
+  302   654 00:6271  6f 6e 65     (data)
+  303   654 00:6274  90 04        (data)
+  304   654 00:6276  69 62 (...)  (data)
+  305   654 00:627c  7a 65 72 6f  (data)
+  306   654 00:6280  80 06        (data)
+  307   654 00:6282  74 62 (...)  (data)
+  308   654 00:6288  72 65 (...)  (data)
+  309   654 00:628e  00 0a        (data)
+  310   654 00:6290  80 62 (...)  (data)
+  311   654 00:6296  70 61 (...)  (data)
+  312   654 00:62a0  90 09        (data)
+  313   654 00:62a2  8e 62 (...)  (data)
+  314   654 00:62a8  73 6f (...)  (data)
+  315   654 00:62b1  90 01        (data)
+  316   654 00:62b3  a0 62 (...)  (data)
+  317   654 00:62b9  2c           (data)
+  318   654 00:62ba  00 06        (data)
+  319   654 00:62bc  b1 62 (...)  (data)
+  320   654 00:62c2  61 63 (...)  (data)
+  321   654 00:62c8  90 04        (data)
+  322   654 00:62ca  ba 62 (...)  (data)
+  323   654 00:62d0  74 75 63 6b  (data)
+  324   654 00:62d4  90 03        (data)
+  325   654 00:62d6  c8 62 (...)  (data)
+  326   654 00:62dc  6e 69 70     (data)
+  327   654 00:62df  90 04        (data)
+  328   654 00:62e1  d4 62 (...)  (data)
+  329   654 00:62e7  68 65 72 65  (data)
+  330   654 00:62eb  90 04        (data)
+  331   654 00:62ed  df 62 (...)  (data)
+  332   654 00:62f3  73 77 61 70  (data)
+  333   654 00:62f7  90 03        (data)
+  334   654 00:62f9  eb 62 (...)  (data)
+  335   654 00:62ff  64 75 70     (data)
+  336   654 00:6302  90 04        (data)
+  337   654 00:6304  f7 62 (...)  (data)
+  338   654 00:630a  64 72 6f 70  (data)
+  339   669 00:630e  da           phx
+  340   670 00:630f  aa           tax
+  341   671 00:6310  e2 20        sep 20
+  342   673 00:6312  bd 00 00     lda.x 0000
+  343   674 00:6315  f0 07        beq printstring_done
+  344   675 00:6317  22 4b e0 00  jsr.l 00e04b
+  345   676 00:631b  e8           inx
+  346   677 00:631c  80 f4        bra -
+  347   680 00:631e  a9 0a        lda.# 00000a
+  348   681 00:6320  22 4b e0 00  jsr.l 00e04b
+  349   682 00:6324  c2 20        rep 20
+  350   683 00:6326  fa           plx
+  351   684 00:6327  60           rts
+  352   689 00:6328  0a 4c (...)  alphastr
+  353   689 00:6348  56 65 (...)  .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f, 70, 71, 72, 73, 74, 75, 76, 77, 79, 7a
+  354   689 00:6367  53 63 (...)  .byte 53, 74, 61, 63, 6b, 20, 6f, 76, 65, 72, 2d, 20, 6f, 72, 20, 75, 6e, 64, 65, 72, 66, 6c, 6f, 77, 0
+  355   689 00:6394  4c 69 (...)  .byte 54, 45, 53, 54, 49, 4e, 47, 3a, 20, 47, 6f, 74, 20, 73, 74, 72, 69, 6e, 67, 3a, 20, 0
+  356   689 00:63c2  54 79 (...)  .byte 49, 6e, 74, 65, 72, 70, 72, 65, 74, 69, 6e, 67, 20, 61, 20, 63, 6f, 6d, 70, 69, 6c, 65, 2d, 6f, 6e, 6c, 79, 20, 77, 6f, 72, 64, 0
+  357   689 00:63d5  20 6f 6b 00  .byte 51, 55, 49, 54, 20, 63, 6f, 75, 6c, 64, 20, 6e, 6f, 74, 20, 67, 65, 74, 20, 69, 6e, 70, 75, 74, 20, 28, 52, 45, 46, 49, 4c, 4c, 20, 72, 65, 74, 75, 72, 6e, 65, 64, 20, 2d, 31, 29, 0
+  358   689 00:63d9  41 63 (...)  (data)
+  359   689 00:63f3  49 6e (...)  (data)
+  360   689 00:6414  44 45 (...)  (data)
+  361   689 00:6431  44 69 (...)  (data)
+  362   689 00:6442  20 28 (...)  (data)
+  363   689 00:644b  3e 3e (...)  (data)
+  364   689 00:6457  4e 6f (...)  (data)
+  365   689 00:646d  50 61 (...)  (data)
+  366   689 00:647d  44 69 (...)  (data)
+  367   689 00:6494  51 55 (...)  (data)
+  368   689 00:64c2  49 6c (...)  (data)
+  369   689 00:64e2  53 74 (...)  (data)
+  370   689 00:64fb  55 6e (...)  (data)
+  371   689 00:6508  54 45 (...)  (data)
+  372   689 00:651e  30 31 (...)  (data)
 
 MACROS:
             (none)
 
 SYMBOL TABLE:
+                       _ : 006152
                  a_abort : 00602d
                 a_accept : 00608d
                    a_bye : 0060bc
@@ -346,21 +405,23 @@ SYMBOL TABLE:
                    a_nip : 0060f6
                    a_one : 006083
               a_one-plus : 00608b
+                 a_parse : 006124
+            a_parse-name : 0060f9
                   a_plus : 006073
                   a_quit : 006033
-                a_refill : 0060f9
-                a_source : 006137
-             a_source-id : 006144
-                 a_state : 00614b
-                  a_swap : 006153
+                a_refill : 006152
+                a_source : 006190
+             a_source-id : 00619d
+                 a_state : 0061a4
+                  a_swap : 0061ac
                  a_to-in : 00606b
-                  a_true : 006159
-                  a_tuck : 006161
+                  a_true : 0061b2
+                  a_tuck : 0061ba
                   a_zero : 00607b
               accept_eol : 0060b5
              accept_loop : 00609e
           accept_nonzero : 006095
-                alphastr : 0064a6
+                alphastr : 00651e
                    ascbs : 000008
                    asccc : 000003
                    asccr : 00000d
@@ -378,45 +439,47 @@ SYMBOL TABLE:
      directpage-multiple : 007400
                       dp : 000202
                     dsp0 : 0002f0
-              es_channel : 006361
-             es_componly : 00637b
-                es_defer : 00639c
-              es_divzero : 0063b9
-                es_empty : 0063ca
-                es_error : 0063d3
-              es_intonly : 0063df
-               es_noname : 0063f5
-                es_radix : 006405
-              es_refill1 : 00641c
-              es_refill2 : 00644a
-                es_stack : 00646a
-               es_syntax : 006483
+              es_channel : 0063d9
+             es_componly : 0063f3
+                es_defer : 006414
+              es_divzero : 006431
+                es_empty : 006442
+                es_error : 00644b
+              es_intonly : 006457
+               es_noname : 00646d
+                es_radix : 00647d
+              es_refill1 : 006494
+              es_refill2 : 0064c2
+                es_stack : 0064e2
+               es_syntax : 0064fb
                  get_chr : 00e036
-                 h_abort : 00618e
-                h_accept : 006242
-                   h_bye : 00616a
-                  h_cold : 006175
-                 h_comma : 006239
-                 h_count : 006181
-                    h_cr : 0061a7
-                  h_drop : 00628a
-                   h_dup : 00627f
-                 h_false : 0061ea
-                  h_here : 006267
-                   h_nip : 00625c
-                   h_one : 006203
-              h_one-plus : 0061e0
-                  h_plus : 0061d7
-                  h_quit : 00619b
-                h_refill : 00621a
-                h_source : 0061c9
-             h_source-id : 006228
-                 h_state : 0061b1
-                  h_swap : 006273
-                 h_to-in : 0061be
-                  h_true : 0061f7
-                  h_tuck : 006250
-                  h_zero : 00620e
+                 h_abort : 0061e7
+                h_accept : 0062ba
+                   h_bye : 0061c3
+                  h_cold : 0061ce
+                 h_comma : 0062b1
+                 h_count : 0061da
+                    h_cr : 00620d
+                  h_drop : 006302
+                   h_dup : 0062f7
+                 h_false : 006250
+                  h_here : 0062df
+                   h_nip : 0062d4
+                   h_one : 006269
+              h_one-plus : 006246
+                 h_parse : 0061f4
+            h_parse-name : 00628e
+                  h_plus : 00623d
+                  h_quit : 006201
+                h_refill : 006280
+                h_source : 00622f
+             h_source-id : 0062a0
+                 h_state : 006217
+                  h_swap : 0062eb
+                 h_to-in : 006224
+                  h_true : 00625d
+                  h_tuck : 0062c8
+                  h_zero : 006274
                 ibuffer1 : 007c00
                 ibuffer2 : 007d00
                       im : 000020
@@ -424,27 +487,33 @@ SYMBOL TABLE:
          maxram-multiple : 006fff
            maxram-single : 007bff
                       nc : 000010
+   parse-name_empty_line : 00610e
+        parse-name_found : 00611d
+         parse-name_loop : 006101
+               parse_eol : 006145
+             parse_found : 006143
+              parse_loop : 006136
              physicalram : 007fff
                   piblen : 000210
-             printstring : 006296
-        printstring_done : 0062a6
+             printstring : 00630e
+        printstring_done : 00631e
                  put_chr : 00e04b
                       pw : 000080
           quit_main_loop : 00603d
           quit_refill_ok : 00604c
                     ram0 : 000200
-refill_source_is_not_keyboard : 006120
-refill_source_is_not_string : 00612d
-                s_author : 0062ef
-            s_disclaimer : 00631c
-                    s_ok : 00635d
-                 s_title : 0062b0
-               s_typebye : 00634a
-               s_version : 0062d0
+refill_source_is_not_keyboard : 006179
+refill_source_is_not_string : 006186
+                s_author : 006367
+            s_disclaimer : 006394
+                    s_ok : 0063d5
+                 s_title : 006328
+               s_typebye : 0063c2
+               s_version : 006348
           stack-multiple : 007000
                   stack0 : 007fff
                    state : 000214
-              tests_quit : 006490
+              tests_quit : 006508
                     tmp1 : 000216
                     tmp2 : 000216
                   tmpdsp : 000204
@@ -463,15 +532,17 @@ refill_source_is_not_string : 00612d
                    z_nip : 0060f8
                    z_one : 00608a
               z_one-plus : 00608c
+                 z_parse : 006151
+            z_parse-name : 006151
                   z_plus : 00607a
                   z_quit : 00606a
-                z_refill : 006136
-                z_source : 006143
-             z_source-id : 00614a
-                 z_state : 006152
-                  z_swap : 006158
+                z_refill : 00618f
+                z_source : 00619c
+             z_source-id : 0061a3
+                 z_state : 0061ab
+                  z_swap : 0061b1
                  z_to-in : 006072
-                  z_true : 006160
-                  z_tuck : 006169
+                  z_true : 0061b9
+                  z_tuck : 0061c2
                   z_zero : 006082
 

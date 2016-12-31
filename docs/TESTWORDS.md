@@ -7,6 +7,8 @@ This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
 ## Text interpreter
 
+## >IN tests
+
 From
 [https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Text-Interpreter.html](https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Text-Interpreter.html):
 ```
@@ -15,6 +17,18 @@ From
 
 char & parse jack& type                 \ should print "jack"    
 ```
+
+### WORD vs PARSE test 
+
+Taken from Conklin & Rather p. 160
+```
+: test1 ( "name" -- )  32 word  count type ; 
+: test2 ( "name" -- )  32 parse  type ; 
+```
+
+Results of calls with "ABC" should give identical result if there are no
+leading spaces. However, with leading spaces, TEST2 will find an empty string
+and abort, then throw an error because ABC will not be found in the dictionary.
 
 
 ## Loop testing
