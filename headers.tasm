@@ -1,26 +1,35 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 30. Dec 2016
+; This version: 31. Dec 2016
 
-; Dictionary headers are kept separately from the code. For each word, the
-; structure is:
+; Dictionary headers are kept separately from the code, which allows various
+; tricks in the code. We roughly follow the Gforth terminology: The Execution
+; Token (xt) is the address of the first byte of a word's code that can be,
+; well, executed; the Name Token (nt) is a pointer to the beginning of the
+; word's header in the Dictionary. There, the link to the next word in the
+; Dictionary is always one cell down from the current word's own nt. In the code
+; itself, we use "h_<WORD>" ("header") for the nt and "a_<WORD>" ("A" as the
+; beginning) for the xt. 
+;
+; This gives us the following header structure for each header:
 
-;               8bit     8bit
+;              8 bit     8 bit
+;               LSB       MSB
 ; h_word ->  +--------+--------+
 ;            | Status | Length |
 ;         +2 +--------+--------+
-;            | Start of Code   | -> a_word
+;            | Next Header     | -> h_next (nt of next word) 
 ;         +4 +-----------------+
-;            | End of Code     | -> z_word
+;            | Start of Code   | -> a_word (xt of this word)
 ;         +6 +-----------------+
-;            | Next Header     | -> h_next_word
+;            | End of Code     | -> z_word
 ;         +8 +--------+--------+
 ;            | Name   |        |
 ;            +--------+--------+
 ;            |        |        |
 ;            +--------+--------+
-;            |        |  ...   |
+;            |        |  ...   | (name string does not end with a zero)
 ;         +n +--------+--------+
 
 ; Status bytes are created by adding dictionary flags defined in
@@ -38,13 +47,13 @@
 
 h_bye   .byte { PW + NC } ; status byte
         .byte 03    ; length of word string
-        .word a_bye ; start of code
+        .word 0000  ; next word in dictionary, 0000 signals end
+        .word a_bye ; start of code, the xt of this word
         .word z_bye ; end of code (points to RTS)
-        .word 0000  ; next word in dictionary, 0000 signals is end
         .byte "bye" ; lowercase word name
 
 h_cold  .byte 00, 4  
-        .word a_cold, z_cold, h_bye
+        .word h_bye, a_cold, z_cold
         .byte "cold"  
 
 h_count .byte { NC + PW }, 5
@@ -52,82 +61,83 @@ h_count .byte { NC + PW }, 5
         .byte "count"
 
 h_abort .byte 00 , 5 ; TODO check flags
-        .word a_abort, z_abort, h_count
+        .word h_count, a_abort, z_abort
         .byte "abort"
 
 h_quit  .byte 00, 4 
-        .word a_quit, z_quit, h_abort
+        .word h_abort, a_quit, z_quit
         .byte "quit"
 
 h_cr    .byte { PW + NC }, 2
-        .word a_cr, z_cr, h_quit
+        .word h_quit, a_cr, z_cr 
         .byte "cr"
 
 h_state .byte { PW + NC }, 5
-        .word a_state, z_state, h_quit
+        .word h_cr, a_state, z_state
         .byte "state"
 
 h_plus  .byte { PW + NC }, 1
-        .word a_plus, z_plus, h_state
+        .word h_state, a_plus, z_plus
         .byte '+'
 
 h_one-plus .byte { PW + NC }, 2
-        .word a_one-plus, z_one-plus, h_plus
+        .word h_plus, a_one-plus, z_one-plus
         .byte "1+"
 
 h_false .byte { PW + NC }, 5
-        .word a_zero, z_zero, h_one-plus
+        .word h_one-plus, a_zero, z_zero
         .byte "false"
 
 h_true  .byte { PW + NC }, 4
-        .word a_true, z_true, h_false
+        .word h_false, a_true, z_true
         .byte "true"
 
 h_one   .byte { PW + NC }, 3
-        .word a_one, z_one, h_true
+        .word h_true, a_one, z_one
         .byte "one"
 
 h_zero  .byte { PW + NC }, 4
-        .word a_zero, z_zero, h_one
+        .word h_one, a_zero, z_zero
         .byte "zero"
 
 h_refill .byte { PW }, 6 ; TODO check flags
-        .word a_refill, z_refill, h_zero
+        .word h_zero, a_refill, z_refill
         .byte "refill"
 
 h_source-id .byte { PW + NC }, 9
-        .word a_source-id, z_source-id, h_refill
+        .word h_refill, a_source-id, z_source-id
         .byte "source-id"
 
 h_comma .byte { PW + NC }, 1
-        .word a_comma, z_comma, h_source-id
+        .word h_source-id, a_comma, z_comma
         .byte ","
 
 h_accept .byte 00, 6 ; TODO check flags
-        .word a_accept, z_accept, h_source-id
+        .word h_comma, a_accept, z_accept 
         .byte "accept"
 
 h_tuck  .byte { PW + NC }, 4
-        .word a_tuck, z_tuck, h_accept
+        .word h_accept, a_tuck, z_tuck
         .byte "tuck"
 
 h_nip   .byte { PW + NC }, 3
-        .word a_nip, z_nip, h_zero
+        .word h_tuck, a_nip, z_nip
         .byte "nip"
 
 h_here  .byte { PW + NC }, 4
-        .word a_here, z_here, h_nip
+        .word h_nip, a_here, z_here
         .byte "here"
 
 h_swap  .byte { PW + NC }, 04
-        .word a_swap, z_swap, h_here
+        .word h_here, a_swap, z_swap
         .byte "swap"
 
 h_dup   .byte { PW + NC }, 03
-        .word a_dup, z_dup, h_swap
+        .word h_swap, a_dup, z_dup
         .byte "dup"
 
 h_drop  .byte { PW + NC }, 04
-        .word a_drop, z_drop, h_dup
+        .word h_dup, a_drop, z_drop
         .byte "drop"
 
+; END

@@ -1,24 +1,30 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 29. Dez 2016
+This version: 31. Dez 2016
 
 
-TODO (next on top)
+TODO NEXT (next on top)
 
 - Code basic editing of command line in ACCEPT (CTRL-H, etc)
-- Code dual-buffer entry (including "arrow up" functionality)
-- Code basic word set
-- Parse entry (temporary version)
-- Set up basic Dictionary lookup (FIND)
-- Rewrite parsing with new words
+- Code PARSE-NAME and PARSE for basic parsing
+- Code FIND-NAME and FIND for basic Dictionary search
+- Milestone: Test on 265SXB
+- Write validation program for Dictionary (in Forth or Python)
+- Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design
 - Code EVALUATE to be able to add high-level words
 - Decide which words should be high-level
+- Code dual-buffer entry (including "arrow up" functionality)
 
 
-FINISHED (newest on top)
+TODO LATER (next on top)
+- Code vt100 support
+- Code multitasking support with PAUSE etc
 
-- Code ACCEPT and REFILL
+
+FINISHED (newest on top, with date if possible)
+ 
+- Code ACCEPT and REFILL - 29. Dec 2016
 - Test keyboard echo on real 265SXB, add entry to manual on how to upload
 - Echo keyboard entries (temporary loop) 
 - Print intro text (tests access to Mensch Monitor)

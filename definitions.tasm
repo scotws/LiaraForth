@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 29. Dec 2016
+; This version: 31. Dec 2016
 
 ; This file is included by liaraforth.tasm
 
@@ -52,7 +52,7 @@
         .equ cib     { directpage + &12 } ; Current Input Buffer, 7c00 or 7d00
         .equ ciblen  { directpage + &14 } ; Length of current input buffer
         .equ piblen  { directpage + &16 } ; Length of previous input buffer
-;       .equ         { directpage + &18 } ; 
+        .equ toin    { directpage + &18 } ; Pointer to CIB (>IN in Forth)
         .equ state   { directpage + &20 } ; STATE: 1 compile, 0 interpret
         .equ tmp1    { directpage + &22 } ; Temporary storage, usually address
         .equ tmp2    { directpage + &22 } ; Temporary storage, usually counter
