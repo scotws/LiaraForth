@@ -3,7 +3,7 @@
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. 
 
-Last update: **31. Dec 2016**
+Last update: **01. January 2017**
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
@@ -13,6 +13,7 @@ Last update: **31. Dec 2016**
 | 0 (ZERO)       | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1 (ONE)        | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1+ (ONE-PLUS)  | coded    | ANSI core     | PW, NC | 1     |      2 |
+| 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
@@ -32,6 +33,7 @@ Last update: **31. Dec 2016**
 | SWAP           | coded    | ANSI core     | PW, NC | 5     |     12 |
 | TRUE           | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | TUCK           | coded    | ANSI core ext | PW, NC | 8     |     19 |
+| TYPE           | coded    | ANSI core     | -      | 23+   |  (TBA) |
 
 
 ### Entries

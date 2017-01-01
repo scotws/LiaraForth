@@ -47,19 +47,19 @@ a_cold
                 stz.d ciblen    ; current input buffer is empty
                 stz.d piblen    ; previous input buffer is empty
 
-                cli             ; PUT_CHR in printstring uses interrupts
+                cli             ; PUT_CHR in print_string uses interrupts
 
                 ; print boot strings
                 lda.# s_title
-                jsr printstring
+                jsr print_string
                 lda.# s_version
-                jsr printstring
+                jsr print_string
                 lda.# s_author
-                jsr printstring
+                jsr print_string
                 lda.# s_disclaimer
-                jsr printstring
+                jsr print_string
                 lda.# s_typebye
-                jsr printstring
+                jsr print_string
                 
                 ; drop through to QUIT
 
@@ -92,16 +92,16 @@ a_quit          ; clear Return Stack
                 ; switch to interpret state (STATE is zero)
                 stz.d state
                
+quit_get_line
                 ; empty current input buffer. Note the previous input line is
                 ; conserved even if we came here from an abort
                 stz.d ciblen
 
-quit_main_loop
                 ; accept a line from the current input source
                 jsr a_refill
                 
-                tya                     ; force flag test
-                bne quit_refill_ok
+                tya                     ; force flag test of TOS
+                bne quit_refill_successful
 
                 ; If REFILL returned a FALSE flag, something went wrong and we
                 ; need to print an error message and reset the machine. We don't
@@ -111,38 +111,28 @@ quit_main_loop
                 jmp error 
 
 
-quit_refill_ok
+quit_refill_successful
                 ; Assume we have successfully accepted a string of input from
                 ; a source, with address of buffer in cib and length of input in
-                ; ciblen
+                ; ciblen. We arrive here still with the TRUE flag from REFILL as
+                ; TOS (in Y)
+                ldy.dx 00       ; drop TOS
+                inx
+                inx
+                
+                ; make >IN point to begining of buffer
+                stz.d toin
+ 
+                ; TESTING TALI FORTH F_COMPEXE BEGINS HERE
+                jsr compile_execute
 
-                ; TODO PARSE INPUT
-
+                ; TODO testing
                 ; Display system prompt if all went well
                 lda.# s_ok
-                jsr printstring
+                jsr print_string
 
-                
-                ; ---------------
-                ; TESTING: Print line received from ACCEPT
-                lda.# tests_quit
-                jsr printstring
-                
-                ; add a zero to the end of the buffer to terminate the string
-                ; for printing
-                phx
-                ldx.d ciblen
-                inx
-                lda.# 0000
-                sta.x cib
-                plx
-                
-                lda.d cib
-                jsr printstring
-                ; ---------------
-
-                
-                bra quit_main_loop
+                ; get next line
+                jmp quit_get_line
 
 z_cold
 z_abort         
@@ -204,6 +194,20 @@ z_one           rts
 a_one-plus      iny
 z_one-plus      rts
 
+; -------------------------------------------------------------------
+; 2DUP ( n m -- n m n m ) 10 bytes / 23 cycles
+; Duplicated the top two data stack entries
+
+a_2dup          
+                dex
+                dex
+                dex
+                dex
+                sty.dx 02
+                lda.dx 04
+                sta.dx 00
+
+z_2dup          rts
 
 ; -------------------------------------------------------------------
 ; ACCEPT ( addr n1 -- n2 ) X bytes / X cycles
@@ -221,7 +225,7 @@ a_accept
                 rts
 
 accept_nonzero
-                sta.d tmp2      ; non-zero number requested, save in tmp2
+                sta.d tmp2      ; non-zero number of chars requested, save in tmp2
                 sty.d tmp1      ; address of buffer to use in tmp1 
                 ldy.# 0000      ; TOS is dropped anyway, so don't save Y
         .a8
@@ -378,20 +382,16 @@ z_nip           rts
 a_parse-name    
                 ; skip leading spaces, changing >IN, then place SPACE 
                 ; character on data stack for PARSE
-                dex
-                dex
-                sty.dx 00
-
-        .a8
+                phy
                 ldy.d toin              ; >IN 
-
+        .a8
 parse-name_loop
                 cpy.d ciblen            ; end of line?
                 beq parse-name_empty_line
 
                 lda.diy cib             ; LDA (CIB),Y
                 cmp.# AscSP
-                beq parse-name_found
+                bne parse-name_found
                 iny
                 bra parse-name_loop
 
@@ -404,22 +404,32 @@ parse-name_empty_line
                 ; input, which is cib+ciblen. So we do that as well. 
                 dex
                 dex
+                dex
+                dex
+                ply
+                sty.dx 00
+
                 lda.d cib
                 clc
                 adc.d ciblen
-                sta.dx 00               ; NOS
+                sta.dx 00               ; NOS address 
 
-                ldy.# 0000              ; TOS
+                ldy.# 0000              ; TOS 
 
                 rts                     ; don't have to go through PARSE
 
 parse-name_found
         .a16
                 sty.d toin              ; new >IN
+
+                dex
+                dex
+                ply
+                sty.d 00
+
                 ldy.# AscSP             ; put space in TOS for PARSE
 
                 ; fall thru to PARSE
-
 
 ; -------------------------------------------------------------------
 ; PARSE ( c "name" -- addr u ) 45 bytes / X+ cycles
@@ -442,56 +452,61 @@ parse-name_found
 ; leading delimiters, we assume we are on a useful string.
 
 a_parse         
-                ; save beginning of new word (cib+toin) to NOS
+                sty.d tmp1      ; save delimiter, char is LSB
+
+                ; save beginning of new word (cib+toin) to NOS. Don't need to
+                ; worry about TOS because Y gets clobbered anyway
                 dex
                 dex
-                lda.d cib
+                
+                lda.d toin
+                sta.d tmp3      ; save >IN for later length calculation
                 clc
-                adc.d toin
+                adc.d cib
                 sta.dx 00       
 
-                sty.d tmp1      ; save delimiter, char is LSB
                 stz.d tmp2      ; offset for EOL/char found adjustment of >IN
 
                 ; prepare loop
-                lda.di toin     ; there is no LDY (TOIN), do it the hard way
-                tay
+                ldy.d toin
         .a8
 
 parse_loop
                 cpy.d ciblen    ; check for EOL first
-                beq parse_eol
+                beq parse_reached_eol
 
                 lda.diy cib     ; LDA (CIB),Y
                 cmp.d tmp1      ; found delimiter?
-                beq parse_found
+                beq parse_found_delimiter
                 iny
                 bra parse_loop
 
-parse_found
+parse_found_delimiter
                 ; If we haven't reached the end of the line, but found
                 ; a delimiter, we want >IN to point to the next character after
                 ; the delimiter, not the delimiter itself. This is what the
                 ; offset is for
                 inc.d tmp2      
 
-parse_eol       
+parse_reached_eol       
                 ; calculate length of string found (see ascii drawing)
         .a16
-                tya
+                tya             
                 sec
-                sbc.d toin
-                tay             ; length stays in Y as TOS
+                sbc.d tmp3      ; original value for >IN / index of first char
+                pha             ; save so we can manipulate Y
 
                 ; calculate new >IN
+                tya
                 clc
                 adc.d tmp2      ; offset for EOL vs found delimiter
                 sta.d toin
-                
+
+                ply             ; length of string in TOS
+
 z_parse-name
 z_parse         rts
 
-_
 ; ------------------------------------------------------------------- 
 ; REFILL ( -- f ) X bytes / X cycles
 ; "Attempt to fill the input buffer from the input source, returning a true flag
@@ -540,6 +555,8 @@ a_refill
                 dex
                 sty.dx 00
                 ldy.# 0ffff
+
+                ; TESTING
                 rts
 
 refill_source_is_not_keyboard
@@ -643,6 +660,45 @@ a_tuck          dex
                 
 z_tuck          rts
 
+; -------------------------------------------------------------------
+; TYPE ( addr u -- ) 23+ bytes / X cycles
+; Print character string if u is not 0. The Mensch Monitor has a print string
+; routine that we could use, but we want to restrict calls to PUT_CHR and
+; GET_CHR to make porting easier. We call PUT_CHR here directly instead of going
+; through EMIT because EMIT will later have a PAUSE statement for multitasking
+; and we probably don't want to PAUSE after every character. However, we'll make
+; a final decision about that when multitasking is up and running.
+
+a_type          
+                ; just leave if u is zero (empty string)
+                tya             ; force flag check of TOS
+                beq type_done
+
+                lda.dx 00       ; get address from NOS 
+                sta.d tmp1
+                sty.d tmp2      ; number of chars is TOS
+                ldy.# 0000
+        .a8
+type_loop
+                lda.diy tmp1    ; LDA (TMP1),Y
+                jsr.l PUT_CHR
+                iny
+                cpy.d tmp2
+                bne type_loop
+                
+        .a16
+type_done
+                ; clear stack
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+
+                ; TODO LATER add PAUSE here for multitasking
+                
+z_type          rts
+
 
 ; ===================================================================
 ; MIDDLE INCLUDES
@@ -652,11 +708,50 @@ z_tuck          rts
 ; ===================================================================
 ; LOW LEVEL HELPER FUNCTIONS
 
+
+; ------------------------------------------------------------------- 
+; COMPILE OR EXECUTE 
+; Core routine for interpreter called by EVALUATE and QUIT. We process one line
+; only. Assumes that address of name is in cib and length of whole input 
+; string is in ciblen
+compile_execute
+compex_loop 
+                ; Normally we would use PARSE here with the SPACE character as
+                ; a parameter (PARSE replaces WORD in modern Forths). However,
+                ; Gforth's PARSE-NAME makes more sense as it uses spaces as
+                ; delimiters per default and skips any leading spaces, which
+                ; PARSE does not do.
+                jsr a_parse-name        ; returns ( addr u ) 
+
+                ; if PARSE-NAME returns 0 (empty line), no characters were left
+                ; in the line and we need to go get a new line
+                tya             ; force flag check
+                beq compex_line_done
+
+                ; TESTING
+                jsr a_2dup
+                jsr a_type
+                jsr a_cr
+                
+                ; We let the user input words in any case, but use lower case
+                ; internally. Garth, I'm sorry, it's just the way things are
+                jsr string_to_uppercase
+
+                ; TODO call FIND-NAME
+                ; TODO call NUMBER CONVERSION
+                ; TODO INTERPRET or COMPILE 
+
+                ; that's quite enough for this word, let's get the next one
+                jmp compex_loop
+
+compex_line_done
+                rts
+                
 ; ------------------------------------------------------------------- 
 ; Fatal error encountered: Take address of error string from A, print it and
 ; then call abort
 error
-                jsr printstring
+                jsr print_string
                 jmp a_abort
 
 
@@ -667,7 +762,7 @@ error
 ; instead, but zero terminated strings are easier for the 65816 to use. 
 ; This would be shorter with PUT_STR, but we want to keep the number of Monitor
 ; routines called as small as possible to make porting the code easier
-printstring     
+print_string     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
                 phx
@@ -675,16 +770,24 @@ printstring
         .a8
 @
                 lda.x 0000      ; LDA $0000,X 
-                beq printstring_done
+                beq print_string_done
                 jsr.l PUT_CHR
                 inx
                 bra -
 
-printstring_done
+print_string_done
                 lda.# AscLF     ; should be CR on some systems
                 jsr.l PUT_CHR
         .a16
                 plx
+                rts
+
+; ------------------------------------------------------------------- 
+; Convert a string given by ( addr u ) to upper case in place. Since we have to
+; treat the input buffer as read-only by ANS rules, we have to put the converted
+; string somewhere and then return the new address and length
+string_to_uppercase
+                ; TODO CODE THIS
                 rts
 
 ; ===================================================================

@@ -17,7 +17,7 @@ s_version    .byte "Version PRE-ALPHA 01. Jan 2017", 0
 s_author     .byte "Scot W. Stevenson <scot.stevenson@gmail.com>", 0
 s_disclaimer .byte "Liara Forth comes with absolutely NO WARRANTY", 0
 s_typebye    .byte "Type 'bye' to exit", 0
-s_ok         .byte " ok", 0     ; note empty space at beginning
+s_ok         .byte " ok", AscLF, 0     ; note empty space at beginning
 
 
 ; ===================================================================
@@ -46,7 +46,9 @@ es_syntax   .byte "Unknown word", 0
 ; These strings are only used during testing and are removed as Liara Forth is
 ; developed. All start with "tests_"
 
-tests_quit .byte "TESTING: Got string: ", 0
+tests_quit     .byte "TESTING: Got string: ", 0
+tests_equal    .byte "TESTING: equal", 0
+tests_notequal .byte "TESTING: notequal", 0
 
 
 ; ===================================================================

@@ -76,8 +76,16 @@ h_cr    .byte { PW + NC }, 2
         .word h_quit, a_cr, z_cr 
         .byte "cr"
 
+h_type  .byte 0, 4
+        .word h_cr, a_type, z_type
+        .byte "type"
+
+h_2dup  .byte { PW + NC }, 4
+        .word h_type, a_2dup, z_2dup
+        .byte "2dup"
+
 h_state .byte { PW + NC }, 5
-        .word h_cr, a_state, z_state
+        .word h_2dup, a_state, z_state
         .byte "state"
 
 h_to-in .byte { PW + NC }, 3
