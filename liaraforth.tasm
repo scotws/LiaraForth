@@ -100,7 +100,7 @@ quit_main_loop
                 ; accept a line from the current input source
                 jsr a_refill
                 
-                tya             ; force flag test
+                tya                     ; force flag test
                 bne quit_refill_ok
 
                 ; If REFILL returned a FALSE flag, something went wrong and we
@@ -108,9 +108,8 @@ quit_main_loop
                 ; need to save A because we're going to clober it anyway when we
                 ; go back to ABORT.
                 lda.# es_refill1 
-                jsr printstring
-        
-                jmp a_abort
+                jmp error 
+
 
 quit_refill_ok
                 ; Assume we have successfully accepted a string of input from
@@ -134,7 +133,6 @@ quit_refill_ok
                 phx
                 ldx.d ciblen
                 inx
-
                 lda.# 0000
                 sta.x cib
                 plx
@@ -562,9 +560,7 @@ refill_source_is_not_string
                 ; to read from a file. However, we don't have files yet, so we 
                 ; report an error and jump to ABORT.
                 lda.# es_refill2 
-                jsr printstring
-
-                jmp a_abort
+                jmp error
 
 z_refill        rts     ; dummy for compiling
 
@@ -657,6 +653,14 @@ z_tuck          rts
 ; LOW LEVEL HELPER FUNCTIONS
 
 ; ------------------------------------------------------------------- 
+; Fatal error encountered: Take address of error string from A, print it and
+; then call abort
+error
+                jsr printstring
+                jmp a_abort
+
+
+; ------------------------------------------------------------------- 
 ; Print a zero terminated string to the console, adding a CR character. Takes
 ; the address of the string in 16-bit A register, calls PUT_CHR from the Mensch
 ; Monitor. A is destroyed. We could probably figure out some way to use TYPE
@@ -691,7 +695,7 @@ printstring_done
 ; ===================================================================
 ; TESTING ROUTINES (UNCOMMENT FOR USE)
                 
-                ; --- TODO TESTING (PRINT A) ---
+                ; --- TODO TESTING (PRINT ONE "A") ---
                 ; lda.# 61
                 ; jsr.l 00:e04b
                 ; brk 00
