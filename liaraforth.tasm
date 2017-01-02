@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 01. Jan 2017
+; This version: 02. Jan 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -36,10 +36,16 @@ a_cold
                 ; TODO switch to Single Task mode
                 ; TODO set up Direct Page stuff
                 ; TODO set up CP
-                ; TODO set up DP
                 ; TODO initiate PAD
                 ; TODO initiate User variables
                 ; TODO initiate high-level words 
+                
+                ; The name token (nt) of DROP is always the first one in the
+                ; clean Dictionary, so we start off the Dictionary Pointer (DP)
+                ; there. Adding high-level words will change this before the
+                ; user has a chance to call WORDS
+                lda.# h_drop
+                sta.d dp
                 
                 ; Prepare input buffers
                 lda.# ibuffer1  ; start with first input buffer
@@ -91,12 +97,16 @@ a_quit          ; clear Return Stack
                 
                 ; switch to interpret state (STATE is zero)
                 stz.d state
+ 
+                ; TEST TODO REMOVE ONCE WE HAVE FIND-NAME ETC WORKING
+                jsr a_words
+                jsr a_cr
                
 quit_get_line
                 ; empty current input buffer. Note the previous input line is
                 ; conserved even if we came here from an abort
                 stz.d ciblen
-
+               
                 ; accept a line from the current input source
                 jsr a_refill
                 
@@ -193,6 +203,17 @@ z_one           rts
 
 a_one-plus      iny
 z_one-plus      rts
+
+; -------------------------------------------------------------------
+; 2 "TWO" ( -- 2 ) 7 bytes / 12 cycles
+; Pushes the number 2 on the Data Stack
+
+a_two           dex
+                dex
+                sty.dx 00
+                ldy.# 0002 
+   
+z_two           rts
 
 ; -------------------------------------------------------------------
 ; 2DUP ( n m -- n m n m ) 10 bytes / 23 cycles
@@ -364,6 +385,31 @@ a_here          dex
                 ldy.d cp
 
 z_here          rts
+
+; -------------------------------------------------------------------
+; NAME>STRING ( nt -- addr u ) 16 bytes / X cycles
+; Given a name token (nt) of a word, return its string. This is a Gforth word
+; that works with the Dictionary header entries. It is not checked if nt is
+; a valid name token. 
+a_name>string   
+                dex             ; move NOS down one
+                dex
+
+                ; the name string of a word begins 8 bytes down from its nt,
+                ; which we have as TOS
+                tya
+                clc
+                adc.# 0008
+                sta.dx 00       ; NOS
+                
+                ; the length of the name string is in the LSB of the first word
+                ; of the dictionary entry header (the name token)
+                lda.y 0000      ; LDA $0000,Y
+                and.# 00ff      ; mask all but length byte
+                tay
+                
+z_name>string   rts
+
 
 ; -------------------------------------------------------------------
 ; NIP ( n m -- m ) 2 bytes / 4 cycles
@@ -613,6 +659,18 @@ a_source-id     dex
 z_source-id     rts
 
 ; -------------------------------------------------------------------
+; SPACE ( -- ) X bytes / X cycles
+; Print one ASCII space character
+
+a_space         
+        .a8     
+                lda.# AscSP
+                jsr.l PUT_CHR
+        .a16
+
+z_space         rts
+
+; -------------------------------------------------------------------
 ; STATE ( -- addr ) 7 bytes / 12 cycles
 ; Return the address of a cell containing the compilation-state flag. STATE
 ; is true when in compilation state, false otherwise. STATE should be changed
@@ -699,6 +757,48 @@ type_done
                 
 z_type          rts
 
+; -------------------------------------------------------------------
+; WORDS ( -- ) X bytes / X cycles
+; Print list of all Forth words available
+;
+a_words         
+                lda.d dp        ; nt first entry in Dictionary (last added)
+                pha
+
+                dex
+                dex
+                sty.dx 00 
+
+words_loop
+                tay
+
+                jsr a_name>string       ; ( nt -- addr u ) 
+                jsr a_type              ; ( addr u -- ) 
+                jsr a_space
+
+                pla
+
+                ; the next nt is two bytes below the nt of the current one in
+                ; the Dictionary header
+                ;
+                inc.a
+                inc.a
+
+                dex
+                dex
+                sty.dx 00 
+
+                tay
+                lda.y 0000              ; LDA $0000,Y
+                pha
+                bne words_loop
+
+                pla
+
+
+z_words         rts
+
+
 
 ; ===================================================================
 ; MIDDLE INCLUDES
@@ -732,7 +832,7 @@ compex_loop
                 jsr a_2dup
                 jsr a_type
                 jsr a_cr
-                
+
                 ; We let the user input words in any case, but use lower case
                 ; internally. Garth, I'm sorry, it's just the way things are
                 jsr string_to_uppercase

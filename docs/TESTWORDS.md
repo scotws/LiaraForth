@@ -1,13 +1,13 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 31. Dec 2016
+This version 02. Jan 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
 ## Text interpreter
 
-## >IN tests
+### >IN tests
 
 From
 [https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Text-Interpreter.html](https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Text-Interpreter.html):
@@ -17,6 +17,14 @@ From
 
 char & parse jack& type                 \ should print "jack"    
 ```
+
+### FIND-NAME test
+
+```
+s" words" find-name name>string type
+``` 
+should print `words`
+
 
 ### WORD vs PARSE test 
 

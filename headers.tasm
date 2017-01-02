@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 01. Jan 2017
+; This version: 02. Jan 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -17,7 +17,7 @@
 ;              8 bit     8 bit
 ;               LSB       MSB
 ; h_word ->  +--------+--------+
-;            | Status | Length |
+;            | Length | Status |
 ;         +2 +--------+--------+
 ;            | Next Header     | -> h_next (nt of next word) 
 ;         +4 +-----------------+
@@ -45,122 +45,139 @@
 ; ones first (further down in code) and the output words later (further up)
 ; because things will always be slow if there is a human involved.
 
-h_bye   .byte { PW + NC } ; status byte
-        .byte 03    ; length of word string
+h_bye   .byte 03    ; length of word string
+        .byte { PW + NC } ; status byte
         .word 0000  ; next word in dictionary, 0000 signals end
         .word a_bye ; start of code, the xt of this word
         .word z_bye ; end of code (points to RTS)
         .byte "bye" ; lowercase word name
 
-h_cold  .byte 00, 4  
+h_cold  .byte 4, 00
         .word h_bye, a_cold, z_cold
         .byte "cold"  
 
-h_count .byte { NC + PW }, 5
-        .word a_count, z_count, h_cold
+h_words .byte 5, { PW + NC }
+        .word h_cold, a_words, z_words
+        .byte "words"
+
+h_count .byte 5, {NC + PW }
+        .word h_words, a_count, z_count
         .byte "count"
 
-h_abort .byte 00, 5 ; TODO check flags
+h_abort .byte 5, 00 ; TODO check flags
         .word h_count, a_abort, z_abort
         .byte "abort"
 
-h_parse .byte 00, 5
-        .word h_quit, a_parse, z_parse
+h_parse .byte 5, 00
+        .word h_abort, a_parse, z_parse
         .byte "parse"
 
-h_quit  .byte 00, 4 
+h_quit  .byte 4, 00
         .word h_parse, a_quit, z_quit
         .byte "quit"
 
-h_cr    .byte { PW + NC }, 2
+h_cr    .byte 2, { PW + NC }
         .word h_quit, a_cr, z_cr 
         .byte "cr"
 
-h_type  .byte 0, 4
-        .word h_cr, a_type, z_type
+h_space .byte 5, { PW + NC }
+        .word h_cr, a_space, z_space
+        .byte "space"
+
+h_type  .byte 4, 0
+        .word h_space, a_type, z_type
         .byte "type"
 
-h_2dup  .byte { PW + NC }, 4
-        .word h_type, a_2dup, z_2dup
+h_name>string .byte 0b, { PW + NC }
+        .word h_type, a_name>string, z_name>string
+        .byte "name>string"
+
+h_2dup  .byte 4, { PW + NC }
+        .word h_name>string, a_2dup, z_2dup
         .byte "2dup"
 
-h_state .byte { PW + NC }, 5
+h_state .byte 5, { PW + NC }
         .word h_2dup, a_state, z_state
         .byte "state"
 
-h_to-in .byte { PW + NC }, 3
+h_to-in .byte 3, { PW + NC }
         .word h_state, a_to-in, z_to-in
-        .byte ">IN"
+        .byte ">in"
 
-h_source .byte { PW + NC }, 6
+h_source .byte 6, { PW + NC }
          .word h_to-in, a_source, z_source
          .byte "source"
 
-h_plus  .byte { PW + NC }, 1
+h_plus  .byte 1, { PW + NC }
         .word h_source, a_plus, z_plus
         .byte '+'
 
-h_one-plus .byte { PW + NC }, 2
+h_one-plus .byte 2, { PW + NC }
         .word h_plus, a_one-plus, z_one-plus
         .byte "1+"
 
-h_false .byte { PW + NC }, 5
+h_false .byte 5, { PW + NC }
         .word h_one-plus, a_zero, z_zero
         .byte "false"
 
-h_true  .byte { PW + NC }, 4
+h_true  .byte 4, { PW + NC }
         .word h_false, a_true, z_true
         .byte "true"
 
-h_one   .byte { PW + NC }, 3
-        .word h_true, a_one, z_one
-        .byte "one"
+h_two   .byte 1, { PW + NC }
+        .word h_true, a_two, z_two
+        .byte '2'
 
-h_zero  .byte { PW + NC }, 4
+h_one   .byte 1, { PW + NC }
+        .word h_two, a_one, z_one
+        .byte '1'
+
+h_zero  .byte 1, { PW + NC }
         .word h_one, a_zero, z_zero
-        .byte "zero"
+        .byte '0'
 
-h_refill .byte { PW }, 6 ; TODO check flags
+h_refill .byte 6, { PW } ; TODO check flags
         .word h_zero, a_refill, z_refill
         .byte "refill"
 
-h_parse-name .byte 0, &10
+h_parse-name .byte 0a, 0
         .word h_refill, a_parse-name, z_parse-name
         .byte "parse-name"
 
-h_source-id .byte { PW + NC }, 9
+h_source-id .byte 9, { PW + NC }
         .word h_parse-name, a_source-id, z_source-id
         .byte "source-id"
 
-h_comma .byte { PW + NC }, 1
+h_comma .byte 1, { PW + NC }
         .word h_source-id, a_comma, z_comma
         .byte ','
 
-h_accept .byte 00, 6 ; TODO check flags
+h_accept .byte 6, 00 ; TODO check flags
         .word h_comma, a_accept, z_accept 
         .byte "accept"
 
-h_tuck  .byte { PW + NC }, 4
+h_tuck  .byte 4, { PW + NC }
         .word h_accept, a_tuck, z_tuck
         .byte "tuck"
 
-h_nip   .byte { PW + NC }, 3
+h_nip   .byte 3, { PW + NC }
         .word h_tuck, a_nip, z_nip
         .byte "nip"
 
-h_here  .byte { PW + NC }, 4
+h_here  .byte 4, { PW + NC }
         .word h_nip, a_here, z_here
         .byte "here"
 
-h_swap  .byte { PW + NC }, 04
+h_swap  .byte 4, { PW + NC }
         .word h_here, a_swap, z_swap
         .byte "swap"
 
-h_dup   .byte { PW + NC }, 03
+h_dup   .byte 3, { PW + NC }
         .word h_swap, a_dup, z_dup
         .byte "dup"
 
-h_drop  .byte { PW + NC }, 04
+; DROP is always the first entry in dictionary
+h_drop  .byte 4, { PW + NC }
         .word h_dup, a_drop, z_drop
         .byte "drop"
 
