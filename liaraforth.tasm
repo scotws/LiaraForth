@@ -20,8 +20,8 @@
 ; DICTIONARY ROUTINES
 
 ; Word code routines are sorted alphabetically, except for the first three
-; - COLD, ABORT, and QUIT - which flow into each other.  The byte and cycle
-; values are calculated without the RTS instruction.
+; - COLD, ABORT, and QUIT - and a few others that flow into each other. The
+; byte and cycle values are calculated without the RTS instruction.
 
 
 ; -------------------------------------------------------------------
@@ -330,7 +330,7 @@ a_count         tya
                 sta.dx 00       ; NOS
                 
                 lda.y 0000      ; LDA $0000,Y  first byte is length
-                xba             ; move length to LSBS
+                xba             ; move length to LSB
                 and.# 00ff      ; get rid of whatever was MSB
                 tay             ; TOS
                 
@@ -389,54 +389,57 @@ z_dup           rts
 a_find-name     
                 ; We abort when we get an empty string, that is, one with
                 ; a length of zero TOS. We could test for this, but it will
-                ; happen so rarely that the speed penalty is higher if we test
-                ; for this every single call. Looking for an empty string does
-                ; force us to check the whole dictionary, though. The test would
-                ; be 3 bytes and 4 to 6 cycles longer: 
+                ; happen so rarely that the speed penalty is higher if we run
+                ; the test for every single call. Looking for an empty string
+                ; does force us to check the whole dictionary, though. The test
+                ; would be 3 bytes and 4 to 6 cycles longer: 
                 ;       tya                     ; force flag check
                 ;       beq find-name_failure
 
                 ; set up loop for the first time
                 sty.d tmp1      ; length of mystery string in tmp1, Y now free
-                ldy.dx 00       
-                sty.d tmp2      ; address of mystery string in tmp2
+                ldy.dx 00 
+                sty.d tmp2      ; address of mystery string in tmp2, was NOS
                 ldy.d dp
-                sty.d tmp3      ; nt of first Dictionary word (DROP) is in tmp3
+                sty.d tmp3      ; nt of first Dictionary word is in tmp3
         .a8
 
 find-name_loop
                 ; First quick test: Are strings the same length?
-                lda.di tmp3   ; LSB byte in first header word contains len
+                lda.di tmp3     ; LSB byte in first header word is length
                 cmp.d tmp1      ; we test LSB
                 bne find-name_next_word
 
-                ; Strings are same length. Second quick test: Is the first
+                ; Strings are same length, so second quick test: Is the first
                 ; char the same?
                 ldy.# 0008      ; name string starts eight bytes from top
                 lda.diy tmp3    ; LDA (TMP3),Y
                 cmp.di tmp2     ; CMP (TMP2)
                 bne find-name_next_word
 
-                ; String length is the same, and the first character is the
-                ; same. If the word is only one character long, we're done
-                lda.d tmp1
-                dec.a           ; faster and shorter than CMP.# 01
-                beq find-name_success
-
-                ; No such luck: The strings are the same length and the first
-                ; char is the same, but the word is more than one char long.
-                ; So we suck it up and compare every single character. We go
-                ; from back to front, because words like CELLS and CELL+ would
-                ; take longer. We can also shorten the loop by one because we've
-                ; already compared the first char
-                ldy.d tmp3      ; save original address of dictionary word
+                ; Save original address of Dictionary entry
+                ldy.d tmp3      
                 phy
 
-                ; We have to add 8 bytes to address of Dictionary string to
-                ; allow testing with one loop. We need this like a hole in the
-                ; head because we just switched A to 8 bit, and switching back
-                ; for the sum uses 11 bytes and 17 cycles. However, staying with
-                ; an 8-bit A would use 13 bytes and 18 cycles:
+                ; String length is the same, and the first character is the
+                ; same. If the word is only one character long, we're done
+                lda.d tmp1      ; put a copy of length into TOS just in case
+                dec.a           ; faster and shorter than CMP.# 01
+                beq find-name_success
+                
+                ; No such luck: The strings are the same length and the first
+                ; char is the same, but the word is more than one char long, so
+                ; we suck it up and compare every single character. We go from
+                ; back to front, because words like CELLS and CELL+ would take
+                ; longer otherwise. We can also shorten the loop by one because
+                ; we've already compared the first char. 
+
+                ; Even worse, we have to add 8 bytes to address of Dictionary
+                ; string to allow testing with one loop. We need this like
+                ; a hole in the head because we just switched A to 8 bit, and
+                ; switching back for the sum uses 12 bytes and 18 cycles.
+                ; However, staying with an 8-bit A would use 13 bytes and 18
+                ; cycles.
                 ;       lda.d tmp3              ; LSB
                 ;       clc
                 ;       adc.# 08
@@ -444,20 +447,25 @@ find-name_loop
                 ;       lda.d { tmp3 + 1 }      ; MSB
                 ;       adc.# 00                ; we only need the carry
                 ;       sta.d { tmp3 + 1 }
+                ; Any which way, this is frustrating. 
         .a16
                 lda.d tmp3
-                adc.# 0008      ; don't care about carry
+                clc
+                adc.# 0008 
                 sta.d tmp3
+
+                lda.d tmp1      ; get length of strings as loop index
+                and.# 00ff      ; paranoid
+                dec.a           ; first index is length minus 1
+                tay             
         .a8
 
-                ldy.d tmp1      ; get length of strings as loop index
-
-find-name_char_cmp_loop
+find-name_char_loop
                 lda.diy tmp2    ; LDA (TMP2),Y last char of mystery string
                 cmp.diy tmp3    ; CMP (TMP3),Y last char of word string
                 bne find-name_char_mismatch
                 dey             ; start of string (Y=0) was already tested
-                bne find-name_char_cmp_loop
+                bne find-name_char_loop
                 
                 ; if we reach here, the strings are the same and we have a match
 find-name_success
@@ -467,7 +475,7 @@ find-name_success
                 bra find-name_done
 
 find-name_char_mismatch
-                ply             ; get address of dictionary word
+                ply             ; original address of dictionary word
                 sty.d tmp3      ; put it back in tmp3, fall thru 
 
 find-name_next_word
@@ -481,7 +489,7 @@ find-name_next_word
                 beq find-name_failure   ; zero nt marks end of Dictionary
                 sta.d tmp3
         .a8
-                bra find-name_char_cmp_loop
+                bra find-name_loop
 
 find-name_failure
                 inx
@@ -957,15 +965,16 @@ compex_loop
 
                 ; a zero signals that we didn't find a word in the Dictionary
                 tya             ; force flag check of TOS
-                bne compex_got_token
+                bne compex_got_name_token
 
                 lda.# es_syntax         ; "Unknown word"
                 jmp error
 
-compex_got_token
+compex_got_name_token
 
                 ; TESTING Print found string
                 jsr a_name>string       ; ( nt -- addr u ) 
+                jsr a_cr
                 jsr a_type
 
                 ; TODO call NUMBER CONVERSION
