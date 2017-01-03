@@ -3,12 +3,12 @@ Version BETA  24. December 2016
 Copyright 2015, 2016 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 Code listing for file liaraforth.tasm
-Generated on Tue Jan  3 18:26:21 2017
+Generated on Tue Jan  3 21:52:55 2017
 Target MPU: 65816
 External files loaded: 3
 Number of passes executed: 32
 Number of steps executed: 7
-Assembly time: 0.04052 seconds
+Assembly time: 0.04687 seconds
 Code origin: 006000
 Bytes of machine code: 1722
 
@@ -166,11 +166,11 @@ LISTING:
   150   416 00:6113  b1 1a        lda.diy tmp3
   151   417 00:6115  d2 18        cmp.di tmp2
   152   418 00:6117  d0 2c        bne find-name_next_word
-  153   420 00:6119  a4 1a        ldy.d tmp3
-  154   421 00:611b  5a           phy
-  155   425 00:611c  a5 16        lda.d tmp1
-  156   426 00:611e  3a           dec.a
-  157   427 00:611f  f0 1c        beq find-name_success
+  153   421 00:6119  a4 1a        ldy.d tmp3
+  154   422 00:611b  5a           phy
+  155   426 00:611c  a5 16        lda.d tmp1
+  156   427 00:611e  3a           dec.a
+  157   428 00:611f  f0 1c        beq find-name_success
   158   451 00:6121  c2 20        rep 20
   159   452 00:6123  a5 1a        lda.d tmp3
   160   453 00:6125  18           clc
