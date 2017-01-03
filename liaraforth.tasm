@@ -134,7 +134,7 @@ quit_refill_successful
                 stz.d toin
  
                 ; TESTING TALI FORTH F_COMPEXE BEGINS HERE
-                jsr compile_execute
+                jsr compile/execute
 
                 ; TODO testing
                 ; Display system prompt if all went well
@@ -252,9 +252,8 @@ accept_nonzero
         .a8
 
 accept_loop
-                ; TODO rewrite with a KEY that can be revectored
-                
-                jsr.l GET_CHR   ; blocks with Mensch Monitor. TODO see if KEY better
+                ; TODO rewrite with a KEY so we can revector it
+                jsr.l GET_CHR   ; blocks with Mensch Monitor
 
                 cmp.# AscLF     ; we quit on both line feed and carriage return
                 beq accept_eol
@@ -262,8 +261,20 @@ accept_loop
                 cmp.# AscCR
                 beq accept_eol
 
-                ; TODO control sequences such as BACKSPACE, DEL, CNTRL-P, etc
+                cmp.# AscDEL
+                beq accept_del
 
+                cmp.# AscBS
+                beq accept_del
+
+                ; TODO add CTRL-H, CTRL-P, CTRL-O
+accept_del
+                ; TODO HIER HIER 
+
+accept_print_char
+
+                ; TODO check if this is a printable character
+                
                 jsr.l PUT_CHR   ; echo character. TODO see if this should be EMIT
 
                 ; TODO multitasking: Add PAUSE here (or in EMIT?) 
@@ -280,6 +291,17 @@ accept_eol
         .a16
                 
 z_accept        rts
+
+; -------------------------------------------------------------------
+; BL ( -- u ) 7 bytes / 12 cycles
+; Put ASCII char for SPACE on Data Stack
+
+a_bl            dex
+                dex
+                sty.dx 00
+                ldy.# AscSP
+
+z_bl            rts
 
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
@@ -941,14 +963,14 @@ z_words         rts
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
 ; string is in ciblen
-compile_execute
+compile/execute
 compex_loop 
                 ; Normally we would use PARSE here with the SPACE character as
                 ; a parameter (PARSE replaces WORD in modern Forths). However,
                 ; Gforth's PARSE-NAME makes more sense as it uses spaces as
                 ; delimiters per default and skips any leading spaces, which
                 ; PARSE does not do.
-                jsr a_parse-name        ; returns ( addr u ) 
+                jsr a_parse-name        ; ( addr u ) 
 
                 ; if PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
@@ -972,10 +994,14 @@ compex_loop
 
 compex_got_name_token
 
+                ; TESTING execute word
+                ; jsr a_name>int
+
+
                 ; TESTING Print found string
-                jsr a_name>string       ; ( nt -- addr u ) 
-                jsr a_cr
-                jsr a_type
+                ; jsr a_name>string       ; ( nt -- addr u ) 
+                ; jsr a_cr
+                ; jsr a_type
 
                 ; TODO call NUMBER CONVERSION
                 ; TODO INTERPRET or COMPILE 
