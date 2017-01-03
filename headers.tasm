@@ -148,7 +148,7 @@ h_refill .byte 6, { PW } ; TODO check flags
         .word h_find-name, a_refill, z_refill
         .byte "refill"
 
-h_parse-name .byte 0a, 0
+h_parse-name .byte &10, 0
         .word h_refill, a_parse-name, z_parse-name
         .byte "parse-name"
 

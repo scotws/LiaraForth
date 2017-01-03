@@ -261,18 +261,10 @@ accept_loop
                 cmp.# AscCR
                 beq accept_eol
 
-                cmp.# AscDEL
-                beq accept_del
-
-                cmp.# AscBS
-                beq accept_del
+                ; cmp.# AscBS     ; CTRL-h, BACKSPACE
+                ; beq accept_del
 
                 ; TODO add CTRL-H, CTRL-P, CTRL-O
-accept_del
-                ; TODO HIER HIER 
-
-accept_print_char
-
                 ; TODO check if this is a printable character
                 
                 jsr.l PUT_CHR   ; echo character. TODO see if this should be EMIT
@@ -289,8 +281,25 @@ accept_eol
                 inx             
                 inx
         .a16
-                
-z_accept        rts
+
+                rts             ; this is the actual return 
+
+accept_del
+                cpy.# 0000      ; if we're at beginning of line, don't go back
+                beq +
+                dey
+@
+                ; TODO change these all to EMIT
+                lda.# AscBS     ; move cursor back
+                jsr.l PUT_CHR   
+                lda.# AscSP     ; overwrite current char
+                jsr.l PUT_CHR   
+                lda.# AscBS     ; move cursor back again
+                jsr.l PUT_CHR   
+
+                bra accept_loop
+
+z_accept        rts             ; dummy for compile
 
 ; -------------------------------------------------------------------
 ; BL ( -- u ) 7 bytes / 12 cycles
