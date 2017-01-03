@@ -136,8 +136,12 @@ h_zero  .byte 1, { PW + NC }
         .word h_one, a_zero, z_zero
         .byte '0'
 
+h_find-name .byte 9, 0
+        .word h_zero, a_find-name, z_find-name
+        .byte "find-name"
+
 h_refill .byte 6, { PW } ; TODO check flags
-        .word h_zero, a_refill, z_refill
+        .word h_find-name, a_refill, z_refill
         .byte "refill"
 
 h_parse-name .byte 0a, 0

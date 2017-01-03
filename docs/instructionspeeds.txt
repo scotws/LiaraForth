@@ -5,13 +5,14 @@ This version: 10. Dec 2016
 
 This is a list of commonly used instructions and instruction combinations to make calculating the speed and size of Forth word implementations easier.
 
-All instructions are assumed to be in 16 bit mode. Size is in bytes (b),
-execution speed in cycles (c). Note some instructions' execution speed varies,
-depending on if a page boundry is crossed.
+All instructions are assumed to be in 16 bit mode unless stated otherwise. Size
+is in bytes (b), execution speed in cycles (c). Note some instructions'
+execution speed varies, depending on if a page boundry is crossed.
 
 
 SINGLE INSTRUCTIONS (bytes/cycles)
 
+adc.#      3/3  (8 bit: 2/2)
 adc.dx     2/5
 and.#      3/3
 
@@ -37,7 +38,7 @@ jsr        3/6
 jsr.l      4/8
 
 lda.#      3/3 
-lda.d      2/4 
+lda.d      2/4  (8 bit: 2/3)
 lda.dx     2/5  
 lda.dxi    2/7
 lda.y      3/5-6
@@ -54,7 +55,7 @@ rts        1/6
 rts.l      1/6
 
 sep        2/3 
-sta.d      2/4 
+sta.d      2/4  ( 8 bit: 2/3)
 sta.dx     2/5 
 sta.y      3/6
 sty.dx     2/5 

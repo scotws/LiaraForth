@@ -9,7 +9,7 @@ TODO NEXT (next on top)
 - Code basic editing of command line in ACCEPT (CTRL-H, etc)
 - Code FIND-NAME and FIND for basic Dictionary search
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
-- Move all single GET_CHR calls to KEY (allows PAUSE later)
+- Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
 - Milestone: Test on 265SXB
 - Write validation program for Dictionary in Forth or Python
 - Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design

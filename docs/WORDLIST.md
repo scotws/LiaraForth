@@ -3,7 +3,7 @@
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. 
 
-Last update: **02. January 2017**
+Last update: **03. January 2017**
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
@@ -24,11 +24,12 @@ Last update: **02. January 2017**
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
 | DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
+| FIND-NAME      | coded    | Gforth        | PW, NC | 91    |    n/a |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
 | NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
 | PARSE          | coded    | ANSI core ext | -      | 45    |    n/a |
-| PARSE-NAME     | coded    | Gforth        | -      | 41+   |    n/a |
+| PARSE-NAME     | coded    | ANSI core ext | -      | 41+   |    n/a |
 | QUIT           | fragment | ANSI core     | -      | (TBA) |    n/a |
 | REFILL         | fragment | ANSI core ext | PW     | (TBA) |  (TBA) |
 | SOURCE         | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
