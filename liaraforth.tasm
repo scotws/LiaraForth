@@ -31,8 +31,8 @@
 
 a_cold  
 
-                jmp reset_hardware 
-start           ; used by hardware reset
+                jmp reset_hardware      ; don't use JSR, jump back to start
+start           
 
         .native
         .axy16
@@ -256,16 +256,12 @@ accept_nonzero
 
 accept_loop
                 ; TODO rewrite with a KEY so we can revector it
-                jsr get_chr   ; blocks with Mensch Monitor
+                jsr get_chr
 
                 cmp.# AscLF     ; we quit on both line feed and carriage return
                 beq accept_eol
-
                 cmp.# AscCR
                 beq accept_eol
-
-                ; cmp.# AscBS     ; CTRL-h, BACKSPACE
-                ; beq accept_del
 
                 ; TODO add CTRL-H, CTRL-P, CTRL-O
                 ; TODO check if this is a printable character
@@ -284,8 +280,28 @@ accept_eol
                 inx             
                 inx
         .a16
+                rts             ; this is the actual return of the routine
 
-z_accept        rts             ; dummy for compile
+accept_del
+                cpy.# 0000      ; buffer empty?
+                bne +
+
+                lda.# AscBELL   ; complain and don't delete beyond the start of line
+                jsr put_chr
+                iny
+@
+                dey
+                lda.# AscBS     ; move back one
+                jsr put_chr    
+                lda.# AscSP     ; print a space
+                jsr put_chr
+                lda.# AscBS     ; move back over space
+                jsr put_chr
+
+                bra accept_loop
+
+
+z_accept        rts
 
 ; -------------------------------------------------------------------
 ; BL ( -- u ) 7 bytes / 12 cycles
