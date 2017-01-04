@@ -258,11 +258,11 @@ accept_loop
                 ; TODO rewrite with a KEY so we can revector it
                 jsr get_chr   ; blocks with Mensch Monitor
 
-                ; cmp.# AscLF     ; we quit on both line feed and carriage return
-                ; beq accept_eol
+                cmp.# AscLF     ; we quit on both line feed and carriage return
+                beq accept_eol
 
-                ; cmp.# AscCR
-                ; beq accept_eol
+                cmp.# AscCR
+                beq accept_eol
 
                 ; cmp.# AscBS     ; CTRL-h, BACKSPACE
                 ; beq accept_del
