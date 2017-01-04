@@ -8,6 +8,10 @@
 ; Note that Typist's Assembler Notation does not distinguish between 
 ; upper andlower case. Variations in case are for human readers only.
 
+; I/O facilities are handled in the separate file kernel.tasm with symbols
+; prefixed with hw_ . No symbol with this prefix may be defined or used outside
+; of that file. 
+
 ; The definitions for multitasking are preliminary and will probably 
 ; change
 
@@ -60,14 +64,15 @@
 
 ; ===================================================================
 ; MENSCH MONITOR ROUTINE LOCATIONS
+; TODO HERE HERE 
 
 ; These must be accessed by long subroutine jumps (jsr.l)
 ; See https://github.com/scotws/265SXB-Guide/blob/master/monitor.md
 ; Liara Forth only uses two of the built-in routines to make porting the code to
 ; other systems easier.
 
-        .equ GET_CHR 0e036  ; Get character: Returns ASCII in A8. Blocks.
-        .equ PUT_CHR 0e04b  ; Put character: ASCII of character -> A8
+;       .equ GET_CHR 0e036  ; Get character: Returns ASCII in A8. Blocks.
+;       .equ PUT_CHR 0e04b  ; Put character: ASCII of character -> A8
 
 
 ; ===================================================================
@@ -89,4 +94,3 @@
         .equ CO %01000000  ; Compile Only
         .equ IM %00100000  ; Immediate Word
         .equ NC %00010000  ; Native (inline) Compile
-

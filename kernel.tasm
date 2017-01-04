@@ -26,10 +26,17 @@
 ; These follow Andrew Jacobs' names, but lower case and with "hw_" prefixed.
 ; This is the only file where symbols with the hw_ prefix may be defined or used
 
+; Baud rates are calculated by the formula { osc_freq/(16*baud_rate)-1 } which we
+; can do on the fly at every assembly with the following parameters, or just calculate 
+; once and then define brg_value with: 
+; - For  9600 baud, use &23
+; - For 19200 baud, use &11
+
+;       .equ osc_freq  3686400          ; SXB runs at 3.6864MHz
 ;	.equ baud_rate 9600             ; ACIA baud rate
-        .equ baud_rate 19200  ; ACIA baud rate
-        .equ osc_freq  3686400  ; SXB runs at 3.6864MHz
-        .equ brg_value { osc_freq / ( 16 * baud_rate ) - 1 }
+;       .equ baud_rate 19200            ; ACIA baud rate
+
+        .equ brg_value &11              ; 19200 baud
 
         .equ hw_pd0  0df00  ; Port 0 Data Register
         .equ hw_pd1  0df01  ; Port 1 Data Register
