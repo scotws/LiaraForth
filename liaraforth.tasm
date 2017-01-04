@@ -78,7 +78,10 @@ start
 ; We can jump here via subroutine because we reset the stack pointer
 ; anyway. Flows into QUIT.
 
-a_abort         ; clear Data Stack
+a_abort         
+        .native         ; paranoid
+        .a16    
+                ; clear Data Stack
                 ldy.# 0000
                 ldx.# dsp0
 
@@ -255,21 +258,53 @@ accept_nonzero
         .a8
 
 accept_loop
-                ; TODO rewrite with a KEY so we can revector it
+                ; TODO rewrite with KEY so we can revector it
+                ; We don't need to check for CTRL-l, because vt100 terminal
+                ; clears the screen automatically
                 jsr get_chr
        .!a8 
                 cmp.# AscLF     ; we quit on both line feed and carriage return
                 beq accept_eol
                 cmp.# AscCR
                 beq accept_eol
-                cmp.# AscBS
-                beq accept_del
-                
-                ; TODO CTRL-P, CTRL-O
-                
-                jsr put_chr   ; echo character. TODO see if this should be EMIT
 
-                ; TODO multitasking: Add PAUSE here (or in EMIT?) 
+                cmp.# AscBS     ; BS and DEL do the same thing for the moment
+                beq accept_bs
+                cmp.# AscDEL
+                beq accept_bs
+                
+                cmp.# AscCC     ; CTRL-c aborts (see if this is too harsh)
+                bne + 
+                jmp a_abort     ; ABORT switches back to 16-bit A
+@
+                cmp.# AscESC    ; ESC aborts (in this version)
+                bne + 
+                jmp a_abort     ; ABORT switches back to 16-bit A
+@
+                ; CTRL-p, will be used for "previous cmd", TODO
+                cmp.# AscCP     
+                bne +
+        .a16
+                lda.# tests_prev_cmd
+                jsr print_string
+        .a8
+                bra accept_loop
+
+@
+                ; CTRL-n, will be used for "next cmd", TODO 
+                cmp.# AscCN
+                bne +
+        .a16
+                lda.# tests_next_cmd
+                jsr print_string
+        .a8
+                bra accept_loop
+
+@
+                ; That's enough, echo character (TODO change to EMIT) 
+                jsr put_chr   ; echo character
+        .!a8
+                ; TODO multitasking: Add PAUSE here or in EMIT
 
                 sta.diy cib     ; STA (CIB),Y
                 iny
@@ -283,9 +318,9 @@ accept_eol
         .a16
                 rts             ; this is the actual return of the routine
 
-accept_del
+accept_bs
         .!a8
-                cpy.# 00      ; buffer empty?
+                cpy.# 00        ; buffer empty?
                 bne +
 
                 lda.# AscBELL   ; complain and don't delete beyond the start of line

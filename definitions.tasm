@@ -70,11 +70,13 @@
         .equ AscCC   03  ; break (Control-C) ASCII character
         .equ AscBELL 07  ; ACSCII bell sound
         .equ AscBS   08  ; backspace ASCII character
-        .equ AscLF   0A  ; line feed ASCII character
-        .equ AscCR   0D  ; carriage return ASCII character
-        .equ AscESC  1B  ; Escape ASCII character
+        .equ AscLF   0a  ; line feed ASCII character
+        .equ AscCR   0d  ; carriage return ASCII character
+        .equ AscCN   0e  ; ASCII CNTR-n (for next command)
+        .equ AscCP   10  ; ASCII CNTR-p (for previous command)
+        .equ AscESC  1b  ; Escape ASCII character
         .equ AscSP   20  ; space ASCII character
-        .equ AscDEL  7F  ; DEL ASCII character
+        .equ AscDEL  7f  ; DEL ASCII character
 
 ; Dictionary flags
 

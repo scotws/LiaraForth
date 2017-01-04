@@ -46,10 +46,8 @@ es_syntax   .byte "Unknown word", 0
 ; These strings are only used during testing and are removed as Liara Forth is
 ; developed. All start with "tests_"
 
-tests_quit     .byte "TESTING: Got string: ", 0
-tests_equal    .byte "TESTING: equal", 0
-tests_notequal .byte "TESTING: notequal", 0
-
+tests_prev_cmd .byte "(previous command)", 0
+tests_next_cmd .byte "(next command)", 0
 
 ; ===================================================================
 ; ALPHABET STRINGS
