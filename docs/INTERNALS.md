@@ -12,8 +12,8 @@ Liara Forth started with a bunch of general principles.
    words. Liara Forth will rarely tell you if there is an under- or overflow,
    for instance. During the design phase, these sort of checks were considered,
    but they added so much code that the first principle was violated.
-3. **Use only the most basic Mensch Monitor routines,** which are PUT_CHR and
-   GET_CHR. This is to make it easier for other people to port Liara Forth to
+3. **Use only the most basic hardware-dependent routines,** which are `put_chr` and
+   `get_chr`. This is to make it easier for other people to port Liara Forth to
    other 65816 machines. 
 
 ## Use of Registers
