@@ -16,7 +16,7 @@
 ; change
 
 ; ===================================================================
-; MEMORY MAP
+; MEMORY MAP (consider moving parts of these to kernel.tasm)
 
         .equ ram0            0200   ; start of available RAM
         .equ physicalram     07fff  ; end of installed RAM

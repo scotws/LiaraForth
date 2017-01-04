@@ -1,14 +1,15 @@
 Liara Forth License and Copying 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dec 2016
-This version:  02. Dec 2016
-
-Forth has a long tradition of being placed in the public domain. Liara Forth
-continues this. Where external code was used, it was also from the
-public domain; see source code for documentation of individual routines.
+This version:  04  Jan 2017
 
 Liara Forth is provided on an "as is" basis without any warranty of any kind,
 including, without limitation, the implied warranties of merchantability and
 fitness for a particular purpose and their equivalents under the laws of any
 jurisdiction. Put briefly, use this at your own risk.  
+
+Forth has a long tradition of being placed in the public domain. Liara Forth
+continues this. Where external code was used, it was either from the public
+domain as well, or it is in separate files with their own license included. See
+the source code for documentation of individual routines.
 
