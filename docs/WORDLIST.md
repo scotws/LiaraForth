@@ -28,6 +28,7 @@ Last update: *04. January 2017*
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | FIND-NAME      | coded    | Gforth        | PW, NC | 91    |    n/a |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
+| NAME>INT       | coded    | Gforth        | PW, NC | 4     |      8 |
 | NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
 | PARSE          | coded    | ANSI core ext | -      | 45    |    n/a |

@@ -80,8 +80,12 @@ h_quit  .byte 4, 00
         .word h_parse, a_quit, z_quit
         .byte "quit"
 
+h_name>int .byte 8, { PW + NC }
+        .word h_quit, a_name>int, z_name>int
+        .byte "name>int"
+
 h_cr    .byte 2, { PW + NC }
-        .word h_quit, a_cr, z_cr 
+        .word h_name>int, a_cr, z_cr 
         .byte "cr"
 
 h_bl    .byte 2, { PW + NC }

@@ -594,6 +594,19 @@ a_here          dex
 z_here          rts
 
 ; -------------------------------------------------------------------
+; NAME>INT ( nt -- xt ) 4 bytes / 8 cycles
+; Given the Name Token (nt) of a word, return its Execute Token (xt)
+
+a_name>int      
+		; The xt of a word beginns four bytes down from its nt
+		iny
+		iny
+		iny
+		iny
+                
+z_name>int      rts
+
+; -------------------------------------------------------------------
 ; NAME>STRING ( nt -- addr u ) 16 bytes / X cycles
 ; Given a name token (nt) of a word, return its string. This is a Gforth word
 ; that works with the Dictionary header entries. It is not checked if nt is
