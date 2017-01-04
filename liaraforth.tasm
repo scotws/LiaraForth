@@ -30,6 +30,10 @@
 ; Reboot the system. TODO determine how to compile this word
 
 a_cold  
+
+                jmp reset_hardware 
+start           ; used by hardware reset
+
         .native
         .axy16
                 sei
@@ -54,7 +58,7 @@ a_cold
                 stz.d ciblen    ; current input buffer is empty
                 stz.d piblen    ; previous input buffer is empty
 
-                cli             ; PUT_CHR in print_string uses interrupts
+                ; cli             ; PUT_CHR in print_string uses interrupts
 
                 ; print boot strings
                 lda.# s_title
@@ -254,7 +258,7 @@ accept_nonzero
 
 accept_loop
                 ; TODO rewrite with a KEY so we can revector it
-                jsr.l GET_CHR   ; blocks with Mensch Monitor
+                jsr GET_CHR   ; blocks with Mensch Monitor
 
                 ; cmp.# AscLF     ; we quit on both line feed and carriage return
                 ; beq accept_eol
@@ -268,7 +272,7 @@ accept_loop
                 ; TODO add CTRL-H, CTRL-P, CTRL-O
                 ; TODO check if this is a printable character
                 
-                jsr.l PUT_CHR   ; echo character. TODO see if this should be EMIT
+                jsr PUT_CHR   ; echo character. TODO see if this should be EMIT
 
                 ; TODO multitasking: Add PAUSE here (or in EMIT?) 
 
@@ -359,7 +363,7 @@ z_count         rts
 a_cr            
         .a8     
                 lda.# AscLF     ; test with AscCR for emulators
-                jsr.l PUT_CHR
+                jsr PUT_CHR
         .a16
 
 z_cr            rts
@@ -807,7 +811,7 @@ z_source-id     rts
 a_space         
         .a8     
                 lda.# AscSP
-                jsr.l PUT_CHR
+                jsr PUT_CHR
         .a16
 
 z_space         rts
@@ -881,7 +885,7 @@ a_type
         .a8
 type_loop
                 lda.diy tmp1    ; LDA (TMP1),Y
-                jsr.l PUT_CHR
+                jsr PUT_CHR
                 iny
                 cpy.d tmp2
                 bne type_loop
@@ -1029,13 +1033,13 @@ print_string
 @
                 lda.x 0000      ; LDA $0000,X 
                 beq print_string_done
-                jsr.l PUT_CHR
+                jsr PUT_CHR
                 inx
                 bra -
 
 print_string_done
                 lda.# AscLF     ; should be CR on some systems
-                jsr.l PUT_CHR
+                jsr PUT_CHR
         .a16
                 plx
                 rts
@@ -1058,7 +1062,7 @@ string_to_uppercase
                 
                 ; --- TODO TESTING (PRINT ONE "A") ---
                 ; lda.# 61
-                ; jsr.l 00:e04b
+                ; jsr 00:e04b
                 ; brk 00
                 ; --- TODO TESTING ---
                 

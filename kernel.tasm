@@ -29,14 +29,16 @@
 ; Baud rates are calculated by the formula { osc_freq/(16*baud_rate)-1 } which we
 ; can do on the fly at every assembly with the following parameters, or just calculate 
 ; once and then define brg_value with: 
+;
 ; - For  9600 baud, use &23
 ; - For 19200 baud, use &11
 
 ;       .equ osc_freq  3686400          ; SXB runs at 3.6864MHz
-;	.equ baud_rate 9600             ; ACIA baud rate
 ;       .equ baud_rate 19200            ; ACIA baud rate
+;	.equ baud_rate 9600             ; ACIA baud rate
 
         .equ brg_value &11              ; 19200 baud
+;       .equ brg_value &23              ; 9600 baud
 
         .equ hw_pd0  0df00  ; Port 0 Data Register
         .equ hw_pd1  0df01  ; Port 1 Data Register
@@ -98,10 +100,15 @@
 ; RESET HARDWARE
 ; Call this during boot. Uses Port 0 for communication in the default setting
 
-reset_hardware  sei
+reset_hardware  
+                sei
         .native
         .xy16
-                stz hw_ueir     ; UART Interrupt Enable Register (UEIR)
+                ; temporarily reset the stack
+                ldx.# 01ff
+                txs 
+
+                stz hw_uier     ; UART Interrupt Enable Register (UIER)
 
                 lda.# 0c0       ; Ensure A15/AMS are output
                 sta hw_pdd4     ; Port 4 Data Direction Register (PDD4)
@@ -119,7 +126,7 @@ reset_hardware  sei
                 lda.# %00100101         ; Set UART0 for 8-N-1
                 sta hw_acsr0            ; UART 0 Control/Status Register (ACSR0)
 
-                rts                     ; we return with A as 8 bits
+                jmp start               ; we return with A as 8 bits
 
 
 ; ------------------------------------------------------------------------------
@@ -127,7 +134,7 @@ reset_hardware  sei
 ; Wait until the last transmission has been completed then send the character
 ; in A.
 
-put_chr         pha             ; save the character
+PUT_CHR         pha             ; save the character
                 php             ; save register sizes
         .a8
                 pha
@@ -137,7 +144,7 @@ put_chr_wait    bit hw_uifr     ; timer finished?
                 beq put_chr_wait
 
                 pla
-                sta hw_artd0    ; transmit char via
+                sta hw_artd0    ; transmit char
 
                 plp             ; restore register sizes
                 pla             ; restore A register content
@@ -148,9 +155,10 @@ put_chr_wait    bit hw_uifr     ; timer finished?
 ; Fetch the next character from the receive buffer waiting for some to arrive
 ; if the buffer is empty.
 
-get_chr         php  ; Save register sizes
+GET_CHR         php  ; Save register sizes
         .a8
                 lda.# 01                ; (1<<0)
+
 get_chr_wait    bit hw_uifr             ; Any data in RX buffer?
                 beq get_chr_wait        ; No, keep waiting
                 lda hw_artd0            ; Yes, read it
