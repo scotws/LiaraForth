@@ -1,0 +1,167 @@
+; Basic hardware routines for Liara Forth
+; Scot W. Stevenson <scot.stevenson@gmail.com>
+; First version: 04. Jan 2017
+; This version: 04. Jan 2017
+
+; This section provides basic hardware interface to the 265SXB, providing the
+; PUT_CHR and GET_CHR routines that Liara Forth uses. It is in its own section
+; to make porting Forth to other machines easier.
+
+; The code here is based on Andrew Jacobs' Basic Vector Handling for the
+; W65C265SXB Development Board as part of the w65c265sxb-hacker project
+; (https://github.com/andrew-jacobs/w65c265sxb-hacker). It is released under the
+; following license:
+;
+; This work is made available under the terms of the Creative Commons
+; Attribution-NonCommercial-ShareAlike 4.0 International license. Open the
+; following URL to see the details.
+;
+; http://creativecommons.org/licenses/by-nc-sa/4.0/
+
+; Original variable names from w65c256.inc are included in comments to make
+; updates and changes easier
+
+; ------------------------------------------------------------------------------
+; HARDWARE DEFINITIONS
+; These follow Andrew Jacobs' names, but lower case and with "hw_" prefixed.
+; This is the only file where symbols with the hw_ prefix may be defined or used
+
+;	.equ baud_rate 9600             ; ACIA baud rate
+        .equ baud_rate 19200  ; ACIA baud rate
+        .equ osc_freq  3686400  ; SXB runs at 3.6864MHz
+        .equ brg_value { osc_freq / ( 16 * baud_rate ) - 1 }
+
+        .equ hw_pd0  0df00  ; Port 0 Data Register
+        .equ hw_pd1  0df01  ; Port 1 Data Register
+        .equ hw_pd2  0df02  ; Port 2 Data Register
+        .equ hw_pd3  0df03  ; Port 3 Data Register
+        .equ hw_pdd0 0df04  ; Port 0 Data Direction Register
+        .equ hw_pdd1 0df05  ; Port 1 Data Direction Register
+        .equ hw_pdd2 0df06  ; Port 2 Data Direction Register
+        .equ hw_pdd3 0df07  ; Port 3 Data Direction Register
+
+        .equ hw_pd4  0df20  ; Port 4 Data Register
+        .equ hw_pd5  0df21  ; Port 5 Data Register
+        .equ hw_pd6  0df22  ; Port 6 Data Register
+        .equ hw_pd7  0df23  ; Port 7 Data Register
+        .equ hw_pdd4 0df24  ; Port 4 Data Direction Register
+        .equ hw_pdd5 0df25  ; Port 5 Data Direction Register
+        .equ hw_pdd6 0df26  ; Port 6 Data Direction Register
+        .equ hw_pcs7 0df27  ; Port 7 Chip Select
+
+        .equ hw_bcr  0df40  ; Bus Control Register
+        .equ hw_sscr 0df41  ; System Speed Control Register
+        .equ hw_tcr  0df42  ; Timer Control Register
+        .equ hw_ter  0df43  ; Timer Enable Register
+        .equ hw_tifr 0df44  ; Timer Interrupt Flag Register
+        .equ hw_eifr 0df45  ; Edge Interrupt Flag Register
+        .equ hw_tier 0df46  ; Timer Interrupt Enable Register
+        .equ hw_eier 0df47  ; Edge Interrupt Enable Register
+        .equ hw_uifr 0df48  ; UART Interrupt Flag Register
+        .equ hw_uier 0df49  ; UART Interrupt Enable Register
+
+        .equ hw_t0cl 0df60  ; Timer 0 Counter Low
+        .equ hw_t0ch 0df61  ; Timer 0 Counter High
+        .equ hw_t1cl 0df62  ; Timer 1 Counter Low
+        .equ hw_t1ch 0df63  ; Timer 1 Counter High
+        .equ hw_t2cl 0df64  ; Timer 2 Counter Low
+        .equ hw_t2ch 0df65  ; Timer 2 Counter High
+        .equ hw_t3cl 0df66  ; Timer 3 Counter Low
+        .equ hw_t3ch 0df67  ; Timer 3 Counter High
+        .equ hw_t4cl 0df68  ; Timer 4 Counter Low
+        .equ hw_t4ch 0df69  ; Timer 4 Counter High
+        .equ hw_t5cl 0df6a  ; Timer 5 Counter Low
+        .equ hw_t5ch 0df6b  ; Timer 5 Counter High
+        .equ hw_t6cl 0df6c  ; Timer 6 Counter Low
+        .equ hw_t6ch 0df6d  ; Timer 6 Counter High
+        .equ hw_t7cl 0df6e  ; Timer 7 Counter Low
+        .equ hw_t7ch 0df6f  ; Timer 7 Counter High
+
+        .equ hw_acsr0 0df70  ; UART 0 Control/Status Register
+        .equ hw_artd0 0df71  ; UART 0 Data Register
+        .equ hw_acsr1 0df72  ; UART 1 Control/Status Register
+        .equ hw_artd1 0df73  ; UART 1 Data Register
+        .equ hw_acsr2 0df74  ; UART 2 Control/Status Register
+        .equ hw_artd2 0df75  ; UART 2 Data Register
+        .equ hw_acsr3 0df76  ; UART 3 Control/Status Register
+        .equ hw_artd3 0df77  ; UART 3 Data Register
+
+
+; ------------------------------------------------------------------------------
+; RESET HARDWARE
+; Call this during boot. Uses Port 0 for communication in the default setting
+
+reset_hardware  sei
+        .native
+        .xy16
+                stz hw_ueir     ; UART Interrupt Enable Register (UEIR)
+
+                lda.# 0c0       ; Ensure A15/AMS are output
+                sta hw_pdd4     ; Port 4 Data Direction Register (PDD4)
+                stz hw_pd4      ; Select bank 0 (Port 4 Data Register, PD4)
+
+                lda.# %00010000         ; Set UART0 to use timer 3
+                trb hw_tcr              ; Timer Control Register (TCR)
+                lda.# .lsb brg_value    ; And set baud rate
+                sta hw_t3cl             ; Timer 3 Counter Low (T3CL)
+                lda.# .msb brg_value
+                sta hw_t3ch             ; Timer 3 Counter High (T3CH)
+                lda.# 08                ; Enable timer 3 (1<<3)
+                tsb hw_ter              ; Timer Enable Register (TER)
+
+                lda.# %00100101         ; Set UART0 for 8-N-1
+                sta hw_acsr0            ; UART 0 Control/Status Register (ACSR0)
+
+                rts                     ; we return with A as 8 bits
+
+
+; ------------------------------------------------------------------------------
+; PUT_CHR
+; Wait until the last transmission has been completed then send the character
+; in A.
+
+put_chr         pha             ; save the character
+                php             ; save register sizes
+        .a8
+                pha
+                lda.# 02        ; (1<<1)
+
+put_chr_wait    bit hw_uifr     ; timer finished?
+                beq put_chr_wait
+
+                pla
+                sta hw_artd0    ; transmit char via
+
+                plp             ; restore register sizes
+                pla             ; restore A register content
+                rts
+
+; ------------------------------------------------------------------------------
+; GET_CHR
+; Fetch the next character from the receive buffer waiting for some to arrive
+; if the buffer is empty.
+
+get_chr         php  ; Save register sizes
+        .a8
+                lda.# 01                ; (1<<0)
+get_chr_wait    bit hw_uifr             ; Any data in RX buffer?
+                beq get_chr_wait        ; No, keep waiting
+                lda hw_artd0            ; Yes, read it
+
+                plp                     ; Restore register sizes
+                rts  
+
+; ------------------------------------------------------------------------------
+; HAVE_CHR?
+; Check if the receive buffer contains any data and return C=1 if there is
+; some.
+
+have_chr?       pha                     ; save caller's A
+                php
+        .a8
+                lda hw_uifr             ; read the status register
+                plp
+                ror.a                   ; shift hw_uart0r bit into carry
+
+                pla                     ; restore A
+                rts 
