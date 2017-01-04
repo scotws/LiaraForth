@@ -180,8 +180,12 @@ h_nip   .byte 3, { PW + NC }
         .word h_tuck, a_nip, z_nip
         .byte "nip"
 
+h_execute .byte 7, { PW + NC }
+        .word h_nip, a_execute, z_execute
+        .byte "execute"
+
 h_here  .byte 4, { PW + NC }
-        .word h_nip, a_here, z_here
+        .word h_execute, a_here, z_here
         .byte "here"
 
 h_swap  .byte 4, { PW + NC }

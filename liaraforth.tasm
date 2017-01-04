@@ -77,6 +77,7 @@ start
 ; Reset the parameter (data) stack pointer and continue as QUIT 
 ; We can jump here via subroutine because we reset the stack pointer
 ; anyway. Flows into QUIT.
+; TODO see which parts of COLD we should integrate here
 
 a_abort         
         .native         ; paranoid
@@ -97,6 +98,9 @@ a_abort
 a_quit          ; clear Return Stack
                 lda.# stack0
                 tcs
+
+                ; make sure Instruction Pointer is empty
+                stz.d ip
 
                 ; switch SOURCE-ID to zero (keyboard input)
                 stz.d insrc
@@ -182,19 +186,22 @@ z_plus          rts
 ; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
 ; Pushes the number 0000 on the Data Stack
 
-a_zero          dex
+a_zero          
+        .!xy16
+                dex
                 dex
                 sty.dx 00 
                 ldy.# 0000
 
 z_zero          rts
-
                
 ; -------------------------------------------------------------------
 ; 1 "ONE" ( -- 1 ) 7 bytes / 12 cycles
 ; Pushes the number 1 on the Data Stack
 
-a_one           dex
+a_one  
+        .!xy16
+                dex
                 dex
                 sty.dx 00
                 ldy.# 0001 
@@ -214,7 +221,9 @@ z_one-plus      rts
 ; 2 "TWO" ( -- 2 ) 7 bytes / 12 cycles
 ; Pushes the number 2 on the Data Stack
 
-a_two           dex
+a_two           
+        .!xy16
+                dex
                 dex
                 sty.dx 00
                 ldy.# 0002 
@@ -435,6 +444,7 @@ z_cr            rts
 ; Drop first entry on Data Stack
 
 a_drop          
+        .!xy16
                 ldy.dx 00 
                 inx
                 inx
@@ -446,11 +456,44 @@ z_drop          rts
 ; DUP  ( n -- n n ) 4 bytes / 9 cycles
 ; Duplicate first entry on Data Stack
 
-a_dup           dex
+a_dup           
+        .!xy16
+                dex
                 dex
                 sty.dx 00
 
 z_dup           rts
+
+
+; -------------------------------------------------------------------
+; EXECUTE ( xt -- ) X bytes / X cycles
+; Run a word with help of its xt on the TOS
+
+a_execute       
+        .!xy16
+		; Store the address we're calling 
+		sty ip
+
+                ldy.dx 00
+                inx
+                inx
+
+                ; Only JMP has the addressing mode we need, and all the 
+                ; Forth commands end with a RTS instruction. We fake the address
+                ; by saving it by hand to the stack
+        .!a16
+                lda.# execute_done
+                pha
+
+                jmp.i ip                ; JMP (IP)
+              
+  
+execute_done    ; keep the NOP here as the landing site for the indirect 
+                ; subroutine jump (easier and quicker than adjusting the
+                ; return address on the stack)
+                nop
+
+z_execute       rts
 
 ; -------------------------------------------------------------------
 ; FALSE ( -- f ) 7 bytes / 12 cycles
@@ -586,9 +629,12 @@ z_find-name     rts
 ; HERE ( -- u ) 6 bytes / 13 cycles
 ; Push Compiler Pointer address on the Data Stack
 
-a_here          dex
+a_here          
+        .!xy16
+                dex
                 dex
                 sty.dx 00
+
                 ldy.d cp
 
 z_here          rts
@@ -996,7 +1042,8 @@ words_loop
                 jsr a_name>string       ; ( nt -- addr u ) 
                 jsr a_type              ; ( addr u -- ) 
                 jsr a_space
-
+        .!a16
+        .!xy16
                 pla
 
                 ; the next nt is two bytes below the nt of the current one in
@@ -1043,6 +1090,7 @@ compex_loop
                 ; delimiters per default and skips any leading spaces, which
                 ; PARSE does not do.
                 jsr a_parse-name        ; ( addr u ) 
+        .!a16
 
                 ; if PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
@@ -1056,32 +1104,46 @@ compex_loop
                 ; If we got something that is not a zero, we go to FIND-NAME to
                 ; get the nt. Returns ( nt | 0 ) 
                 jsr a_find-name
+        .!a16
 
                 ; a zero signals that we didn't find a word in the Dictionary
                 tya             ; force flag check of TOS
                 bne compex_got_name_token
 
+                ; TODO Attempt NUMBER CONVERSION
+                
                 lda.# es_syntax         ; "Unknown word"
                 jmp error
 
 compex_got_name_token
 
-                ; TESTING execute word
-                ; jsr a_name>int
+                ; TODO see if INTERPRETED OR COMPILED
+                
+                ; the xt of a word is four bytes below its nt. This is a quick
+                ; version of NAME>INT
+        .!xy16
+                iny
+                iny
+                iny
+                iny                     ; ( -- xt )
+                
 
-
-                ; TESTING Print found string
-                ; jsr a_name>string       ; ( nt -- addr u ) 
-                ; jsr a_cr
-                ; jsr a_type
-
-                ; TODO call NUMBER CONVERSION
-                ; TODO INTERPRET or COMPILE 
+                ; TODO Decide between INTERPRET or COMPILE 
+                
+                ; TESTING for now we just execute all the things
+                jsr a_execute
 
                 ; that's quite enough for this word, let's get the next one
                 jmp compex_loop
 
 compex_line_done
+                ; drop stuff from PARSE_NAME
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+
                 rts
                 
 ; ------------------------------------------------------------------- 
@@ -1090,7 +1152,6 @@ compex_line_done
 error
                 jsr print_string
                 jmp a_abort
-
 
 ; ------------------------------------------------------------------- 
 ; Print a zero terminated string to the console, adding a CR character. Takes
@@ -1121,8 +1182,8 @@ print_string_done
 
 ; ------------------------------------------------------------------- 
 ; CONVERT BYTE TO ASCII
-; Convert byte in A to two ASCII hex digits. Calls nibble_to_ascii. Assumes A is
-; 8 bit
+; Convert byte in A to two ASCII hex digits and print them. Calls 
+; nibble_to_ascii. Assumes A is 8 bit. 
 byte_to_ascii
        .!a8
                 pha
@@ -1173,7 +1234,8 @@ string_to_uppercase
                 
                 ; --- TODO TESTING (PRINT ONE "A") ---
                 ; lda.# 61
-                ; jsr 00:e04b
+                ; jsr put_chr
+                ; .!a16
                 ; brk 00
                 ; --- TODO TESTING ---
                 

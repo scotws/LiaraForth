@@ -46,12 +46,13 @@
 ; DIRECT PAGE ADDRESSES
 
 ; All are one cell (two bytes) long to prevent weird errors
+; TODO move these to USER variables for multitasking
 
         .equ cp      { directpage + &0 }  ; Compiler Pointer, 2 bytes
         .equ dp      { directpage + &2 }  ; Dictionary Pointer, 2 bytes
         .equ tmpdsp  { directpage + &4 }  ; Temporary DSP (X) storage, 2 bytes
         .equ tmptos  { directpage + &6 }  ; Temporary TOS (Y) storage, 2 bytes
-;       .equ         { directpage + &8 }  ; 
+        .equ ip      { directpage + &8 }  ; Instruction Pointer for EXECUTE
         .equ insrc   { directpage + &10 } ; Input Source for SOURCE-ID
         .equ cib     { directpage + &12 } ; Current Input Buffer, 7c00 or 7d00
         .equ ciblen  { directpage + &14 } ; Length of current input buffer

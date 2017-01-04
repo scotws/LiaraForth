@@ -25,6 +25,7 @@ Last update: *04. January 2017*
 | CR             | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
 | DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |
+| EXECUTE        | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | FIND-NAME      | coded    | Gforth        | PW, NC | 91    |    n/a |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
