@@ -144,8 +144,8 @@ reset_hardware
 ; PUT_CHR
 ; Wait until the last transmission has been completed then send the character
 ; in A.
-
-PUT_CHR         pha             ; save the character
+put_chr         
+                pha             ; save the character
                 php             ; save register sizes
         .a8
                 pha
@@ -165,8 +165,8 @@ put_chr_wait    bit hw_uifr     ; timer finished?
 ; GET_CHR
 ; Fetch the next character from the receive buffer waiting for some to arrive
 ; if the buffer is empty.
-
-GET_CHR         php  ; Save register sizes
+get_chr         
+                php  ; Save register sizes
         .a8
                 lda.# 01                ; (1<<0)
 

@@ -257,14 +257,15 @@ accept_nonzero
 accept_loop
                 ; TODO rewrite with a KEY so we can revector it
                 jsr get_chr
-
+       .!a8 
                 cmp.# AscLF     ; we quit on both line feed and carriage return
                 beq accept_eol
                 cmp.# AscCR
                 beq accept_eol
-
-                ; TODO add CTRL-H, CTRL-P, CTRL-O
-                ; TODO check if this is a printable character
+                cmp.# AscBS
+                beq accept_del
+                
+                ; TODO CTRL-P, CTRL-O
                 
                 jsr put_chr   ; echo character. TODO see if this should be EMIT
 
@@ -272,7 +273,7 @@ accept_loop
 
                 sta.diy cib     ; STA (CIB),Y
                 iny
-                cpy.d tmp2      ; reached character limit? TODO TEST
+                cpy.d tmp2      ; reached character limit?
                 bne accept_loop ; fall thru if buffer limit reached
 
 accept_eol
@@ -283,7 +284,8 @@ accept_eol
                 rts             ; this is the actual return of the routine
 
 accept_del
-                cpy.# 0000      ; buffer empty?
+        .!a8
+                cpy.# 00      ; buffer empty?
                 bne +
 
                 lda.# AscBELL   ; complain and don't delete beyond the start of line
@@ -1056,6 +1058,42 @@ print_string_done
                 jsr put_chr
         .a16
                 plx
+                rts
+
+; ------------------------------------------------------------------- 
+; CONVERT BYTE TO ASCII
+; Convert byte in A to two ASCII hex digits. Calls nibble_to_ascii. Assumes A is
+; 8 bit
+byte_to_ascii
+       .!a8
+                pha
+                ; convert high nibble first 
+                lsr.a
+                lsr.a
+                lsr.a
+                lsr.a
+                jsr nibble_to_ascii
+
+                pla
+                jsr nibble_to_ascii
+        
+                rts
+
+
+; ------------------------------------------------------------------- 
+; CONVERT NIBBLE TO ASCII
+; Converts the lower nibble of a number in A and returns the ASCII character
+; number, then prints it. Assumes A is 8 bit
+nibble_to_ascii
+       .!a8
+                and.# 0f
+                ora.# '0'
+                cmp.# 3a       ; '9' + 1
+                bcc +
+                adc.# 06
+@
+                jsr put_chr
+      
                 rts
 
 ; ------------------------------------------------------------------- 
