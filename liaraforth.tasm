@@ -340,6 +340,18 @@ accept_bs
 
 z_accept        rts
 
+
+; -------------------------------------------------------------------
+; BELL ( -- ) X bytes / X cycles
+; Trigger terminal bell
+
+a_bell          
+		lda.# AscBELL 
+		jsr put_chr
+	.!a16
+z_bell          rts
+
+
 ; -------------------------------------------------------------------
 ; BL ( -- u ) 7 bytes / 12 cycles
 ; Put ASCII char for SPACE on Data Stack
@@ -412,7 +424,6 @@ z_count         rts
 ; Cause following output to appear at beginning of next line
 
 a_cr            
-        .a8     
                 lda.# AscLF     ; test with AscCR for emulators
                 jsr put_chr
         .a16

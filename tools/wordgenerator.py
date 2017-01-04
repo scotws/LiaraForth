@@ -1,7 +1,7 @@
 # Word Template Generator for Liara Forth 
 # Scot W. Stevenson <scot.stevenson@gmail.com>
 # First version: 02. Dez 2016
-# This version: 02. Jan 2017
+# This version: 04. Jan 2017
 
 # Tool to create entries for the Dictionary and Code of a given Liara Forth
 # word. Prints template to screen. For copy and paste into the code.
@@ -14,6 +14,7 @@ if sys.version_info.major != 3:
 
 print("Word Template Generator for Liara Forth")
 print("Scot W. Stevenson <scot.stevenson@gmail.com")
+print("-- Remember to copy and paste with 'set paste' in vim --")
 
 code_template = """
 ; -------------------------------------------------------------------
