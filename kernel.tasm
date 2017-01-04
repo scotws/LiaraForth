@@ -21,7 +21,7 @@
 ; Original variable names from w65c256.inc are included in comments to make
 ; updates and changes easier
 
-; ------------------------------------------------------------------------------
+; ===================================================================
 ; EMULATOR HOOKS
 ; Liara Forth only uses two hardware routines to make porting the code to
 ; other systems easier: put_chr and get_chr. The system is currently set up 
@@ -32,7 +32,7 @@
 ;       .equ put_chr 0e04b  ; Put character: ASCII of character -> A8
 
 
-; ------------------------------------------------------------------------------
+; ===================================================================
 ; HARDWARE DEFINITIONS
 ; These follow Andrew Jacobs' names, but lower case and with "hw_" prefixed.
 ; This is the only file where symbols with the hw_ prefix may be defined or used
@@ -107,7 +107,7 @@
         .equ hw_artd3 0df77  ; UART 3 Data Register
 
 
-; ------------------------------------------------------------------------------
+; ===================================================================
 ; RESET HARDWARE
 ; Call this during boot. Uses Port 0 for communication in the default setting
 
@@ -140,7 +140,7 @@ reset_hardware
                 jmp start               ; we return with A as 8 bits
 
 
-; ------------------------------------------------------------------------------
+; ===================================================================
 ; PUT_CHR
 ; Wait until the last transmission has been completed then send the character
 ; in A.
@@ -156,12 +156,12 @@ put_chr_wait    bit hw_uifr     ; timer finished?
 
                 pla
                 sta hw_artd0    ; transmit char
-
-                plp             ; restore register sizes
+                plp
                 pla             ; restore A register content
+
                 rts
 
-; ------------------------------------------------------------------------------
+; ===================================================================
 ; GET_CHR
 ; Fetch the next character from the receive buffer waiting for some to arrive
 ; if the buffer is empty.
@@ -173,14 +173,15 @@ GET_CHR         php  ; Save register sizes
 get_chr_wait    bit hw_uifr             ; Any data in RX buffer?
                 beq get_chr_wait        ; No, keep waiting
                 lda hw_artd0            ; Yes, read it
+                plp
 
-                plp                     ; Restore register sizes
                 rts  
 
-; ------------------------------------------------------------------------------
+; ===================================================================
 ; HAVE_CHR?
 ; Check if the receive buffer contains any data and return C=1 if there is
 ; some.
+; TODO Test this
 
 have_chr?       pha                     ; save caller's A
                 php
@@ -188,6 +189,8 @@ have_chr?       pha                     ; save caller's A
                 lda hw_uifr             ; read the status register
                 plp
                 ror.a                   ; shift hw_uart0r bit into carry
-
+        .a16 
                 pla                     ; restore A
                 rts 
+
+; END

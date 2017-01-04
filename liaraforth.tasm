@@ -1019,15 +1019,16 @@ error
 ; Print a zero terminated string to the console, adding a CR character. Takes
 ; the address of the string in 16-bit A register, calls put_chr.  A is
 ; destroyed. We could probably figure out some way to use TYPE instead, but zero
-; terminated strings are easier for the 65816 to use. 
+; terminated strings are easier for the 65816 to use.
+; TODO add version without final line feed
 
 print_string     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
                 phx
-                tax ; x16 contains address of string
-        .a8
+                tax             ; x16 contains address of string
 @
+        .a8
                 lda.x 0000      ; LDA $0000,X 
                 beq print_string_done
                 jsr put_chr
