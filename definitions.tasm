@@ -63,19 +63,6 @@
         .equ tmp3    { directpage + &26 } ; Temporary storage
 
 ; ===================================================================
-; MENSCH MONITOR ROUTINE LOCATIONS
-; TODO HERE HERE 
-
-; These must be accessed by long subroutine jumps (jsr.l)
-; See https://github.com/scotws/265SXB-Guide/blob/master/monitor.md
-; Liara Forth only uses two of the built-in routines to make porting the code to
-; other systems easier.
-
-;       .equ GET_CHR 0e036  ; Get character: Returns ASCII in A8. Blocks.
-;       .equ PUT_CHR 0e04b  ; Put character: ASCII of character -> A8
-
-
-; ===================================================================
 ; HELPER DEFINITIONS
 
 ; ASCII character set

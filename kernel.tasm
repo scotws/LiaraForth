@@ -22,6 +22,17 @@
 ; updates and changes easier
 
 ; ------------------------------------------------------------------------------
+; EMULATOR HOOKS
+; Liara Forth only uses two hardware routines to make porting the code to
+; other systems easier: put_chr and get_chr. The system is currently set up 
+; to directly access the hardware. For emulators, uncomment the following lines
+; and comment out the routines below.
+
+;       .equ get_chr 0e036  ; Get character: Returns ASCII in A8. Blocks.
+;       .equ put_chr 0e04b  ; Put character: ASCII of character -> A8
+
+
+; ------------------------------------------------------------------------------
 ; HARDWARE DEFINITIONS
 ; These follow Andrew Jacobs' names, but lower case and with "hw_" prefixed.
 ; This is the only file where symbols with the hw_ prefix may be defined or used

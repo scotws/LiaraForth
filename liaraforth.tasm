@@ -58,8 +58,6 @@ start           ; used by hardware reset
                 stz.d ciblen    ; current input buffer is empty
                 stz.d piblen    ; previous input buffer is empty
 
-                ; cli             ; PUT_CHR in print_string uses interrupts
-
                 ; print boot strings
                 lda.# s_title
                 jsr print_string
@@ -258,7 +256,7 @@ accept_nonzero
 
 accept_loop
                 ; TODO rewrite with a KEY so we can revector it
-                jsr GET_CHR   ; blocks with Mensch Monitor
+                jsr get_chr   ; blocks with Mensch Monitor
 
                 ; cmp.# AscLF     ; we quit on both line feed and carriage return
                 ; beq accept_eol
@@ -272,7 +270,7 @@ accept_loop
                 ; TODO add CTRL-H, CTRL-P, CTRL-O
                 ; TODO check if this is a printable character
                 
-                jsr PUT_CHR   ; echo character. TODO see if this should be EMIT
+                jsr put_chr   ; echo character. TODO see if this should be EMIT
 
                 ; TODO multitasking: Add PAUSE here (or in EMIT?) 
 
@@ -363,7 +361,7 @@ z_count         rts
 a_cr            
         .a8     
                 lda.# AscLF     ; test with AscCR for emulators
-                jsr PUT_CHR
+                jsr put_chr
         .a16
 
 z_cr            rts
@@ -811,7 +809,7 @@ z_source-id     rts
 a_space         
         .a8     
                 lda.# AscSP
-                jsr PUT_CHR
+                jsr put_chr
         .a16
 
 z_space         rts
@@ -866,12 +864,12 @@ z_tuck          rts
 
 ; -------------------------------------------------------------------
 ; TYPE ( addr u -- ) 23+ bytes / X cycles
-; Print character string if u is not 0. The Mensch Monitor has a print string
-; routine that we could use, but we want to restrict calls to PUT_CHR and
-; GET_CHR to make porting easier. We call PUT_CHR here directly instead of going
-; through EMIT because EMIT will later have a PAUSE statement for multitasking
-; and we probably don't want to PAUSE after every character. However, we'll make
-; a final decision about that when multitasking is up and running.
+; Print character string if u is not 0. We restrict all calls to put_chr and
+; get-chr to make porting easier.  We call put_chr here directly instead of
+; going through EMIT because EMIT will later have a PAUSE statement for
+; multitasking and we probably don't want to PAUSE after every character.
+; However, we'll make a final decision about that when multitasking is up and
+; running.
 
 a_type          
                 ; just leave if u is zero (empty string)
@@ -885,7 +883,7 @@ a_type
         .a8
 type_loop
                 lda.diy tmp1    ; LDA (TMP1),Y
-                jsr PUT_CHR
+                jsr put_chr
                 iny
                 cpy.d tmp2
                 bne type_loop
@@ -1019,11 +1017,10 @@ error
 
 ; ------------------------------------------------------------------- 
 ; Print a zero terminated string to the console, adding a CR character. Takes
-; the address of the string in 16-bit A register, calls PUT_CHR from the Mensch
-; Monitor. A is destroyed. We could probably figure out some way to use TYPE
-; instead, but zero terminated strings are easier for the 65816 to use. 
-; This would be shorter with PUT_STR, but we want to keep the number of Monitor
-; routines called as small as possible to make porting the code easier
+; the address of the string in 16-bit A register, calls put_chr.  A is
+; destroyed. We could probably figure out some way to use TYPE instead, but zero
+; terminated strings are easier for the 65816 to use. 
+
 print_string     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
@@ -1033,13 +1030,13 @@ print_string
 @
                 lda.x 0000      ; LDA $0000,X 
                 beq print_string_done
-                jsr PUT_CHR
+                jsr put_chr
                 inx
                 bra -
 
 print_string_done
                 lda.# AscLF     ; should be CR on some systems
-                jsr PUT_CHR
+                jsr put_chr
         .a16
                 plx
                 rts
