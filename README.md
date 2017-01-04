@@ -13,8 +13,8 @@ hybrid nature of the 65816, the 265SXB is pretty much the simplest way to get
 started with a 6502 system.
 
 This project is in the PRE-ALPHA stage. Pre-ALPHA means that "it should
-assemble, but it won't run". See the Initial Design Manifest in the docs folder
-for details. There is further information in docs/MANUAL.md as well.
+assemble, but it won't run too well". See the Initial Design Manifest in the
+docs folder for details. There is further information in docs/MANUAL.md as well.
 
 There is a discussion thread for Liara Forth [at
 6502.org](http://forum.6502.org/viewtopic.php?f=9&t=3649).

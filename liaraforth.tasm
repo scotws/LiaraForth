@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 03. Jan 2017
+; This version: 04. Jan 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -14,6 +14,7 @@
 ; TOP INCLUDES
 
         .include definitions.tasm
+        .include kernel.tasm
 
 
 ; ===================================================================
@@ -29,6 +30,10 @@
 ; Reboot the system. TODO determine how to compile this word
 
 a_cold  
+
+                jmp reset_hardware      ; don't use JSR, jump back to start
+start           
+
         .native
         .axy16
                 sei
@@ -52,8 +57,6 @@ a_cold
                 sta.d cib
                 stz.d ciblen    ; current input buffer is empty
                 stz.d piblen    ; previous input buffer is empty
-
-                cli             ; PUT_CHR in print_string uses interrupts
 
                 ; print boot strings
                 lda.# s_title
@@ -134,7 +137,7 @@ quit_refill_successful
                 stz.d toin
  
                 ; TESTING TALI FORTH F_COMPEXE BEGINS HERE
-                jsr compile_execute
+                jsr compile/execute
 
                 ; TODO testing
                 ; Display system prompt if all went well
@@ -252,25 +255,25 @@ accept_nonzero
         .a8
 
 accept_loop
-                ; TODO rewrite with a KEY that can be revectored
-                
-                jsr.l GET_CHR   ; blocks with Mensch Monitor. TODO see if KEY better
-
+                ; TODO rewrite with a KEY so we can revector it
+                jsr get_chr
+       .!a8 
                 cmp.# AscLF     ; we quit on both line feed and carriage return
                 beq accept_eol
-
                 cmp.# AscCR
                 beq accept_eol
-
-                ; TODO control sequences such as BACKSPACE, DEL, CNTRL-P, etc
-
-                jsr.l PUT_CHR   ; echo character. TODO see if this should be EMIT
+                cmp.# AscBS
+                beq accept_del
+                
+                ; TODO CTRL-P, CTRL-O
+                
+                jsr put_chr   ; echo character. TODO see if this should be EMIT
 
                 ; TODO multitasking: Add PAUSE here (or in EMIT?) 
 
                 sta.diy cib     ; STA (CIB),Y
                 iny
-                cpy.d tmp2      ; reached character limit? TODO TEST
+                cpy.d tmp2      ; reached character limit?
                 bne accept_loop ; fall thru if buffer limit reached
 
 accept_eol
@@ -278,8 +281,40 @@ accept_eol
                 inx             
                 inx
         .a16
-                
+                rts             ; this is the actual return of the routine
+
+accept_del
+        .!a8
+                cpy.# 00      ; buffer empty?
+                bne +
+
+                lda.# AscBELL   ; complain and don't delete beyond the start of line
+                jsr put_chr
+                iny
+@
+                dey
+                lda.# AscBS     ; move back one
+                jsr put_chr    
+                lda.# AscSP     ; print a space
+                jsr put_chr
+                lda.# AscBS     ; move back over space
+                jsr put_chr
+
+                bra accept_loop
+
+
 z_accept        rts
+
+; -------------------------------------------------------------------
+; BL ( -- u ) 7 bytes / 12 cycles
+; Put ASCII char for SPACE on Data Stack
+
+a_bl            dex
+                dex
+                sty.dx 00
+                ldy.# AscSP
+
+z_bl            rts
 
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
@@ -344,7 +379,7 @@ z_count         rts
 a_cr            
         .a8     
                 lda.# AscLF     ; test with AscCR for emulators
-                jsr.l PUT_CHR
+                jsr put_chr
         .a16
 
 z_cr            rts
@@ -792,7 +827,7 @@ z_source-id     rts
 a_space         
         .a8     
                 lda.# AscSP
-                jsr.l PUT_CHR
+                jsr put_chr
         .a16
 
 z_space         rts
@@ -847,12 +882,12 @@ z_tuck          rts
 
 ; -------------------------------------------------------------------
 ; TYPE ( addr u -- ) 23+ bytes / X cycles
-; Print character string if u is not 0. The Mensch Monitor has a print string
-; routine that we could use, but we want to restrict calls to PUT_CHR and
-; GET_CHR to make porting easier. We call PUT_CHR here directly instead of going
-; through EMIT because EMIT will later have a PAUSE statement for multitasking
-; and we probably don't want to PAUSE after every character. However, we'll make
-; a final decision about that when multitasking is up and running.
+; Print character string if u is not 0. We restrict all calls to put_chr and
+; get-chr to make porting easier.  We call put_chr here directly instead of
+; going through EMIT because EMIT will later have a PAUSE statement for
+; multitasking and we probably don't want to PAUSE after every character.
+; However, we'll make a final decision about that when multitasking is up and
+; running.
 
 a_type          
                 ; just leave if u is zero (empty string)
@@ -866,7 +901,7 @@ a_type
         .a8
 type_loop
                 lda.diy tmp1    ; LDA (TMP1),Y
-                jsr.l PUT_CHR
+                jsr put_chr
                 iny
                 cpy.d tmp2
                 bne type_loop
@@ -941,14 +976,14 @@ z_words         rts
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
 ; string is in ciblen
-compile_execute
+compile/execute
 compex_loop 
                 ; Normally we would use PARSE here with the SPACE character as
                 ; a parameter (PARSE replaces WORD in modern Forths). However,
                 ; Gforth's PARSE-NAME makes more sense as it uses spaces as
                 ; delimiters per default and skips any leading spaces, which
                 ; PARSE does not do.
-                jsr a_parse-name        ; returns ( addr u ) 
+                jsr a_parse-name        ; ( addr u ) 
 
                 ; if PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
@@ -972,10 +1007,14 @@ compex_loop
 
 compex_got_name_token
 
+                ; TESTING execute word
+                ; jsr a_name>int
+
+
                 ; TESTING Print found string
-                jsr a_name>string       ; ( nt -- addr u ) 
-                jsr a_cr
-                jsr a_type
+                ; jsr a_name>string       ; ( nt -- addr u ) 
+                ; jsr a_cr
+                ; jsr a_type
 
                 ; TODO call NUMBER CONVERSION
                 ; TODO INTERPRET or COMPILE 
@@ -996,29 +1035,65 @@ error
 
 ; ------------------------------------------------------------------- 
 ; Print a zero terminated string to the console, adding a CR character. Takes
-; the address of the string in 16-bit A register, calls PUT_CHR from the Mensch
-; Monitor. A is destroyed. We could probably figure out some way to use TYPE
-; instead, but zero terminated strings are easier for the 65816 to use. 
-; This would be shorter with PUT_STR, but we want to keep the number of Monitor
-; routines called as small as possible to make porting the code easier
+; the address of the string in 16-bit A register, calls put_chr.  A is
+; destroyed. We could probably figure out some way to use TYPE instead, but zero
+; terminated strings are easier for the 65816 to use.
+; TODO add version without final line feed
+
 print_string     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
                 phx
-                tax ; x16 contains address of string
-        .a8
+                tax             ; x16 contains address of string
 @
+        .a8
                 lda.x 0000      ; LDA $0000,X 
                 beq print_string_done
-                jsr.l PUT_CHR
+                jsr put_chr
                 inx
                 bra -
 
 print_string_done
                 lda.# AscLF     ; should be CR on some systems
-                jsr.l PUT_CHR
+                jsr put_chr
         .a16
                 plx
+                rts
+
+; ------------------------------------------------------------------- 
+; CONVERT BYTE TO ASCII
+; Convert byte in A to two ASCII hex digits. Calls nibble_to_ascii. Assumes A is
+; 8 bit
+byte_to_ascii
+       .!a8
+                pha
+                ; convert high nibble first 
+                lsr.a
+                lsr.a
+                lsr.a
+                lsr.a
+                jsr nibble_to_ascii
+
+                pla
+                jsr nibble_to_ascii
+        
+                rts
+
+
+; ------------------------------------------------------------------- 
+; CONVERT NIBBLE TO ASCII
+; Converts the lower nibble of a number in A and returns the ASCII character
+; number, then prints it. Assumes A is 8 bit
+nibble_to_ascii
+       .!a8
+                and.# 0f
+                ora.# '0'
+                cmp.# 3a       ; '9' + 1
+                bcc +
+                adc.# 06
+@
+                jsr put_chr
+      
                 rts
 
 ; ------------------------------------------------------------------- 
@@ -1039,7 +1114,7 @@ string_to_uppercase
                 
                 ; --- TODO TESTING (PRINT ONE "A") ---
                 ; lda.# 61
-                ; jsr.l 00:e04b
+                ; jsr 00:e04b
                 ; brk 00
                 ; --- TODO TESTING ---
                 

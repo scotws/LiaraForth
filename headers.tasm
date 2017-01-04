@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 02. Jan 2017
+; This version: 04. Jan 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -80,8 +80,12 @@ h_cr    .byte 2, { PW + NC }
         .word h_quit, a_cr, z_cr 
         .byte "cr"
 
+h_bl    .byte 2, { PW + NC }
+        .word h_cr, a_bl, z_bl
+        .byte "bl"
+
 h_space .byte 5, { PW + NC }
-        .word h_cr, a_space, z_space
+        .word h_bl, a_space, z_space
         .byte "space"
 
 h_type  .byte 4, 0
@@ -144,7 +148,7 @@ h_refill .byte 6, { PW } ; TODO check flags
         .word h_find-name, a_refill, z_refill
         .byte "refill"
 
-h_parse-name .byte 0a, 0
+h_parse-name .byte &10, 0
         .word h_refill, a_parse-name, z_parse-name
         .byte "parse-name"
 

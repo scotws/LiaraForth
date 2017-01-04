@@ -1,18 +1,22 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 01. Jan 2017
+; This version: 04. Jan 2017
 
 ; This file is included by liaraforth.tasm
 
 ; Note that Typist's Assembler Notation does not distinguish between 
 ; upper andlower case. Variations in case are for human readers only.
 
+; I/O facilities are handled in the separate file kernel.tasm with symbols
+; prefixed with hw_ . No symbol with this prefix may be defined or used outside
+; of that file. 
+
 ; The definitions for multitasking are preliminary and will probably 
 ; change
 
 ; ===================================================================
-; MEMORY MAP
+; MEMORY MAP (consider moving parts of these to kernel.tasm)
 
         .equ ram0            0200   ; start of available RAM
         .equ physicalram     07fff  ; end of installed RAM
@@ -59,29 +63,18 @@
         .equ tmp3    { directpage + &26 } ; Temporary storage
 
 ; ===================================================================
-; MENSCH MONITOR ROUTINE LOCATIONS
-
-; These must be accessed by long subroutine jumps (jsr.l)
-; See https://github.com/scotws/265SXB-Guide/blob/master/monitor.md
-; Liara Forth only uses two of the built-in routines to make porting the code to
-; other systems easier.
-
-        .equ GET_CHR 0e036  ; Get character: Returns ASCII in A8. Blocks.
-        .equ PUT_CHR 0e04b  ; Put character: ASCII of character -> A8
-
-
-; ===================================================================
 ; HELPER DEFINITIONS
 
 ; ASCII character set
 
-        .equ AscCC  03  ; break (Control-C) ASCII character
-        .equ AscBS  08  ; backspace ASCII character
-        .equ AscLF  0A  ; line feed ASCII character
-        .equ AscCR  0D  ; carriage return ASCII character
-        .equ AscESC 1B  ; Escape ASCII character
-        .equ AscSP  20  ; space ASCII character
-        .equ AscDEL 7F  ; DEL ASCII character
+        .equ AscCC   03  ; break (Control-C) ASCII character
+        .equ AscBELL 07  ; ACSCII bell sound
+        .equ AscBS   08  ; backspace ASCII character
+        .equ AscLF   0A  ; line feed ASCII character
+        .equ AscCR   0D  ; carriage return ASCII character
+        .equ AscESC  1B  ; Escape ASCII character
+        .equ AscSP   20  ; space ASCII character
+        .equ AscDEL  7F  ; DEL ASCII character
 
 ; Dictionary flags
 
@@ -89,4 +82,3 @@
         .equ CO %01000000  ; Compile Only
         .equ IM %00100000  ; Immediate Word
         .equ NC %00010000  ; Native (inline) Compile
-

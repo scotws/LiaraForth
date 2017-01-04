@@ -3,6 +3,7 @@
 Scot W. Stevenson <scot.stevenson@gmail.com>
 
 (THIS TEXT IS UNDER DEVELOPMENT AND MERELY A COLLECTION OF NOTES)
+(THE SETUP PART OF THIS TEXT IS CURRENTLY UNDERGOING MAJOR REVISIONS)
 
 ## Overview 
 
@@ -34,6 +35,8 @@ W65C265SXB](https://github.com/scotws/265SXB-Guide) for most of the steps here.
 265SXB](https://github.com/scotws/265SXB-Guide/blob/master/setup.md) in the
 Most Very Unofficial Guide)
 
+(We now use two terminal connections)
+
 Getting the 265SXB up and running requires the board itself, a USB cable, and a
 host computer. The board draws power via the USB connection, which is also used
 for the terminal. This gives you access to the built-in monitor program.
@@ -64,6 +67,15 @@ Attach the other end to your computer. This should make the power LED light up.
 
 This drops you into the Mensch Monitor, a simple basic operating system. 
 
+To set up **Putty** as the interface terminal:
+
+must be called with sudo
+/dev/ttyUSB1
+19200 8n1
+Backspace is ^H
+Function keys vt100+
+Implicit CR in every LF
+Autowrap on
 
 ### Uploading Liara Forth to RAM 
 

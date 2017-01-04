@@ -17,6 +17,7 @@ Last update: **03. January 2017**
 | 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
+| BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
 | COLD           | coded    | 265SXB        | -      | (TBA) |  (TBA) |
 | COUNT          | coded    | ANSI core     | PW, NC | 14    |  (TBA) |
