@@ -255,11 +255,11 @@ accept_loop
                 ; TODO rewrite with a KEY so we can revector it
                 jsr.l GET_CHR   ; blocks with Mensch Monitor
 
-                cmp.# AscLF     ; we quit on both line feed and carriage return
-                beq accept_eol
+                ; cmp.# AscLF     ; we quit on both line feed and carriage return
+                ; beq accept_eol
 
-                cmp.# AscCR
-                beq accept_eol
+                ; cmp.# AscCR
+                ; beq accept_eol
 
                 ; cmp.# AscBS     ; CTRL-h, BACKSPACE
                 ; beq accept_del
@@ -281,23 +281,6 @@ accept_eol
                 inx             
                 inx
         .a16
-
-                rts             ; this is the actual return 
-
-accept_del
-                cpy.# 0000      ; if we're at beginning of line, don't go back
-                beq +
-                dey
-@
-                ; TODO change these all to EMIT
-                lda.# AscBS     ; move cursor back
-                jsr.l PUT_CHR   
-                lda.# AscSP     ; overwrite current char
-                jsr.l PUT_CHR   
-                lda.# AscBS     ; move cursor back again
-                jsr.l PUT_CHR   
-
-                bra accept_loop
 
 z_accept        rts             ; dummy for compile
 
