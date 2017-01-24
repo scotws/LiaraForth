@@ -1,16 +1,17 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 02. Jan 2017
+This version: 24. Jan 2017
 
 
 TODO NEXT (next on top)
 
 - Code basic editing of command line in ACCEPT (CTRL-H, etc)
 - Code FIND-NAME and FIND for basic Dictionary search
+- Code EXECUTE to complete basic loop
+- Test on hardware as milestone
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
-- Milestone: Test on 265SXB
 - Write validation program for Dictionary in Forth or Python
 - Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design
 - Code EVALUATE to be able to add high-level words
@@ -26,6 +27,7 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
+- Milestone: Test on 265SXB after rewriting Tinkasms
 - Added WORDS to validate Dictionary structure (02. Jan 2016)
 - Code PARSE-NAME and PARSE for basic parsing (31. Dec 2016)
 - Code ACCEPT and REFILL (29. Dec 2016)

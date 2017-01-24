@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 04. Jan 2017
+; This version: 22. Jan 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -644,6 +644,7 @@ z_here          rts
 ; Given the Name Token (nt) of a word, return its Execute Token (xt)
 
 a_name>int      
+        .!xy16
 		; The xt of a word beginns four bytes down from its nt
 		iny
 		iny
@@ -658,6 +659,8 @@ z_name>int      rts
 ; that works with the Dictionary header entries. It is not checked if nt is
 ; a valid name token. 
 a_name>string   
+        .!a16
+        .!xy16
                 dex             ; move NOS down one
                 dex
 
@@ -680,8 +683,10 @@ z_name>string   rts
 ; -------------------------------------------------------------------
 ; NIP ( n m -- m ) 2 bytes / 4 cycles
 ; Delete entry that is NOS
-;
-a_nip           inx
+
+a_nip           
+        .!xy16
+                inx
                 inx
 z_nip           rts
 
@@ -693,6 +698,8 @@ z_nip           rts
 ; http://forth-standard.org/standard/core/PARSE-NAME has a Forth implementation
 
 a_parse-name    
+        .!a16
+        .!xy16
                 ; skip leading spaces, changing >IN, then place SPACE 
                 ; character on data stack for PARSE
                 phy
@@ -732,6 +739,7 @@ parse-name_empty_line
                 rts                     ; don't have to go through PARSE
 
 parse-name_found
+        .!xy16
         .a16
                 sty.d toin              ; new >IN
 
@@ -918,7 +926,9 @@ z_source        rts
 ; Since we don't have blocks (yet), this will give the input source: 0 is
 ; keyboard, -1 (0ffff) is character string, and a text file gives the fileid.
 
-a_source-id     dex
+a_source-id     
+        .!xy16
+                dex
                 dex
                 sty.dx 00
                 ldy.d insrc
@@ -944,7 +954,9 @@ z_space         rts
 ; directly by the user; see
 ; http://forth.sourceforge.net/standard/dpans/dpans6.htm#6.1.2250
 
-a_state         dex
+a_state         
+        .!xy16
+                dex
                 dex
                 sty.dx 00
                 ldy.# state
@@ -956,7 +968,10 @@ z_state         rts
 ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
 ; Exchange TOS with NOS, destroys Y
 
-a_swap          lda.dx 00
+a_swap          
+        .!a16
+        .!xy16
+                lda.dx 00
                 sty.dx 00
                 tay 
 
@@ -966,7 +981,10 @@ z_swap          rts
 ; TRUE ( -- f ) 7 bytes / 12 cycles
 ; Pushes value $FFFF for Forth true on Data Stack
 
-a_true          dex
+a_true          
+        .!a16
+        .!xy16
+                dex
                 dex
                 sty.dx 00 
                 ldy.# 0ffff
@@ -977,7 +995,10 @@ z_true          rts
 ; TUCK ( n m -- m n m ) 8 bytes / 19 cycles
 ; Insert TOS below NOS
 
-a_tuck          dex
+a_tuck          
+        .!a16
+        .!xy16
+                dex
                 dex
                 lda.dx 2
                 sta.dx 0
@@ -995,6 +1016,8 @@ z_tuck          rts
 ; running.
 
 a_type          
+        .!a16
+        .!xy16
                 ; just leave if u is zero (empty string)
                 tya             ; force flag check of TOS
                 beq type_done

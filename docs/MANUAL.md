@@ -31,28 +31,33 @@ W65C265SXB](https://github.com/scotws/265SXB-Guide) for most of the steps here.
 
 ### Accessing the 265SXB via a Terminal
 
-(Based on [Setting up the
-265SXB](https://github.com/scotws/265SXB-Guide/blob/master/setup.md) in the
-Most Very Unofficial Guide)
+We use two USB connections to work with LiaraForth: One for power and the
+initial upload, the other for the terminal connection. 
 
-(We now use two terminal connections)
-
-Getting the 265SXB up and running requires the board itself, a USB cable, and a
-host computer. The board draws power via the USB connection, which is also used
-for the terminal. This gives you access to the built-in monitor program.
 
 **For Linux (Ubuntu):**
 
+Currently, Liara Forth works best if you use two different terminal programs for
+the two different connections: `minicom` to upload the code as an S-record (S28,
+see below) and `putty` for the actual work. How to do this is described in
+[Setting up the
+265SXB](https://github.com/scotws/265SXB-Guide/blob/master/setup.md) in the Most
+Very Unofficial Guide for the moment - when Liara Forth is out of Alpha, this
+section here will be more detailed. 
+
+For **minicom** (upload and power):
+
 1. Attach a USB cable to the board at J6, the power jack in the bottom middle.
-Attach the other end to your computer. This should make the power LED light up.
+   Attach the other end to your computer. This should make the power LED light
+   up.
 
 2. To find out which USB port on the host computer we are using, run `dmesg |
-   grep tty` from the shell. In my case, the port is `/dev/ttyUSB0`.
+   grep tty` from the shell. The port will be something like `/dev/ttyUSB0`.
 
-3. We will use `minicom` as the terminal program. If not already present,
-   install it with `sudo apt-get install minicom` from a shell. To start the
-   terminal program, you will need to type `sudo minicom -s` (sudo because Linux
-   won't let normal people play with the USB ports like this).
+3. If not already present, install `minicom` with `sudo apt-get install minicom`
+   from a shell. To start the terminal program, you will need to type `sudo
+   minicom -s` (sudo because Linux won't let normal people play with the USB
+   ports like this).
 
 4. Configure the serial device as `/dev/ttyUSB0` and the Bps speed as `9600`.
    Under the entry "Screen and keyboard", enable the adding of line feeds and
@@ -61,21 +66,28 @@ Attach the other end to your computer. This should make the power LED light up.
 5. After configuration, you can call the 265sxb with `sudo minicom 265sxb`.
    Press the reset button on the 265sxb if you don't see anything at first.
 
-> The Mensch Monitor manual claims that you have to connect the terminal to a
-> second UART port. In fact, it works fine out of the box with the single
-> access at the bottom of the board.
-
 This drops you into the Mensch Monitor, a simple basic operating system. 
 
-To set up **Putty** as the interface terminal:
 
-must be called with sudo
-/dev/ttyUSB1
-19200 8n1
-Backspace is ^H
-Function keys vt100+
-Implicit CR in every LF
-Autowrap on
+To set up **putty** (interface) :
+
+1. Attach the second serial cable to UART 0 (see [the schematic and
+   photos](https://github.com/scotws/265SXB-Guide/blob/master/serial_lines.md)
+   in the 265SXB Guide). Use dmesg as above to figure out which USB port this is
+   connecte to (probably `/dev/ttyUSB1`). 
+
+2. If not already present, download with `sudo apt-get install putty`. Start it
+   from a second terminal with `sudo putty`. 
+
+3. Configure a Session as `Serial` and with the USB port as the serial line. Use
+   `19200` as the speed. Make sure we have `8n1`. Further settins are `Backspace
+   is ^H`, `Function keys vt100+`, `Implicit CR in every LF` and `Autowrap on`.
+   If you don't like the default font (and you probably won't), change it to
+   something more useful.
+
+4. Save the session as `Liara Forth`. Follow the instructions below to upload
+   the S-record file to the 265SXB and start the program. 
+
 
 ### Uploading Liara Forth to RAM 
 
@@ -101,7 +113,7 @@ ENTER. You should see an upload indicator.
 
 The Mensch Monitor will offer the prompt again. To start Liara Forth, type `g`,
 and then enter `00:6000` as the starting address. This will start your Forth
-session. 
+session on the second `putty` interface line. 
 
 
 ## Getting Started with Liara Forth
@@ -111,9 +123,11 @@ Liara Forth is based on the ANSI, but heavily influenced by
 Gforth without changes, or have a good reason not to. Words taken from Gforth
 are marked as such in the wordlist. 
 
+
 ### A Most Very Brief Introduction to Forth
 
 Forth is a command-line based language. 
+
 
 ### Command Line Basics
 
