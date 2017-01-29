@@ -6,9 +6,44 @@
 ; ===================================================================
 ; EMULATOR HOOKS
 ; Liara Forth only uses two hardware routines to make porting the code to
-; other systems easier: put_chr and get_chr. The system is currently set up 
-; to directly access the hardware. For emulators, uncomment the following lines
-; and comment out the routines below.
+; other systems easier: put_chr and get_chr. These addresses are set up for use
+; with the crude65816 emulator.
 
-        .equ get_chr 0e036  ; Get character: Returns ASCII in A8. Blocks.
-        .equ put_chr 0e04b  ; Put character: ASCII of character -> A8
+
+reset_hardware
+                nop
+                jmp start
+
+
+; ===================================================================
+; PUT_CHR
+put_chr         
+                php
+        .a8
+                sta 0df77
+        .a16
+                plp
+                rts
+
+; ===================================================================
+; GET_CHR
+get_chr         
+                php
+        .a8
+                lda 0df75
+        .a16
+                plp
+
+                rts  
+
+; ===================================================================
+; HAVE_CHR?
+; Check if the receive buffer contains any data and return C=1 if there is
+; some.
+; TODO CURRENTLY DOESN'T WORK WITH EMULATION
+
+have_chr?       
+                nop
+                rts
+
+; END

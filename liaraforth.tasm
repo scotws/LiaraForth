@@ -41,7 +41,8 @@ a_cold
 start           
 
         .native
-        .axy16
+        .a16
+        .xy16
                 sei
 
                 ; TODO switch to Single Task mode
@@ -86,7 +87,6 @@ start
 ; TODO see which parts of COLD we should integrate here
 
 a_abort         
-        .native         ; paranoid
         .a16    
                 ; clear Data Stack
                 ldy.# 0000
@@ -561,8 +561,12 @@ find-name_next_entry
                 bra find-name_loop
 
 find-name_chars
-                ; Yes, same length, so we compare characters. Switch A to 8 bit
-                ; for this 
+                ; Yes, same length, so we compare characters. Save a copy of the
+                ; dictionary link before things get messy
+                lda.d tmp1
+                sta.d tmp3
+
+                ; Switch A to 8 bit for this 
         .a8
                 ; Second quick test: Check first char, which is 8 bytes into the
                 ; header 
@@ -596,9 +600,6 @@ find-name_all_chars
                 ; a hole in the head because we just switched A to 8 bit.
                 ; However, staying with an 8-bit A is even slower.
         .a16
-                lda.d tmp1      ; save copy of Dictionary header (nt)
-                sta.d tmp3
-
                 lda.d tmp1      ; address of Dictionary string
                 clc
                 adc.# 0008 
@@ -616,7 +617,7 @@ find-name_all_chars
                 
 find-name_success
                 ; If we reach here, the strings are the same and we have a match
-                ; We can only get here with an 8 bit A
+                ; We get here with an 8 bit A
         .a16    
                 ldy.d tmp3      ; get the correct DP
                 bra find-name_done
