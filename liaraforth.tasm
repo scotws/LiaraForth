@@ -561,10 +561,7 @@ find-name_next_entry
                 bra find-name_loop
 
 find-name_chars
-                ; Yes, same length, so we compare characters. Save a copy of the
-                ; dictionary link before things get messy
-                lda.d tmp1
-                sta.d tmp3
+                ; Yes, same length, so we compare characters
 
                 ; Switch A to 8 bit for this 
         .a8
@@ -603,14 +600,14 @@ find-name_all_chars
                 lda.d tmp1      ; address of Dictionary string
                 clc
                 adc.# 0008 
-                sta.d tmp1
+                sta.d tmp3
         .a8
                 ldy.d tmptos    ; get length of strings as loop index
                 dey             ; first index is length minus 1
 
 @
                 lda.diy tmp2    ; LDA (TMP2),Y - last char of mystery string
-                cmp.diy tmp1    ; CMP (TMP1),Y - last char of DP string
+                cmp.diy tmp3    ; CMP (TMP1),Y - last char of DP string
                 bne find-name_char_nomatch_8
                 dey             ; start of string (Y=0) was already tested
                 bne -
@@ -619,7 +616,7 @@ find-name_success
                 ; If we reach here, the strings are the same and we have a match
                 ; We get here with an 8 bit A
         .a16    
-                ldy.d tmp3      ; get the correct DP
+                ldy.d tmp1      ; get the correct DP
                 bra find-name_done
 
 
@@ -1027,7 +1024,6 @@ z_tuck          rts
 ; multitasking and we probably don't want to PAUSE after every character.
 ; However, we'll make a final decision about that when multitasking is up and
 ; running.
-
 a_type          
         .!a16
         .!xy16
