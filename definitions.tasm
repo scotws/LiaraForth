@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 04. Jan 2017
+; This version: 29. Jan 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -52,7 +52,7 @@
         .equ dp      { directpage + &2 }  ; Dictionary Pointer, 2 bytes
         .equ tmpdsp  { directpage + &4 }  ; Temporary DSP (X) storage, 2 bytes
         .equ tmptos  { directpage + &6 }  ; Temporary TOS (Y) storage, 2 bytes
-        .equ ip      { directpage + &8 }  ; Instruction Pointer for EXECUTE
+;       .equ         { directpage + &8 }  ; UNUSED
         .equ insrc   { directpage + &10 } ; Input Source for SOURCE-ID
         .equ cib     { directpage + &12 } ; Current Input Buffer, 7c00 or 7d00
         .equ ciblen  { directpage + &14 } ; Length of current input buffer

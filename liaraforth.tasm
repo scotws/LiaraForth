@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 22. Jan 2017
+; This version: 29. Jan 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -100,7 +100,7 @@ a_quit          ; clear Return Stack
                 tcs
 
                 ; make sure Instruction Pointer is empty
-                stz.d ip
+                stz.d execute_ip
 
                 ; switch SOURCE-ID to zero (keyboard input)
                 stz.d insrc
@@ -144,7 +144,7 @@ quit_refill_successful
                 stz.d toin
  
                 ; TESTING TALI FORTH F_COMPEXE BEGINS HERE
-                jsr compile/execute
+                jsr compex
 
                 ; TODO testing
                 ; Display system prompt if all went well
@@ -248,7 +248,8 @@ z_2dup          rts
 ; -------------------------------------------------------------------
 ; ACCEPT ( addr n1 -- n2 ) X bytes / X cycles
 ; Receive a string of at most n1 characters, placing them at addr. Return the
-; actual number of characters as n2. Characters are echoed as they are received
+; actual number of characters as n2. Characters are echoed as they are received.
+; ACCEPT is normally called by REFILL these days. 
 
 a_accept        
                 ; Set up loop
@@ -313,7 +314,7 @@ accept_loop
                 ; That's enough, echo character (TODO change to EMIT) 
                 jsr put_chr   ; echo character
         .!a8
-                ; TODO multitasking: Add PAUSE here or in EMIT
+                ; TODO multitasking: Add PAUSE here (or in EMIT)
 
                 sta.diy cib     ; STA (CIB),Y
                 iny
@@ -345,7 +346,6 @@ accept_bs
                 jsr put_chr
 
                 bra accept_loop
-
 
 z_accept        rts
 
@@ -414,7 +414,10 @@ z_comma         rts
 ; length (16 bit). This is rarely used these days, though COUNT can also be used
 ; to step through a string character by character. 
 
-a_count         tya
+a_count         
+        .!a16
+        .!xy16
+                tya
                 inc.a           ; String address starts one char later
                 dex
                 dex
@@ -433,6 +436,7 @@ z_count         rts
 ; Cause following output to appear at beginning of next line
 
 a_cr            
+        .a8
                 lda.# AscLF     ; test with AscCR for emulators
                 jsr put_chr
         .a16
@@ -469,11 +473,14 @@ z_dup           rts
 ; EXECUTE ( xt -- ) X bytes / X cycles
 ; Run a word with help of its xt on the TOS
 
+; Reserve three bytes for the jump - three in case we want to expand to the full
+; range
+execute_ip      .byte 00, 00, 00    
+
 a_execute       
         .!xy16
-		; Store the address we're calling 
-		sty ip
-
+		; Store the xt for later use and then drop it off the stack
+		sty execute_ip
                 ldy.dx 00
                 inx
                 inx
@@ -484,9 +491,7 @@ a_execute
         .!a16
                 lda.# execute_done
                 pha
-
-                jmp.i ip                ; JMP (IP)
-              
+                jmp.i execute_ip        ; JMP (EXECUTE_IP)
   
 execute_done    ; keep the NOP here as the landing site for the indirect 
                 ; subroutine jump (easier and quicker than adjusting the
@@ -509,7 +514,6 @@ z_execute       rts
 ; of a word like FIND. To convert, use NAME>INT. This is a Gforth word. See
 ; https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Name-token.html 
 ; FIND calls this word for the hard word
-
 a_find-name     
                 ; We abort when we get an empty string, that is, one with
                 ; a length of zero TOS. We could test for this, but it will
@@ -519,40 +523,63 @@ a_find-name
                 ; would be 3 bytes and 4 to 6 cycles longer: 
                 ;       tya                     ; force flag check
                 ;       beq find-name_failure
-
+        .!a16
+        .!xy16
                 ; set up loop for the first time
-                sty.d tmp1      ; length of mystery string in tmp1, Y now free
-                ldy.dx 00 
-                sty.d tmp2      ; address of mystery string in tmp2, was NOS
+                sty.d tmptos    ; length of mystery string in tmptos, Y now free
                 ldy.d dp
-                sty.d tmp3      ; nt of first Dictionary word is in tmp3
-        .a8
+                sty.d tmp1      ; nt of first Dictionary word 
+                ldy.dx 00 
+                sty.d tmp2      ; address of mystery string, was NOS
 
 find-name_loop
                 ; First quick test: Are strings the same length?
-                lda.di tmp3     ; LSB byte in first header word is length
-                cmp.d tmp1      ; we test LSB
-                bne find-name_next_word
+                lda.di tmp1     ; LSB in first header word is length
+                and.# 00ff      
+                cmp.d tmptos    ; we test LSB
+                ; Most of the time, it will not be the same, so we save one
+                ; cycle pro loop if we only take the branch when they are the
+                ; same
+                beq find-name_chars
 
-                ; Strings are same length, so second quick test: Is the first
-                ; char the same?
-                ldy.# 0008      ; name string starts eight bytes from top
-                lda.diy tmp3    ; LDA (TMP3),Y
-                cmp.di tmp2     ; CMP (TMP2)
-                bne find-name_next_word
+find-name_next_entry
+                ; next header address is two bytes down
+                inc.d tmp1
+                inc.d tmp1
+                lda.di tmp1     ; LDA (TMP1) 
 
-                ; Save original address of Dictionary entry
-                ldy.d tmp3      
-                phy
+                ; a zero entry marks the end of the Dictionary
+                beq find-name_failure_16
 
+                sta.d tmp1      ; new header 
+                bra find-name_loop
+
+find-name_chars
+                ; Yes, same length, so we compare characters. Switch A to 8 bit
+                ; for this 
+        .a8
+                ; Second quick test: Check first char, which is 8 bytes in the
+                ; header 
+                ldy.# 0008
+                lda.diy tmp1    ; LDA (TMP1),Y - first char of entry
+                cmp.di tmp2     ; CMP (TMP2) - first char of mystery string
+                beq find-name_all_chars
+
+                ; First char is not the same, next entry
+find-name_char_nomatch_8
+        .a16
+                bra find-name_next_entry
+
+find-name_all_chars
+        .!a8
                 ; String length is the same, and the first character is the
                 ; same. If the word is only one character long, we're done
-                lda.d tmp1      ; put a copy of length into TOS just in case
-                dec.a           ; faster and shorter than CMP.# 01
+                ldy.d tmptos
+                dey             ; faster and shorter than CPY.# 01
                 beq find-name_success
                 
                 ; No such luck: The strings are the same length and the first
-                ; char is the same, but the word is more than one char long, so
+                ; char is the same, but the word is more than one char long. So
                 ; we suck it up and compare every single character. We go from
                 ; back to front, because words like CELLS and CELL+ would take
                 ; longer otherwise. We can also shorten the loop by one because
@@ -560,68 +587,44 @@ find-name_loop
 
                 ; Even worse, we have to add 8 bytes to address of Dictionary
                 ; string to allow testing with one loop. We need this like
-                ; a hole in the head because we just switched A to 8 bit, and
-                ; switching back for the sum uses 12 bytes and 18 cycles.
-                ; However, staying with an 8-bit A would use 13 bytes and 18
-                ; cycles.
-                ;       lda.d tmp3              ; LSB
-                ;       clc
-                ;       adc.# 08
-                ;       sta.d tmp3      
-                ;       lda.d { tmp3 + 1 }      ; MSB
-                ;       adc.# 00                ; we only need the carry
-                ;       sta.d { tmp3 + 1 }
-                ; Any which way, this is frustrating. 
+                ; a hole in the head because we just switched A to 8 bit.
+                ; However, staying with an 8-bit A is even slower.
         .a16
-                lda.d tmp3
+                lda.d tmp1      ; save copy of Dictionary header (nt)
+                sta.d tmp3
+
+                lda.d tmp1      ; address of Dictionary string
                 clc
                 adc.# 0008 
-                sta.d tmp3
-
-                lda.d tmp1      ; get length of strings as loop index
-                and.# 00ff      ; paranoid
-                dec.a           ; first index is length minus 1
-                tay             
+                sta.d tmp1
         .a8
+                ldy.d tmptos    ; get length of strings as loop index
+                dey             ; first index is length minus 1
 
-find-name_char_loop
-                lda.diy tmp2    ; LDA (TMP2),Y last char of mystery string
-                cmp.diy tmp3    ; CMP (TMP3),Y last char of word string
-                bne find-name_char_mismatch
+@
+                lda.diy tmp2    ; LDA (TMP2),Y - last char of mystery string
+                cmp.diy tmp1    ; CMP (TMP1),Y - last char of DP string
+                bne find-name_char_nomatch_8
                 dey             ; start of string (Y=0) was already tested
-                bne find-name_char_loop
+                bne -
                 
-                ; if we reach here, the strings are the same and we have a match
 find-name_success
-                ply             ; header address (nt) of the found word in TOS
-                inx             ; drop the address from NOS (this is NIP) 
-                inx
+                ; If we reach here, the strings are the same and we have a match
+                ; We can only get here with an 8 bit A
+        .a16    
+                ldy.d tmp3      ; get the correct DP
                 bra find-name_done
 
-find-name_char_mismatch
-                ply             ; original address of dictionary word
-                sty.d tmp3      ; put it back in tmp3, fall thru 
 
-find-name_next_word
-                ; the address of the next word is two bytes below the current
-                ; nt, which we have saved in tmp3. There is no LDY (TMP3), so we
-                ; have to do this the hard way
-                inc.d tmp3
-                inc.d tmp3
-        .a16
-                lda.di tmp3
-                beq find-name_failure   ; zero nt marks end of Dictionary
-                sta.d tmp3
-        .a8
-                bra find-name_loop
+find-name_failure_16
+                ; Word not found in Dictionary, return zero. Assumes A is 16
+                ; bit
+                ldy.# 0000      ; fall thru 
 
-find-name_failure
-                inx
-                inx
-                ldy.# 0000      ; return zero, fall thru 
-                
 find-name_done
-                .a16
+                inx             ; drop old address (NIP)
+                inx
+
 z_find-name     rts
 
 
@@ -630,6 +633,7 @@ z_find-name     rts
 ; Push Compiler Pointer address on the Data Stack
 
 a_here          
+        .!a16           ; paranoid
         .!xy16
                 dex
                 dex
@@ -644,12 +648,15 @@ z_here          rts
 ; Given the Name Token (nt) of a word, return its Execute Token (xt)
 
 a_name>int      
+        .!a16
         .!xy16
 		; The xt of a word beginns four bytes down from its nt
 		iny
 		iny
 		iny
 		iny
+                lda.y 0000
+                tay
                 
 z_name>int      rts
 
@@ -696,13 +703,12 @@ z_nip           rts
 ; form of PARSE and drops through to that word. See PARSE for more detail. We
 ; use this word internally for the interpreter because it is a lot easier to use
 ; http://forth-standard.org/standard/core/PARSE-NAME has a Forth implementation
-
 a_parse-name    
         .!a16
         .!xy16
                 ; skip leading spaces, changing >IN, then place SPACE 
                 ; character on data stack for PARSE
-                phy
+                phy                     ; save TOS for later use
                 ldy.d toin              ; >IN 
         .a8
 parse-name_loop
@@ -743,15 +749,15 @@ parse-name_found
         .a16
                 sty.d toin              ; new >IN
 
+                ply                     ; recover TOS
                 dex
                 dex
-                ply
                 sty.d 00
 
-                ldy.# AscSP             ; put space in TOS for PARSE
+                ldy.# AscSP             ; put space on TOS for PARSE
 
                 ; fall thru to PARSE
-
+                
 ; -------------------------------------------------------------------
 ; PARSE ( c "name" -- addr u ) 45 bytes / X+ cycles
 ; Find word in input string delimited by character given Do not skip leading
@@ -771,24 +777,24 @@ parse-name_found
 ; (CIB), the length of which is in CIBLEN. While searching for the delimiter,
 ; TOIN (>IN) points to the where we currently are. Since PARSE does not skip
 ; leading delimiters, we assume we are on a useful string.
-
 a_parse         
                 sty.d tmp1      ; save delimiter, char is LSB
 
                 ; save beginning of new word (cib+toin) to NOS. Don't need to
-                ; worry about TOS because Y gets clobbered anyway
-                dex
-                dex
-                
+                ; worry about TOS because Y gets clobbered anyway before we
+                ; return
                 lda.d toin
                 sta.d tmp3      ; save >IN for later length calculation
                 clc
                 adc.d cib
-                sta.dx 00       
+
+                dex
+                dex
+                sta.dx 00
 
                 stz.d tmp2      ; offset for EOL/char found adjustment of >IN
 
-                ; prepare loop
+                ; prepare loop using Y as index
                 ldy.d toin
         .a8
 
@@ -807,6 +813,7 @@ parse_found_delimiter
                 ; a delimiter, we want >IN to point to the next character after
                 ; the delimiter, not the delimiter itself. This is what the
                 ; offset is for
+        .a16
                 inc.d tmp2      
 
 parse_reached_eol       
@@ -824,7 +831,6 @@ parse_reached_eol
                 sta.d toin
 
                 ply             ; length of string in TOS
-
 z_parse-name
 z_parse         rts
 
@@ -840,6 +846,8 @@ z_parse         rts
 ; See https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Input-Stream.html
 ; and Conklin & Rather p. 156
 a_refill        
+        .!a16
+        .!xy16
                 ; We handle buffer switches here so that regardless of input
                 ; source, we have access to the previous input. This is not in
                 ; the ANSI specification in any way.
@@ -847,14 +855,14 @@ a_refill
                 eor.# 0100      ; flip 07d00 / 07c00
                 sta.d cib
                 
-                lda.d ciblen
+                lda.d ciblen    ; current length is now previous length
                 sta.d piblen
 
                 ; Get input source from SOURCE-ID. We don't have blocks in this
                 ; version, or else we would have to check BLK first. This is an
                 ; optimized version of a subroutine jump to SOURCE-ID
                 lda.d insrc
-                bne refill_source_is_not_keyboard
+                bne refill_src_not_kbd
 
                 ; SOURCE-ID of zero means we're getting stuff from the keyboard
                 ; with ACCEPT. 
@@ -866,21 +874,20 @@ a_refill
 
                 lda.# buffersize        ; 256 chars, ANSI demands at least 80 as NOS
                 sta.dx 00
-
                 ldy.d cib               ; address of current input buffer TOS 
 
                 jsr a_accept
 
+        .!a16                           ; paranoid
                 ; Add success flag TRUE
                 dex
                 dex
                 sty.dx 00
                 ldy.# 0ffff
 
-                ; TESTING
                 rts
 
-refill_source_is_not_keyboard
+refill_src_not_kbd
                 ; If SOURCE-ID doesn't return a zero, it must be a string in
                 ; memory or a file (remember, no blocks in this version)
                 cmp.# 0ffff
@@ -1105,7 +1112,7 @@ z_words         rts
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
 ; string is in ciblen
-compile/execute
+compex
 compex_loop 
                 ; Normally we would use PARSE here with the SPACE character as
                 ; a parameter (PARSE replaces WORD in modern Forths). However,
@@ -1114,46 +1121,44 @@ compex_loop
                 ; PARSE does not do.
                 jsr a_parse-name        ; ( addr u ) 
         .!a16
-
                 ; if PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
                 tya             ; force flag check
                 beq compex_line_done
                 
                 ; We let the user input words in any case, but use lower case
-                ; internally. Sorry, Garth.
+                ; internally (sorry, Garth).
                 jsr string_to_uppercase         ; returns ( addr u )
 
                 ; If we got something that is not a zero, we go to FIND-NAME to
                 ; get the nt. Returns ( nt | 0 ) 
                 jsr a_find-name
         .!a16
-
                 ; a zero signals that we didn't find a word in the Dictionary
                 tya             ; force flag check of TOS
                 bne compex_got_name_token
 
-                ; TODO Attempt NUMBER CONVERSION
+                ; TODO No name token, try NUMBER CONVERSION
                 
+                ; Woe is us, all has failed
                 lda.# es_syntax         ; "Unknown word"
                 jmp error
 
 compex_got_name_token
-
                 ; TODO see if INTERPRETED OR COMPILED
                 
-                ; the xt of a word is four bytes below its nt. This is a quick
-                ; version of NAME>INT
+                ; INTERPRET WORD
+                ; We arrive here with the nt as TOS (in Y). The xt of a word is
+                ; four bytes farther on, so this is a quick version of NAME>INT
+
         .!xy16
                 iny
                 iny
                 iny
-                iny                     ; ( -- xt )
+                iny                    
+                lda.y 0000
+                tay
                 
-
-                ; TODO Decide between INTERPRET or COMPILE 
-                
-                ; TESTING for now we just execute all the things
                 jsr a_execute
 
                 ; that's quite enough for this word, let's get the next one
