@@ -1,7 +1,7 @@
-; Basic hardware routines for Liara Forth
+; Basic hardware routines for Liara Forth: 265SXB version
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 04. Jan 2017
-; This version: 04. Jan 2017
+; This version: 29. Jan 2017
 
 ; This section provides basic hardware interface to the 265SXB, providing the
 ; PUT_CHR and GET_CHR routines that Liara Forth uses. It is in its own section
@@ -20,17 +20,6 @@
 
 ; Original variable names from w65c256.inc are included in comments to make
 ; updates and changes easier
-
-; ===================================================================
-; EMULATOR HOOKS
-; Liara Forth only uses two hardware routines to make porting the code to
-; other systems easier: put_chr and get_chr. The system is currently set up 
-; to directly access the hardware. For emulators, uncomment the following lines
-; and comment out the routines below.
-
-;       .equ get_chr 0e036  ; Get character: Returns ASCII in A8. Blocks.
-;       .equ put_chr 0e04b  ; Put character: ASCII of character -> A8
-
 
 ; ===================================================================
 ; HARDWARE DEFINITIONS
@@ -110,7 +99,6 @@
 ; ===================================================================
 ; RESET HARDWARE
 ; Call this during boot. Uses Port 0 for communication in the default setting
-
 reset_hardware  
                 sei
         .native
@@ -143,9 +131,8 @@ reset_hardware
 ; ===================================================================
 ; PUT_CHR
 ; Wait until the last transmission has been completed then send the character
-; in A.
+; in A. Destroys A. 
 put_chr         
-                pha             ; save the character
                 php             ; save register sizes
         .a8
                 pha
@@ -157,7 +144,6 @@ put_chr_wait    bit hw_uifr     ; timer finished?
                 pla
                 sta hw_artd0    ; transmit char
                 plp
-                pla             ; restore A register content
 
                 rts
 

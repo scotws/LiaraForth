@@ -1,0 +1,14 @@
+; Basic hardware routines for Liara Forth: Emulator Version
+; Scot W. Stevenson <scot.stevenson@gmail.com>
+; First version: 04. Jan 2017
+; This version: 29. Jan 2017
+
+; ===================================================================
+; EMULATOR HOOKS
+; Liara Forth only uses two hardware routines to make porting the code to
+; other systems easier: put_chr and get_chr. The system is currently set up 
+; to directly access the hardware. For emulators, uncomment the following lines
+; and comment out the routines below.
+
+        .equ get_chr 0e036  ; Get character: Returns ASCII in A8. Blocks.
+        .equ put_chr 0e04b  ; Put character: ASCII of character -> A8

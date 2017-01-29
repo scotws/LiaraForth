@@ -14,7 +14,13 @@
 ; TOP INCLUDES
 
         .include definitions.tasm
-        .include kernel.tasm
+
+; Hardware dependencies are isolated to a large degree in kernel files. Liara
+; Forth ships with two such files: One for the crude65816 emulator, and one for
+; the 265sxb board. Only use one.
+
+;       .include kernel_emu.tasm        ; routines for crude65815 emulator
+        .include kernel_265sxb.tasm
 
 
 ; ===================================================================
@@ -107,10 +113,6 @@ a_quit          ; clear Return Stack
                 
                 ; switch to interpret state (STATE is zero)
                 stz.d state
- 
-                ; TEST TODO REMOVE ONCE WE HAVE FIND-NAME ETC WORKING
-                jsr a_words
-                jsr a_cr
                
 quit_get_line
                 ; empty current input buffer. Note the previous input line is
@@ -355,9 +357,10 @@ z_accept        rts
 ; Trigger terminal bell
 
 a_bell          
+	.!a16
 		lda.# AscBELL 
 		jsr put_chr
-	.!a16
+
 z_bell          rts
 
 
@@ -365,7 +368,10 @@ z_bell          rts
 ; BL ( -- u ) 7 bytes / 12 cycles
 ; Put ASCII char for SPACE on Data Stack
 
-a_bl            dex
+a_bl            
+        .!xy16
+        .!a16
+                dex
                 dex
                 sty.dx 00
                 ldy.# AscSP
@@ -558,15 +564,15 @@ find-name_chars
                 ; Yes, same length, so we compare characters. Switch A to 8 bit
                 ; for this 
         .a8
-                ; Second quick test: Check first char, which is 8 bytes in the
+                ; Second quick test: Check first char, which is 8 bytes into the
                 ; header 
                 ldy.# 0008
                 lda.diy tmp1    ; LDA (TMP1),Y - first char of entry
                 cmp.di tmp2     ; CMP (TMP2) - first char of mystery string
                 beq find-name_all_chars
-
-                ; First char is not the same, next entry
+                
 find-name_char_nomatch_8
+                ; First char is not the same, next entry
         .a16
                 bra find-name_next_entry
 
@@ -831,6 +837,7 @@ parse_reached_eol
                 sta.d toin
 
                 ply             ; length of string in TOS
+
 z_parse-name
 z_parse         rts
 
@@ -944,13 +951,11 @@ z_source-id     rts
 
 ; -------------------------------------------------------------------
 ; SPACE ( -- ) X bytes / X cycles
-; Print one ASCII space character
+; Print one ASCII space character; change to EMIT
 
 a_space         
-        .a8     
                 lda.# AscSP
                 jsr put_chr
-        .a16
 
 z_space         rts
 
