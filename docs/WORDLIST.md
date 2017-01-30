@@ -3,7 +3,7 @@
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. 
 
-Last update: *04. January 2017*
+Last update: *30. January 2017*
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
@@ -16,6 +16,7 @@ Last update: *04. January 2017*
 | 2 (TWO)        | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
+| ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
 | BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
 | BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
@@ -27,7 +28,7 @@ Last update: *04. January 2017*
 | DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |
 | EXECUTE        | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
-| FIND-NAME      | coded    | Gforth        | PW, NC | 91    |    n/a |
+| FIND-NAME      | coded    | Gforth        | PW, NC | (TBA) |    n/a |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
 | NAME>INT       | coded    | Gforth        | PW, NC | 4     |      8 |
 | NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
@@ -36,9 +37,11 @@ Last update: *04. January 2017*
 | PARSE-NAME     | coded    | ANSI core ext | -      | 41+   |    n/a |
 | QUIT           | fragment | ANSI core     | -      | (TBA) |    n/a |
 | REFILL         | fragment | ANSI core ext | PW     | (TBA) |  (TBA) |
+| ROT            | coded    | ANSI core     | PW, NC | 8     |  (TBA) |
 | SOURCE         | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | SOURCE-ID      | coded    | ANSI core ext | PW, NC | 6     |     13 |
 | SPACE          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| SPACES         | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | STATE          | coded    | ANSI core     | PW, NC | 7     |     12 |
 | SWAP           | coded    | ANSI core     | PW, NC | 5     |     12 |
 | TRUE           | coded    | ANSI core ext | PW, NC | 7     |     12 |

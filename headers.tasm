@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 04. Jan 2017
+; This version: 30. Jan 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -92,8 +92,12 @@ h_bl    .byte 2, { PW + NC }
         .word h_cr, a_bl, z_bl
         .byte "bl"
 
+h_spaces .byte 6, { PW + NC }
+        .word h_bl, a_spaces, z_spaces
+        .byte "spaces"
+
 h_space .byte 5, { PW + NC }
-        .word h_bl, a_space, z_space
+        .word h_spaces, a_space, z_space
         .byte "space"
 
 h_type  .byte 4, 0
@@ -108,8 +112,12 @@ h_2dup  .byte 4, { PW + NC }
         .word h_name>string, a_2dup, z_2dup
         .byte "2dup"
 
+h_abs   .byte 3, { PW + NC }
+        .word h_2dup, a_abs, z_abs
+        .byte "abs"
+
 h_state .byte 5, { PW + NC }
-        .word h_2dup, a_state, z_state
+        .word h_abs, a_state, z_state
         .byte "state"
 
 h_to-in .byte 3, { PW + NC }
@@ -180,8 +188,12 @@ h_nip   .byte 3, { PW + NC }
         .word h_tuck, a_nip, z_nip
         .byte "nip"
 
+h_rot   .byte 3, { PW + NC }
+        .word h_nip, a_rot, z_rot
+        .byte "rot"
+
 h_execute .byte 7, { PW + NC }
-        .word h_nip, a_execute, z_execute
+        .word h_rot, a_execute, z_execute
         .byte "execute"
 
 h_here  .byte 4, { PW + NC }

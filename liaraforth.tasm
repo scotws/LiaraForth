@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 29. Jan 2017
+; This version: 30. Jan 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -20,7 +20,7 @@
 ; the 265sxb board. Only use one.
 
 ;       .include kernel_emu.tasm        ; routines for crude65815 emulator
-        .include kernel_265sxb.tasm
+        .include kernel_265sxb.tasm     ; routines for the W65C265SXB
 
 
 ; ===================================================================
@@ -237,6 +237,7 @@ z_two           rts
 ; Duplicated the top two data stack entries
 
 a_2dup          
+        .!xy16
                 dex
                 dex
                 dex
@@ -246,6 +247,26 @@ a_2dup
                 sta.dx 00
 
 z_2dup          rts
+
+
+; -------------------------------------------------------------------
+; ABS ( n -- u ) 12 bytes / X cycles
+; Return the absolute value of a single number
+a_abs           
+        .!a16
+        .!xy16
+                tya             ; force flag test
+                bpl z_abs       ; positive number is easy
+
+                ; negative: Calculate 0-n
+                sty.d tmp1
+                lda.# 0000
+
+                sec
+                sbc.d tmp1
+                tay
+                
+z_abs           rts
 
 ; -------------------------------------------------------------------
 ; ACCEPT ( addr n1 -- n2 ) X bytes / X cycles
@@ -914,6 +935,22 @@ refill_source_is_not_string
 
 z_refill        rts     ; dummy for compiling
 
+
+; -------------------------------------------------------------------
+; ROT ( a b c -- b c a ) X bytes / X cycles
+; Rotate the top three entries downwards (third entry becomes first)
+; Remember this with the "R" for "revolution": The bottom entry becomes the top.
+a_rot           
+        .!a16
+        .!xy16
+                lda.dx 00       ; save b
+                sty.dx 00       ; move c to NOS
+                ldy.dx 02       ; move a to TOS
+                sta.dx 02       ; save b as 3OS
+                
+z_rot           rts
+
+
 ; -------------------------------------------------------------------
 ; SOURCE ( -- addr u ) 12 bytes / X cycles
 ; Return the address and size of current input buffer. Replaces TIB and #TIB in
@@ -949,13 +986,35 @@ z_source-id     rts
 
 ; -------------------------------------------------------------------
 ; SPACE ( -- ) X bytes / X cycles
-; Print one ASCII space character; change to EMIT
-
+; Print one ASCII space character  
+; TODO change to call EMIT
 a_space         
                 lda.# AscSP
                 jsr put_chr
+        .!a16
 
 z_space         rts
+
+
+; -------------------------------------------------------------------
+; SPACES ( u -- ) 12 bytes / X cycles
+; Print u spaces. Calls SPACE
+a_spaces        
+        .!a16
+        .!xy16
+@
+                dey             ; this handles case u=0
+                bmi spaces_done
+                jsr a_space
+                bra - 
+
+spaces_done
+                ldy.dx 00       ; DROP
+                inx
+                inx
+
+z_spaces        rts
+
 
 ; -------------------------------------------------------------------
 ; STATE ( -- addr ) 7 bytes / 12 cycles
@@ -963,7 +1022,6 @@ z_space         rts
 ; is true when in compilation state, false otherwise. STATE should be changed
 ; directly by the user; see
 ; http://forth.sourceforge.net/standard/dpans/dpans6.htm#6.1.2250
-
 a_state         
         .!xy16
                 dex
@@ -1059,7 +1117,6 @@ z_type          rts
 ; -------------------------------------------------------------------
 ; WORDS ( -- ) X bytes / X cycles
 ; Print list of all Forth words available
-;
 a_words         
                 lda.d dp        ; nt first entry in Dictionary (last added)
                 pha
@@ -1067,6 +1124,8 @@ a_words
                 dex
                 dex
                 sty.dx 00 
+
+                jsr a_cr
 
 words_loop
                 tay
@@ -1137,7 +1196,7 @@ compex_loop
                 jsr a_find-name
         .!a16
                 ; a zero signals that we didn't find a word in the Dictionary
-                tya             ; force flag check of TOS
+                tya             ; force flag check
                 bne compex_got_name_token
 
                 ; TODO No name token, try NUMBER CONVERSION
@@ -1150,7 +1209,7 @@ compex_got_name_token
                 ; TODO see if INTERPRETED OR COMPILED
                 
                 ; INTERPRET WORD
-                ; We arrive here with the nt as TOS (in Y). The xt of a word is
+                ; We arrive here with the nt as TOS. The xt of a word is
                 ; four bytes farther on, so this is a quick version of NAME>INT
 
         .!xy16
@@ -1189,7 +1248,6 @@ error
 ; destroyed. We could probably figure out some way to use TYPE instead, but zero
 ; terminated strings are easier for the 65816 to use.
 ; TODO add version without final line feed
-
 print_string     
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
