@@ -38,7 +38,7 @@ es_radix    .byte "Digit larger than base", 0
 es_refill1  .byte "QUIT could not get input (REFILL returned -1)", 0
 es_refill2  .byte "Illegal SOURCE-ID during REFILL", 0
 es_stack    .byte "Stack over- or underflow", 0
-es_syntax   .byte "Unknown word", 0
+es_syntax   .byte " Undefined word", 0
 
 ; ===================================================================
 ; TESTING STRINGS

@@ -148,10 +148,19 @@ quit_refill_successful
                 ; TESTING TALI FORTH F_COMPEXE BEGINS HERE
                 jsr compex
 
-                ; TODO testing
                 ; Display system prompt if all went well
                 lda.# s_ok
                 jsr print_string
+
+                ; TESTING SHOW WHAT IS TOS
+                tya
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                tya
+                and.# 00ff
+                jsr byte_to_ascii
+                jsr a_cr
 
                 ; get next line
                 jmp quit_get_line
@@ -273,7 +282,6 @@ z_abs           rts
 ; Receive a string of at most n1 characters, placing them at addr. Return the
 ; actual number of characters as n2. Characters are echoed as they are received.
 ; ACCEPT is normally called by REFILL these days. 
-
 a_accept        
                 ; Set up loop
                 lda.dx 00       ; max number of chars to accept is NOS
@@ -353,7 +361,7 @@ accept_eol
 
 accept_bs
         .!a8
-                cpy.# 00        ; buffer empty?
+                cpy.# 0000      ; buffer empty?
                 bne +
 
                 lda.# AscBELL   ; complain and don't delete beyond the start of line
@@ -463,10 +471,9 @@ z_count         rts
 ; Cause following output to appear at beginning of next line
 
 a_cr            
-        .a8
                 lda.# AscLF     ; test with AscCR for emulators
                 jsr put_chr
-        .a16
+        .!a16
 
 z_cr            rts
 
@@ -898,17 +905,14 @@ a_refill
                 dex
                 sty.dx 02
 
-                lda.# buffersize        ; 256 chars, ANSI demands at least 80 as NOS
+                lda.d cib               ; address of current input buffer TOS 
                 sta.dx 00
-                ldy.d cib               ; address of current input buffer TOS 
+                ldy.# buffersize 
 
-                jsr a_accept
+                jsr a_accept            ; ( addr n1 -- n2)
 
-        .!a16                           ; paranoid
-                ; Add success flag TRUE
-                dex
-                dex
-                sty.dx 00
+                ; ACCEPT returns the number of characters accepted, but we don't
+                ; need that. We just overwrite TOS this with the flag
                 ldy.# 0ffff
 
                 rts
@@ -924,6 +928,7 @@ refill_src_not_kbd
                 dex
                 sty.dx 00
                 ldy.# 0000
+
                 rts
 
 refill_source_is_not_string
@@ -1118,17 +1123,17 @@ z_type          rts
 ; WORDS ( -- ) X bytes / X cycles
 ; Print list of all Forth words available
 a_words         
-                lda.d dp        ; nt first entry in Dictionary (last added)
+                lda.d dp        ; nt of first entry in Dictionary (last added)
                 pha
 
                 dex
                 dex
                 sty.dx 00 
 
-                jsr a_cr
+                jsr a_cr        ; start on next line, this is a style choice
 
 words_loop
-                tay
+                tay                     ; ( nt )
 
                 jsr a_name>string       ; ( nt -- addr u ) 
                 jsr a_type              ; ( addr u -- ) 
@@ -1150,10 +1155,14 @@ words_loop
                 tay
                 lda.y 0000              ; LDA $0000,Y
                 pha
-                bne words_loop
+                bne words_loop          ; zero entry signals end of Dictionary
 
+                ; all done, clean up
                 pla
 
+                ldy.dx 00
+                inx
+                inx
 
 z_words         rts
 
@@ -1249,6 +1258,8 @@ error
 ; terminated strings are easier for the 65816 to use.
 ; TODO add version without final line feed
 print_string     
+        .!a16
+        .!xy16
                 ; don't use tmpdsp for X because we don't know if the user has
                 ; used it for something already
                 phx
@@ -1273,7 +1284,7 @@ print_string_done
 ; Convert byte in A to two ASCII hex digits and print them. Calls 
 ; nibble_to_ascii. Assumes A is 8 bit. 
 byte_to_ascii
-       .!a8
+                and.# 00ff
                 pha
                 ; convert high nibble first 
                 lsr.a
@@ -1293,15 +1304,14 @@ byte_to_ascii
 ; Converts the lower nibble of a number in A and returns the ASCII character
 ; number, then prints it. Assumes A is 8 bit
 nibble_to_ascii
-       .!a8
-                and.# 0f
+                and.# 000f
                 ora.# '0'
-                cmp.# 3a       ; '9' + 1
+                cmp.# 003a       ; '9' + 1
                 bcc +
-                adc.# 06
+                adc.# 0006
 @
                 jsr put_chr
-      
+        .!a16
                 rts
 
 ; ------------------------------------------------------------------- 

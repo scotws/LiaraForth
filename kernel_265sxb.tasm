@@ -131,7 +131,7 @@ reset_hardware
 ; ===================================================================
 ; PUT_CHR
 ; Wait until the last transmission has been completed then send the character
-; in A. Destroys A. 
+; in A. Destroys A. Does not have to be called with A8.
 put_chr         
                 php             ; save register sizes
         .a8
