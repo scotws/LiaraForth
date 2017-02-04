@@ -3,10 +3,12 @@
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. 
 
-Last update: *30. January 2017*
+Last update: *03. February 2017*
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
+| . (DOT)        | fragment | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| .S             | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | , (COMMA)      | coded    | ANSI core     | PW, NC | 11    |     29 |
 | + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | >IN (TO-IN)    | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
@@ -24,6 +26,7 @@ Last update: *30. January 2017*
 | COLD           | coded    | 265SXB        | -      | (TBA) |  (TBA) |
 | COUNT          | coded    | ANSI core     | PW, NC | 14    |  (TBA) |
 | CR             | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| DEPTH          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
 | DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |
 | EXECUTE        | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |

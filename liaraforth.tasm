@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 30. Jan 2017
+; This version: 03. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -92,6 +92,7 @@ a_abort
                 ldy.# 0000
                 ldx.# dsp0
 
+
 ; drops through to QUIT, z_abort is the same as z_quit.
 
 ; -------------------------------------------------------------------
@@ -120,14 +121,14 @@ quit_get_line
                 stz.d ciblen
                
                 ; accept a line from the current input source
-                jsr a_refill
+                jsr a_refill            ; ( -- f ) 
                 
                 tya                     ; force flag test of TOS
                 bne quit_refill_successful
 
                 ; If REFILL returned a FALSE flag, something went wrong and we
                 ; need to print an error message and reset the machine. We don't
-                ; need to save A because we're going to clober it anyway when we
+                ; need to save A because we're going to clobber it anyway when we
                 ; go back to ABORT.
                 lda.# es_refill1 
                 jmp error 
@@ -148,19 +149,12 @@ quit_refill_successful
                 ; TESTING TALI FORTH F_COMPEXE BEGINS HERE
                 jsr compex
 
+                ; TODO TEST FOR OVER- OR UNDERFLOW
+
                 ; Display system prompt if all went well
                 lda.# s_ok
                 jsr print_string
 
-                ; TESTING SHOW WHAT IS TOS
-                tya
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                tya
-                and.# 00ff
-                jsr byte_to_ascii
-                jsr a_cr
 
                 ; get next line
                 jmp quit_get_line
@@ -284,18 +278,23 @@ z_abs           rts
 ; ACCEPT is normally called by REFILL these days. 
 a_accept        
                 ; Set up loop
-                lda.dx 00       ; max number of chars to accept is NOS
+                tya             ; max number of chars to accept is TOS
                 bne accept_nonzero
                                 
-                tay             ; if we were told to get zero chars, just quit TODO TEST
+                ; if we were told to get zero chars, just quit
+                inx             ; NIP, TOS is zero which is also FALSE
                 inx
-                inx
+
                 rts
 
 accept_nonzero
-                sta.d tmp2      ; non-zero number of chars requested, save in tmp2
-                sty.d tmp1      ; address of buffer to use in tmp1 
-                ldy.# 0000      ; TOS is dropped anyway, so don't save Y
+                lda.dx 00       ; address of buffer is NOS
+                sta.d tmp1
+                inx             ; NIP 
+                inx
+
+                sty.d tmp2      ; Save max number of chars in tmp2
+                ldy.# 0000      ; Use Y as counter
         .a8
 
 accept_loop
@@ -330,7 +329,6 @@ accept_loop
                 jsr print_string
         .a8
                 bra accept_loop
-
 @
                 ; CTRL-n, will be used for "next cmd", TODO 
                 cmp.# AscCN
@@ -342,8 +340,9 @@ accept_loop
                 bra accept_loop
 
 @
-                ; That's enough, echo character (TODO change to EMIT) 
-                jsr put_chr   ; echo character
+                ; That's enough, echo character
+                ; TODO change to EMIT 
+                jsr put_chr     ; echo character
         .!a8
                 ; TODO multitasking: Add PAUSE here (or in EMIT)
 
@@ -354,9 +353,8 @@ accept_loop
 
 accept_eol
                 sty.d ciblen    ; Y contains number of chars accepted already
-                inx             
-                inx
         .a16
+                jsr a_space     ; print final space
                 rts             ; this is the actual return of the routine
 
 accept_bs
@@ -478,6 +476,117 @@ a_cr
 z_cr            rts
 
 ; -------------------------------------------------------------------
+; DEPTH ( -- u ) X bytes / X cycles
+; Push the number of entries in cells (not bytes) on the parameter stack.
+; Assumes X is valid as the DSP.
+a_depth         
+        .!a16
+		; We've got zero entries when X is dsp0
+                stx.d tmpdsp
+                lda.# dsp0
+                sec
+                sbc.d tmpdsp
+
+                ; now divide by two because each cells is to bytes long
+                lsr.a
+
+                ; push result to stack
+                dex
+                dex
+                sty.d 00
+                tay
+
+z_depth         rts
+
+
+; -------------------------------------------------------------------
+; DOT ( n -- ) X bytes / X cycles
+; Print value that is TOS followed by a single space
+; Forth code is  DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE 
+; TODO this is a temporary version
+a_dot           
+                tya
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                tya
+                and.# 00ff
+                jsr byte_to_ascii
+                jsr a_space
+
+                ; drop TOS
+                ldy.dx 00
+                inx
+                inx
+                
+z_dot           rts
+
+
+; -------------------------------------------------------------------
+; .S "DOTS" ( -- ) X bytes / X cycles
+; Print content of Data Stack non-distructively. Our decision to put TOS in
+; Y makes this far more complicated than you might think
+a_dots          
+                ; Pretty much the most common case is nothing on the stack
+                txa
+                cmp.# dsp0
+                bne dots_gotstuff
+
+                lda.# s_dots_empty
+                jsr print_string
+
+                rts
+
+dots_gotstuff
+                ; we print from the bottom up and stop when we hit X
+                stx.d tmpdsp
+                phy
+
+                ldx.# dsp0
+                dex
+                dex
+
+dots_loop
+                ; if we only have one element on the stack, then X will be 
+                ; dsp0 - 2
+                cpx.d tmpdsp
+                beq dots_tos
+
+                ; if we arrive here, it means we have at least two elements on
+                ; the stack, one in Y and one in 00
+                dex
+                dex
+                ldy.dx 00 
+
+                ; --- TEMP print routine ---
+                tya
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                tya
+                and.# 00ff
+                jsr byte_to_ascii
+                jsr a_space
+                ; --- TEMP print routine ---
+                
+                dex
+                dex
+                bra dots_loop 
+
+dots_tos
+                ; now we only have to print TOS and clean up 
+                ply
+                tya
+                jsr a_dot
+
+dots_done
+                tay
+                ldx.d tmpdsp
+
+z_dots          rts
+
+
+; -------------------------------------------------------------------
 ; DROP ( n -- ) 4 bytes / 9 cycles
 ; Drop first entry on Data Stack
 
@@ -509,6 +618,7 @@ z_dup           rts
 
 ; Reserve three bytes for the jump - three in case we want to expand to the full
 ; range
+; TODO move this to someplace that is assured to be RAM, not possibly ROM
 execute_ip      .byte 00, 00, 00    
 
 a_execute       
@@ -561,8 +671,10 @@ a_find-name
         .!xy16
                 ; set up loop for the first time
                 sty.d tmptos    ; length of mystery string in tmptos, Y now free
+
                 ldy.d dp
                 sty.d tmp1      ; nt of first Dictionary word 
+
                 ldy.dx 00 
                 sty.d tmp2      ; address of mystery string, was NOS
 
@@ -764,13 +876,14 @@ parse-name_empty_line
                 dex
                 dex
                 dex
-                ply
-                sty.dx 00
+
+                ply                     ; restore old TOS as 3OS
+                sty.dx 02
 
                 lda.d cib
                 clc
                 adc.d ciblen
-                sta.dx 00               ; NOS address 
+                sta.dx 00               ; Address as NOS
 
                 ldy.# 0000              ; TOS 
 
@@ -784,7 +897,7 @@ parse-name_found
                 ply                     ; recover TOS
                 dex
                 dex
-                sty.d 00
+                sty.dx 00
 
                 ldy.# AscSP             ; put space on TOS for PARSE
 
@@ -810,6 +923,8 @@ parse-name_found
 ; TOIN (>IN) points to the where we currently are. Since PARSE does not skip
 ; leading delimiters, we assume we are on a useful string.
 a_parse         
+        .!a16
+        .!xy16
                 sty.d tmp1      ; save delimiter, char is LSB
 
                 ; save beginning of new word (cib+toin) to NOS. Don't need to
@@ -820,7 +935,7 @@ a_parse
                 clc
                 adc.d cib
 
-                dex
+                dex             ; save addr as NOS
                 dex
                 sta.dx 00
 
@@ -850,6 +965,7 @@ parse_found_delimiter
 
 parse_reached_eol       
                 ; calculate length of string found (see ascii drawing)
+        .!xy16
         .a16
                 tya             
                 sec
@@ -890,7 +1006,7 @@ a_refill
                 
                 lda.d ciblen    ; current length is now previous length
                 sta.d piblen
-
+ 
                 ; Get input source from SOURCE-ID. We don't have blocks in this
                 ; version, or else we would have to check BLK first. This is an
                 ; optimized version of a subroutine jump to SOURCE-ID
@@ -901,18 +1017,19 @@ a_refill
                 ; with ACCEPT. 
                 dex                     ; push Data Stack down twice
                 dex
-                dex
-                dex
-                sty.dx 02
+                sty.dx 00
 
-                lda.d cib               ; address of current input buffer TOS 
+                lda.d cib               ; address of current input buffer NOS
+                dex
+                dex
                 sta.dx 00
+
                 ldy.# buffersize 
 
                 jsr a_accept            ; ( addr n1 -- n2)
 
                 ; ACCEPT returns the number of characters accepted, but we don't
-                ; need that. We just overwrite TOS this with the flag
+                ; need them. We just overwrite TOS this with the flag
                 ldy.# 0ffff
 
                 rts
@@ -1189,7 +1306,7 @@ compex_loop
                 ; Gforth's PARSE-NAME makes more sense as it uses spaces as
                 ; delimiters per default and skips any leading spaces, which
                 ; PARSE does not do.
-                jsr a_parse-name        ; ( addr u ) 
+                jsr a_parse-name        ; ( 'string' -- addr u ) 
         .!a16
                 ; if PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
@@ -1197,13 +1314,14 @@ compex_loop
                 beq compex_line_done
                 
                 ; We let the user input words in any case, but use lower case
-                ; internally (sorry, Garth).
+                 ; internally (sorry, Garth).
                 jsr string_to_uppercase         ; returns ( addr u )
 
                 ; If we got something that is not a zero, we go to FIND-NAME to
                 ; get the nt. Returns ( nt | 0 ) 
                 jsr a_find-name
         .!a16
+
                 ; a zero signals that we didn't find a word in the Dictionary
                 tya             ; force flag check
                 bne compex_got_name_token
@@ -1226,7 +1344,7 @@ compex_got_name_token
                 iny
                 iny
                 iny                    
-                lda.y 0000
+                lda.y 0000              ; LDA $0000,Y
                 tay
                 
                 jsr a_execute
@@ -1336,13 +1454,34 @@ string_to_uppercase
                 ; .!a16
                 ; brk 00
                 ; --- TODO TESTING ---
-                
+                 
+                ; --- TESTING SHOW WHAT IS TOS --- 
+                ; tya
+                ; and.# 0ff00
+                ; xba 
+                ; jsr byte_to_ascii
+                ; tya
+                ; and.# 00ff
+                ; jsr byte_to_ascii
+                ; jsr a_cr
+                ; --------------------------------
+               
                 ; --- TODO TESTING (HALT CPU) ---
                 ; brk 00 ; BRK for 265sxb tests (drops back to Mensch Monitor)
                 ; stp    ; STP for crude65816 emulator tests
                 ; --- TODO TESTING ---
                 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                ; --- TESTING SHOW WHAT IS TOS --- 
+                tya
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                tya
+                and.# 00ff
+                jsr byte_to_ascii
+                jsr a_cr
+                ; --------------------------------
 
 
 ; ===================================================================
