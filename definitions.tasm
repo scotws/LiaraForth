@@ -27,9 +27,11 @@
 ; The two input buffers are currently switched in REFILL by bit flipping. If you
 ; change their addresses, you'll probably have to rewrite the code there
 
-        .equ buffersize 00ff ; maximum size for input buffers
+        .equ buffersize  0ff ; maximum size for input buffers
         .equ ibuffer1   7c00 ; start of 256 byte input buffer 1
         .equ ibuffer2   7d00 ; start of 256 byte input buffer 2
+        .equ padsize     0ff ; size of PAD, must be > &84
+        .equ padoffset   07f ; distance from CP to PAD (holds number strings)
 
 ; RAM from 0000 to 01ff is left for the Mensch Monitor to use
 
@@ -52,7 +54,7 @@
         .equ dp      { directpage + &2 }  ; Dictionary Pointer, 2 bytes
         .equ tmpdsp  { directpage + &4 }  ; Temporary DSP (X) storage, 2 bytes
         .equ tmptos  { directpage + &6 }  ; Temporary TOS (Y) storage, 2 bytes
-;       .equ         { directpage + &8 }  ; UNUSED
+        .equ output  { directpage + &8 }  ; Address where output is constructed
         .equ insrc   { directpage + &10 } ; Input Source for SOURCE-ID
         .equ cib     { directpage + &12 } ; Current Input Buffer, 7c00 or 7d00
         .equ ciblen  { directpage + &14 } ; Length of current input buffer
@@ -62,6 +64,7 @@
         .equ tmp1    { directpage + &22 } ; Temporary storage, usually address
         .equ tmp2    { directpage + &24 } ; Temporary storage, usually counter
         .equ tmp3    { directpage + &26 } ; Temporary storage
+
 
 ; ===================================================================
 ; HELPER DEFINITIONS

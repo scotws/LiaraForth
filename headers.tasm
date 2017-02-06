@@ -120,8 +120,12 @@ h_dot   .byte 1, { PW + NC }
         .word h_type, a_dot, z_dot
         .byte '.'
 
+h_pad   .byte 3, { PW + NC }
+        .word h_dot, a_pad, z_pad
+        .byte "pad"
+
 h_allot .byte 5, { PW + NC }
-        .word h_dot, a_allot, z_allot
+        .word h_pad, a_allot, z_allot
         .byte "allot"
 
 h_name>string .byte 0b, { PW + NC }
