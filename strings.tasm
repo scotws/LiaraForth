@@ -13,7 +13,7 @@
 ; character
 
 s_title      .byte AscLF, "Liara Forth for the W65C265SXB", 0
-s_version    .byte "Version PRE-ALPHA 29. Jan 2017", 0
+s_version    .byte "Version PRE-ALPHA 6. Feb 2017", 0
 s_author     .byte "Scot W. Stevenson <scot.stevenson@gmail.com>", 0
 s_disclaimer .byte "Liara Forth comes with absolutely NO WARRANTY", 0
 s_typebye    .byte "Type 'bye' to exit", 0
