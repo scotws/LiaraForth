@@ -36,8 +36,8 @@ top entry (Top of Stack, TOS) is the Y register.
 
 Because of this setup, when the DS is empty, X is equal to the initial value of
 the pointer (called `dsp0` in the code). When there is one element on the DS, X
-is `dsp+2`, but the value at that location is garbage, because TOS is in the Y
-register. When there are two elements on the DS, X is `dsp+4`, and the value at
+is `dsp0-2`, but the value at that location is garbage, because TOS is in the Y
+register. When there are two elements on the DS, X is `dsp0-4`, and the value at
 that location is NOS. See Mike Barry's
 [discussion](http://forum.6502.org/viewtopic.php?p=50546#p50546) of this at
 6502.org for drawings of the various stack stages.

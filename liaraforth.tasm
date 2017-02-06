@@ -503,8 +503,11 @@ z_depth         rts
 ; DOT ( n -- ) X bytes / X cycles
 ; Print value that is TOS followed by a single space
 ; Forth code is  DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE 
+; Since this is used interactively, and humans are slow (just ask GlaDOS), we
+; focus on size
 ; TODO this is a temporary version
 a_dot           
+                ; --- TEMP print routine ---
                 tya
                 and.# 0ff00
                 xba 
@@ -513,11 +516,11 @@ a_dot
                 and.# 00ff
                 jsr byte_to_ascii
                 jsr a_space
-
-                ; drop TOS
-                ldy.dx 00
-                inx
-                inx
+                ; --- TEMP print routine ---
+                
+                ; Since we don't care about speed in this word, we save one byte
+                ; by doing DROP the slow way and save one byte
+                jsr a_drop
                 
 z_dot           rts
 
@@ -525,14 +528,15 @@ z_dot           rts
 ; -------------------------------------------------------------------
 ; DOTS ".S" ( -- ) X bytes / X cycles
 ; Print content of Data Stack non-distructively. Since this is for humans, we
-; don't have to worry too much about the speed, because humans are depressingy
-; slow (just ask GlaDOS). 
+; don't have to worry too much about the speed
 a_dots          
+        .!a16
+        .!xy16
                 jsr a_depth             ; ( -- u)
 
                 ; There will be a lot of cases where .S is used when the stack
                 ; is empty. Get them first and print a special string
-                tay                     ; force flag test
+                tya                     ; force flag test
                 bne dots_not_empty
                 
                 lda.# s_dots_empty
@@ -542,74 +546,48 @@ a_dots
 
 dots_not_empty
                 ; We have at least one element on the stack, which used to be in
-                ; Y as TOS, but is now NOS and therefore accessable by X. 
-
-
-                ; We only have one element, which was in Y, but is now 
+                ; Y as TOS, but is now NOS and therefore accessable by X. Also,
+                ; the depth of the Data Stack is already in Y waiting to be used
+                ; as a counter. We use this to our advantage. 
                 
+                ; Normally we would go with STX.D tmptos / LDX.D tmptos with
+                ; 4 bytes and 8 cycles because we value speed over size.
+                ; However, .S is used interactively, and humans
+                ; won't notice the one cycle more of PHX/PLY (2 bytes,
+                ; 9 cycles). We save the two bytes.
+                phx
+
+                ; We print from the bottom up. Note that the Data Stack locations
+                ; dsp0 and dsp0+2 always contain garbage so they can be skipped,
+                ; see docs/INTERNALS.md for more details 
+                ldx.# dsp0      ; points to dsp0, which is garbage
+                dex
+                dex             ; points to dsp-2, which is garbage
+                
+dots_loop
+                dex             ; get next element on DS, initially dsp+4
+                dex             
+
                 ; --- TEMP print routine ---
                 lda.dx 00               ; Actual TOS is NOS
                 and.# 0ff00
                 xba 
                 jsr byte_to_ascii
-                tya
-                and.# 00ff
-                jsr byte_to_ascii
-                ; --- TEMP print routine ---
-
-                bra dots_done
-                
-
-dots_gotmorestuff
-
-                ; we print from the bottom up and stop when we hit X
-                stx.d tmpdsp
-                phy
-
-                ldx.# dsp0
-                dex
-                dex
-
-dots_loop
-                ; if we only have one element on the stack, then X will be 
-                ; dsp0 - 2
-                cpx.d tmpdsp
-                beq dots_tos
-
-                ; if we arrive here, it means we have at least two elements on
-                ; the stack, one in Y and one in 00
-                dex
-                dex
-                ldy.dx 00 
-
-                ; --- TEMP print routine ---
-                tya
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                tya
+                lda.dx 00
                 and.# 00ff
                 jsr byte_to_ascii
                 jsr a_space
                 ; --- TEMP print routine ---
-                
-                dex
-                dex
-                bra dots_loop 
 
-dots_tos
-                ; now we only have to print TOS and clean up 
-                ply
-                tya
-                jsr a_dot
+                dey
+                bne dots_loop
+
+                plx             ; restore original DSP
 
 dots_done
-                tay
-                ldx.d tmpdsp
-
-                inx             ; drop TOS from DEPTH
-                inx
-                ldy.dx 00
+                ; Clean up. Again, we don't care about speed in this
+                ; word so we save one byte by doing DROP the slow way
+                jsr a_drop
 
 z_dots          rts
 
