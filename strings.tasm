@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  03. Feb 2017
+; This version:  06. Feb 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -18,7 +18,6 @@ s_author     .byte "Scot W. Stevenson <scot.stevenson@gmail.com>", 0
 s_disclaimer .byte "Liara Forth comes with absolutely NO WARRANTY", 0
 s_typebye    .byte "Type 'bye' to exit", 0
 s_ok         .byte " ok", 0     ; note empty space at beginning
-s_dots_empty .byte " (empty)", 0
 
 
 ; ===================================================================
