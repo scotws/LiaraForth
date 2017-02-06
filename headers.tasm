@@ -65,7 +65,7 @@ h_bell  .byte 4, { PW + NC }
         .byte "bell"
 
 h_unused .byte 6, { PW + NC }
-        .word h_page, a_unused, z_unused
+        .word h_bell, a_unused, z_unused
         .byte "unused"
 
 h_page  .byte 4, { PW + NC }

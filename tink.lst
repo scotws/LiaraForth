@@ -4,12 +4,12 @@ Copyright 2015-2017 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 
 Code listing for file liaraforth.tasm
-Generated on Tue Feb  7 00:06:52 2017
+Generated on Tue Feb  7 00:08:54 2017
 Target MPU: 65816
 External files loaded: 4
 Number of passes executed: 35
 Number of steps executed: 10
-Assembly time: 0.04722 seconds
+Assembly time: 0.04671 seconds
 Code origin: 006000
 Bytes of machine code: 2429
 
@@ -1920,8 +1920,8 @@ LISTING:
 1462:070 | DONE lbl | na 16 16 | 00649c |             | h_unused                             
 1462:071 | DONE dir | na 16 16 | 00649c | (2 bytes)   |         .byte 6, { PW + NC }         
 1462:071 | DONE dir | na 16 16 |        |             |                 06 90                    --  . .
-1462:072 | DONE dir | na 16 16 | 00649e | (6 bytes)   |         .word h_page, a_unused, 006443 
-1462:072 | DONE dir | na 16 16 |        |             |                 aa 64 38 64 43 64        --  . d 8 d C d
+1462:072 | DONE dir | na 16 16 | 00649e | (6 bytes)   |         .word h_bell, a_unused, 006443 
+1462:072 | DONE dir | na 16 16 |        |             |                 90 64 38 64 43 64        --  . d 8 d C d
 1462:073 | DONE dir | na 16 16 | 0064a4 | (6 bytes)   |         .byte 75, 6e, 75, 73, 65, 64 
 1462:073 | DONE dir | na 16 16 |        |             |                 75 6e 75 73 65 64        --  u n u s e d
 1462:074 | DONE wsp | na 16 16 |        |             |
