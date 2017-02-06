@@ -40,6 +40,14 @@ es_refill2   .byte "Illegal SOURCE-ID during REFILL", 0
 es_underflow .byte "Stack underflow", 0
 es_syntax    .byte " Undefined word", 0
 
+
+; ===================================================================
+; ANSI VT-100 SEQUENCES
+
+vt100_page .byte AscESC, "[2J", 0       ; clear screen
+vt100_home .byte AscESC, "[H", 0        ; cursor home
+
+
 ; ===================================================================
 ; TESTING STRINGS
 

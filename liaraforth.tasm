@@ -878,6 +878,23 @@ a_nip
                 inx
 z_nip           rts
 
+
+; -------------------------------------------------------------------
+; PAGE ( -- ) X bytes / X cycles
+; Clear the screen on vt-100 terminals by sending the code "ESC[2J". This is
+; only useful in interactive scenarios so we don't worry about speed
+a_page          
+                lda.# vt100_page
+                jsr print_string
+
+                ; In theory, this should have moved the cursor to the top left
+                ; corner ("home"), but this doesn't seem to work in practice.
+                ; So we send "ESC[H" as well.
+                lda.# vt100_home
+                jsr print_string
+                
+z_page          rts
+
 ; -------------------------------------------------------------------
 ; PARSE-NAME ( "name" -- addr u ) 41+ bytes / X cycles
 ; Find next word in input string, skipping leading spaces. This is a special
@@ -1279,14 +1296,14 @@ z_type          rts
 ; Print list of all Forth words available. This only really makes sense in an
 ; interactive setting, so we don't have to worry about speed.
 a_words         
+                jsr a_cr        ; start on next line, this is a style choice
+
                 lda.d dp        ; nt of first entry in Dictionary (last added)
                 pha
 
-                dex  
+                dex             ; create room on TOS
                 dex
                 sty.dx 00 
-
-                jsr a_cr        ; start on next line, this is a style choice
 
 words_loop
                 tay                     ; ( nt )
