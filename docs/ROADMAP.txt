@@ -8,7 +8,6 @@ TODO NEXT (next on top)
 
 - CLI words: Make sure BS doesn't end up on previous line, add PAGE etc.
 - Code math routines required to input and output numbers of any base
-- Code temporary version of DEPTH
 - Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Code EVALUATE to be able to add high-level words
@@ -28,7 +27,8 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
-- Add temporary versions of .S, . (DOT) and DEPTH for debugging
+- Added HERE and ALLOT, figure out where CP starts (7. Feb 2016)
+- Added temporary versions of .S, . (DOT) and DEPTH for debugging
 - Code EXECUTE to complete basic loop
 - Code FIND-NAME and FIND for basic Dictionary search
 - Code basic editing of command line in ACCEPT (CTRL-H, etc)

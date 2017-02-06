@@ -53,6 +53,7 @@ Last update: *6. February 2017*
 | TRUE           | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | TUCK           | coded    | ANSI core ext | PW, NC | 8     |     19 |
 | TYPE           | coded    | ANSI core     | -      | 23+   |  (TBA) |
+| UNUSED         | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
 | WORDS          | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 
 

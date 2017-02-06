@@ -1367,6 +1367,26 @@ type_done
 z_type          rts
 
 ; -------------------------------------------------------------------
+; UNUSED ( -- u ) 11 bytes / X cycles
+; Return amount of memory available for the Dictionary. Does not include 
+; memory for buffers, stacks etc. Does not exclude the space used by PAD
+; TODO rewrite for multitasking
+a_unused        
+        .!a16
+                lda.# maxram-single
+                sec
+                sbc.d cp        ; current compile pointer 
+                
+                dex
+                dex
+                sty.dx 00
+
+                tay
+                
+z_unused        rts
+
+
+; -------------------------------------------------------------------
 ; WORDS ( -- ) X bytes / X cycles
 ; Print list of all Forth words available. This only really makes sense in an
 ; interactive setting, so we don't have to worry about speed.
