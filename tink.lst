@@ -4,12 +4,12 @@ Copyright 2015-2017 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 
 Code listing for file liaraforth.tasm
-Generated on Mon Feb  6 13:49:04 2017
+Generated on Mon Feb  6 14:01:53 2017
 Target MPU: 65816
 External files loaded: 4
 Number of passes executed: 35
 Number of steps executed: 10
-Assembly time: 0.04310 seconds
+Assembly time: 0.07115 seconds
 Code origin: 006000
 Bytes of machine code: 2244
 
@@ -1514,960 +1514,963 @@ LISTING:
 1157:000 | DONE wsp | na 16 16 |        |             |
 1158:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
 1159:000 | DONE cmt | na 16 16 |        |             | ; SPACES ( u -- ) 12 bytes / X cycles
-1160:000 | DONE cmt | na 16 16 |        |             | ; Print u spaces. Calls SPACE
-1161:000 | DONE lbl | na 16 16 | 006395 |             | a_spaces                             
-1162:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1163:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1164:000 | DONE lbl | na 16 16 | 006395 |             | @                                    
-1165:000 | DONE ins | na 16 16 | 006395 | 88          |                 dey                  ; this handles case u=0
-1166:000 | DONE ins | na 16 16 | 006396 | 30 05       |                 bmi 00639d           
-1167:000 | DONE ins | na 16 16 | 006398 | 20 8e 63    |                 jsr 00638e           
-1168:000 | DONE ins | na 16 16 | 00639b | 80 f8       |                 bra 006395           
-1169:000 | DONE wsp | na 16 16 |        |             |
-1170:000 | DONE lbl | na 16 16 | 00639d |             | spaces_done                          
-1171:000 | DONE ins | na 16 16 | 00639d | b4 00       |                 ldy.dx 00            ; DROP
-1172:000 | DONE ins | na 16 16 | 00639f | e8          |                 inx                  
-1173:000 | DONE ins | na 16 16 | 0063a0 | e8          |                 inx                  
-1174:000 | DONE wsp | na 16 16 |        |             |
-1175:000 | DONE lbl | na 16 16 | 0063a1 |             | z_spaces                             
-1175:001 | DONE ins | na 16 16 | 0063a1 | 60          |                 rts                  
+1160:000 | DONE cmt | na 16 16 |        |             | ; Print u spaces. Calls SPACE, because this is probably interactive and humans
+1161:000 | DONE cmt | na 16 16 |        |             | ; are slow enough we don't have to care about speed.
+1162:000 | DONE lbl | na 16 16 | 006395 |             | a_spaces                             
+1163:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1164:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1165:000 | DONE lbl | na 16 16 | 006395 |             | @                                    
+1166:000 | DONE ins | na 16 16 | 006395 | 88          |                 dey                  ; this also handles case u=0
+1167:000 | DONE ins | na 16 16 | 006396 | 30 05       |                 bmi 00639d           
+1168:000 | DONE wsp | na 16 16 |        |             |
+1169:000 | DONE ins | na 16 16 | 006398 | 20 8e 63    |                 jsr 00638e           
+1170:000 | DONE ins | na 16 16 | 00639b | 80 f8       |                 bra 006395           
+1171:000 | DONE wsp | na 16 16 |        |             |
+1172:000 | DONE lbl | na 16 16 | 00639d |             | spaces_done                          
+1173:000 | DONE ins | na 16 16 | 00639d | b4 00       |                 ldy.dx 00            ; DROP
+1174:000 | DONE ins | na 16 16 | 00639f | e8          |                 inx                  
+1175:000 | DONE ins | na 16 16 | 0063a0 | e8          |                 inx                  
 1176:000 | DONE wsp | na 16 16 |        |             |
-1177:000 | DONE wsp | na 16 16 |        |             |
-1178:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1179:000 | DONE cmt | na 16 16 |        |             | ; STATE ( -- addr ) 7 bytes / 12 cycles
-1180:000 | DONE cmt | na 16 16 |        |             | ; Return the address of a cell containing the compilation-state flag. STATE
-1181:000 | DONE cmt | na 16 16 |        |             | ; is true when in compilation state, false otherwise. STATE should be changed
-1182:000 | DONE cmt | na 16 16 |        |             | ; directly by the user; see
-1183:000 | DONE cmt | na 16 16 |        |             | ; http://forth.sourceforge.net/standard/dpans/dpans6.htm#6.1.2250
-1184:000 | DONE lbl | na 16 16 | 0063a2 |             | a_state                              
-1185:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1186:000 | DONE ins | na 16 16 | 0063a2 | ca          |                 dex                  
-1187:000 | DONE ins | na 16 16 | 0063a3 | ca          |                 dex                  
-1188:000 | DONE ins | na 16 16 | 0063a4 | 94 00       |                 sty.dx 00            
-1189:000 | DONE ins | na 16 16 | 0063a6 | a0 14 02    |                 ldy.# 000214         
-1190:000 | DONE wsp | na 16 16 |        |             |
-1191:000 | DONE lbl | na 16 16 | 0063a9 |             | z_state                              
-1191:001 | DONE ins | na 16 16 | 0063a9 | 60          |                 rts                  
+1177:000 | DONE lbl | na 16 16 | 0063a1 |             | z_spaces                             
+1177:001 | DONE ins | na 16 16 | 0063a1 | 60          |                 rts                  
+1178:000 | DONE wsp | na 16 16 |        |             |
+1179:000 | DONE wsp | na 16 16 |        |             |
+1180:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1181:000 | DONE cmt | na 16 16 |        |             | ; STATE ( -- addr ) 7 bytes / 12 cycles
+1182:000 | DONE cmt | na 16 16 |        |             | ; Return the address of a cell containing the compilation-state flag. STATE
+1183:000 | DONE cmt | na 16 16 |        |             | ; is true when in compilation state, false otherwise. STATE should not be
+1184:000 | DONE cmt | na 16 16 |        |             | ; changed directly by the user; see
+1185:000 | DONE cmt | na 16 16 |        |             | ; http://forth.sourceforge.net/standard/dpans/dpans6.htm#6.1.2250
+1186:000 | DONE lbl | na 16 16 | 0063a2 |             | a_state                              
+1187:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1188:000 | DONE ins | na 16 16 | 0063a2 | ca          |                 dex                  
+1189:000 | DONE ins | na 16 16 | 0063a3 | ca          |                 dex                  
+1190:000 | DONE ins | na 16 16 | 0063a4 | 94 00       |                 sty.dx 00            
+1191:000 | DONE ins | na 16 16 | 0063a6 | a0 14 02    |                 ldy.# 000214         
 1192:000 | DONE wsp | na 16 16 |        |             |
-1193:000 | DONE wsp | na 16 16 |        |             |
-1194:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1195:000 | DONE cmt | na 16 16 |        |             | ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
-1196:000 | DONE cmt | na 16 16 |        |             | ; Exchange TOS with NOS, destroys Y
-1197:000 | DONE wsp | na 16 16 |        |             |
-1198:000 | DONE lbl | na 16 16 | 0063aa |             | a_swap                               
-1199:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1200:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1201:000 | DONE ins | na 16 16 | 0063aa | b5 00       |                 lda.dx 00            
-1202:000 | DONE ins | na 16 16 | 0063ac | 94 00       |                 sty.dx 00            
-1203:000 | DONE ins | na 16 16 | 0063ae | a8          |                 tay                  
-1204:000 | DONE wsp | na 16 16 |        |             |
-1205:000 | DONE lbl | na 16 16 | 0063af |             | z_swap                               
-1205:001 | DONE ins | na 16 16 | 0063af | 60          |                 rts                  
+1193:000 | DONE lbl | na 16 16 | 0063a9 |             | z_state                              
+1193:001 | DONE ins | na 16 16 | 0063a9 | 60          |                 rts                  
+1194:000 | DONE wsp | na 16 16 |        |             |
+1195:000 | DONE wsp | na 16 16 |        |             |
+1196:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1197:000 | DONE cmt | na 16 16 |        |             | ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
+1198:000 | DONE cmt | na 16 16 |        |             | ; Exchange TOS with NOS. We don't check if there are enough elements on the Data
+1199:000 | DONE cmt | na 16 16 |        |             | ; Stack; underflow errors will go undetected and return garbage.
+1200:000 | DONE lbl | na 16 16 | 0063aa |             | a_swap                               
+1201:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1202:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1203:000 | DONE ins | na 16 16 | 0063aa | b5 00       |                 lda.dx 00            
+1204:000 | DONE ins | na 16 16 | 0063ac | 94 00       |                 sty.dx 00            
+1205:000 | DONE ins | na 16 16 | 0063ae | a8          |                 tay                  
 1206:000 | DONE wsp | na 16 16 |        |             |
-1207:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1208:000 | DONE cmt | na 16 16 |        |             | ; TRUE ( -- f ) 7 bytes / 12 cycles
-1209:000 | DONE cmt | na 16 16 |        |             | ; Pushes value $FFFF for Forth true on Data Stack
-1210:000 | DONE wsp | na 16 16 |        |             |
-1211:000 | DONE lbl | na 16 16 | 0063b0 |             | a_true                               
-1212:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1213:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1214:000 | DONE ins | na 16 16 | 0063b0 | ca          |                 dex                  
-1215:000 | DONE ins | na 16 16 | 0063b1 | ca          |                 dex                  
-1216:000 | DONE ins | na 16 16 | 0063b2 | 94 00       |                 sty.dx 00            
-1217:000 | DONE ins | na 16 16 | 0063b4 | a0 ff ff    |                 ldy.# 0ffff          
-1218:000 | DONE wsp | na 16 16 |        |             |
-1219:000 | DONE lbl | na 16 16 | 0063b7 |             | z_true                               
-1219:001 | DONE ins | na 16 16 | 0063b7 | 60          |                 rts                  
-1220:000 | DONE wsp | na 16 16 |        |             |
-1221:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1222:000 | DONE cmt | na 16 16 |        |             | ; TUCK ( n m -- m n m ) 8 bytes / 19 cycles
-1223:000 | DONE cmt | na 16 16 |        |             | ; Insert TOS below NOS
-1224:000 | DONE wsp | na 16 16 |        |             |
-1225:000 | DONE lbl | na 16 16 | 0063b8 |             | a_tuck                               
-1226:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1227:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1228:000 | DONE ins | na 16 16 | 0063b8 | ca          |                 dex                  
-1229:000 | DONE ins | na 16 16 | 0063b9 | ca          |                 dex                  
-1230:000 | DONE ins | na 16 16 | 0063ba | b5 02       |                 lda.dx 2             
-1231:000 | DONE ins | na 16 16 | 0063bc | 95 00       |                 sta.dx 0             
-1232:000 | DONE ins | na 16 16 | 0063be | 94 02       |                 sty.dx 2             
-1233:000 | DONE wsp | na 16 16 |        |             |
-1234:000 | DONE lbl | na 16 16 | 0063c0 |             | z_tuck                               
-1234:001 | DONE ins | na 16 16 | 0063c0 | 60          |                 rts                  
-1235:000 | DONE wsp | na 16 16 |        |             |
-1236:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1237:000 | DONE cmt | na 16 16 |        |             | ; TYPE ( addr u -- ) 23+ bytes / X cycles
-1238:000 | DONE cmt | na 16 16 |        |             | ; Print character string if u is not 0. We restrict all calls to put_chr and
-1239:000 | DONE cmt | na 16 16 |        |             | ; get-chr to make porting easier.  We call put_chr here directly instead of
-1240:000 | DONE cmt | na 16 16 |        |             | ; going through EMIT because EMIT will later have a PAUSE statement for
-1241:000 | DONE cmt | na 16 16 |        |             | ; multitasking and we probably don't want to PAUSE after every character.
-1242:000 | DONE cmt | na 16 16 |        |             | ; However, we'll make a final decision about that when multitasking is up and
-1243:000 | DONE cmt | na 16 16 |        |             | ; running.
-1244:000 | DONE lbl | na 16 16 | 0063c1 |             | a_type                               
-1245:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1246:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1247:000 | DONE cmt | na 16 16 |        |             |                 ; just leave if u is zero (empty string)
-1248:000 | DONE ins | na 16 16 | 0063c1 | 98          |                 tya                  ; force flag check of TOS
-1249:000 | DONE ins | na 16 16 | 0063c2 | f0 17       |                 beq 0063db           
-1250:000 | DONE wsp | na 16 16 |        |             |
-1251:000 | DONE ins | na 16 16 | 0063c4 | b5 00       |                 lda.dx 00            ; get address from NOS
-1252:000 | DONE ins | na 16 16 | 0063c6 | 85 16       |                 sta.d 000216         
-1253:000 | DONE ins | na 16 16 | 0063c8 | 84 18       |                 sty.d 000218         ; number of chars is TOS
-1254:000 | DONE ins | na 16 16 | 0063ca | a0 00 00    |                 ldy.# 0000           
-1255:000 | DONE ins | na 16 16 | 0063cd | e2 20       |                 sep 20               
-1255:001 | DONE ctl | na  8 16 |        |             |         .!a8
-1256:000 | DONE lbl | na  8 16 | 0063cf |             | type_loop                            
-1257:000 | DONE ins | na  8 16 | 0063cf | b1 16       |                 lda.diy 000216       ; LDA (TMP1),Y
-1258:000 | DONE ins | na  8 16 | 0063d1 | 20 30 60    |                 jsr 006030           
-1259:000 | DONE ins | na  8 16 | 0063d4 | c8          |                 iny                  
-1260:000 | DONE ins | na  8 16 | 0063d5 | c4 18       |                 cpy.d 000218         
-1261:000 | DONE ins | na  8 16 | 0063d7 | d0 f6       |                 bne 0063cf           
-1262:000 | DONE wsp | na  8 16 |        |             |
-1263:000 | DONE ins | na  8 16 | 0063d9 | c2 20       |                 rep 20               
-1263:001 | DONE ctl | na 16 16 |        |             |         .!a16
-1264:000 | DONE lbl | na 16 16 | 0063db |             | type_done                            
-1265:000 | DONE cmt | na 16 16 |        |             |                 ; clear stack
-1266:000 | DONE ins | na 16 16 | 0063db | b4 02       |                 ldy.dx 02            
-1267:000 | DONE ins | na 16 16 | 0063dd | e8          |                 inx                  
-1268:000 | DONE ins | na 16 16 | 0063de | e8          |                 inx                  
-1269:000 | DONE ins | na 16 16 | 0063df | e8          |                 inx                  
-1270:000 | DONE ins | na 16 16 | 0063e0 | e8          |                 inx                  
-1271:000 | DONE wsp | na 16 16 |        |             |
-1272:000 | DONE cmt | na 16 16 |        |             |                 ; TODO LATER add PAUSE here for multitasking
-1273:000 | DONE wsp | na 16 16 |        |             |
-1274:000 | DONE lbl | na 16 16 | 0063e1 |             | z_type                               
-1274:001 | DONE ins | na 16 16 | 0063e1 | 60          |                 rts                  
-1275:000 | DONE wsp | na 16 16 |        |             |
-1276:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1277:000 | DONE cmt | na 16 16 |        |             | ; WORDS ( -- ) X bytes / X cycles
-1278:000 | DONE cmt | na 16 16 |        |             | ; Print list of all Forth words available
-1279:000 | DONE lbl | na 16 16 | 0063e2 |             | a_words                              
-1280:000 | DONE ins | na 16 16 | 0063e2 | a5 02       |                 lda.d 000202         ; nt of first entry in Dictionary (last added)
-1281:000 | DONE ins | na 16 16 | 0063e4 | 48          |                 pha                  
-1282:000 | DONE wsp | na 16 16 |        |             |
-1283:000 | DONE ins | na 16 16 | 0063e5 | ca          |                 dex                  
-1284:000 | DONE ins | na 16 16 | 0063e6 | ca          |                 dex                  
-1285:000 | DONE ins | na 16 16 | 0063e7 | 94 00       |                 sty.dx 00            
-1286:000 | DONE wsp | na 16 16 |        |             |
-1287:000 | DONE ins | na 16 16 | 0063e9 | 20 c9 61    |                 jsr 0061c9           ; start on next line, this is a style choice
+1207:000 | DONE lbl | na 16 16 | 0063af |             | z_swap                               
+1207:001 | DONE ins | na 16 16 | 0063af | 60          |                 rts                  
+1208:000 | DONE wsp | na 16 16 |        |             |
+1209:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1210:000 | DONE cmt | na 16 16 |        |             | ; TRUE ( -- f ) 7 bytes / 12 cycles
+1211:000 | DONE cmt | na 16 16 |        |             | ; Pushes value $FFFF for Forth true on Data Stack
+1212:000 | DONE lbl | na 16 16 | 0063b0 |             | a_true                               
+1213:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1214:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1215:000 | DONE ins | na 16 16 | 0063b0 | ca          |                 dex                  
+1216:000 | DONE ins | na 16 16 | 0063b1 | ca          |                 dex                  
+1217:000 | DONE ins | na 16 16 | 0063b2 | 94 00       |                 sty.dx 00            
+1218:000 | DONE ins | na 16 16 | 0063b4 | a0 ff ff    |                 ldy.# 0ffff          
+1219:000 | DONE wsp | na 16 16 |        |             |
+1220:000 | DONE lbl | na 16 16 | 0063b7 |             | z_true                               
+1220:001 | DONE ins | na 16 16 | 0063b7 | 60          |                 rts                  
+1221:000 | DONE wsp | na 16 16 |        |             |
+1222:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1223:000 | DONE cmt | na 16 16 |        |             | ; TUCK ( n m -- m n m ) 8 bytes / 19 cycles
+1224:000 | DONE cmt | na 16 16 |        |             | ; Insert TOS below NOS. We do not check if there are enough elements on the Data
+1225:000 | DONE cmt | na 16 16 |        |             | ; Stack, underflow will go undetected and return garbage.
+1226:000 | DONE lbl | na 16 16 | 0063b8 |             | a_tuck                               
+1227:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1228:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1229:000 | DONE ins | na 16 16 | 0063b8 | ca          |                 dex                  
+1230:000 | DONE ins | na 16 16 | 0063b9 | ca          |                 dex                  
+1231:000 | DONE ins | na 16 16 | 0063ba | b5 02       |                 lda.dx 2             
+1232:000 | DONE ins | na 16 16 | 0063bc | 95 00       |                 sta.dx 0             
+1233:000 | DONE ins | na 16 16 | 0063be | 94 02       |                 sty.dx 2             
+1234:000 | DONE wsp | na 16 16 |        |             |
+1235:000 | DONE lbl | na 16 16 | 0063c0 |             | z_tuck                               
+1235:001 | DONE ins | na 16 16 | 0063c0 | 60          |                 rts                  
+1236:000 | DONE wsp | na 16 16 |        |             |
+1237:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1238:000 | DONE cmt | na 16 16 |        |             | ; TYPE ( addr u -- ) 23+ bytes / X cycles
+1239:000 | DONE cmt | na 16 16 |        |             | ; Print character string if u is not 0. We restrict all calls to put_chr and
+1240:000 | DONE cmt | na 16 16 |        |             | ; get_chr to make porting easier.  We call put_chr here directly instead of
+1241:000 | DONE cmt | na 16 16 |        |             | ; going through EMIT because EMIT will later have a PAUSE statement for
+1242:000 | DONE cmt | na 16 16 |        |             | ; multitasking and we probably don't want to PAUSE after every character.
+1243:000 | DONE cmt | na 16 16 |        |             | ; However, we'll make a final decision about that when multitasking is up and
+1244:000 | DONE cmt | na 16 16 |        |             | ; running.
+1245:000 | DONE lbl | na 16 16 | 0063c1 |             | a_type                               
+1246:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1247:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1248:000 | DONE cmt | na 16 16 |        |             |                 ; just leave if u is zero (empty string)
+1249:000 | DONE ins | na 16 16 | 0063c1 | 98          |                 tya                  ; force flag check of TOS
+1250:000 | DONE ins | na 16 16 | 0063c2 | f0 17       |                 beq 0063db           
+1251:000 | DONE wsp | na 16 16 |        |             |
+1252:000 | DONE ins | na 16 16 | 0063c4 | b5 00       |                 lda.dx 00            ; get address from NOS
+1253:000 | DONE ins | na 16 16 | 0063c6 | 85 16       |                 sta.d 000216         
+1254:000 | DONE ins | na 16 16 | 0063c8 | 84 18       |                 sty.d 000218         ; number of chars is TOS
+1255:000 | DONE ins | na 16 16 | 0063ca | a0 00 00    |                 ldy.# 0000           
+1256:000 | DONE ins | na 16 16 | 0063cd | e2 20       |                 sep 20               
+1256:001 | DONE ctl | na  8 16 |        |             |         .!a8
+1257:000 | DONE lbl | na  8 16 | 0063cf |             | type_loop                            
+1258:000 | DONE ins | na  8 16 | 0063cf | b1 16       |                 lda.diy 000216       ; LDA (TMP1),Y
+1259:000 | DONE ins | na  8 16 | 0063d1 | 20 30 60    |                 jsr 006030           
+1260:000 | DONE ins | na  8 16 | 0063d4 | c8          |                 iny                  
+1261:000 | DONE ins | na  8 16 | 0063d5 | c4 18       |                 cpy.d 000218         
+1262:000 | DONE ins | na  8 16 | 0063d7 | d0 f6       |                 bne 0063cf           
+1263:000 | DONE wsp | na  8 16 |        |             |
+1264:000 | DONE ins | na  8 16 | 0063d9 | c2 20       |                 rep 20               
+1264:001 | DONE ctl | na 16 16 |        |             |         .!a16
+1265:000 | DONE lbl | na 16 16 | 0063db |             | type_done                            
+1266:000 | DONE cmt | na 16 16 |        |             |                 ; clear stack
+1267:000 | DONE ins | na 16 16 | 0063db | b4 02       |                 ldy.dx 02            
+1268:000 | DONE ins | na 16 16 | 0063dd | e8          |                 inx                  
+1269:000 | DONE ins | na 16 16 | 0063de | e8          |                 inx                  
+1270:000 | DONE ins | na 16 16 | 0063df | e8          |                 inx                  
+1271:000 | DONE ins | na 16 16 | 0063e0 | e8          |                 inx                  
+1272:000 | DONE wsp | na 16 16 |        |             |
+1273:000 | DONE cmt | na 16 16 |        |             |                 ; TODO LATER add PAUSE here for multitasking
+1274:000 | DONE wsp | na 16 16 |        |             |
+1275:000 | DONE lbl | na 16 16 | 0063e1 |             | z_type                               
+1275:001 | DONE ins | na 16 16 | 0063e1 | 60          |                 rts                  
+1276:000 | DONE wsp | na 16 16 |        |             |
+1277:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1278:000 | DONE cmt | na 16 16 |        |             | ; WORDS ( -- ) X bytes / X cycles
+1279:000 | DONE cmt | na 16 16 |        |             | ; Print list of all Forth words available. This only really makes sense in an
+1280:000 | DONE cmt | na 16 16 |        |             | ; interactive setting, so we don't have to worry about speed.
+1281:000 | DONE lbl | na 16 16 | 0063e2 |             | a_words                              
+1282:000 | DONE ins | na 16 16 | 0063e2 | a5 02       |                 lda.d 000202         ; nt of first entry in Dictionary (last added)
+1283:000 | DONE ins | na 16 16 | 0063e4 | 48          |                 pha                  
+1284:000 | DONE wsp | na 16 16 |        |             |
+1285:000 | DONE ins | na 16 16 | 0063e5 | ca          |                 dex                  
+1286:000 | DONE ins | na 16 16 | 0063e6 | ca          |                 dex                  
+1287:000 | DONE ins | na 16 16 | 0063e7 | 94 00       |                 sty.dx 00            
 1288:000 | DONE wsp | na 16 16 |        |             |
-1289:000 | DONE lbl | na 16 16 | 0063ec |             | words_loop                           
-1290:000 | DONE ins | na 16 16 | 0063ec | a8          |                 tay                  ; ( nt )
-1291:000 | DONE wsp | na 16 16 |        |             |
-1292:000 | DONE ins | na 16 16 | 0063ed | 20 c1 62    |                 jsr 0062c1           ; ( nt -- addr u )
-1293:000 | DONE ins | na 16 16 | 0063f0 | 20 c1 63    |                 jsr 0063c1           ; ( addr u -- )
-1294:000 | DONE ins | na 16 16 | 0063f3 | 20 8e 63    |                 jsr 00638e           
-1295:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1296:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1297:000 | DONE ins | na 16 16 | 0063f6 | 68          |                 pla                  
-1298:000 | DONE wsp | na 16 16 |        |             |
-1299:000 | DONE cmt | na 16 16 |        |             |                 ; the next nt is two bytes below the nt of the current one in
-1300:000 | DONE cmt | na 16 16 |        |             |                 ; the Dictionary header
-1301:000 | DONE cmt | na 16 16 |        |             |                 ;
-1302:000 | DONE ins | na 16 16 | 0063f7 | 1a          |                 inc.a                
-1303:000 | DONE ins | na 16 16 | 0063f8 | 1a          |                 inc.a                
-1304:000 | DONE wsp | na 16 16 |        |             |
-1305:000 | DONE ins | na 16 16 | 0063f9 | ca          |                 dex                  
-1306:000 | DONE ins | na 16 16 | 0063fa | ca          |                 dex                  
-1307:000 | DONE ins | na 16 16 | 0063fb | 94 00       |                 sty.dx 00            
-1308:000 | DONE wsp | na 16 16 |        |             |
-1309:000 | DONE ins | na 16 16 | 0063fd | a8          |                 tay                  
-1310:000 | DONE ins | na 16 16 | 0063fe | b9 00 00    |                 lda.y 0000           ; LDA $0000,Y
-1311:000 | DONE ins | na 16 16 | 006401 | 48          |                 pha                  
-1312:000 | DONE ins | na 16 16 | 006402 | d0 e8       |                 bne 0063ec           ; zero entry signals end of Dictionary
-1313:000 | DONE wsp | na 16 16 |        |             |
-1314:000 | DONE cmt | na 16 16 |        |             |                 ; all done, clean up
-1315:000 | DONE ins | na 16 16 | 006404 | 68          |                 pla                  
-1316:000 | DONE wsp | na 16 16 |        |             |
-1317:000 | DONE ins | na 16 16 | 006405 | b4 00       |                 ldy.dx 00            
-1318:000 | DONE ins | na 16 16 | 006407 | e8          |                 inx                  
-1319:000 | DONE ins | na 16 16 | 006408 | e8          |                 inx                  
-1320:000 | DONE wsp | na 16 16 |        |             |
-1321:000 | DONE lbl | na 16 16 | 006409 |             | z_words                              
-1321:001 | DONE ins | na 16 16 | 006409 | 60          |                 rts                  
+1289:000 | DONE ins | na 16 16 | 0063e9 | 20 c9 61    |                 jsr 0061c9           ; start on next line, this is a style choice
+1290:000 | DONE wsp | na 16 16 |        |             |
+1291:000 | DONE lbl | na 16 16 | 0063ec |             | words_loop                           
+1292:000 | DONE ins | na 16 16 | 0063ec | a8          |                 tay                  ; ( nt )
+1293:000 | DONE wsp | na 16 16 |        |             |
+1294:000 | DONE ins | na 16 16 | 0063ed | 20 c1 62    |                 jsr 0062c1           ; ( nt -- addr u )
+1295:000 | DONE ins | na 16 16 | 0063f0 | 20 c1 63    |                 jsr 0063c1           ; ( addr u -- )
+1296:000 | DONE ins | na 16 16 | 0063f3 | 20 8e 63    |                 jsr 00638e           
+1297:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1298:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1299:000 | DONE ins | na 16 16 | 0063f6 | 68          |                 pla                  
+1300:000 | DONE wsp | na 16 16 |        |             |
+1301:000 | DONE cmt | na 16 16 |        |             |                 ; the next nt is two bytes below the nt of the current one in
+1302:000 | DONE cmt | na 16 16 |        |             |                 ; the Dictionary header
+1303:000 | DONE cmt | na 16 16 |        |             |                 ;
+1304:000 | DONE ins | na 16 16 | 0063f7 | 1a          |                 inc.a                
+1305:000 | DONE ins | na 16 16 | 0063f8 | 1a          |                 inc.a                
+1306:000 | DONE wsp | na 16 16 |        |             |
+1307:000 | DONE ins | na 16 16 | 0063f9 | ca          |                 dex                  
+1308:000 | DONE ins | na 16 16 | 0063fa | ca          |                 dex                  
+1309:000 | DONE ins | na 16 16 | 0063fb | 94 00       |                 sty.dx 00            
+1310:000 | DONE wsp | na 16 16 |        |             |
+1311:000 | DONE ins | na 16 16 | 0063fd | a8          |                 tay                  
+1312:000 | DONE ins | na 16 16 | 0063fe | b9 00 00    |                 lda.y 0000           ; LDA $0000,Y
+1313:000 | DONE ins | na 16 16 | 006401 | 48          |                 pha                  
+1314:000 | DONE ins | na 16 16 | 006402 | d0 e8       |                 bne 0063ec           ; zero entry signals end of Dictionary
+1315:000 | DONE wsp | na 16 16 |        |             |
+1316:000 | DONE cmt | na 16 16 |        |             |                 ; all done, clean up
+1317:000 | DONE ins | na 16 16 | 006404 | 68          |                 pla                  ; balance MPU stack, value discarded
+1318:000 | DONE wsp | na 16 16 |        |             |
+1319:000 | DONE ins | na 16 16 | 006405 | b4 00       |                 ldy.dx 00            
+1320:000 | DONE ins | na 16 16 | 006407 | e8          |                 inx                  
+1321:000 | DONE ins | na 16 16 | 006408 | e8          |                 inx                  
 1322:000 | DONE wsp | na 16 16 |        |             |
-1323:000 | DONE wsp | na 16 16 |        |             |
+1323:000 | DONE lbl | na 16 16 | 006409 |             | z_words                              
+1323:001 | DONE ins | na 16 16 | 006409 | 60          |                 rts                  
 1324:000 | DONE wsp | na 16 16 |        |             |
-1325:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1326:000 | DONE cmt | na 16 16 |        |             | ; MIDDLE INCLUDES
-1327:000 | DONE wsp | na 16 16 |        |             |
-1328:000 | DONE cmt | na 16 16 |        |             | ; Dictionary Headers for Liara Forth for the W65C265SXB
-1328:001 | DONE cmt | na 16 16 |        |             | ; Scot W. Stevenson <scot.stevenson@gmail.com>
-1328:002 | DONE cmt | na 16 16 |        |             | ; First version: 05. Dec 2016
-1328:003 | DONE cmt | na 16 16 |        |             | ; This version: 03. Feb 2017
-1328:004 | DONE wsp | na 16 16 |        |             |
-1328:005 | DONE cmt | na 16 16 |        |             | ; Dictionary headers are kept separately from the code, which allows various
-1328:006 | DONE cmt | na 16 16 |        |             | ; tricks in the code. We roughly follow the Gforth terminology: The Execution
-1328:007 | DONE cmt | na 16 16 |        |             | ; Token (xt) is the address of the first byte of a word's code that can be,
-1328:008 | DONE cmt | na 16 16 |        |             | ; well, executed; the Name Token (nt) is a pointer to the beginning of the
-1328:009 | DONE cmt | na 16 16 |        |             | ; word's header in the Dictionary. There, the link to the next word in the
-1328:010 | DONE cmt | na 16 16 |        |             | ; Dictionary is always one cell down from the current word's own nt. In the code
-1328:011 | DONE cmt | na 16 16 |        |             | ; itself, we use "h_<WORD>" ("header") for the nt and "a_<WORD>" ("A" as the
-1328:012 | DONE cmt | na 16 16 |        |             | ; beginning) for the xt.
-1328:013 | DONE cmt | na 16 16 |        |             | ;
-1328:014 | DONE cmt | na 16 16 |        |             | ; This gives us the following header structure for each header:
-1328:015 | DONE wsp | na 16 16 |        |             |
-1328:016 | DONE cmt | na 16 16 |        |             | ;              8 bit     8 bit
-1328:017 | DONE cmt | na 16 16 |        |             | ;               LSB       MSB
-1328:018 | DONE cmt | na 16 16 |        |             | ; h_word ->  +--------+--------+
-1328:019 | DONE cmt | na 16 16 |        |             | ;            | Length | Status |
-1328:020 | DONE cmt | na 16 16 |        |             | ;         +2 +--------+--------+
-1328:021 | DONE cmt | na 16 16 |        |             | ;            | Next Header     | -> h_next (nt of next word)
-1328:022 | DONE cmt | na 16 16 |        |             | ;         +4 +-----------------+
-1328:023 | DONE cmt | na 16 16 |        |             | ;            | Start of Code   | -> a_word (xt of this word)
-1328:024 | DONE cmt | na 16 16 |        |             | ;         +6 +-----------------+
-1328:025 | DONE cmt | na 16 16 |        |             | ;            | End of Code     | -> z_word
-1328:026 | DONE cmt | na 16 16 |        |             | ;         +8 +--------+--------+
-1328:027 | DONE cmt | na 16 16 |        |             | ;            | Name   |        |
-1328:028 | DONE cmt | na 16 16 |        |             | ;            +--------+--------+
-1328:029 | DONE cmt | na 16 16 |        |             | ;            |        |        |
-1328:030 | DONE cmt | na 16 16 |        |             | ;            +--------+--------+
-1328:031 | DONE cmt | na 16 16 |        |             | ;            |        |  ...   | (name string does not end with a zero)
-1328:032 | DONE cmt | na 16 16 |        |             | ;         +n +--------+--------+
-1328:033 | DONE wsp | na 16 16 |        |             |
-1328:034 | DONE cmt | na 16 16 |        |             | ; Status bytes are created by adding dictionary flags defined in
-1328:035 | DONE cmt | na 16 16 |        |             | ; definitions.tasm:
-1328:036 | DONE cmt | na 16 16 |        |             | ;
-1328:037 | DONE cmt | na 16 16 |        |             | ;       PW - Primitive Word (natively coded)
-1328:038 | DONE cmt | na 16 16 |        |             | ;       CO - Compile Only
-1328:039 | DONE cmt | na 16 16 |        |             | ;       IM - Immediate Word
-1328:040 | DONE cmt | na 16 16 |        |             | ;       NC - Native Compile (inline compile)
-1328:041 | DONE wsp | na 16 16 |        |             |
-1328:042 | DONE cmt | na 16 16 |        |             | ; The last word (top word in code) is always BYE, signaled to FIND by a 0000 in
-1328:043 | DONE cmt | na 16 16 |        |             | ; the link to the Next Word field. The words are sorted with the more common
-1328:044 | DONE cmt | na 16 16 |        |             | ; ones first (further down in code) and the output words later (further up)
-1328:045 | DONE cmt | na 16 16 |        |             | ; because things will always be slow if there is a human involved.
-1328:046 | DONE wsp | na 16 16 |        |             |
-1328:047 | DONE lbl | na 16 16 | 00640a |             | h_bye                                
-1328:048 | DONE dir | na 16 16 | 00640a | (1 bytes)   |         .byte 03                     ; length of word string
-1328:048 | DONE dir | na 16 16 |        |             |                 03                       --  .
-1328:049 | DONE dir | na 16 16 | 00640b | (1 bytes)   |         .byte { PW + NC }            ; status byte
-1328:049 | DONE dir | na 16 16 |        |             |                 90                       --  .
-1328:050 | DONE dir | na 16 16 | 00640c | (2 bytes)   |         .word 0000                   ; next word in dictionary, 0000 signals end
-1328:050 | DONE dir | na 16 16 |        |             |                 00 00                    --  . .
-1328:051 | DONE dir | na 16 16 | 00640e | (2 bytes)   |         .word 0061ab                 ; start of code, the xt of this word
-1328:051 | DONE dir | na 16 16 |        |             |                 ab 61                    --  . a
-1328:052 | DONE dir | na 16 16 | 006410 | (2 bytes)   |         .word 0061ad                 ; end of code (points to RTS)
-1328:052 | DONE dir | na 16 16 |        |             |                 ad 61                    --  . a
-1328:053 | DONE dir | na 16 16 | 006412 | (3 bytes)   |         .byte 62, 79, 65             ; lowercase word name
-1328:053 | DONE dir | na 16 16 |        |             |                 62 79 65                 --  b y e
-1328:054 | DONE wsp | na 16 16 |        |             |
-1328:055 | DONE lbl | na 16 16 | 006415 |             | h_cold                               
-1328:056 | DONE dir | na 16 16 | 006415 | (2 bytes)   |         .byte 4, 00                  
-1328:056 | DONE dir | na 16 16 |        |             |                 04 00                    --  . .
-1328:057 | DONE dir | na 16 16 | 006417 | (6 bytes)   |         .word h_bye, a_cold, 0060d5  
-1328:057 | DONE dir | na 16 16 |        |             |                 0a 64 5d 60 d5 60        --  
- d ] ` . `
-1328:058 | DONE dir | na 16 16 | 00641d | (4 bytes)   |         .byte 63, 6f, 6c, 64         
-1328:058 | DONE dir | na 16 16 |        |             |                 63 6f 6c 64              --  c o l d
-1328:059 | DONE wsp | na 16 16 |        |             |
-1328:060 | DONE lbl | na 16 16 | 006421 |             | h_words                              
-1328:061 | DONE dir | na 16 16 | 006421 | (2 bytes)   |         .byte 5, { PW + NC }         
-1328:061 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
-1328:062 | DONE dir | na 16 16 | 006423 | (6 bytes)   |         .word h_cold, a_words, 006409 
-1328:062 | DONE dir | na 16 16 |        |             |                 15 64 e2 63 09 64        --  . d . c 	 d
-1328:063 | DONE dir | na 16 16 | 006429 | (5 bytes)   |         .byte 77, 6f, 72, 64, 73     
-1328:063 | DONE dir | na 16 16 |        |             |                 77 6f 72 64 73           --  w o r d s
-1328:064 | DONE wsp | na 16 16 |        |             |
-1328:065 | DONE lbl | na 16 16 | 00642e |             | h_bell                               
-1328:066 | DONE dir | na 16 16 | 00642e | (2 bytes)   |         .byte 4, { PW + NC }         
-1328:066 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
-1328:067 | DONE dir | na 16 16 | 006430 | (6 bytes)   |         .word h_words, a_bell, 0061a2 
-1328:067 | DONE dir | na 16 16 |        |             |                 21 64 9c 61 a2 61        --  ! d . a . a
-1328:068 | DONE dir | na 16 16 | 006436 | (4 bytes)   |         .byte 62, 65, 6c, 6c         
-1328:068 | DONE dir | na 16 16 |        |             |                 62 65 6c 6c              --  b e l l
-1328:069 | DONE wsp | na 16 16 |        |             |
-1328:070 | DONE lbl | na 16 16 | 00643a |             | h_count                              
-1328:071 | DONE dir | na 16 16 | 00643a | (2 bytes)   |         .byte 5, {NC + PW }          
-1328:071 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
-1328:072 | DONE dir | na 16 16 | 00643c | (6 bytes)   |         .word h_bell, a_count, 0061c8 
-1328:072 | DONE dir | na 16 16 |        |             |                 2e 64 ba 61 c8 61        --  . d . a . a
-1328:073 | DONE dir | na 16 16 | 006442 | (5 bytes)   |         .byte 63, 6f, 75, 6e, 74     
-1328:073 | DONE dir | na 16 16 |        |             |                 63 6f 75 6e 74           --  c o u n t
-1328:074 | DONE wsp | na 16 16 |        |             |
-1328:075 | DONE lbl | na 16 16 | 006447 |             | h_abort                              
-1328:076 | DONE dir | na 16 16 | 006447 | (2 bytes)   |         .byte 5, 00                  ; TODO check flags
-1328:076 | DONE dir | na 16 16 |        |             |                 05 00                    --  . .
-1328:077 | DONE dir | na 16 16 | 006449 | (6 bytes)   |         .word h_count, a_abort, 0060d5 
-1328:077 | DONE dir | na 16 16 |        |             |                 3a 64 93 60 d5 60        --  : d . ` . `
-1328:078 | DONE dir | na 16 16 | 00644f | (5 bytes)   |         .byte 61, 62, 6f, 72, 74     
-1328:078 | DONE dir | na 16 16 |        |             |                 61 62 6f 72 74           --  a b o r t
-1328:079 | DONE wsp | na 16 16 |        |             |
-1328:080 | DONE lbl | na 16 16 | 006454 |             | h_parse                              
-1328:081 | DONE dir | na 16 16 | 006454 | (2 bytes)   |         .byte 5, 00                  
-1328:081 | DONE dir | na 16 16 |        |             |                 05 00                    --  . .
-1328:082 | DONE dir | na 16 16 | 006456 | (6 bytes)   |         .word h_abort, a_parse, 006339 
-1328:082 | DONE dir | na 16 16 |        |             |                 47 64 07 63 39 63        --  G d . c 9 c
-1328:083 | DONE dir | na 16 16 | 00645c | (5 bytes)   |         .byte 70, 61, 72, 73, 65     
-1328:083 | DONE dir | na 16 16 |        |             |                 70 61 72 73 65           --  p a r s e
-1328:084 | DONE wsp | na 16 16 |        |             |
-1328:085 | DONE lbl | na 16 16 | 006461 |             | h_quit                               
-1328:086 | DONE dir | na 16 16 | 006461 | (2 bytes)   |         .byte 4, 00                  
-1328:086 | DONE dir | na 16 16 |        |             |                 04 00                    --  . .
-1328:087 | DONE dir | na 16 16 | 006463 | (6 bytes)   |         .word h_parse, a_quit, 0060d5 
-1328:087 | DONE dir | na 16 16 |        |             |                 54 64 9b 60 d5 60        --  T d . ` . `
-1328:088 | DONE dir | na 16 16 | 006469 | (4 bytes)   |         .byte 71, 75, 69, 74         
-1328:088 | DONE dir | na 16 16 |        |             |                 71 75 69 74              --  q u i t
-1328:089 | DONE wsp | na 16 16 |        |             |
-1328:090 | DONE lbl | na 16 16 | 00646d |             | h_name>int                           
-1328:091 | DONE dir | na 16 16 | 00646d | (2 bytes)   |         .byte 8, { PW + NC }         
-1328:091 | DONE dir | na 16 16 |        |             |                 08 90                    --  . .
-1328:092 | DONE dir | na 16 16 | 00646f | (6 bytes)   |         .word h_quit, a_name>int, 0062c0 
-1328:092 | DONE dir | na 16 16 |        |             |                 61 64 b8 62 c0 62        --  a d . b . b
-1328:093 | DONE dir | na 16 16 | 006475 | (8 bytes)   |         .byte 6e, 61, 6d, 65, 3e, 69, 6e, 74 
-1328:093 | DONE dir | na 16 16 |        |             |                 6e 61 6d 65 3e 69 6e 74  --  n a m e > i n t
-1328:093 | DONE dir | na 16 16 |        |             |                                          -- 
-1328:094 | DONE wsp | na 16 16 |        |             |
-1328:095 | DONE lbl | na 16 16 | 00647d |             | h_cr                                 
-1328:096 | DONE dir | na 16 16 | 00647d | (2 bytes)   |         .byte 2, { PW + NC }         
-1328:096 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
-1328:097 | DONE dir | na 16 16 | 00647f | (6 bytes)   |         .word h_name>int, a_cr, 0061cf 
-1328:097 | DONE dir | na 16 16 |        |             |                 6d 64 c9 61 cf 61        --  m d . a . a
-1328:098 | DONE dir | na 16 16 | 006485 | (2 bytes)   |         .byte 63, 72                 
-1328:098 | DONE dir | na 16 16 |        |             |                 63 72                    --  c r
-1328:099 | DONE wsp | na 16 16 |        |             |
-1328:100 | DONE lbl | na 16 16 | 006487 |             | h_bl                                 
-1328:101 | DONE dir | na 16 16 | 006487 | (2 bytes)   |         .byte 2, { PW + NC }         
-1328:101 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
-1328:102 | DONE dir | na 16 16 | 006489 | (6 bytes)   |         .word h_cr, a_bl, 0061aa     
-1328:102 | DONE dir | na 16 16 |        |             |                 7d 64 a3 61 aa 61        --  } d . a . a
-1328:103 | DONE dir | na 16 16 | 00648f | (2 bytes)   |         .byte 62, 6c                 
-1328:103 | DONE dir | na 16 16 |        |             |                 62 6c                    --  b l
-1328:104 | DONE wsp | na 16 16 |        |             |
-1328:105 | DONE lbl | na 16 16 | 006491 |             | h_spaces                             
-1328:106 | DONE dir | na 16 16 | 006491 | (2 bytes)   |         .byte 6, { PW + NC }         
-1328:106 | DONE dir | na 16 16 |        |             |                 06 90                    --  . .
-1328:107 | DONE dir | na 16 16 | 006493 | (6 bytes)   |         .word h_bl, a_spaces, 0063a1 
-1328:107 | DONE dir | na 16 16 |        |             |                 87 64 95 63 a1 63        --  . d . c . c
-1328:108 | DONE dir | na 16 16 | 006499 | (6 bytes)   |         .byte 73, 70, 61, 63, 65, 73 
-1328:108 | DONE dir | na 16 16 |        |             |                 73 70 61 63 65 73        --  s p a c e s
-1328:109 | DONE wsp | na 16 16 |        |             |
-1328:110 | DONE lbl | na 16 16 | 00649f |             | h_space                              
-1328:111 | DONE dir | na 16 16 | 00649f | (2 bytes)   |         .byte 5, { PW + NC }         
-1328:111 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
-1328:112 | DONE dir | na 16 16 | 0064a1 | (6 bytes)   |         .word h_spaces, a_space, 006394 
-1328:112 | DONE dir | na 16 16 |        |             |                 91 64 8e 63 94 63        --  . d . c . c
-1328:113 | DONE dir | na 16 16 | 0064a7 | (5 bytes)   |         .byte 73, 70, 61, 63, 65     
-1328:113 | DONE dir | na 16 16 |        |             |                 73 70 61 63 65           --  s p a c e
-1328:114 | DONE wsp | na 16 16 |        |             |
-1328:115 | DONE lbl | na 16 16 | 0064ac |             | h_dots                               
-1328:116 | DONE dir | na 16 16 | 0064ac | (2 bytes)   |         .byte 2, { PW + NC }         
-1328:116 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
-1328:117 | DONE dir | na 16 16 | 0064ae | (6 bytes)   |         .word h_space, a_dots, 00623c 
-1328:117 | DONE dir | na 16 16 |        |             |                 9f 64 f5 61 3c 62        --  . d . a < b
-1328:118 | DONE dir | na 16 16 | 0064b4 | (2 bytes)   |         .byte 2e, 73                 
-1328:118 | DONE dir | na 16 16 |        |             |                 2e 73                    --  . s
-1328:119 | DONE wsp | na 16 16 |        |             |
-1328:120 | DONE lbl | na 16 16 | 0064b6 |             | h_type                               
-1328:121 | DONE dir | na 16 16 | 0064b6 | (2 bytes)   |         .byte 4, 0                   
-1328:121 | DONE dir | na 16 16 |        |             |                 04 00                    --  . .
-1328:122 | DONE dir | na 16 16 | 0064b8 | (6 bytes)   |         .word h_dots, a_type, 0063e1 
-1328:122 | DONE dir | na 16 16 |        |             |                 ac 64 c1 63 e1 63        --  . d . c . c
-1328:123 | DONE dir | na 16 16 | 0064be | (4 bytes)   |         .byte 74, 79, 70, 65         
-1328:123 | DONE dir | na 16 16 |        |             |                 74 79 70 65              --  t y p e
-1328:124 | DONE wsp | na 16 16 |        |             |
-1328:125 | DONE lbl | na 16 16 | 0064c2 |             | h_dot                                
-1328:126 | DONE dir | na 16 16 | 0064c2 | (2 bytes)   |         .byte 1, { PW + NC }         
-1328:126 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
-1328:127 | DONE dir | na 16 16 | 0064c4 | (6 bytes)   |         .word h_type, a_dot, 0061f4  
-1328:127 | DONE dir | na 16 16 |        |             |                 b6 64 df 61 f4 61        --  . d . a . a
-1328:128 | DONE dir | na 16 16 | 0064ca | (1 bytes)   |         .byte 2e                     
-1328:128 | DONE dir | na 16 16 |        |             |                 2e                       --  .
-1328:129 | DONE wsp | na 16 16 |        |             |
-1328:130 | DONE lbl | na 16 16 | 0064cb |             | h_name>string                        
-1328:131 | DONE dir | na 16 16 | 0064cb | (2 bytes)   |         .byte 0b, { PW + NC }        
-1328:131 | DONE dir | na 16 16 |        |             |                 0b 90                    --   .
-1328:132 | DONE dir | na 16 16 | 0064cd | (6 bytes)   |         .word h_dot, a_name>string, 0062d1 
-1328:132 | DONE dir | na 16 16 |        |             |                 c2 64 c1 62 d1 62        --  . d . b . b
-1328:133 | DONE dir | na 16 16 | 0064d3 | (11 bytes)  |         .byte 6e, 61, 6d, 65, 3e, 73, 74, 72, 69, 6e, 67 
-1328:133 | DONE dir | na 16 16 |        |             |                 6e 61 6d 65 3e 73 74 72  --  n a m e > s t r
-1328:133 | DONE dir | na 16 16 |        |             |                 69 6e 67                 --  i n g
-1328:134 | DONE wsp | na 16 16 |        |             |
-1328:135 | DONE lbl | na 16 16 | 0064de |             | h_2dup                               
-1328:136 | DONE dir | na 16 16 | 0064de | (2 bytes)   |         .byte 4, { PW + NC }         
-1328:136 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
-1328:137 | DONE dir | na 16 16 | 0064e0 | (6 bytes)   |         .word h_name>string, a_2dup, 00610a 
-1328:137 | DONE dir | na 16 16 |        |             |                 cb 64 00 61 0a 61        --  . d . a 
- a
-1328:138 | DONE dir | na 16 16 | 0064e6 | (4 bytes)   |         .byte 32, 64, 75, 70         
-1328:138 | DONE dir | na 16 16 |        |             |                 32 64 75 70              --  2 d u p
-1328:139 | DONE wsp | na 16 16 |        |             |
-1328:140 | DONE lbl | na 16 16 | 0064ea |             | h_abs                                
-1328:141 | DONE dir | na 16 16 | 0064ea | (2 bytes)   |         .byte 3, { PW + NC }         
-1328:141 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
-1328:142 | DONE dir | na 16 16 | 0064ec | (6 bytes)   |         .word h_2dup, a_abs, 006117  
-1328:142 | DONE dir | na 16 16 |        |             |                 de 64 0b 61 17 61        --  . d  a . a
-1328:143 | DONE dir | na 16 16 | 0064f2 | (3 bytes)   |         .byte 61, 62, 73             
-1328:143 | DONE dir | na 16 16 |        |             |                 61 62 73                 --  a b s
-1328:144 | DONE wsp | na 16 16 |        |             |
-1328:145 | DONE lbl | na 16 16 | 0064f5 |             | h_state                              
-1328:146 | DONE dir | na 16 16 | 0064f5 | (2 bytes)   |         .byte 5, { PW + NC }         
-1328:146 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
-1328:147 | DONE dir | na 16 16 | 0064f7 | (6 bytes)   |         .word h_abs, a_state, 0063a9 
-1328:147 | DONE dir | na 16 16 |        |             |                 ea 64 a2 63 a9 63        --  . d . c . c
-1328:148 | DONE dir | na 16 16 | 0064fd | (5 bytes)   |         .byte 73, 74, 61, 74, 65     
-1328:148 | DONE dir | na 16 16 |        |             |                 73 74 61 74 65           --  s t a t e
-1328:149 | DONE wsp | na 16 16 |        |             |
-1328:150 | DONE lbl | na 16 16 | 006502 |             | h_to-in                              
-1328:151 | DONE dir | na 16 16 | 006502 | (2 bytes)   |         .byte 3, { PW + NC }         
-1328:151 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
-1328:152 | DONE dir | na 16 16 | 006504 | (6 bytes)   |         .word h_state, a_to-in, 0060dd 
-1328:152 | DONE dir | na 16 16 |        |             |                 f5 64 d6 60 dd 60        --  . d . ` . `
-1328:153 | DONE dir | na 16 16 | 00650a | (3 bytes)   |         .byte 3e, 69, 6e             
-1328:153 | DONE dir | na 16 16 |        |             |                 3e 69 6e                 --  > i n
-1328:154 | DONE wsp | na 16 16 |        |             |
-1328:155 | DONE lbl | na 16 16 | 00650d |             | h_source                             
-1328:156 | DONE dir | na 16 16 | 00650d | (2 bytes)   |         .byte 6, { PW + NC }         
-1328:156 | DONE dir | na 16 16 |        |             |                 06 90                    --  . .
-1328:157 | DONE dir | na 16 16 | 00650f | (6 bytes)   |         .word h_to-in, a_source, 006386 
-1328:157 | DONE dir | na 16 16 |        |             |                 02 65 7a 63 86 63        --  . e z c . c
-1328:158 | DONE dir | na 16 16 | 006515 | (6 bytes)   |         .byte 73, 6f, 75, 72, 63, 65 
-1328:158 | DONE dir | na 16 16 |        |             |                 73 6f 75 72 63 65        --  s o u r c e
-1328:159 | DONE wsp | na 16 16 |        |             |
-1328:160 | DONE lbl | na 16 16 | 00651b |             | h_depth                              
-1328:161 | DONE dir | na 16 16 | 00651b | (2 bytes)   |         .byte 5, { PW + NC }         
-1328:161 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
-1328:162 | DONE dir | na 16 16 | 00651d | (6 bytes)   |         .word h_source, a_depth, 0061de 
-1328:162 | DONE dir | na 16 16 |        |             |                 0d 65 d0 61 de 61        --   e . a . a
-1328:163 | DONE dir | na 16 16 | 006523 | (5 bytes)   |         .byte 64, 65, 70, 74, 68     
-1328:163 | DONE dir | na 16 16 |        |             |                 64 65 70 74 68           --  d e p t h
-1328:164 | DONE wsp | na 16 16 |        |             |
-1328:165 | DONE lbl | na 16 16 | 006528 |             | h_plus                               
-1328:166 | DONE dir | na 16 16 | 006528 | (2 bytes)   |         .byte 1, { PW + NC }         
-1328:166 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
-1328:167 | DONE dir | na 16 16 | 00652a | (6 bytes)   |         .word h_depth, a_plus, 0060e5 
-1328:167 | DONE dir | na 16 16 |        |             |                 1b 65 de 60 e5 60        --  . e . ` . `
-1328:168 | DONE dir | na 16 16 | 006530 | (1 bytes)   |         .byte 2b                     
-1328:168 | DONE dir | na 16 16 |        |             |                 2b                       --  +
-1328:169 | DONE wsp | na 16 16 |        |             |
-1328:170 | DONE lbl | na 16 16 | 006531 |             | h_one-plus                           
-1328:171 | DONE dir | na 16 16 | 006531 | (2 bytes)   |         .byte 2, { PW + NC }         
-1328:171 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
-1328:172 | DONE dir | na 16 16 | 006533 | (6 bytes)   |         .word h_plus, a_one-plus, 0060f7 
-1328:172 | DONE dir | na 16 16 |        |             |                 28 65 f6 60 f7 60        --  ( e . ` . `
-1328:173 | DONE dir | na 16 16 | 006539 | (2 bytes)   |         .byte 31, 2b                 
-1328:173 | DONE dir | na 16 16 |        |             |                 31 2b                    --  1 +
-1328:174 | DONE wsp | na 16 16 |        |             |
-1328:175 | DONE lbl | na 16 16 | 00653b |             | h_false                              
-1328:176 | DONE dir | na 16 16 | 00653b | (2 bytes)   |         .byte 5, { PW + NC }         
-1328:176 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
-1328:177 | DONE dir | na 16 16 | 00653d | (6 bytes)   |         .word h_one-plus, a_zero, 0060ed 
-1328:177 | DONE dir | na 16 16 |        |             |                 31 65 e6 60 ed 60        --  1 e . ` . `
-1328:178 | DONE dir | na 16 16 | 006543 | (5 bytes)   |         .byte 66, 61, 6c, 73, 65     
-1328:178 | DONE dir | na 16 16 |        |             |                 66 61 6c 73 65           --  f a l s e
-1328:179 | DONE wsp | na 16 16 |        |             |
-1328:180 | DONE lbl | na 16 16 | 006548 |             | h_true                               
-1328:181 | DONE dir | na 16 16 | 006548 | (2 bytes)   |         .byte 4, { PW + NC }         
-1328:181 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
-1328:182 | DONE dir | na 16 16 | 00654a | (6 bytes)   |         .word h_false, a_true, 0063b7 
-1328:182 | DONE dir | na 16 16 |        |             |                 3b 65 b0 63 b7 63        --  ; e . c . c
-1328:183 | DONE dir | na 16 16 | 006550 | (4 bytes)   |         .byte 74, 72, 75, 65         
-1328:183 | DONE dir | na 16 16 |        |             |                 74 72 75 65              --  t r u e
-1328:184 | DONE wsp | na 16 16 |        |             |
-1328:185 | DONE lbl | na 16 16 | 006554 |             | h_two                                
-1328:186 | DONE dir | na 16 16 | 006554 | (2 bytes)   |         .byte 1, { PW + NC }         
-1328:186 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
-1328:187 | DONE dir | na 16 16 | 006556 | (6 bytes)   |         .word h_true, a_two, 0060ff  
-1328:187 | DONE dir | na 16 16 |        |             |                 48 65 f8 60 ff 60        --  H e . ` . `
-1328:188 | DONE dir | na 16 16 | 00655c | (1 bytes)   |         .byte 32                     
-1328:188 | DONE dir | na 16 16 |        |             |                 32                       --  2
-1328:189 | DONE wsp | na 16 16 |        |             |
-1328:190 | DONE lbl | na 16 16 | 00655d |             | h_one                                
-1328:191 | DONE dir | na 16 16 | 00655d | (2 bytes)   |         .byte 1, { PW + NC }         
-1328:191 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
-1328:192 | DONE dir | na 16 16 | 00655f | (6 bytes)   |         .word h_two, a_one, 0060f5   
-1328:192 | DONE dir | na 16 16 |        |             |                 54 65 ee 60 f5 60        --  T e . ` . `
-1328:193 | DONE dir | na 16 16 | 006565 | (1 bytes)   |         .byte 31                     
-1328:193 | DONE dir | na 16 16 |        |             |                 31                       --  1
-1328:194 | DONE wsp | na 16 16 |        |             |
-1328:195 | DONE lbl | na 16 16 | 006566 |             | h_zero                               
-1328:196 | DONE dir | na 16 16 | 006566 | (2 bytes)   |         .byte 1, { PW + NC }         
-1328:196 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
-1328:197 | DONE dir | na 16 16 | 006568 | (6 bytes)   |         .word h_one, a_zero, 0060ed  
-1328:197 | DONE dir | na 16 16 |        |             |                 5d 65 e6 60 ed 60        --  ] e . ` . `
-1328:198 | DONE dir | na 16 16 | 00656e | (1 bytes)   |         .byte 30                     
-1328:198 | DONE dir | na 16 16 |        |             |                 30                       --  0
-1328:199 | DONE wsp | na 16 16 |        |             |
-1328:200 | DONE lbl | na 16 16 | 00656f |             | h_find-name                          
-1328:201 | DONE dir | na 16 16 | 00656f | (2 bytes)   |         .byte 9, 0                   
-1328:201 | DONE dir | na 16 16 |        |             |                 09 00                    --  	 .
-1328:202 | DONE dir | na 16 16 | 006571 | (6 bytes)   |         .word h_zero, a_find-name, 0062b0 
-1328:202 | DONE dir | na 16 16 |        |             |                 66 65 5a 62 b0 62        --  f e Z b . b
-1328:203 | DONE dir | na 16 16 | 006577 | (9 bytes)   |         .byte 66, 69, 6e, 64, 2d, 6e, 61, 6d, 65 
-1328:203 | DONE dir | na 16 16 |        |             |                 66 69 6e 64 2d 6e 61 6d  --  f i n d - n a m
-1328:203 | DONE dir | na 16 16 |        |             |                 65                       --  e
-1328:204 | DONE wsp | na 16 16 |        |             |
-1328:205 | DONE lbl | na 16 16 | 006580 |             | h_refill                             
-1328:206 | DONE dir | na 16 16 | 006580 | (2 bytes)   |         .byte 6, { PW }              ; TODO check flags
-1328:206 | DONE dir | na 16 16 |        |             |                 06 80                    --  . .
-1328:207 | DONE dir | na 16 16 | 006582 | (6 bytes)   |         .word h_find-name, a_refill, 006370 
-1328:207 | DONE dir | na 16 16 |        |             |                 6f 65 3a 63 70 63        --  o e : c p c
-1328:208 | DONE dir | na 16 16 | 006588 | (6 bytes)   |         .byte 72, 65, 66, 69, 6c, 6c 
-1328:208 | DONE dir | na 16 16 |        |             |                 72 65 66 69 6c 6c        --  r e f i l l
-1328:209 | DONE wsp | na 16 16 |        |             |
-1328:210 | DONE lbl | na 16 16 | 00658e |             | h_parse-name                         
-1328:211 | DONE dir | na 16 16 | 00658e | (2 bytes)   |         .byte &10, 0                 
-1328:211 | DONE dir | na 16 16 |        |             |                 0a 00                    --  
- .
-1328:212 | DONE dir | na 16 16 | 006590 | (6 bytes)   |         .word h_refill, a_parse-name, 006339 
-1328:212 | DONE dir | na 16 16 |        |             |                 80 65 d5 62 39 63        --  . e . b 9 c
-1328:213 | DONE dir | na 16 16 | 006596 | (10 bytes)  |         .byte 70, 61, 72, 73, 65, 2d, 6e, 61, 6d, 65 
-1328:213 | DONE dir | na 16 16 |        |             |                 70 61 72 73 65 2d 6e 61  --  p a r s e - n a
-1328:213 | DONE dir | na 16 16 |        |             |                 6d 65                    --  m e
-1328:214 | DONE wsp | na 16 16 |        |             |
-1328:215 | DONE lbl | na 16 16 | 0065a0 |             | h_source-id                          
-1328:216 | DONE dir | na 16 16 | 0065a0 | (2 bytes)   |         .byte 9, { PW + NC }         
-1328:216 | DONE dir | na 16 16 |        |             |                 09 90                    --  	 .
-1328:217 | DONE dir | na 16 16 | 0065a2 | (6 bytes)   |         .word h_parse-name, a_source-id, 00638d 
-1328:217 | DONE dir | na 16 16 |        |             |                 8e 65 87 63 8d 63        --  . e . c . c
-1328:218 | DONE dir | na 16 16 | 0065a8 | (9 bytes)   |         .byte 73, 6f, 75, 72, 63, 65, 2d, 69, 64 
-1328:218 | DONE dir | na 16 16 |        |             |                 73 6f 75 72 63 65 2d 69  --  s o u r c e - i
-1328:218 | DONE dir | na 16 16 |        |             |                 64                       --  d
-1328:219 | DONE wsp | na 16 16 |        |             |
-1328:220 | DONE lbl | na 16 16 | 0065b1 |             | h_comma                              
-1328:221 | DONE dir | na 16 16 | 0065b1 | (2 bytes)   |         .byte 1, { PW + NC }         
-1328:221 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
-1328:222 | DONE dir | na 16 16 | 0065b3 | (6 bytes)   |         .word h_source-id, a_comma, 0061b9 
-1328:222 | DONE dir | na 16 16 |        |             |                 a0 65 ae 61 b9 61        --  . e . a . a
-1328:223 | DONE dir | na 16 16 | 0065b9 | (1 bytes)   |         .byte 2c                     
-1328:223 | DONE dir | na 16 16 |        |             |                 2c                       --  ,
-1328:224 | DONE wsp | na 16 16 |        |             |
-1328:225 | DONE lbl | na 16 16 | 0065ba |             | h_accept                             
-1328:226 | DONE dir | na 16 16 | 0065ba | (2 bytes)   |         .byte 6, 00                  ; TODO check flags
-1328:226 | DONE dir | na 16 16 |        |             |                 06 00                    --  . .
-1328:227 | DONE dir | na 16 16 | 0065bc | (6 bytes)   |         .word h_comma, a_accept, 00619b 
-1328:227 | DONE dir | na 16 16 |        |             |                 b1 65 18 61 9b 61        --  . e . a . a
-1328:228 | DONE dir | na 16 16 | 0065c2 | (6 bytes)   |         .byte 61, 63, 63, 65, 70, 74 
-1328:228 | DONE dir | na 16 16 |        |             |                 61 63 63 65 70 74        --  a c c e p t
-1328:229 | DONE wsp | na 16 16 |        |             |
-1328:230 | DONE lbl | na 16 16 | 0065c8 |             | h_tuck                               
-1328:231 | DONE dir | na 16 16 | 0065c8 | (2 bytes)   |         .byte 4, { PW + NC }         
-1328:231 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
-1328:232 | DONE dir | na 16 16 | 0065ca | (6 bytes)   |         .word h_accept, a_tuck, 0063c0 
-1328:232 | DONE dir | na 16 16 |        |             |                 ba 65 b8 63 c0 63        --  . e . c . c
-1328:233 | DONE dir | na 16 16 | 0065d0 | (4 bytes)   |         .byte 74, 75, 63, 6b         
-1328:233 | DONE dir | na 16 16 |        |             |                 74 75 63 6b              --  t u c k
-1328:234 | DONE wsp | na 16 16 |        |             |
-1328:235 | DONE lbl | na 16 16 | 0065d4 |             | h_nip                                
-1328:236 | DONE dir | na 16 16 | 0065d4 | (2 bytes)   |         .byte 3, { PW + NC }         
-1328:236 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
-1328:237 | DONE dir | na 16 16 | 0065d6 | (6 bytes)   |         .word h_tuck, a_nip, 0062d4  
-1328:237 | DONE dir | na 16 16 |        |             |                 c8 65 d2 62 d4 62        --  . e . b . b
-1328:238 | DONE dir | na 16 16 | 0065dc | (3 bytes)   |         .byte 6e, 69, 70             
-1328:238 | DONE dir | na 16 16 |        |             |                 6e 69 70                 --  n i p
-1328:239 | DONE wsp | na 16 16 |        |             |
-1328:240 | DONE lbl | na 16 16 | 0065df |             | h_rot                                
-1328:241 | DONE dir | na 16 16 | 0065df | (2 bytes)   |         .byte 3, { PW + NC }         
-1328:241 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
-1328:242 | DONE dir | na 16 16 | 0065e1 | (6 bytes)   |         .word h_nip, a_rot, 006379   
-1328:242 | DONE dir | na 16 16 |        |             |                 d4 65 71 63 79 63        --  . e q c y c
-1328:243 | DONE dir | na 16 16 | 0065e7 | (3 bytes)   |         .byte 72, 6f, 74             
-1328:243 | DONE dir | na 16 16 |        |             |                 72 6f 74                 --  r o t
-1328:244 | DONE wsp | na 16 16 |        |             |
-1328:245 | DONE lbl | na 16 16 | 0065ea |             | h_execute                            
-1328:246 | DONE dir | na 16 16 | 0065ea | (2 bytes)   |         .byte 7, { PW + NC }         
-1328:246 | DONE dir | na 16 16 |        |             |                 07 90                    --  . .
-1328:247 | DONE dir | na 16 16 | 0065ec | (6 bytes)   |         .word h_rot, a_execute, 006259 
-1328:247 | DONE dir | na 16 16 |        |             |                 df 65 4a 62 59 62        --  . e J b Y b
-1328:248 | DONE dir | na 16 16 | 0065f2 | (7 bytes)   |         .byte 65, 78, 65, 63, 75, 74, 65 
-1328:248 | DONE dir | na 16 16 |        |             |                 65 78 65 63 75 74 65     --  e x e c u t e
-1328:249 | DONE wsp | na 16 16 |        |             |
-1328:250 | DONE lbl | na 16 16 | 0065f9 |             | h_here                               
-1328:251 | DONE dir | na 16 16 | 0065f9 | (2 bytes)   |         .byte 4, { PW + NC }         
-1328:251 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
-1328:252 | DONE dir | na 16 16 | 0065fb | (6 bytes)   |         .word h_execute, a_here, 0062b7 
-1328:252 | DONE dir | na 16 16 |        |             |                 ea 65 b1 62 b7 62        --  . e . b . b
-1328:253 | DONE dir | na 16 16 | 006601 | (4 bytes)   |         .byte 68, 65, 72, 65         
-1328:253 | DONE dir | na 16 16 |        |             |                 68 65 72 65              --  h e r e
-1328:254 | DONE wsp | na 16 16 |        |             |
-1328:255 | DONE lbl | na 16 16 | 006605 |             | h_swap                               
-1328:256 | DONE dir | na 16 16 | 006605 | (2 bytes)   |         .byte 4, { PW + NC }         
-1328:256 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
-1328:257 | DONE dir | na 16 16 | 006607 | (6 bytes)   |         .word h_here, a_swap, 0063af 
-1328:257 | DONE dir | na 16 16 |        |             |                 f9 65 aa 63 af 63        --  . e . c . c
-1328:258 | DONE dir | na 16 16 | 00660d | (4 bytes)   |         .byte 73, 77, 61, 70         
-1328:258 | DONE dir | na 16 16 |        |             |                 73 77 61 70              --  s w a p
-1328:259 | DONE wsp | na 16 16 |        |             |
-1328:260 | DONE lbl | na 16 16 | 006611 |             | h_dup                                
-1328:261 | DONE dir | na 16 16 | 006611 | (2 bytes)   |         .byte 3, { PW + NC }         
-1328:261 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
-1328:262 | DONE dir | na 16 16 | 006613 | (6 bytes)   |         .word h_swap, a_dup, 006246  
-1328:262 | DONE dir | na 16 16 |        |             |                 05 66 42 62 46 62        --  . f B b F b
-1328:263 | DONE dir | na 16 16 | 006619 | (3 bytes)   |         .byte 64, 75, 70             
-1328:263 | DONE dir | na 16 16 |        |             |                 64 75 70                 --  d u p
-1328:264 | DONE wsp | na 16 16 |        |             |
-1328:265 | DONE cmt | na 16 16 |        |             | ; DROP is always the first entry in dictionary
-1328:266 | DONE lbl | na 16 16 | 00661c |             | h_drop                               
-1328:267 | DONE dir | na 16 16 | 00661c | (2 bytes)   |         .byte 4, { PW + NC }         
-1328:267 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
-1328:268 | DONE dir | na 16 16 | 00661e | (6 bytes)   |         .word h_dup, a_drop, 006241  
-1328:268 | DONE dir | na 16 16 |        |             |                 11 66 3d 62 41 62        --  . f = b A b
-1328:269 | DONE dir | na 16 16 | 006624 | (4 bytes)   |         .byte 64, 72, 6f, 70         
-1328:269 | DONE dir | na 16 16 |        |             |                 64 72 6f 70              --  d r o p
-1328:270 | DONE wsp | na 16 16 |        |             |
-1328:271 | DONE cmt | na 16 16 |        |             | ; END
+1325:000 | DONE wsp | na 16 16 |        |             |
+1326:000 | DONE wsp | na 16 16 |        |             |
+1327:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1328:000 | DONE cmt | na 16 16 |        |             | ; MIDDLE INCLUDES
 1329:000 | DONE wsp | na 16 16 |        |             |
-1330:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1331:000 | DONE cmt | na 16 16 |        |             | ; LOW LEVEL HELPER FUNCTIONS
-1332:000 | DONE wsp | na 16 16 |        |             |
-1333:000 | DONE wsp | na 16 16 |        |             |
-1334:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1335:000 | DONE cmt | na 16 16 |        |             | ; COMPILE OR EXECUTE
-1336:000 | DONE cmt | na 16 16 |        |             | ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
-1337:000 | DONE cmt | na 16 16 |        |             | ; only. Assumes that address of name is in cib and length of whole input
-1338:000 | DONE cmt | na 16 16 |        |             | ; string is in ciblen
-1339:000 | DONE lbl | na 16 16 | 006628 |             | compex                               
-1340:000 | DONE lbl | na 16 16 | 006628 |             | compex_loop                          
-1341:000 | DONE cmt | na 16 16 |        |             |                 ; Normally we would use PARSE here with the SPACE character as
-1342:000 | DONE cmt | na 16 16 |        |             |                 ; a parameter (PARSE replaces WORD in modern Forths). However,
-1343:000 | DONE cmt | na 16 16 |        |             |                 ; Gforth's PARSE-NAME makes more sense as it uses spaces as
-1344:000 | DONE cmt | na 16 16 |        |             |                 ; delimiters per default and skips any leading spaces, which
-1345:000 | DONE cmt | na 16 16 |        |             |                 ; PARSE does not do.
-1346:000 | DONE ins | na 16 16 | 006628 | 20 d5 62    |                 jsr 0062d5           ; ( 'string' -- addr u )
-1347:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1348:000 | DONE cmt | na 16 16 |        |             |                 ; if PARSE-NAME returns 0 (empty line), no characters were left
-1349:000 | DONE cmt | na 16 16 |        |             |                 ; in the line and we need to go get a new line
-1350:000 | DONE ins | na 16 16 | 00662b | 98          |                 tya                  ; force flag check
-1351:000 | DONE ins | na 16 16 | 00662c | f0 1d       |                 beq 00664b           
-1352:000 | DONE wsp | na 16 16 |        |             |
-1353:000 | DONE cmt | na 16 16 |        |             |                 ; We let the user input words in any case, but use lower case
-1354:000 | DONE cmt | na 16 16 |        |             |                  ; internally (sorry, Garth).
-1355:000 | DONE ins | na 16 16 | 00662e | 20 92 66    |                 jsr 006692           ; returns ( addr u )
-1356:000 | DONE wsp | na 16 16 |        |             |
-1357:000 | DONE cmt | na 16 16 |        |             |                 ; If we got something that is not a zero, we go to FIND-NAME to
-1358:000 | DONE cmt | na 16 16 |        |             |                 ; get the nt. Returns ( nt | 0 )
-1359:000 | DONE ins | na 16 16 | 006631 | 20 5a 62    |                 jsr 00625a           
-1360:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1361:000 | DONE wsp | na 16 16 |        |             |
-1362:000 | DONE cmt | na 16 16 |        |             |                 ; a zero signals that we didn't find a word in the Dictionary
-1363:000 | DONE ins | na 16 16 | 006634 | 98          |                 tya                  ; force flag check
-1364:000 | DONE ins | na 16 16 | 006635 | d0 06       |                 bne 00663d           
-1365:000 | DONE wsp | na 16 16 |        |             |
-1366:000 | DONE cmt | na 16 16 |        |             |                 ; TODO No name token, try NUMBER CONVERSION
-1367:000 | DONE wsp | na 16 16 |        |             |
-1368:000 | DONE cmt | na 16 16 |        |             |                 ; Woe is us, all has failed
-1369:000 | DONE ins | na 16 16 | 006637 | a9 5d 68    |                 lda.# 00685d         ; "Unknown word"
-1370:000 | DONE ins | na 16 16 | 00663a | 4c 52 66    |                 jmp 006652           
-1371:000 | DONE wsp | na 16 16 |        |             |
-1372:000 | DONE lbl | na 16 16 | 00663d |             | compex_got_name_token                
-1373:000 | DONE cmt | na 16 16 |        |             |                 ; TODO see if INTERPRETED OR COMPILED
+1330:000 | DONE cmt | na 16 16 |        |             | ; Dictionary Headers for Liara Forth for the W65C265SXB
+1330:001 | DONE cmt | na 16 16 |        |             | ; Scot W. Stevenson <scot.stevenson@gmail.com>
+1330:002 | DONE cmt | na 16 16 |        |             | ; First version: 05. Dec 2016
+1330:003 | DONE cmt | na 16 16 |        |             | ; This version: 03. Feb 2017
+1330:004 | DONE wsp | na 16 16 |        |             |
+1330:005 | DONE cmt | na 16 16 |        |             | ; Dictionary headers are kept separately from the code, which allows various
+1330:006 | DONE cmt | na 16 16 |        |             | ; tricks in the code. We roughly follow the Gforth terminology: The Execution
+1330:007 | DONE cmt | na 16 16 |        |             | ; Token (xt) is the address of the first byte of a word's code that can be,
+1330:008 | DONE cmt | na 16 16 |        |             | ; well, executed; the Name Token (nt) is a pointer to the beginning of the
+1330:009 | DONE cmt | na 16 16 |        |             | ; word's header in the Dictionary. There, the link to the next word in the
+1330:010 | DONE cmt | na 16 16 |        |             | ; Dictionary is always one cell down from the current word's own nt. In the code
+1330:011 | DONE cmt | na 16 16 |        |             | ; itself, we use "h_<WORD>" ("header") for the nt and "a_<WORD>" ("A" as the
+1330:012 | DONE cmt | na 16 16 |        |             | ; beginning) for the xt.
+1330:013 | DONE cmt | na 16 16 |        |             | ;
+1330:014 | DONE cmt | na 16 16 |        |             | ; This gives us the following header structure for each header:
+1330:015 | DONE wsp | na 16 16 |        |             |
+1330:016 | DONE cmt | na 16 16 |        |             | ;              8 bit     8 bit
+1330:017 | DONE cmt | na 16 16 |        |             | ;               LSB       MSB
+1330:018 | DONE cmt | na 16 16 |        |             | ; h_word ->  +--------+--------+
+1330:019 | DONE cmt | na 16 16 |        |             | ;            | Length | Status |
+1330:020 | DONE cmt | na 16 16 |        |             | ;         +2 +--------+--------+
+1330:021 | DONE cmt | na 16 16 |        |             | ;            | Next Header     | -> h_next (nt of next word)
+1330:022 | DONE cmt | na 16 16 |        |             | ;         +4 +-----------------+
+1330:023 | DONE cmt | na 16 16 |        |             | ;            | Start of Code   | -> a_word (xt of this word)
+1330:024 | DONE cmt | na 16 16 |        |             | ;         +6 +-----------------+
+1330:025 | DONE cmt | na 16 16 |        |             | ;            | End of Code     | -> z_word
+1330:026 | DONE cmt | na 16 16 |        |             | ;         +8 +--------+--------+
+1330:027 | DONE cmt | na 16 16 |        |             | ;            | Name   |        |
+1330:028 | DONE cmt | na 16 16 |        |             | ;            +--------+--------+
+1330:029 | DONE cmt | na 16 16 |        |             | ;            |        |        |
+1330:030 | DONE cmt | na 16 16 |        |             | ;            +--------+--------+
+1330:031 | DONE cmt | na 16 16 |        |             | ;            |        |  ...   | (name string does not end with a zero)
+1330:032 | DONE cmt | na 16 16 |        |             | ;         +n +--------+--------+
+1330:033 | DONE wsp | na 16 16 |        |             |
+1330:034 | DONE cmt | na 16 16 |        |             | ; Status bytes are created by adding dictionary flags defined in
+1330:035 | DONE cmt | na 16 16 |        |             | ; definitions.tasm:
+1330:036 | DONE cmt | na 16 16 |        |             | ;
+1330:037 | DONE cmt | na 16 16 |        |             | ;       PW - Primitive Word (natively coded)
+1330:038 | DONE cmt | na 16 16 |        |             | ;       CO - Compile Only
+1330:039 | DONE cmt | na 16 16 |        |             | ;       IM - Immediate Word
+1330:040 | DONE cmt | na 16 16 |        |             | ;       NC - Native Compile (inline compile)
+1330:041 | DONE wsp | na 16 16 |        |             |
+1330:042 | DONE cmt | na 16 16 |        |             | ; The last word (top word in code) is always BYE, signaled to FIND by a 0000 in
+1330:043 | DONE cmt | na 16 16 |        |             | ; the link to the Next Word field. The words are sorted with the more common
+1330:044 | DONE cmt | na 16 16 |        |             | ; ones first (further down in code) and the output words later (further up)
+1330:045 | DONE cmt | na 16 16 |        |             | ; because things will always be slow if there is a human involved.
+1330:046 | DONE wsp | na 16 16 |        |             |
+1330:047 | DONE lbl | na 16 16 | 00640a |             | h_bye                                
+1330:048 | DONE dir | na 16 16 | 00640a | (1 bytes)   |         .byte 03                     ; length of word string
+1330:048 | DONE dir | na 16 16 |        |             |                 03                       --  .
+1330:049 | DONE dir | na 16 16 | 00640b | (1 bytes)   |         .byte { PW + NC }            ; status byte
+1330:049 | DONE dir | na 16 16 |        |             |                 90                       --  .
+1330:050 | DONE dir | na 16 16 | 00640c | (2 bytes)   |         .word 0000                   ; next word in dictionary, 0000 signals end
+1330:050 | DONE dir | na 16 16 |        |             |                 00 00                    --  . .
+1330:051 | DONE dir | na 16 16 | 00640e | (2 bytes)   |         .word 0061ab                 ; start of code, the xt of this word
+1330:051 | DONE dir | na 16 16 |        |             |                 ab 61                    --  . a
+1330:052 | DONE dir | na 16 16 | 006410 | (2 bytes)   |         .word 0061ad                 ; end of code (points to RTS)
+1330:052 | DONE dir | na 16 16 |        |             |                 ad 61                    --  . a
+1330:053 | DONE dir | na 16 16 | 006412 | (3 bytes)   |         .byte 62, 79, 65             ; lowercase word name
+1330:053 | DONE dir | na 16 16 |        |             |                 62 79 65                 --  b y e
+1330:054 | DONE wsp | na 16 16 |        |             |
+1330:055 | DONE lbl | na 16 16 | 006415 |             | h_cold                               
+1330:056 | DONE dir | na 16 16 | 006415 | (2 bytes)   |         .byte 4, 00                  
+1330:056 | DONE dir | na 16 16 |        |             |                 04 00                    --  . .
+1330:057 | DONE dir | na 16 16 | 006417 | (6 bytes)   |         .word h_bye, a_cold, 0060d5  
+1330:057 | DONE dir | na 16 16 |        |             |                 0a 64 5d 60 d5 60        --  
+ d ] ` . `
+1330:058 | DONE dir | na 16 16 | 00641d | (4 bytes)   |         .byte 63, 6f, 6c, 64         
+1330:058 | DONE dir | na 16 16 |        |             |                 63 6f 6c 64              --  c o l d
+1330:059 | DONE wsp | na 16 16 |        |             |
+1330:060 | DONE lbl | na 16 16 | 006421 |             | h_words                              
+1330:061 | DONE dir | na 16 16 | 006421 | (2 bytes)   |         .byte 5, { PW + NC }         
+1330:061 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
+1330:062 | DONE dir | na 16 16 | 006423 | (6 bytes)   |         .word h_cold, a_words, 006409 
+1330:062 | DONE dir | na 16 16 |        |             |                 15 64 e2 63 09 64        --  . d . c 	 d
+1330:063 | DONE dir | na 16 16 | 006429 | (5 bytes)   |         .byte 77, 6f, 72, 64, 73     
+1330:063 | DONE dir | na 16 16 |        |             |                 77 6f 72 64 73           --  w o r d s
+1330:064 | DONE wsp | na 16 16 |        |             |
+1330:065 | DONE lbl | na 16 16 | 00642e |             | h_bell                               
+1330:066 | DONE dir | na 16 16 | 00642e | (2 bytes)   |         .byte 4, { PW + NC }         
+1330:066 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
+1330:067 | DONE dir | na 16 16 | 006430 | (6 bytes)   |         .word h_words, a_bell, 0061a2 
+1330:067 | DONE dir | na 16 16 |        |             |                 21 64 9c 61 a2 61        --  ! d . a . a
+1330:068 | DONE dir | na 16 16 | 006436 | (4 bytes)   |         .byte 62, 65, 6c, 6c         
+1330:068 | DONE dir | na 16 16 |        |             |                 62 65 6c 6c              --  b e l l
+1330:069 | DONE wsp | na 16 16 |        |             |
+1330:070 | DONE lbl | na 16 16 | 00643a |             | h_count                              
+1330:071 | DONE dir | na 16 16 | 00643a | (2 bytes)   |         .byte 5, {NC + PW }          
+1330:071 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
+1330:072 | DONE dir | na 16 16 | 00643c | (6 bytes)   |         .word h_bell, a_count, 0061c8 
+1330:072 | DONE dir | na 16 16 |        |             |                 2e 64 ba 61 c8 61        --  . d . a . a
+1330:073 | DONE dir | na 16 16 | 006442 | (5 bytes)   |         .byte 63, 6f, 75, 6e, 74     
+1330:073 | DONE dir | na 16 16 |        |             |                 63 6f 75 6e 74           --  c o u n t
+1330:074 | DONE wsp | na 16 16 |        |             |
+1330:075 | DONE lbl | na 16 16 | 006447 |             | h_abort                              
+1330:076 | DONE dir | na 16 16 | 006447 | (2 bytes)   |         .byte 5, 00                  ; TODO check flags
+1330:076 | DONE dir | na 16 16 |        |             |                 05 00                    --  . .
+1330:077 | DONE dir | na 16 16 | 006449 | (6 bytes)   |         .word h_count, a_abort, 0060d5 
+1330:077 | DONE dir | na 16 16 |        |             |                 3a 64 93 60 d5 60        --  : d . ` . `
+1330:078 | DONE dir | na 16 16 | 00644f | (5 bytes)   |         .byte 61, 62, 6f, 72, 74     
+1330:078 | DONE dir | na 16 16 |        |             |                 61 62 6f 72 74           --  a b o r t
+1330:079 | DONE wsp | na 16 16 |        |             |
+1330:080 | DONE lbl | na 16 16 | 006454 |             | h_parse                              
+1330:081 | DONE dir | na 16 16 | 006454 | (2 bytes)   |         .byte 5, 00                  
+1330:081 | DONE dir | na 16 16 |        |             |                 05 00                    --  . .
+1330:082 | DONE dir | na 16 16 | 006456 | (6 bytes)   |         .word h_abort, a_parse, 006339 
+1330:082 | DONE dir | na 16 16 |        |             |                 47 64 07 63 39 63        --  G d . c 9 c
+1330:083 | DONE dir | na 16 16 | 00645c | (5 bytes)   |         .byte 70, 61, 72, 73, 65     
+1330:083 | DONE dir | na 16 16 |        |             |                 70 61 72 73 65           --  p a r s e
+1330:084 | DONE wsp | na 16 16 |        |             |
+1330:085 | DONE lbl | na 16 16 | 006461 |             | h_quit                               
+1330:086 | DONE dir | na 16 16 | 006461 | (2 bytes)   |         .byte 4, 00                  
+1330:086 | DONE dir | na 16 16 |        |             |                 04 00                    --  . .
+1330:087 | DONE dir | na 16 16 | 006463 | (6 bytes)   |         .word h_parse, a_quit, 0060d5 
+1330:087 | DONE dir | na 16 16 |        |             |                 54 64 9b 60 d5 60        --  T d . ` . `
+1330:088 | DONE dir | na 16 16 | 006469 | (4 bytes)   |         .byte 71, 75, 69, 74         
+1330:088 | DONE dir | na 16 16 |        |             |                 71 75 69 74              --  q u i t
+1330:089 | DONE wsp | na 16 16 |        |             |
+1330:090 | DONE lbl | na 16 16 | 00646d |             | h_name>int                           
+1330:091 | DONE dir | na 16 16 | 00646d | (2 bytes)   |         .byte 8, { PW + NC }         
+1330:091 | DONE dir | na 16 16 |        |             |                 08 90                    --  . .
+1330:092 | DONE dir | na 16 16 | 00646f | (6 bytes)   |         .word h_quit, a_name>int, 0062c0 
+1330:092 | DONE dir | na 16 16 |        |             |                 61 64 b8 62 c0 62        --  a d . b . b
+1330:093 | DONE dir | na 16 16 | 006475 | (8 bytes)   |         .byte 6e, 61, 6d, 65, 3e, 69, 6e, 74 
+1330:093 | DONE dir | na 16 16 |        |             |                 6e 61 6d 65 3e 69 6e 74  --  n a m e > i n t
+1330:093 | DONE dir | na 16 16 |        |             |                                          -- 
+1330:094 | DONE wsp | na 16 16 |        |             |
+1330:095 | DONE lbl | na 16 16 | 00647d |             | h_cr                                 
+1330:096 | DONE dir | na 16 16 | 00647d | (2 bytes)   |         .byte 2, { PW + NC }         
+1330:096 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
+1330:097 | DONE dir | na 16 16 | 00647f | (6 bytes)   |         .word h_name>int, a_cr, 0061cf 
+1330:097 | DONE dir | na 16 16 |        |             |                 6d 64 c9 61 cf 61        --  m d . a . a
+1330:098 | DONE dir | na 16 16 | 006485 | (2 bytes)   |         .byte 63, 72                 
+1330:098 | DONE dir | na 16 16 |        |             |                 63 72                    --  c r
+1330:099 | DONE wsp | na 16 16 |        |             |
+1330:100 | DONE lbl | na 16 16 | 006487 |             | h_bl                                 
+1330:101 | DONE dir | na 16 16 | 006487 | (2 bytes)   |         .byte 2, { PW + NC }         
+1330:101 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
+1330:102 | DONE dir | na 16 16 | 006489 | (6 bytes)   |         .word h_cr, a_bl, 0061aa     
+1330:102 | DONE dir | na 16 16 |        |             |                 7d 64 a3 61 aa 61        --  } d . a . a
+1330:103 | DONE dir | na 16 16 | 00648f | (2 bytes)   |         .byte 62, 6c                 
+1330:103 | DONE dir | na 16 16 |        |             |                 62 6c                    --  b l
+1330:104 | DONE wsp | na 16 16 |        |             |
+1330:105 | DONE lbl | na 16 16 | 006491 |             | h_spaces                             
+1330:106 | DONE dir | na 16 16 | 006491 | (2 bytes)   |         .byte 6, { PW + NC }         
+1330:106 | DONE dir | na 16 16 |        |             |                 06 90                    --  . .
+1330:107 | DONE dir | na 16 16 | 006493 | (6 bytes)   |         .word h_bl, a_spaces, 0063a1 
+1330:107 | DONE dir | na 16 16 |        |             |                 87 64 95 63 a1 63        --  . d . c . c
+1330:108 | DONE dir | na 16 16 | 006499 | (6 bytes)   |         .byte 73, 70, 61, 63, 65, 73 
+1330:108 | DONE dir | na 16 16 |        |             |                 73 70 61 63 65 73        --  s p a c e s
+1330:109 | DONE wsp | na 16 16 |        |             |
+1330:110 | DONE lbl | na 16 16 | 00649f |             | h_space                              
+1330:111 | DONE dir | na 16 16 | 00649f | (2 bytes)   |         .byte 5, { PW + NC }         
+1330:111 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
+1330:112 | DONE dir | na 16 16 | 0064a1 | (6 bytes)   |         .word h_spaces, a_space, 006394 
+1330:112 | DONE dir | na 16 16 |        |             |                 91 64 8e 63 94 63        --  . d . c . c
+1330:113 | DONE dir | na 16 16 | 0064a7 | (5 bytes)   |         .byte 73, 70, 61, 63, 65     
+1330:113 | DONE dir | na 16 16 |        |             |                 73 70 61 63 65           --  s p a c e
+1330:114 | DONE wsp | na 16 16 |        |             |
+1330:115 | DONE lbl | na 16 16 | 0064ac |             | h_dots                               
+1330:116 | DONE dir | na 16 16 | 0064ac | (2 bytes)   |         .byte 2, { PW + NC }         
+1330:116 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
+1330:117 | DONE dir | na 16 16 | 0064ae | (6 bytes)   |         .word h_space, a_dots, 00623c 
+1330:117 | DONE dir | na 16 16 |        |             |                 9f 64 f5 61 3c 62        --  . d . a < b
+1330:118 | DONE dir | na 16 16 | 0064b4 | (2 bytes)   |         .byte 2e, 73                 
+1330:118 | DONE dir | na 16 16 |        |             |                 2e 73                    --  . s
+1330:119 | DONE wsp | na 16 16 |        |             |
+1330:120 | DONE lbl | na 16 16 | 0064b6 |             | h_type                               
+1330:121 | DONE dir | na 16 16 | 0064b6 | (2 bytes)   |         .byte 4, 0                   
+1330:121 | DONE dir | na 16 16 |        |             |                 04 00                    --  . .
+1330:122 | DONE dir | na 16 16 | 0064b8 | (6 bytes)   |         .word h_dots, a_type, 0063e1 
+1330:122 | DONE dir | na 16 16 |        |             |                 ac 64 c1 63 e1 63        --  . d . c . c
+1330:123 | DONE dir | na 16 16 | 0064be | (4 bytes)   |         .byte 74, 79, 70, 65         
+1330:123 | DONE dir | na 16 16 |        |             |                 74 79 70 65              --  t y p e
+1330:124 | DONE wsp | na 16 16 |        |             |
+1330:125 | DONE lbl | na 16 16 | 0064c2 |             | h_dot                                
+1330:126 | DONE dir | na 16 16 | 0064c2 | (2 bytes)   |         .byte 1, { PW + NC }         
+1330:126 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
+1330:127 | DONE dir | na 16 16 | 0064c4 | (6 bytes)   |         .word h_type, a_dot, 0061f4  
+1330:127 | DONE dir | na 16 16 |        |             |                 b6 64 df 61 f4 61        --  . d . a . a
+1330:128 | DONE dir | na 16 16 | 0064ca | (1 bytes)   |         .byte 2e                     
+1330:128 | DONE dir | na 16 16 |        |             |                 2e                       --  .
+1330:129 | DONE wsp | na 16 16 |        |             |
+1330:130 | DONE lbl | na 16 16 | 0064cb |             | h_name>string                        
+1330:131 | DONE dir | na 16 16 | 0064cb | (2 bytes)   |         .byte 0b, { PW + NC }        
+1330:131 | DONE dir | na 16 16 |        |             |                 0b 90                    --   .
+1330:132 | DONE dir | na 16 16 | 0064cd | (6 bytes)   |         .word h_dot, a_name>string, 0062d1 
+1330:132 | DONE dir | na 16 16 |        |             |                 c2 64 c1 62 d1 62        --  . d . b . b
+1330:133 | DONE dir | na 16 16 | 0064d3 | (11 bytes)  |         .byte 6e, 61, 6d, 65, 3e, 73, 74, 72, 69, 6e, 67 
+1330:133 | DONE dir | na 16 16 |        |             |                 6e 61 6d 65 3e 73 74 72  --  n a m e > s t r
+1330:133 | DONE dir | na 16 16 |        |             |                 69 6e 67                 --  i n g
+1330:134 | DONE wsp | na 16 16 |        |             |
+1330:135 | DONE lbl | na 16 16 | 0064de |             | h_2dup                               
+1330:136 | DONE dir | na 16 16 | 0064de | (2 bytes)   |         .byte 4, { PW + NC }         
+1330:136 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
+1330:137 | DONE dir | na 16 16 | 0064e0 | (6 bytes)   |         .word h_name>string, a_2dup, 00610a 
+1330:137 | DONE dir | na 16 16 |        |             |                 cb 64 00 61 0a 61        --  . d . a 
+ a
+1330:138 | DONE dir | na 16 16 | 0064e6 | (4 bytes)   |         .byte 32, 64, 75, 70         
+1330:138 | DONE dir | na 16 16 |        |             |                 32 64 75 70              --  2 d u p
+1330:139 | DONE wsp | na 16 16 |        |             |
+1330:140 | DONE lbl | na 16 16 | 0064ea |             | h_abs                                
+1330:141 | DONE dir | na 16 16 | 0064ea | (2 bytes)   |         .byte 3, { PW + NC }         
+1330:141 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
+1330:142 | DONE dir | na 16 16 | 0064ec | (6 bytes)   |         .word h_2dup, a_abs, 006117  
+1330:142 | DONE dir | na 16 16 |        |             |                 de 64 0b 61 17 61        --  . d  a . a
+1330:143 | DONE dir | na 16 16 | 0064f2 | (3 bytes)   |         .byte 61, 62, 73             
+1330:143 | DONE dir | na 16 16 |        |             |                 61 62 73                 --  a b s
+1330:144 | DONE wsp | na 16 16 |        |             |
+1330:145 | DONE lbl | na 16 16 | 0064f5 |             | h_state                              
+1330:146 | DONE dir | na 16 16 | 0064f5 | (2 bytes)   |         .byte 5, { PW + NC }         
+1330:146 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
+1330:147 | DONE dir | na 16 16 | 0064f7 | (6 bytes)   |         .word h_abs, a_state, 0063a9 
+1330:147 | DONE dir | na 16 16 |        |             |                 ea 64 a2 63 a9 63        --  . d . c . c
+1330:148 | DONE dir | na 16 16 | 0064fd | (5 bytes)   |         .byte 73, 74, 61, 74, 65     
+1330:148 | DONE dir | na 16 16 |        |             |                 73 74 61 74 65           --  s t a t e
+1330:149 | DONE wsp | na 16 16 |        |             |
+1330:150 | DONE lbl | na 16 16 | 006502 |             | h_to-in                              
+1330:151 | DONE dir | na 16 16 | 006502 | (2 bytes)   |         .byte 3, { PW + NC }         
+1330:151 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
+1330:152 | DONE dir | na 16 16 | 006504 | (6 bytes)   |         .word h_state, a_to-in, 0060dd 
+1330:152 | DONE dir | na 16 16 |        |             |                 f5 64 d6 60 dd 60        --  . d . ` . `
+1330:153 | DONE dir | na 16 16 | 00650a | (3 bytes)   |         .byte 3e, 69, 6e             
+1330:153 | DONE dir | na 16 16 |        |             |                 3e 69 6e                 --  > i n
+1330:154 | DONE wsp | na 16 16 |        |             |
+1330:155 | DONE lbl | na 16 16 | 00650d |             | h_source                             
+1330:156 | DONE dir | na 16 16 | 00650d | (2 bytes)   |         .byte 6, { PW + NC }         
+1330:156 | DONE dir | na 16 16 |        |             |                 06 90                    --  . .
+1330:157 | DONE dir | na 16 16 | 00650f | (6 bytes)   |         .word h_to-in, a_source, 006386 
+1330:157 | DONE dir | na 16 16 |        |             |                 02 65 7a 63 86 63        --  . e z c . c
+1330:158 | DONE dir | na 16 16 | 006515 | (6 bytes)   |         .byte 73, 6f, 75, 72, 63, 65 
+1330:158 | DONE dir | na 16 16 |        |             |                 73 6f 75 72 63 65        --  s o u r c e
+1330:159 | DONE wsp | na 16 16 |        |             |
+1330:160 | DONE lbl | na 16 16 | 00651b |             | h_depth                              
+1330:161 | DONE dir | na 16 16 | 00651b | (2 bytes)   |         .byte 5, { PW + NC }         
+1330:161 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
+1330:162 | DONE dir | na 16 16 | 00651d | (6 bytes)   |         .word h_source, a_depth, 0061de 
+1330:162 | DONE dir | na 16 16 |        |             |                 0d 65 d0 61 de 61        --   e . a . a
+1330:163 | DONE dir | na 16 16 | 006523 | (5 bytes)   |         .byte 64, 65, 70, 74, 68     
+1330:163 | DONE dir | na 16 16 |        |             |                 64 65 70 74 68           --  d e p t h
+1330:164 | DONE wsp | na 16 16 |        |             |
+1330:165 | DONE lbl | na 16 16 | 006528 |             | h_plus                               
+1330:166 | DONE dir | na 16 16 | 006528 | (2 bytes)   |         .byte 1, { PW + NC }         
+1330:166 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
+1330:167 | DONE dir | na 16 16 | 00652a | (6 bytes)   |         .word h_depth, a_plus, 0060e5 
+1330:167 | DONE dir | na 16 16 |        |             |                 1b 65 de 60 e5 60        --  . e . ` . `
+1330:168 | DONE dir | na 16 16 | 006530 | (1 bytes)   |         .byte 2b                     
+1330:168 | DONE dir | na 16 16 |        |             |                 2b                       --  +
+1330:169 | DONE wsp | na 16 16 |        |             |
+1330:170 | DONE lbl | na 16 16 | 006531 |             | h_one-plus                           
+1330:171 | DONE dir | na 16 16 | 006531 | (2 bytes)   |         .byte 2, { PW + NC }         
+1330:171 | DONE dir | na 16 16 |        |             |                 02 90                    --  . .
+1330:172 | DONE dir | na 16 16 | 006533 | (6 bytes)   |         .word h_plus, a_one-plus, 0060f7 
+1330:172 | DONE dir | na 16 16 |        |             |                 28 65 f6 60 f7 60        --  ( e . ` . `
+1330:173 | DONE dir | na 16 16 | 006539 | (2 bytes)   |         .byte 31, 2b                 
+1330:173 | DONE dir | na 16 16 |        |             |                 31 2b                    --  1 +
+1330:174 | DONE wsp | na 16 16 |        |             |
+1330:175 | DONE lbl | na 16 16 | 00653b |             | h_false                              
+1330:176 | DONE dir | na 16 16 | 00653b | (2 bytes)   |         .byte 5, { PW + NC }         
+1330:176 | DONE dir | na 16 16 |        |             |                 05 90                    --  . .
+1330:177 | DONE dir | na 16 16 | 00653d | (6 bytes)   |         .word h_one-plus, a_zero, 0060ed 
+1330:177 | DONE dir | na 16 16 |        |             |                 31 65 e6 60 ed 60        --  1 e . ` . `
+1330:178 | DONE dir | na 16 16 | 006543 | (5 bytes)   |         .byte 66, 61, 6c, 73, 65     
+1330:178 | DONE dir | na 16 16 |        |             |                 66 61 6c 73 65           --  f a l s e
+1330:179 | DONE wsp | na 16 16 |        |             |
+1330:180 | DONE lbl | na 16 16 | 006548 |             | h_true                               
+1330:181 | DONE dir | na 16 16 | 006548 | (2 bytes)   |         .byte 4, { PW + NC }         
+1330:181 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
+1330:182 | DONE dir | na 16 16 | 00654a | (6 bytes)   |         .word h_false, a_true, 0063b7 
+1330:182 | DONE dir | na 16 16 |        |             |                 3b 65 b0 63 b7 63        --  ; e . c . c
+1330:183 | DONE dir | na 16 16 | 006550 | (4 bytes)   |         .byte 74, 72, 75, 65         
+1330:183 | DONE dir | na 16 16 |        |             |                 74 72 75 65              --  t r u e
+1330:184 | DONE wsp | na 16 16 |        |             |
+1330:185 | DONE lbl | na 16 16 | 006554 |             | h_two                                
+1330:186 | DONE dir | na 16 16 | 006554 | (2 bytes)   |         .byte 1, { PW + NC }         
+1330:186 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
+1330:187 | DONE dir | na 16 16 | 006556 | (6 bytes)   |         .word h_true, a_two, 0060ff  
+1330:187 | DONE dir | na 16 16 |        |             |                 48 65 f8 60 ff 60        --  H e . ` . `
+1330:188 | DONE dir | na 16 16 | 00655c | (1 bytes)   |         .byte 32                     
+1330:188 | DONE dir | na 16 16 |        |             |                 32                       --  2
+1330:189 | DONE wsp | na 16 16 |        |             |
+1330:190 | DONE lbl | na 16 16 | 00655d |             | h_one                                
+1330:191 | DONE dir | na 16 16 | 00655d | (2 bytes)   |         .byte 1, { PW + NC }         
+1330:191 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
+1330:192 | DONE dir | na 16 16 | 00655f | (6 bytes)   |         .word h_two, a_one, 0060f5   
+1330:192 | DONE dir | na 16 16 |        |             |                 54 65 ee 60 f5 60        --  T e . ` . `
+1330:193 | DONE dir | na 16 16 | 006565 | (1 bytes)   |         .byte 31                     
+1330:193 | DONE dir | na 16 16 |        |             |                 31                       --  1
+1330:194 | DONE wsp | na 16 16 |        |             |
+1330:195 | DONE lbl | na 16 16 | 006566 |             | h_zero                               
+1330:196 | DONE dir | na 16 16 | 006566 | (2 bytes)   |         .byte 1, { PW + NC }         
+1330:196 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
+1330:197 | DONE dir | na 16 16 | 006568 | (6 bytes)   |         .word h_one, a_zero, 0060ed  
+1330:197 | DONE dir | na 16 16 |        |             |                 5d 65 e6 60 ed 60        --  ] e . ` . `
+1330:198 | DONE dir | na 16 16 | 00656e | (1 bytes)   |         .byte 30                     
+1330:198 | DONE dir | na 16 16 |        |             |                 30                       --  0
+1330:199 | DONE wsp | na 16 16 |        |             |
+1330:200 | DONE lbl | na 16 16 | 00656f |             | h_find-name                          
+1330:201 | DONE dir | na 16 16 | 00656f | (2 bytes)   |         .byte 9, 0                   
+1330:201 | DONE dir | na 16 16 |        |             |                 09 00                    --  	 .
+1330:202 | DONE dir | na 16 16 | 006571 | (6 bytes)   |         .word h_zero, a_find-name, 0062b0 
+1330:202 | DONE dir | na 16 16 |        |             |                 66 65 5a 62 b0 62        --  f e Z b . b
+1330:203 | DONE dir | na 16 16 | 006577 | (9 bytes)   |         .byte 66, 69, 6e, 64, 2d, 6e, 61, 6d, 65 
+1330:203 | DONE dir | na 16 16 |        |             |                 66 69 6e 64 2d 6e 61 6d  --  f i n d - n a m
+1330:203 | DONE dir | na 16 16 |        |             |                 65                       --  e
+1330:204 | DONE wsp | na 16 16 |        |             |
+1330:205 | DONE lbl | na 16 16 | 006580 |             | h_refill                             
+1330:206 | DONE dir | na 16 16 | 006580 | (2 bytes)   |         .byte 6, { PW }              ; TODO check flags
+1330:206 | DONE dir | na 16 16 |        |             |                 06 80                    --  . .
+1330:207 | DONE dir | na 16 16 | 006582 | (6 bytes)   |         .word h_find-name, a_refill, 006370 
+1330:207 | DONE dir | na 16 16 |        |             |                 6f 65 3a 63 70 63        --  o e : c p c
+1330:208 | DONE dir | na 16 16 | 006588 | (6 bytes)   |         .byte 72, 65, 66, 69, 6c, 6c 
+1330:208 | DONE dir | na 16 16 |        |             |                 72 65 66 69 6c 6c        --  r e f i l l
+1330:209 | DONE wsp | na 16 16 |        |             |
+1330:210 | DONE lbl | na 16 16 | 00658e |             | h_parse-name                         
+1330:211 | DONE dir | na 16 16 | 00658e | (2 bytes)   |         .byte &10, 0                 
+1330:211 | DONE dir | na 16 16 |        |             |                 0a 00                    --  
+ .
+1330:212 | DONE dir | na 16 16 | 006590 | (6 bytes)   |         .word h_refill, a_parse-name, 006339 
+1330:212 | DONE dir | na 16 16 |        |             |                 80 65 d5 62 39 63        --  . e . b 9 c
+1330:213 | DONE dir | na 16 16 | 006596 | (10 bytes)  |         .byte 70, 61, 72, 73, 65, 2d, 6e, 61, 6d, 65 
+1330:213 | DONE dir | na 16 16 |        |             |                 70 61 72 73 65 2d 6e 61  --  p a r s e - n a
+1330:213 | DONE dir | na 16 16 |        |             |                 6d 65                    --  m e
+1330:214 | DONE wsp | na 16 16 |        |             |
+1330:215 | DONE lbl | na 16 16 | 0065a0 |             | h_source-id                          
+1330:216 | DONE dir | na 16 16 | 0065a0 | (2 bytes)   |         .byte 9, { PW + NC }         
+1330:216 | DONE dir | na 16 16 |        |             |                 09 90                    --  	 .
+1330:217 | DONE dir | na 16 16 | 0065a2 | (6 bytes)   |         .word h_parse-name, a_source-id, 00638d 
+1330:217 | DONE dir | na 16 16 |        |             |                 8e 65 87 63 8d 63        --  . e . c . c
+1330:218 | DONE dir | na 16 16 | 0065a8 | (9 bytes)   |         .byte 73, 6f, 75, 72, 63, 65, 2d, 69, 64 
+1330:218 | DONE dir | na 16 16 |        |             |                 73 6f 75 72 63 65 2d 69  --  s o u r c e - i
+1330:218 | DONE dir | na 16 16 |        |             |                 64                       --  d
+1330:219 | DONE wsp | na 16 16 |        |             |
+1330:220 | DONE lbl | na 16 16 | 0065b1 |             | h_comma                              
+1330:221 | DONE dir | na 16 16 | 0065b1 | (2 bytes)   |         .byte 1, { PW + NC }         
+1330:221 | DONE dir | na 16 16 |        |             |                 01 90                    --  . .
+1330:222 | DONE dir | na 16 16 | 0065b3 | (6 bytes)   |         .word h_source-id, a_comma, 0061b9 
+1330:222 | DONE dir | na 16 16 |        |             |                 a0 65 ae 61 b9 61        --  . e . a . a
+1330:223 | DONE dir | na 16 16 | 0065b9 | (1 bytes)   |         .byte 2c                     
+1330:223 | DONE dir | na 16 16 |        |             |                 2c                       --  ,
+1330:224 | DONE wsp | na 16 16 |        |             |
+1330:225 | DONE lbl | na 16 16 | 0065ba |             | h_accept                             
+1330:226 | DONE dir | na 16 16 | 0065ba | (2 bytes)   |         .byte 6, 00                  ; TODO check flags
+1330:226 | DONE dir | na 16 16 |        |             |                 06 00                    --  . .
+1330:227 | DONE dir | na 16 16 | 0065bc | (6 bytes)   |         .word h_comma, a_accept, 00619b 
+1330:227 | DONE dir | na 16 16 |        |             |                 b1 65 18 61 9b 61        --  . e . a . a
+1330:228 | DONE dir | na 16 16 | 0065c2 | (6 bytes)   |         .byte 61, 63, 63, 65, 70, 74 
+1330:228 | DONE dir | na 16 16 |        |             |                 61 63 63 65 70 74        --  a c c e p t
+1330:229 | DONE wsp | na 16 16 |        |             |
+1330:230 | DONE lbl | na 16 16 | 0065c8 |             | h_tuck                               
+1330:231 | DONE dir | na 16 16 | 0065c8 | (2 bytes)   |         .byte 4, { PW + NC }         
+1330:231 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
+1330:232 | DONE dir | na 16 16 | 0065ca | (6 bytes)   |         .word h_accept, a_tuck, 0063c0 
+1330:232 | DONE dir | na 16 16 |        |             |                 ba 65 b8 63 c0 63        --  . e . c . c
+1330:233 | DONE dir | na 16 16 | 0065d0 | (4 bytes)   |         .byte 74, 75, 63, 6b         
+1330:233 | DONE dir | na 16 16 |        |             |                 74 75 63 6b              --  t u c k
+1330:234 | DONE wsp | na 16 16 |        |             |
+1330:235 | DONE lbl | na 16 16 | 0065d4 |             | h_nip                                
+1330:236 | DONE dir | na 16 16 | 0065d4 | (2 bytes)   |         .byte 3, { PW + NC }         
+1330:236 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
+1330:237 | DONE dir | na 16 16 | 0065d6 | (6 bytes)   |         .word h_tuck, a_nip, 0062d4  
+1330:237 | DONE dir | na 16 16 |        |             |                 c8 65 d2 62 d4 62        --  . e . b . b
+1330:238 | DONE dir | na 16 16 | 0065dc | (3 bytes)   |         .byte 6e, 69, 70             
+1330:238 | DONE dir | na 16 16 |        |             |                 6e 69 70                 --  n i p
+1330:239 | DONE wsp | na 16 16 |        |             |
+1330:240 | DONE lbl | na 16 16 | 0065df |             | h_rot                                
+1330:241 | DONE dir | na 16 16 | 0065df | (2 bytes)   |         .byte 3, { PW + NC }         
+1330:241 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
+1330:242 | DONE dir | na 16 16 | 0065e1 | (6 bytes)   |         .word h_nip, a_rot, 006379   
+1330:242 | DONE dir | na 16 16 |        |             |                 d4 65 71 63 79 63        --  . e q c y c
+1330:243 | DONE dir | na 16 16 | 0065e7 | (3 bytes)   |         .byte 72, 6f, 74             
+1330:243 | DONE dir | na 16 16 |        |             |                 72 6f 74                 --  r o t
+1330:244 | DONE wsp | na 16 16 |        |             |
+1330:245 | DONE lbl | na 16 16 | 0065ea |             | h_execute                            
+1330:246 | DONE dir | na 16 16 | 0065ea | (2 bytes)   |         .byte 7, { PW + NC }         
+1330:246 | DONE dir | na 16 16 |        |             |                 07 90                    --  . .
+1330:247 | DONE dir | na 16 16 | 0065ec | (6 bytes)   |         .word h_rot, a_execute, 006259 
+1330:247 | DONE dir | na 16 16 |        |             |                 df 65 4a 62 59 62        --  . e J b Y b
+1330:248 | DONE dir | na 16 16 | 0065f2 | (7 bytes)   |         .byte 65, 78, 65, 63, 75, 74, 65 
+1330:248 | DONE dir | na 16 16 |        |             |                 65 78 65 63 75 74 65     --  e x e c u t e
+1330:249 | DONE wsp | na 16 16 |        |             |
+1330:250 | DONE lbl | na 16 16 | 0065f9 |             | h_here                               
+1330:251 | DONE dir | na 16 16 | 0065f9 | (2 bytes)   |         .byte 4, { PW + NC }         
+1330:251 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
+1330:252 | DONE dir | na 16 16 | 0065fb | (6 bytes)   |         .word h_execute, a_here, 0062b7 
+1330:252 | DONE dir | na 16 16 |        |             |                 ea 65 b1 62 b7 62        --  . e . b . b
+1330:253 | DONE dir | na 16 16 | 006601 | (4 bytes)   |         .byte 68, 65, 72, 65         
+1330:253 | DONE dir | na 16 16 |        |             |                 68 65 72 65              --  h e r e
+1330:254 | DONE wsp | na 16 16 |        |             |
+1330:255 | DONE lbl | na 16 16 | 006605 |             | h_swap                               
+1330:256 | DONE dir | na 16 16 | 006605 | (2 bytes)   |         .byte 4, { PW + NC }         
+1330:256 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
+1330:257 | DONE dir | na 16 16 | 006607 | (6 bytes)   |         .word h_here, a_swap, 0063af 
+1330:257 | DONE dir | na 16 16 |        |             |                 f9 65 aa 63 af 63        --  . e . c . c
+1330:258 | DONE dir | na 16 16 | 00660d | (4 bytes)   |         .byte 73, 77, 61, 70         
+1330:258 | DONE dir | na 16 16 |        |             |                 73 77 61 70              --  s w a p
+1330:259 | DONE wsp | na 16 16 |        |             |
+1330:260 | DONE lbl | na 16 16 | 006611 |             | h_dup                                
+1330:261 | DONE dir | na 16 16 | 006611 | (2 bytes)   |         .byte 3, { PW + NC }         
+1330:261 | DONE dir | na 16 16 |        |             |                 03 90                    --  . .
+1330:262 | DONE dir | na 16 16 | 006613 | (6 bytes)   |         .word h_swap, a_dup, 006246  
+1330:262 | DONE dir | na 16 16 |        |             |                 05 66 42 62 46 62        --  . f B b F b
+1330:263 | DONE dir | na 16 16 | 006619 | (3 bytes)   |         .byte 64, 75, 70             
+1330:263 | DONE dir | na 16 16 |        |             |                 64 75 70                 --  d u p
+1330:264 | DONE wsp | na 16 16 |        |             |
+1330:265 | DONE cmt | na 16 16 |        |             | ; DROP is always the first entry in dictionary
+1330:266 | DONE lbl | na 16 16 | 00661c |             | h_drop                               
+1330:267 | DONE dir | na 16 16 | 00661c | (2 bytes)   |         .byte 4, { PW + NC }         
+1330:267 | DONE dir | na 16 16 |        |             |                 04 90                    --  . .
+1330:268 | DONE dir | na 16 16 | 00661e | (6 bytes)   |         .word h_dup, a_drop, 006241  
+1330:268 | DONE dir | na 16 16 |        |             |                 11 66 3d 62 41 62        --  . f = b A b
+1330:269 | DONE dir | na 16 16 | 006624 | (4 bytes)   |         .byte 64, 72, 6f, 70         
+1330:269 | DONE dir | na 16 16 |        |             |                 64 72 6f 70              --  d r o p
+1330:270 | DONE wsp | na 16 16 |        |             |
+1330:271 | DONE cmt | na 16 16 |        |             | ; END
+1331:000 | DONE wsp | na 16 16 |        |             |
+1332:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1333:000 | DONE cmt | na 16 16 |        |             | ; LOW LEVEL HELPER FUNCTIONS
+1334:000 | DONE wsp | na 16 16 |        |             |
+1335:000 | DONE wsp | na 16 16 |        |             |
+1336:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1337:000 | DONE cmt | na 16 16 |        |             | ; COMPILE OR EXECUTE
+1338:000 | DONE cmt | na 16 16 |        |             | ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
+1339:000 | DONE cmt | na 16 16 |        |             | ; only. Assumes that address of name is in cib and length of whole input
+1340:000 | DONE cmt | na 16 16 |        |             | ; string is in ciblen. Consider moving this up to QUIT once we know what we are
+1341:000 | DONE cmt | na 16 16 |        |             | ; doing
+1342:000 | DONE lbl | na 16 16 | 006628 |             | compex                               
+1343:000 | DONE lbl | na 16 16 | 006628 |             | compex_loop                          
+1344:000 | DONE cmt | na 16 16 |        |             |                 ; Normally we would use PARSE here with the SPACE character as
+1345:000 | DONE cmt | na 16 16 |        |             |                 ; a parameter (PARSE replaces WORD in modern Forths). However,
+1346:000 | DONE cmt | na 16 16 |        |             |                 ; Gforth's PARSE-NAME makes more sense as it uses spaces as
+1347:000 | DONE cmt | na 16 16 |        |             |                 ; delimiters per default and skips any leading spaces, which
+1348:000 | DONE cmt | na 16 16 |        |             |                 ; PARSE does not do.
+1349:000 | DONE ins | na 16 16 | 006628 | 20 d5 62    |                 jsr 0062d5           ; ( 'string' -- addr u )
+1350:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1351:000 | DONE cmt | na 16 16 |        |             |                 ; if PARSE-NAME returns 0 (empty line), no characters were left
+1352:000 | DONE cmt | na 16 16 |        |             |                 ; in the line and we need to go get a new line
+1353:000 | DONE ins | na 16 16 | 00662b | 98          |                 tya                  ; force flag check
+1354:000 | DONE ins | na 16 16 | 00662c | f0 1d       |                 beq 00664b           
+1355:000 | DONE wsp | na 16 16 |        |             |
+1356:000 | DONE cmt | na 16 16 |        |             |                 ; We let the user input words in any case, but use lower case
+1357:000 | DONE cmt | na 16 16 |        |             |                  ; internally (sorry, Garth).
+1358:000 | DONE ins | na 16 16 | 00662e | 20 92 66    |                 jsr 006692           ; returns ( addr u )
+1359:000 | DONE wsp | na 16 16 |        |             |
+1360:000 | DONE cmt | na 16 16 |        |             |                 ; If we got something that is not a zero, we go to FIND-NAME to
+1361:000 | DONE cmt | na 16 16 |        |             |                 ; get the nt. Returns ( nt | 0 )
+1362:000 | DONE ins | na 16 16 | 006631 | 20 5a 62    |                 jsr 00625a           
+1363:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1364:000 | DONE wsp | na 16 16 |        |             |
+1365:000 | DONE cmt | na 16 16 |        |             |                 ; a zero signals that we didn't find a word in the Dictionary
+1366:000 | DONE ins | na 16 16 | 006634 | 98          |                 tya                  ; force flag check
+1367:000 | DONE ins | na 16 16 | 006635 | d0 06       |                 bne 00663d           
+1368:000 | DONE wsp | na 16 16 |        |             |
+1369:000 | DONE cmt | na 16 16 |        |             |                 ; TODO No name token, try NUMBER CONVERSION
+1370:000 | DONE wsp | na 16 16 |        |             |
+1371:000 | DONE cmt | na 16 16 |        |             |                 ; Woe is us, all has failed
+1372:000 | DONE ins | na 16 16 | 006637 | a9 5d 68    |                 lda.# 00685d         ; "Unknown word"
+1373:000 | DONE ins | na 16 16 | 00663a | 4c 52 66    |                 jmp 006652           
 1374:000 | DONE wsp | na 16 16 |        |             |
-1375:000 | DONE cmt | na 16 16 |        |             |                 ; INTERPRET WORD
-1376:000 | DONE cmt | na 16 16 |        |             |                 ; We arrive here with the nt as TOS. The xt of a word is
-1377:000 | DONE cmt | na 16 16 |        |             |                 ; four bytes farther on, so this is a quick version of NAME>INT
-1378:000 | DONE wsp | na 16 16 |        |             |
-1379:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1380:000 | DONE ins | na 16 16 | 00663d | c8          |                 iny                  
-1381:000 | DONE ins | na 16 16 | 00663e | c8          |                 iny                  
-1382:000 | DONE ins | na 16 16 | 00663f | c8          |                 iny                  
-1383:000 | DONE ins | na 16 16 | 006640 | c8          |                 iny                  
-1384:000 | DONE ins | na 16 16 | 006641 | b9 00 00    |                 lda.y 0000           ; LDA $0000,Y
-1385:000 | DONE ins | na 16 16 | 006644 | a8          |                 tay                  
-1386:000 | DONE wsp | na 16 16 |        |             |
-1387:000 | DONE ins | na 16 16 | 006645 | 20 4a 62    |                 jsr 00624a           
-1388:000 | DONE wsp | na 16 16 |        |             |
-1389:000 | DONE cmt | na 16 16 |        |             |                 ; that's quite enough for this word, let's get the next one
-1390:000 | DONE ins | na 16 16 | 006648 | 4c 28 66    |                 jmp 006628           
+1375:000 | DONE lbl | na 16 16 | 00663d |             | compex_got_name_token                
+1376:000 | DONE cmt | na 16 16 |        |             |                 ; TODO see if INTERPRETED OR COMPILED
+1377:000 | DONE wsp | na 16 16 |        |             |
+1378:000 | DONE cmt | na 16 16 |        |             |                 ; INTERPRET WORD
+1379:000 | DONE cmt | na 16 16 |        |             |                 ; We arrive here with the nt as TOS. The xt of a word is
+1380:000 | DONE cmt | na 16 16 |        |             |                 ; four bytes farther on, so this is a quick version of NAME>INT
+1381:000 | DONE wsp | na 16 16 |        |             |
+1382:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1383:000 | DONE ins | na 16 16 | 00663d | c8          |                 iny                  
+1384:000 | DONE ins | na 16 16 | 00663e | c8          |                 iny                  
+1385:000 | DONE ins | na 16 16 | 00663f | c8          |                 iny                  
+1386:000 | DONE ins | na 16 16 | 006640 | c8          |                 iny                  
+1387:000 | DONE ins | na 16 16 | 006641 | b9 00 00    |                 lda.y 0000           ; LDA $0000,Y
+1388:000 | DONE ins | na 16 16 | 006644 | a8          |                 tay                  
+1389:000 | DONE wsp | na 16 16 |        |             |
+1390:000 | DONE ins | na 16 16 | 006645 | 20 4a 62    |                 jsr 00624a           
 1391:000 | DONE wsp | na 16 16 |        |             |
-1392:000 | DONE lbl | na 16 16 | 00664b |             | compex_line_done                     
-1393:000 | DONE cmt | na 16 16 |        |             |                 ; drop stuff from PARSE_NAME
-1394:000 | DONE ins | na 16 16 | 00664b | b4 02       |                 ldy.dx 02            
-1395:000 | DONE ins | na 16 16 | 00664d | e8          |                 inx                  
-1396:000 | DONE ins | na 16 16 | 00664e | e8          |                 inx                  
-1397:000 | DONE ins | na 16 16 | 00664f | e8          |                 inx                  
-1398:000 | DONE ins | na 16 16 | 006650 | e8          |                 inx                  
-1399:000 | DONE wsp | na 16 16 |        |             |
-1400:000 | DONE ins | na 16 16 | 006651 | 60          |                 rts                  
-1401:000 | DONE wsp | na 16 16 |        |             |
-1402:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1403:000 | DONE cmt | na 16 16 |        |             | ; Fatal error encountered: Take address of error string from A, print it and
-1404:000 | DONE cmt | na 16 16 |        |             | ; then call abort
-1405:000 | DONE lbl | na 16 16 | 006652 |             | error                                
-1406:000 | DONE ins | na 16 16 | 006652 | 20 58 66    |                 jsr 006658           
-1407:000 | DONE ins | na 16 16 | 006655 | 4c 93 60    |                 jmp 006093           
-1408:000 | DONE wsp | na 16 16 |        |             |
-1409:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1410:000 | DONE cmt | na 16 16 |        |             | ; Print a zero terminated string to the console, adding a CR character. Takes
-1411:000 | DONE cmt | na 16 16 |        |             | ; the address of the string in 16-bit A register, calls put_chr.  A is
-1412:000 | DONE cmt | na 16 16 |        |             | ; destroyed. We could probably figure out some way to use TYPE instead, but zero
-1413:000 | DONE cmt | na 16 16 |        |             | ; terminated strings are easier for the 65816 to use.
-1414:000 | DONE cmt | na 16 16 |        |             | ; TODO add version without final line feed
-1415:000 | DONE lbl | na 16 16 | 006658 |             | print_string                         
-1416:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1417:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
-1418:000 | DONE cmt | na 16 16 |        |             |                 ; don't use tmpdsp for X because we don't know if the user has
-1419:000 | DONE cmt | na 16 16 |        |             |                 ; used it for something already
-1420:000 | DONE ins | na 16 16 | 006658 | da          |                 phx                  
-1421:000 | DONE ins | na 16 16 | 006659 | aa          |                 tax                  ; x16 contains address of string
-1422:000 | DONE lbl | na 16 16 | 00665a |             | @                                    
-1423:000 | DONE ins | na 16 16 | 00665a | e2 20       |                 sep 20               
-1423:001 | DONE ctl | na  8 16 |        |             |         .!a8
-1424:000 | DONE ins | na  8 16 | 00665c | bd 00 00    |                 lda.x 0000           ; LDA $0000,X
-1425:000 | DONE ins | na  8 16 | 00665f | f0 06       |                 beq 006667           
-1426:000 | DONE ins | na  8 16 | 006661 | 20 30 60    |                 jsr 006030           
-1427:000 | DONE ins | na  8 16 | 006664 | e8          |                 inx                  
-1428:000 | DONE ins | na  8 16 | 006665 | 80 f3       |                 bra 00665a           
-1429:000 | DONE wsp | na  8 16 |        |             |
-1430:000 | DONE lbl | na  8 16 | 006667 |             | print_string_done                    
-1431:000 | DONE ins | na  8 16 | 006667 | a9 0a       |                 lda.# AscLF          ; should be CR on some systems
-1432:000 | DONE ins | na  8 16 | 006669 | 20 30 60    |                 jsr 006030           
-1433:000 | DONE ins | na  8 16 | 00666c | c2 20       |                 rep 20               
-1433:001 | DONE ctl | na 16 16 |        |             |         .!a16
-1434:000 | DONE ins | na 16 16 | 00666e | fa          |                 plx                  
-1435:000 | DONE ins | na 16 16 | 00666f | 60          |                 rts                  
-1436:000 | DONE wsp | na 16 16 |        |             |
-1437:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1438:000 | DONE cmt | na 16 16 |        |             | ; CONVERT BYTE TO ASCII
-1439:000 | DONE cmt | na 16 16 |        |             | ; Convert byte in A to two ASCII hex digits and print them. Calls
-1440:000 | DONE cmt | na 16 16 |        |             | ; nibble_to_ascii. Assumes A is 8 bit.
-1441:000 | DONE lbl | na 16 16 | 006670 |             | byte_to_ascii                        
-1442:000 | DONE ins | na 16 16 | 006670 | 29 ff 00    |                 and.# 00ff           
-1443:000 | DONE ins | na 16 16 | 006673 | 48          |                 pha                  
-1444:000 | DONE cmt | na 16 16 |        |             |                 ; convert high nibble first
-1445:000 | DONE ins | na 16 16 | 006674 | 4a          |                 lsr.a                
-1446:000 | DONE ins | na 16 16 | 006675 | 4a          |                 lsr.a                
-1447:000 | DONE ins | na 16 16 | 006676 | 4a          |                 lsr.a                
-1448:000 | DONE ins | na 16 16 | 006677 | 4a          |                 lsr.a                
-1449:000 | DONE ins | na 16 16 | 006678 | 20 80 66    |                 jsr 006680           
-1450:000 | DONE wsp | na 16 16 |        |             |
-1451:000 | DONE ins | na 16 16 | 00667b | 68          |                 pla                  
-1452:000 | DONE ins | na 16 16 | 00667c | 20 80 66    |                 jsr 006680           
+1392:000 | DONE cmt | na 16 16 |        |             |                 ; that's quite enough for this word, let's get the next one
+1393:000 | DONE ins | na 16 16 | 006648 | 4c 28 66    |                 jmp 006628           
+1394:000 | DONE wsp | na 16 16 |        |             |
+1395:000 | DONE lbl | na 16 16 | 00664b |             | compex_line_done                     
+1396:000 | DONE cmt | na 16 16 |        |             |                 ; drop stuff from PARSE_NAME
+1397:000 | DONE ins | na 16 16 | 00664b | b4 02       |                 ldy.dx 02            
+1398:000 | DONE ins | na 16 16 | 00664d | e8          |                 inx                  
+1399:000 | DONE ins | na 16 16 | 00664e | e8          |                 inx                  
+1400:000 | DONE ins | na 16 16 | 00664f | e8          |                 inx                  
+1401:000 | DONE ins | na 16 16 | 006650 | e8          |                 inx                  
+1402:000 | DONE wsp | na 16 16 |        |             |
+1403:000 | DONE ins | na 16 16 | 006651 | 60          |                 rts                  
+1404:000 | DONE wsp | na 16 16 |        |             |
+1405:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1406:000 | DONE cmt | na 16 16 |        |             | ; Fatal error encountered: Take address of error string from A, print it and
+1407:000 | DONE cmt | na 16 16 |        |             | ; then call abort
+1408:000 | DONE lbl | na 16 16 | 006652 |             | error                                
+1409:000 | DONE ins | na 16 16 | 006652 | 20 58 66    |                 jsr 006658           
+1410:000 | DONE ins | na 16 16 | 006655 | 4c 93 60    |                 jmp 006093           
+1411:000 | DONE wsp | na 16 16 |        |             |
+1412:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1413:000 | DONE cmt | na 16 16 |        |             | ; Print a zero terminated string to the console, adding a CR character. Takes
+1414:000 | DONE cmt | na 16 16 |        |             | ; the address of the string in 16-bit A register, calls put_chr.  A is
+1415:000 | DONE cmt | na 16 16 |        |             | ; destroyed. We could probably figure out some way to use TYPE instead, but zero
+1416:000 | DONE cmt | na 16 16 |        |             | ; terminated strings are easier for the 65816 to use.
+1417:000 | DONE cmt | na 16 16 |        |             | ; TODO add version without final line feed
+1418:000 | DONE lbl | na 16 16 | 006658 |             | print_string                         
+1419:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1420:000 | DONE dir | na 16 16 |        |             |         .!xy16                       
+1421:000 | DONE cmt | na 16 16 |        |             |                 ; don't use tmpdsp for X because we don't know if the user has
+1422:000 | DONE cmt | na 16 16 |        |             |                 ; used it for something already
+1423:000 | DONE ins | na 16 16 | 006658 | da          |                 phx                  
+1424:000 | DONE ins | na 16 16 | 006659 | aa          |                 tax                  ; x16 contains address of string
+1425:000 | DONE lbl | na 16 16 | 00665a |             | @                                    
+1426:000 | DONE ins | na 16 16 | 00665a | e2 20       |                 sep 20               
+1426:001 | DONE ctl | na  8 16 |        |             |         .!a8
+1427:000 | DONE ins | na  8 16 | 00665c | bd 00 00    |                 lda.x 0000           ; LDA $0000,X
+1428:000 | DONE ins | na  8 16 | 00665f | f0 06       |                 beq 006667           
+1429:000 | DONE ins | na  8 16 | 006661 | 20 30 60    |                 jsr 006030           
+1430:000 | DONE ins | na  8 16 | 006664 | e8          |                 inx                  
+1431:000 | DONE ins | na  8 16 | 006665 | 80 f3       |                 bra 00665a           
+1432:000 | DONE wsp | na  8 16 |        |             |
+1433:000 | DONE lbl | na  8 16 | 006667 |             | print_string_done                    
+1434:000 | DONE ins | na  8 16 | 006667 | a9 0a       |                 lda.# AscLF          ; should be CR on some systems
+1435:000 | DONE ins | na  8 16 | 006669 | 20 30 60    |                 jsr 006030           
+1436:000 | DONE ins | na  8 16 | 00666c | c2 20       |                 rep 20               
+1436:001 | DONE ctl | na 16 16 |        |             |         .!a16
+1437:000 | DONE ins | na 16 16 | 00666e | fa          |                 plx                  
+1438:000 | DONE ins | na 16 16 | 00666f | 60          |                 rts                  
+1439:000 | DONE wsp | na 16 16 |        |             |
+1440:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1441:000 | DONE cmt | na 16 16 |        |             | ; CONVERT BYTE TO ASCII
+1442:000 | DONE cmt | na 16 16 |        |             | ; Convert byte in A to two ASCII hex digits and print them. Calls
+1443:000 | DONE cmt | na 16 16 |        |             | ; nibble_to_ascii. Assumes A is 8 bit.
+1444:000 | DONE lbl | na 16 16 | 006670 |             | byte_to_ascii                        
+1445:000 | DONE ins | na 16 16 | 006670 | 29 ff 00    |                 and.# 00ff           
+1446:000 | DONE ins | na 16 16 | 006673 | 48          |                 pha                  
+1447:000 | DONE cmt | na 16 16 |        |             |                 ; convert high nibble first
+1448:000 | DONE ins | na 16 16 | 006674 | 4a          |                 lsr.a                
+1449:000 | DONE ins | na 16 16 | 006675 | 4a          |                 lsr.a                
+1450:000 | DONE ins | na 16 16 | 006676 | 4a          |                 lsr.a                
+1451:000 | DONE ins | na 16 16 | 006677 | 4a          |                 lsr.a                
+1452:000 | DONE ins | na 16 16 | 006678 | 20 80 66    |                 jsr 006680           
 1453:000 | DONE wsp | na 16 16 |        |             |
-1454:000 | DONE ins | na 16 16 | 00667f | 60          |                 rts                  
-1455:000 | DONE wsp | na 16 16 |        |             |
+1454:000 | DONE ins | na 16 16 | 00667b | 68          |                 pla                  
+1455:000 | DONE ins | na 16 16 | 00667c | 20 80 66    |                 jsr 006680           
 1456:000 | DONE wsp | na 16 16 |        |             |
-1457:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1458:000 | DONE cmt | na 16 16 |        |             | ; CONVERT NIBBLE TO ASCII
-1459:000 | DONE cmt | na 16 16 |        |             | ; Converts the lower nibble of a number in A and returns the ASCII character
-1460:000 | DONE cmt | na 16 16 |        |             | ; number, then prints it. Assumes A is 8 bit
-1461:000 | DONE lbl | na 16 16 | 006680 |             | nibble_to_ascii                      
-1462:000 | DONE ins | na 16 16 | 006680 | 29 0f 00    |                 and.# 000f           
-1463:000 | DONE ins | na 16 16 | 006683 | 09 30 00    |                 ora.# 30             
-1464:000 | DONE ins | na 16 16 | 006686 | c9 3a 00    |                 cmp.# 003a           ; '9' + 1
-1465:000 | DONE ins | na 16 16 | 006689 | 90 03       |                 bcc 00668e           
-1466:000 | DONE ins | na 16 16 | 00668b | 69 06 00    |                 adc.# 0006           
-1467:000 | DONE lbl | na 16 16 | 00668e |             | @                                    
-1468:000 | DONE ins | na 16 16 | 00668e | 20 30 60    |                 jsr 006030           
-1469:000 | DONE dir | na 16 16 |        |             |         .!a16                        
-1470:000 | DONE ins | na 16 16 | 006691 | 60          |                 rts                  
-1471:000 | DONE wsp | na 16 16 |        |             |
-1472:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
-1473:000 | DONE cmt | na 16 16 |        |             | ; Convert a string given by ( addr u ) to upper case in place. Since we have to
-1474:000 | DONE cmt | na 16 16 |        |             | ; treat the input buffer as read-only by ANS rules, we have to put the converted
-1475:000 | DONE cmt | na 16 16 |        |             | ; string somewhere and then return the new address and length
-1476:000 | DONE lbl | na 16 16 | 006692 |             | string_to_uppercase                  
-1477:000 | DONE cmt | na 16 16 |        |             |                 ; TODO CODE THIS
-1478:000 | DONE ins | na 16 16 | 006692 | 60          |                 rts                  
-1479:000 | DONE wsp | na 16 16 |        |             |
-1480:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1481:000 | DONE cmt | na 16 16 |        |             | ; BOTTOM INCLUDES
+1457:000 | DONE ins | na 16 16 | 00667f | 60          |                 rts                  
+1458:000 | DONE wsp | na 16 16 |        |             |
+1459:000 | DONE wsp | na 16 16 |        |             |
+1460:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1461:000 | DONE cmt | na 16 16 |        |             | ; CONVERT NIBBLE TO ASCII
+1462:000 | DONE cmt | na 16 16 |        |             | ; Converts the lower nibble of a number in A and returns the ASCII character
+1463:000 | DONE cmt | na 16 16 |        |             | ; number, then prints it. Assumes A is 8 bit
+1464:000 | DONE lbl | na 16 16 | 006680 |             | nibble_to_ascii                      
+1465:000 | DONE ins | na 16 16 | 006680 | 29 0f 00    |                 and.# 000f           
+1466:000 | DONE ins | na 16 16 | 006683 | 09 30 00    |                 ora.# 30             
+1467:000 | DONE ins | na 16 16 | 006686 | c9 3a 00    |                 cmp.# 003a           ; '9' + 1
+1468:000 | DONE ins | na 16 16 | 006689 | 90 03       |                 bcc 00668e           
+1469:000 | DONE ins | na 16 16 | 00668b | 69 06 00    |                 adc.# 0006           
+1470:000 | DONE lbl | na 16 16 | 00668e |             | @                                    
+1471:000 | DONE ins | na 16 16 | 00668e | 20 30 60    |                 jsr 006030           
+1472:000 | DONE dir | na 16 16 |        |             |         .!a16                        
+1473:000 | DONE ins | na 16 16 | 006691 | 60          |                 rts                  
+1474:000 | DONE wsp | na 16 16 |        |             |
+1475:000 | DONE cmt | na 16 16 |        |             | ; -------------------------------------------------------------------
+1476:000 | DONE cmt | na 16 16 |        |             | ; Convert a string given by ( addr u ) to upper case in place. Since we have to
+1477:000 | DONE cmt | na 16 16 |        |             | ; treat the input buffer as read-only by ANS rules, we have to put the converted
+1478:000 | DONE cmt | na 16 16 |        |             | ; string somewhere and then return the new address and length
+1479:000 | DONE lbl | na 16 16 | 006692 |             | string_to_uppercase                  
+1480:000 | DONE cmt | na 16 16 |        |             |                 ; TODO CODE THIS
+1481:000 | DONE ins | na 16 16 | 006692 | 60          |                 rts                  
 1482:000 | DONE wsp | na 16 16 |        |             |
-1483:000 | DONE cmt | na 16 16 |        |             | ; List of Strings for Liara Forth for the W65C265SXB
-1483:001 | DONE cmt | na 16 16 |        |             | ; Scot W. Stevenson <scot.stevenson@gmail.com>
-1483:002 | DONE cmt | na 16 16 |        |             | ; First version: 01. Apr 2016
-1483:003 | DONE cmt | na 16 16 |        |             | ; This version:  06. Feb 2017
-1483:004 | DONE wsp | na 16 16 |        |             |
-1483:005 | DONE cmt | na 16 16 |        |             | ; This file is included by liaraforth.tasm
-1483:006 | DONE wsp | na 16 16 |        |             |
-1483:007 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1483:008 | DONE cmt | na 16 16 |        |             | ; GENERAL
-1483:009 | DONE wsp | na 16 16 |        |             |
-1483:010 | DONE cmt | na 16 16 |        |             | ; All general strings must be zero-terminated, names start with "s_"
-1483:011 | DONE cmt | na 16 16 |        |             | ; TODO see if "ok" needs trailing space. The printstring routine adds the EOL
-1483:012 | DONE cmt | na 16 16 |        |             | ; character
-1483:013 | DONE wsp | na 16 16 |        |             |
-1483:014 | DONE lbl | na 16 16 | 006693 |             | s_title                              
-1483:015 | DONE dir | na 16 16 | 006693 | (32 bytes)  |         .byte AscLF, 4c, 69, 61, 72, 61, 20, 46, 6f, 72, 74, 68,  (...) 
-1483:015 | DONE dir | na 16 16 |        |             |                 0a 4c 69 61 72 61 20 46  --  
+1483:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1484:000 | DONE cmt | na 16 16 |        |             | ; BOTTOM INCLUDES
+1485:000 | DONE wsp | na 16 16 |        |             |
+1486:000 | DONE cmt | na 16 16 |        |             | ; List of Strings for Liara Forth for the W65C265SXB
+1486:001 | DONE cmt | na 16 16 |        |             | ; Scot W. Stevenson <scot.stevenson@gmail.com>
+1486:002 | DONE cmt | na 16 16 |        |             | ; First version: 01. Apr 2016
+1486:003 | DONE cmt | na 16 16 |        |             | ; This version:  06. Feb 2017
+1486:004 | DONE wsp | na 16 16 |        |             |
+1486:005 | DONE cmt | na 16 16 |        |             | ; This file is included by liaraforth.tasm
+1486:006 | DONE wsp | na 16 16 |        |             |
+1486:007 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1486:008 | DONE cmt | na 16 16 |        |             | ; GENERAL
+1486:009 | DONE wsp | na 16 16 |        |             |
+1486:010 | DONE cmt | na 16 16 |        |             | ; All general strings must be zero-terminated, names start with "s_"
+1486:011 | DONE cmt | na 16 16 |        |             | ; TODO see if "ok" needs trailing space. The printstring routine adds the EOL
+1486:012 | DONE cmt | na 16 16 |        |             | ; character
+1486:013 | DONE wsp | na 16 16 |        |             |
+1486:014 | DONE lbl | na 16 16 | 006693 |             | s_title                              
+1486:015 | DONE dir | na 16 16 | 006693 | (32 bytes)  |         .byte AscLF, 4c, 69, 61, 72, 61, 20, 46, 6f, 72, 74, 68,  (...) 
+1486:015 | DONE dir | na 16 16 |        |             |                 0a 4c 69 61 72 61 20 46  --  
  L i a r a   F
-1483:015 | DONE dir | na 16 16 |        |             |                 6f 72 74 68 20 66 6f 72  --  o r t h   f o r
-1483:015 | DONE dir | na 16 16 |        |             |                 20 74 68 65 20 57 36 35  --    t h e   W 6 5
-1483:015 | DONE dir | na 16 16 |        |             |                 43 32 36 35 53 58 42 00  --  C 2 6 5 S X B .
-1483:015 | DONE dir | na 16 16 |        |             |                                          -- 
-1483:016 | DONE lbl | na 16 16 | 0066b3 |             | s_version                            
-1483:017 | DONE dir | na 16 16 | 0066b3 | (31 bytes)  |         .byte 56, 65, 72, 73, 69, 6f, 6e, 20, 50, 52, 45, 2d, 41, (...) 
-1483:017 | DONE dir | na 16 16 |        |             |                 56 65 72 73 69 6f 6e 20  --  V e r s i o n  
-1483:017 | DONE dir | na 16 16 |        |             |                 50 52 45 2d 41 4c 50 48  --  P R E - A L P H
-1483:017 | DONE dir | na 16 16 |        |             |                 41 20 32 39 2e 20 4a 61  --  A   2 9 .   J a
-1483:017 | DONE dir | na 16 16 |        |             |                 6e 20 32 30 31 37 00     --  n   2 0 1 7 .
-1483:018 | DONE lbl | na 16 16 | 0066d2 |             | s_author                             
-1483:019 | DONE dir | na 16 16 | 0066d2 | (45 bytes)  |         .byte 53, 63, 6f, 74, 20, 57, 2e, 20, 53, 74, 65, 76, 65, (...) 
-1483:019 | DONE dir | na 16 16 |        |             |                 53 63 6f 74 20 57 2e 20  --  S c o t   W .  
-1483:019 | DONE dir | na 16 16 |        |             |                 53 74 65 76 65 6e 73 6f  --  S t e v e n s o
-1483:019 | DONE dir | na 16 16 |        |             |                 6e 20 3c 73 63 6f 74 2e  --  n   < s c o t .
-1483:019 | DONE dir | na 16 16 |        |             |                 73 74 65 76 65 6e 73 6f  --  s t e v e n s o
-1483:019 | DONE dir | na 16 16 |        |             |                 6e 40 67 6d 61 69 6c 2e  --  n @ g m a i l .
-1483:019 | DONE dir | na 16 16 |        |             |                 63 6f 6d 3e 00           --  c o m > .
-1483:020 | DONE lbl | na 16 16 | 0066ff |             | s_disclaimer                         
-1483:021 | DONE dir | na 16 16 | 0066ff | (46 bytes)  |         .byte 4c, 69, 61, 72, 61, 20, 46, 6f, 72, 74, 68, 20, 63, (...) 
-1483:021 | DONE dir | na 16 16 |        |             |                 4c 69 61 72 61 20 46 6f  --  L i a r a   F o
-1483:021 | DONE dir | na 16 16 |        |             |                 72 74 68 20 63 6f 6d 65  --  r t h   c o m e
-1483:021 | DONE dir | na 16 16 |        |             |                 73 20 77 69 74 68 20 61  --  s   w i t h   a
-1483:021 | DONE dir | na 16 16 |        |             |                 62 73 6f 6c 75 74 65 6c  --  b s o l u t e l
-1483:021 | DONE dir | na 16 16 |        |             |                 79 20 4e 4f 20 57 41 52  --  y   N O   W A R
-1483:021 | DONE dir | na 16 16 |        |             |                 52 41 4e 54 59 00        --  R A N T Y .
-1483:022 | DONE lbl | na 16 16 | 00672d |             | s_typebye                            
-1483:023 | DONE dir | na 16 16 | 00672d | (19 bytes)  |         .byte 54, 79, 70, 65, 20, 27, 62, 79, 65, 27, 20, 74, 6f, (...) 
-1483:023 | DONE dir | na 16 16 |        |             |                 54 79 70 65 20 27 62 79  --  T y p e   ' b y
-1483:023 | DONE dir | na 16 16 |        |             |                 65 27 20 74 6f 20 65 78  --  e '   t o   e x
-1483:023 | DONE dir | na 16 16 |        |             |                 69 74 00                 --  i t .
-1483:024 | DONE lbl | na 16 16 | 006740 |             | s_ok                                 
-1483:025 | DONE dir | na 16 16 | 006740 | (4 bytes)   |         .byte 20, 6f, 6b, 0          ; note empty space at beginning
-1483:025 | DONE dir | na 16 16 |        |             |                 20 6f 6b 00              --    o k .
-1483:026 | DONE wsp | na 16 16 |        |             |
-1483:027 | DONE wsp | na 16 16 |        |             |
-1483:028 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1483:029 | DONE cmt | na 16 16 |        |             | ; ERROR STRINGS
-1483:030 | DONE wsp | na 16 16 |        |             |
-1483:031 | DONE cmt | na 16 16 |        |             | ; All error strings must be zero-terminated, names start with "es_"
-1483:032 | DONE cmt | na 16 16 |        |             | ; These are currently the same error strings as in Tali Forth
-1483:033 | DONE wsp | na 16 16 |        |             |
-1483:034 | DONE lbl | na 16 16 | 006744 |             | es_channel                           
-1483:035 | DONE dir | na 16 16 | 006744 | (26 bytes)  |         .byte 41, 63, 63, 65, 73, 73, 69, 6e, 67, 20, 75, 6e, 6b, (...) 
-1483:035 | DONE dir | na 16 16 |        |             |                 41 63 63 65 73 73 69 6e  --  A c c e s s i n
-1483:035 | DONE dir | na 16 16 |        |             |                 67 20 75 6e 6b 6e 6f 77  --  g   u n k n o w
-1483:035 | DONE dir | na 16 16 |        |             |                 6e 20 63 68 61 6e 6e 65  --  n   c h a n n e
-1483:035 | DONE dir | na 16 16 |        |             |                 6c 00                    --  l .
-1483:036 | DONE lbl | na 16 16 | 00675e |             | es_componly                          
-1483:037 | DONE dir | na 16 16 | 00675e | (33 bytes)  |         .byte 49, 6e, 74, 65, 72, 70, 72, 65, 74, 69, 6e, 67, 20, (...) 
-1483:037 | DONE dir | na 16 16 |        |             |                 49 6e 74 65 72 70 72 65  --  I n t e r p r e
-1483:037 | DONE dir | na 16 16 |        |             |                 74 69 6e 67 20 61 20 63  --  t i n g   a   c
-1483:037 | DONE dir | na 16 16 |        |             |                 6f 6d 70 69 6c 65 2d 6f  --  o m p i l e - o
-1483:037 | DONE dir | na 16 16 |        |             |                 6e 6c 79 20 77 6f 72 64  --  n l y   w o r d
-1483:037 | DONE dir | na 16 16 |        |             |                 00                       --  .
-1483:038 | DONE lbl | na 16 16 | 00677f |             | es_defer                             
-1483:039 | DONE dir | na 16 16 | 00677f | (29 bytes)  |         .byte 44, 45, 46, 45, 52, 65, 64, 20, 77, 6f, 72, 64, 20, (...) 
-1483:039 | DONE dir | na 16 16 |        |             |                 44 45 46 45 52 65 64 20  --  D E F E R e d  
-1483:039 | DONE dir | na 16 16 |        |             |                 77 6f 72 64 20 6e 6f 74  --  w o r d   n o t
-1483:039 | DONE dir | na 16 16 |        |             |                 20 64 65 66 69 6e 65 64  --    d e f i n e d
-1483:039 | DONE dir | na 16 16 |        |             |                 20 79 65 74 00           --    y e t .
-1483:040 | DONE lbl | na 16 16 | 00679c |             | es_divzero                           
-1483:041 | DONE dir | na 16 16 | 00679c | (17 bytes)  |         .byte 44, 69, 76, 69, 73, 69, 6f, 6e, 20, 62, 79, 20, 7a, (...) 
-1483:041 | DONE dir | na 16 16 |        |             |                 44 69 76 69 73 69 6f 6e  --  D i v i s i o n
-1483:041 | DONE dir | na 16 16 |        |             |                 20 62 79 20 7a 65 72 6f  --    b y   z e r o
-1483:041 | DONE dir | na 16 16 |        |             |                 00                       --  .
-1483:042 | DONE lbl | na 16 16 | 0067ad |             | es_empty                             
-1483:043 | DONE dir | na 16 16 | 0067ad | (9 bytes)   |         .byte 20, 28, 65, 6d, 70, 74, 79, 29, 0 
-1483:043 | DONE dir | na 16 16 |        |             |                 20 28 65 6d 70 74 79 29  --    ( e m p t y )
-1483:043 | DONE dir | na 16 16 |        |             |                 00                       --  .
-1483:044 | DONE lbl | na 16 16 | 0067b6 |             | es_error                             
-1483:045 | DONE dir | na 16 16 | 0067b6 | (12 bytes)  |         .byte 3e, 3e, 3e, 45, 72, 72, 6f, 72, 3c, 3c, 3c, 0 
-1483:045 | DONE dir | na 16 16 |        |             |                 3e 3e 3e 45 72 72 6f 72  --  > > > E r r o r
-1483:045 | DONE dir | na 16 16 |        |             |                 3c 3c 3c 00              --  < < < .
-1483:046 | DONE lbl | na 16 16 | 0067c2 |             | es_intonly                           
-1483:047 | DONE dir | na 16 16 | 0067c2 | (22 bytes)  |         .byte 4e, 6f, 74, 20, 69, 6e, 20, 69, 6e, 74, 65, 72, 70, (...) 
-1483:047 | DONE dir | na 16 16 |        |             |                 4e 6f 74 20 69 6e 20 69  --  N o t   i n   i
-1483:047 | DONE dir | na 16 16 |        |             |                 6e 74 65 72 70 72 65 74  --  n t e r p r e t
-1483:047 | DONE dir | na 16 16 |        |             |                 20 6d 6f 64 65 00        --    m o d e .
-1483:048 | DONE lbl | na 16 16 | 0067d8 |             | es_noname                            
-1483:049 | DONE dir | na 16 16 | 0067d8 | (16 bytes)  |         .byte 50, 61, 72, 73, 69, 6e, 67, 20, 66, 61, 69, 6c, 75, (...) 
-1483:049 | DONE dir | na 16 16 |        |             |                 50 61 72 73 69 6e 67 20  --  P a r s i n g  
-1483:049 | DONE dir | na 16 16 |        |             |                 66 61 69 6c 75 72 65 00  --  f a i l u r e .
-1483:049 | DONE dir | na 16 16 |        |             |                                          -- 
-1483:050 | DONE lbl | na 16 16 | 0067e8 |             | es_radix                             
-1483:051 | DONE dir | na 16 16 | 0067e8 | (23 bytes)  |         .byte 44, 69, 67, 69, 74, 20, 6c, 61, 72, 67, 65, 72, 20, (...) 
-1483:051 | DONE dir | na 16 16 |        |             |                 44 69 67 69 74 20 6c 61  --  D i g i t   l a
-1483:051 | DONE dir | na 16 16 |        |             |                 72 67 65 72 20 74 68 61  --  r g e r   t h a
-1483:051 | DONE dir | na 16 16 |        |             |                 6e 20 62 61 73 65 00     --  n   b a s e .
-1483:052 | DONE lbl | na 16 16 | 0067ff |             | es_refill1                           
-1483:053 | DONE dir | na 16 16 | 0067ff | (46 bytes)  |         .byte 51, 55, 49, 54, 20, 63, 6f, 75, 6c, 64, 20, 6e, 6f, (...) 
-1483:053 | DONE dir | na 16 16 |        |             |                 51 55 49 54 20 63 6f 75  --  Q U I T   c o u
-1483:053 | DONE dir | na 16 16 |        |             |                 6c 64 20 6e 6f 74 20 67  --  l d   n o t   g
-1483:053 | DONE dir | na 16 16 |        |             |                 65 74 20 69 6e 70 75 74  --  e t   i n p u t
-1483:053 | DONE dir | na 16 16 |        |             |                 20 28 52 45 46 49 4c 4c  --    ( R E F I L L
-1483:053 | DONE dir | na 16 16 |        |             |                 20 72 65 74 75 72 6e 65  --    r e t u r n e
-1483:053 | DONE dir | na 16 16 |        |             |                 64 20 2d 31 29 00        --  d   - 1 ) .
-1483:054 | DONE lbl | na 16 16 | 00682d |             | es_refill2                           
-1483:055 | DONE dir | na 16 16 | 00682d | (32 bytes)  |         .byte 49, 6c, 6c, 65, 67, 61, 6c, 20, 53, 4f, 55, 52, 43, (...) 
-1483:055 | DONE dir | na 16 16 |        |             |                 49 6c 6c 65 67 61 6c 20  --  I l l e g a l  
-1483:055 | DONE dir | na 16 16 |        |             |                 53 4f 55 52 43 45 2d 49  --  S O U R C E - I
-1483:055 | DONE dir | na 16 16 |        |             |                 44 20 64 75 72 69 6e 67  --  D   d u r i n g
-1483:055 | DONE dir | na 16 16 |        |             |                 20 52 45 46 49 4c 4c 00  --    R E F I L L .
-1483:055 | DONE dir | na 16 16 |        |             |                                          -- 
-1483:056 | DONE lbl | na 16 16 | 00684d |             | es_underflow                         
-1483:057 | DONE dir | na 16 16 | 00684d | (16 bytes)  |         .byte 53, 74, 61, 63, 6b, 20, 75, 6e, 64, 65, 72, 66, 6c, (...) 
-1483:057 | DONE dir | na 16 16 |        |             |                 53 74 61 63 6b 20 75 6e  --  S t a c k   u n
-1483:057 | DONE dir | na 16 16 |        |             |                 64 65 72 66 6c 6f 77 00  --  d e r f l o w .
-1483:057 | DONE dir | na 16 16 |        |             |                                          -- 
-1483:058 | DONE lbl | na 16 16 | 00685d |             | es_syntax                            
-1483:059 | DONE dir | na 16 16 | 00685d | (16 bytes)  |         .byte 20, 55, 6e, 64, 65, 66, 69, 6e, 65, 64, 20, 77, 6f, (...) 
-1483:059 | DONE dir | na 16 16 |        |             |                 20 55 6e 64 65 66 69 6e  --    U n d e f i n
-1483:059 | DONE dir | na 16 16 |        |             |                 65 64 20 77 6f 72 64 00  --  e d   w o r d .
-1483:059 | DONE dir | na 16 16 |        |             |                                          -- 
-1483:060 | DONE wsp | na 16 16 |        |             |
-1483:061 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1483:062 | DONE cmt | na 16 16 |        |             | ; TESTING STRINGS
-1483:063 | DONE wsp | na 16 16 |        |             |
-1483:064 | DONE cmt | na 16 16 |        |             | ; These strings are only used during testing and are removed as Liara Forth is
-1483:065 | DONE cmt | na 16 16 |        |             | ; developed. All start with "tests_"
-1483:066 | DONE wsp | na 16 16 |        |             |
-1483:067 | DONE lbl | na 16 16 | 00686d |             | tests_prev_cmd                       
-1483:068 | DONE dir | na 16 16 | 00686d | (19 bytes)  |         .byte 28, 70, 72, 65, 76, 69, 6f, 75, 73, 20, 63, 6f, 6d, (...) 
-1483:068 | DONE dir | na 16 16 |        |             |                 28 70 72 65 76 69 6f 75  --  ( p r e v i o u
-1483:068 | DONE dir | na 16 16 |        |             |                 73 20 63 6f 6d 6d 61 6e  --  s   c o m m a n
-1483:068 | DONE dir | na 16 16 |        |             |                 64 29 00                 --  d ) .
-1483:069 | DONE lbl | na 16 16 | 006880 |             | tests_next_cmd                       
-1483:070 | DONE dir | na 16 16 | 006880 | (15 bytes)  |         .byte 28, 6e, 65, 78, 74, 20, 63, 6f, 6d, 6d, 61, 6e, 64, (...) 
-1483:070 | DONE dir | na 16 16 |        |             |                 28 6e 65 78 74 20 63 6f  --  ( n e x t   c o
-1483:070 | DONE dir | na 16 16 |        |             |                 6d 6d 61 6e 64 29 00     --  m m a n d ) .
-1483:071 | DONE wsp | na 16 16 |        |             |
-1483:072 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1483:073 | DONE cmt | na 16 16 |        |             | ; ALPHABET STRINGS
-1483:074 | DONE wsp | na 16 16 |        |             |
-1483:075 | DONE cmt | na 16 16 |        |             | ; Leave alphastr as the last entry in the source code to make it easier to
-1483:076 | DONE cmt | na 16 16 |        |             | ; see where this section ends. This cannot be a zero-terminated string
-1483:077 | DONE wsp | na 16 16 |        |             |
-1483:078 | DONE lbl | na 16 16 | 00688f |             | alphastr                             
-1483:079 | DONE dir | na 16 16 | 00688f | (35 bytes)  |         .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, (...) 
-1483:079 | DONE dir | na 16 16 |        |             |                 30 31 32 33 34 35 36 37  --  0 1 2 3 4 5 6 7
-1483:079 | DONE dir | na 16 16 |        |             |                 38 39 61 62 63 64 65 66  --  8 9 a b c d e f
-1483:079 | DONE dir | na 16 16 |        |             |                 67 68 69 6a 6b 6c 6d 6e  --  g h i j k l m n
-1483:079 | DONE dir | na 16 16 |        |             |                 6f 70 71 72 73 74 75 76  --  o p q r s t u v
-1483:079 | DONE dir | na 16 16 |        |             |                 77 79 7a                 --  w y z
-1484:000 | DONE wsp | na 16 16 |        |             |
-1485:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1486:000 | DONE cmt | na 16 16 |        |             | ; TESTING ROUTINES (UNCOMMENT FOR USE)
+1486:015 | DONE dir | na 16 16 |        |             |                 6f 72 74 68 20 66 6f 72  --  o r t h   f o r
+1486:015 | DONE dir | na 16 16 |        |             |                 20 74 68 65 20 57 36 35  --    t h e   W 6 5
+1486:015 | DONE dir | na 16 16 |        |             |                 43 32 36 35 53 58 42 00  --  C 2 6 5 S X B .
+1486:015 | DONE dir | na 16 16 |        |             |                                          -- 
+1486:016 | DONE lbl | na 16 16 | 0066b3 |             | s_version                            
+1486:017 | DONE dir | na 16 16 | 0066b3 | (31 bytes)  |         .byte 56, 65, 72, 73, 69, 6f, 6e, 20, 50, 52, 45, 2d, 41, (...) 
+1486:017 | DONE dir | na 16 16 |        |             |                 56 65 72 73 69 6f 6e 20  --  V e r s i o n  
+1486:017 | DONE dir | na 16 16 |        |             |                 50 52 45 2d 41 4c 50 48  --  P R E - A L P H
+1486:017 | DONE dir | na 16 16 |        |             |                 41 20 32 39 2e 20 4a 61  --  A   2 9 .   J a
+1486:017 | DONE dir | na 16 16 |        |             |                 6e 20 32 30 31 37 00     --  n   2 0 1 7 .
+1486:018 | DONE lbl | na 16 16 | 0066d2 |             | s_author                             
+1486:019 | DONE dir | na 16 16 | 0066d2 | (45 bytes)  |         .byte 53, 63, 6f, 74, 20, 57, 2e, 20, 53, 74, 65, 76, 65, (...) 
+1486:019 | DONE dir | na 16 16 |        |             |                 53 63 6f 74 20 57 2e 20  --  S c o t   W .  
+1486:019 | DONE dir | na 16 16 |        |             |                 53 74 65 76 65 6e 73 6f  --  S t e v e n s o
+1486:019 | DONE dir | na 16 16 |        |             |                 6e 20 3c 73 63 6f 74 2e  --  n   < s c o t .
+1486:019 | DONE dir | na 16 16 |        |             |                 73 74 65 76 65 6e 73 6f  --  s t e v e n s o
+1486:019 | DONE dir | na 16 16 |        |             |                 6e 40 67 6d 61 69 6c 2e  --  n @ g m a i l .
+1486:019 | DONE dir | na 16 16 |        |             |                 63 6f 6d 3e 00           --  c o m > .
+1486:020 | DONE lbl | na 16 16 | 0066ff |             | s_disclaimer                         
+1486:021 | DONE dir | na 16 16 | 0066ff | (46 bytes)  |         .byte 4c, 69, 61, 72, 61, 20, 46, 6f, 72, 74, 68, 20, 63, (...) 
+1486:021 | DONE dir | na 16 16 |        |             |                 4c 69 61 72 61 20 46 6f  --  L i a r a   F o
+1486:021 | DONE dir | na 16 16 |        |             |                 72 74 68 20 63 6f 6d 65  --  r t h   c o m e
+1486:021 | DONE dir | na 16 16 |        |             |                 73 20 77 69 74 68 20 61  --  s   w i t h   a
+1486:021 | DONE dir | na 16 16 |        |             |                 62 73 6f 6c 75 74 65 6c  --  b s o l u t e l
+1486:021 | DONE dir | na 16 16 |        |             |                 79 20 4e 4f 20 57 41 52  --  y   N O   W A R
+1486:021 | DONE dir | na 16 16 |        |             |                 52 41 4e 54 59 00        --  R A N T Y .
+1486:022 | DONE lbl | na 16 16 | 00672d |             | s_typebye                            
+1486:023 | DONE dir | na 16 16 | 00672d | (19 bytes)  |         .byte 54, 79, 70, 65, 20, 27, 62, 79, 65, 27, 20, 74, 6f, (...) 
+1486:023 | DONE dir | na 16 16 |        |             |                 54 79 70 65 20 27 62 79  --  T y p e   ' b y
+1486:023 | DONE dir | na 16 16 |        |             |                 65 27 20 74 6f 20 65 78  --  e '   t o   e x
+1486:023 | DONE dir | na 16 16 |        |             |                 69 74 00                 --  i t .
+1486:024 | DONE lbl | na 16 16 | 006740 |             | s_ok                                 
+1486:025 | DONE dir | na 16 16 | 006740 | (4 bytes)   |         .byte 20, 6f, 6b, 0          ; note empty space at beginning
+1486:025 | DONE dir | na 16 16 |        |             |                 20 6f 6b 00              --    o k .
+1486:026 | DONE wsp | na 16 16 |        |             |
+1486:027 | DONE wsp | na 16 16 |        |             |
+1486:028 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1486:029 | DONE cmt | na 16 16 |        |             | ; ERROR STRINGS
+1486:030 | DONE wsp | na 16 16 |        |             |
+1486:031 | DONE cmt | na 16 16 |        |             | ; All error strings must be zero-terminated, names start with "es_"
+1486:032 | DONE cmt | na 16 16 |        |             | ; These are currently the same error strings as in Tali Forth
+1486:033 | DONE wsp | na 16 16 |        |             |
+1486:034 | DONE lbl | na 16 16 | 006744 |             | es_channel                           
+1486:035 | DONE dir | na 16 16 | 006744 | (26 bytes)  |         .byte 41, 63, 63, 65, 73, 73, 69, 6e, 67, 20, 75, 6e, 6b, (...) 
+1486:035 | DONE dir | na 16 16 |        |             |                 41 63 63 65 73 73 69 6e  --  A c c e s s i n
+1486:035 | DONE dir | na 16 16 |        |             |                 67 20 75 6e 6b 6e 6f 77  --  g   u n k n o w
+1486:035 | DONE dir | na 16 16 |        |             |                 6e 20 63 68 61 6e 6e 65  --  n   c h a n n e
+1486:035 | DONE dir | na 16 16 |        |             |                 6c 00                    --  l .
+1486:036 | DONE lbl | na 16 16 | 00675e |             | es_componly                          
+1486:037 | DONE dir | na 16 16 | 00675e | (33 bytes)  |         .byte 49, 6e, 74, 65, 72, 70, 72, 65, 74, 69, 6e, 67, 20, (...) 
+1486:037 | DONE dir | na 16 16 |        |             |                 49 6e 74 65 72 70 72 65  --  I n t e r p r e
+1486:037 | DONE dir | na 16 16 |        |             |                 74 69 6e 67 20 61 20 63  --  t i n g   a   c
+1486:037 | DONE dir | na 16 16 |        |             |                 6f 6d 70 69 6c 65 2d 6f  --  o m p i l e - o
+1486:037 | DONE dir | na 16 16 |        |             |                 6e 6c 79 20 77 6f 72 64  --  n l y   w o r d
+1486:037 | DONE dir | na 16 16 |        |             |                 00                       --  .
+1486:038 | DONE lbl | na 16 16 | 00677f |             | es_defer                             
+1486:039 | DONE dir | na 16 16 | 00677f | (29 bytes)  |         .byte 44, 45, 46, 45, 52, 65, 64, 20, 77, 6f, 72, 64, 20, (...) 
+1486:039 | DONE dir | na 16 16 |        |             |                 44 45 46 45 52 65 64 20  --  D E F E R e d  
+1486:039 | DONE dir | na 16 16 |        |             |                 77 6f 72 64 20 6e 6f 74  --  w o r d   n o t
+1486:039 | DONE dir | na 16 16 |        |             |                 20 64 65 66 69 6e 65 64  --    d e f i n e d
+1486:039 | DONE dir | na 16 16 |        |             |                 20 79 65 74 00           --    y e t .
+1486:040 | DONE lbl | na 16 16 | 00679c |             | es_divzero                           
+1486:041 | DONE dir | na 16 16 | 00679c | (17 bytes)  |         .byte 44, 69, 76, 69, 73, 69, 6f, 6e, 20, 62, 79, 20, 7a, (...) 
+1486:041 | DONE dir | na 16 16 |        |             |                 44 69 76 69 73 69 6f 6e  --  D i v i s i o n
+1486:041 | DONE dir | na 16 16 |        |             |                 20 62 79 20 7a 65 72 6f  --    b y   z e r o
+1486:041 | DONE dir | na 16 16 |        |             |                 00                       --  .
+1486:042 | DONE lbl | na 16 16 | 0067ad |             | es_empty                             
+1486:043 | DONE dir | na 16 16 | 0067ad | (9 bytes)   |         .byte 20, 28, 65, 6d, 70, 74, 79, 29, 0 
+1486:043 | DONE dir | na 16 16 |        |             |                 20 28 65 6d 70 74 79 29  --    ( e m p t y )
+1486:043 | DONE dir | na 16 16 |        |             |                 00                       --  .
+1486:044 | DONE lbl | na 16 16 | 0067b6 |             | es_error                             
+1486:045 | DONE dir | na 16 16 | 0067b6 | (12 bytes)  |         .byte 3e, 3e, 3e, 45, 72, 72, 6f, 72, 3c, 3c, 3c, 0 
+1486:045 | DONE dir | na 16 16 |        |             |                 3e 3e 3e 45 72 72 6f 72  --  > > > E r r o r
+1486:045 | DONE dir | na 16 16 |        |             |                 3c 3c 3c 00              --  < < < .
+1486:046 | DONE lbl | na 16 16 | 0067c2 |             | es_intonly                           
+1486:047 | DONE dir | na 16 16 | 0067c2 | (22 bytes)  |         .byte 4e, 6f, 74, 20, 69, 6e, 20, 69, 6e, 74, 65, 72, 70, (...) 
+1486:047 | DONE dir | na 16 16 |        |             |                 4e 6f 74 20 69 6e 20 69  --  N o t   i n   i
+1486:047 | DONE dir | na 16 16 |        |             |                 6e 74 65 72 70 72 65 74  --  n t e r p r e t
+1486:047 | DONE dir | na 16 16 |        |             |                 20 6d 6f 64 65 00        --    m o d e .
+1486:048 | DONE lbl | na 16 16 | 0067d8 |             | es_noname                            
+1486:049 | DONE dir | na 16 16 | 0067d8 | (16 bytes)  |         .byte 50, 61, 72, 73, 69, 6e, 67, 20, 66, 61, 69, 6c, 75, (...) 
+1486:049 | DONE dir | na 16 16 |        |             |                 50 61 72 73 69 6e 67 20  --  P a r s i n g  
+1486:049 | DONE dir | na 16 16 |        |             |                 66 61 69 6c 75 72 65 00  --  f a i l u r e .
+1486:049 | DONE dir | na 16 16 |        |             |                                          -- 
+1486:050 | DONE lbl | na 16 16 | 0067e8 |             | es_radix                             
+1486:051 | DONE dir | na 16 16 | 0067e8 | (23 bytes)  |         .byte 44, 69, 67, 69, 74, 20, 6c, 61, 72, 67, 65, 72, 20, (...) 
+1486:051 | DONE dir | na 16 16 |        |             |                 44 69 67 69 74 20 6c 61  --  D i g i t   l a
+1486:051 | DONE dir | na 16 16 |        |             |                 72 67 65 72 20 74 68 61  --  r g e r   t h a
+1486:051 | DONE dir | na 16 16 |        |             |                 6e 20 62 61 73 65 00     --  n   b a s e .
+1486:052 | DONE lbl | na 16 16 | 0067ff |             | es_refill1                           
+1486:053 | DONE dir | na 16 16 | 0067ff | (46 bytes)  |         .byte 51, 55, 49, 54, 20, 63, 6f, 75, 6c, 64, 20, 6e, 6f, (...) 
+1486:053 | DONE dir | na 16 16 |        |             |                 51 55 49 54 20 63 6f 75  --  Q U I T   c o u
+1486:053 | DONE dir | na 16 16 |        |             |                 6c 64 20 6e 6f 74 20 67  --  l d   n o t   g
+1486:053 | DONE dir | na 16 16 |        |             |                 65 74 20 69 6e 70 75 74  --  e t   i n p u t
+1486:053 | DONE dir | na 16 16 |        |             |                 20 28 52 45 46 49 4c 4c  --    ( R E F I L L
+1486:053 | DONE dir | na 16 16 |        |             |                 20 72 65 74 75 72 6e 65  --    r e t u r n e
+1486:053 | DONE dir | na 16 16 |        |             |                 64 20 2d 31 29 00        --  d   - 1 ) .
+1486:054 | DONE lbl | na 16 16 | 00682d |             | es_refill2                           
+1486:055 | DONE dir | na 16 16 | 00682d | (32 bytes)  |         .byte 49, 6c, 6c, 65, 67, 61, 6c, 20, 53, 4f, 55, 52, 43, (...) 
+1486:055 | DONE dir | na 16 16 |        |             |                 49 6c 6c 65 67 61 6c 20  --  I l l e g a l  
+1486:055 | DONE dir | na 16 16 |        |             |                 53 4f 55 52 43 45 2d 49  --  S O U R C E - I
+1486:055 | DONE dir | na 16 16 |        |             |                 44 20 64 75 72 69 6e 67  --  D   d u r i n g
+1486:055 | DONE dir | na 16 16 |        |             |                 20 52 45 46 49 4c 4c 00  --    R E F I L L .
+1486:055 | DONE dir | na 16 16 |        |             |                                          -- 
+1486:056 | DONE lbl | na 16 16 | 00684d |             | es_underflow                         
+1486:057 | DONE dir | na 16 16 | 00684d | (16 bytes)  |         .byte 53, 74, 61, 63, 6b, 20, 75, 6e, 64, 65, 72, 66, 6c, (...) 
+1486:057 | DONE dir | na 16 16 |        |             |                 53 74 61 63 6b 20 75 6e  --  S t a c k   u n
+1486:057 | DONE dir | na 16 16 |        |             |                 64 65 72 66 6c 6f 77 00  --  d e r f l o w .
+1486:057 | DONE dir | na 16 16 |        |             |                                          -- 
+1486:058 | DONE lbl | na 16 16 | 00685d |             | es_syntax                            
+1486:059 | DONE dir | na 16 16 | 00685d | (16 bytes)  |         .byte 20, 55, 6e, 64, 65, 66, 69, 6e, 65, 64, 20, 77, 6f, (...) 
+1486:059 | DONE dir | na 16 16 |        |             |                 20 55 6e 64 65 66 69 6e  --    U n d e f i n
+1486:059 | DONE dir | na 16 16 |        |             |                 65 64 20 77 6f 72 64 00  --  e d   w o r d .
+1486:059 | DONE dir | na 16 16 |        |             |                                          -- 
+1486:060 | DONE wsp | na 16 16 |        |             |
+1486:061 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1486:062 | DONE cmt | na 16 16 |        |             | ; TESTING STRINGS
+1486:063 | DONE wsp | na 16 16 |        |             |
+1486:064 | DONE cmt | na 16 16 |        |             | ; These strings are only used during testing and are removed as Liara Forth is
+1486:065 | DONE cmt | na 16 16 |        |             | ; developed. All start with "tests_"
+1486:066 | DONE wsp | na 16 16 |        |             |
+1486:067 | DONE lbl | na 16 16 | 00686d |             | tests_prev_cmd                       
+1486:068 | DONE dir | na 16 16 | 00686d | (19 bytes)  |         .byte 28, 70, 72, 65, 76, 69, 6f, 75, 73, 20, 63, 6f, 6d, (...) 
+1486:068 | DONE dir | na 16 16 |        |             |                 28 70 72 65 76 69 6f 75  --  ( p r e v i o u
+1486:068 | DONE dir | na 16 16 |        |             |                 73 20 63 6f 6d 6d 61 6e  --  s   c o m m a n
+1486:068 | DONE dir | na 16 16 |        |             |                 64 29 00                 --  d ) .
+1486:069 | DONE lbl | na 16 16 | 006880 |             | tests_next_cmd                       
+1486:070 | DONE dir | na 16 16 | 006880 | (15 bytes)  |         .byte 28, 6e, 65, 78, 74, 20, 63, 6f, 6d, 6d, 61, 6e, 64, (...) 
+1486:070 | DONE dir | na 16 16 |        |             |                 28 6e 65 78 74 20 63 6f  --  ( n e x t   c o
+1486:070 | DONE dir | na 16 16 |        |             |                 6d 6d 61 6e 64 29 00     --  m m a n d ) .
+1486:071 | DONE wsp | na 16 16 |        |             |
+1486:072 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1486:073 | DONE cmt | na 16 16 |        |             | ; ALPHABET STRINGS
+1486:074 | DONE wsp | na 16 16 |        |             |
+1486:075 | DONE cmt | na 16 16 |        |             | ; Leave alphastr as the last entry in the source code to make it easier to
+1486:076 | DONE cmt | na 16 16 |        |             | ; see where this section ends. This cannot be a zero-terminated string
+1486:077 | DONE wsp | na 16 16 |        |             |
+1486:078 | DONE lbl | na 16 16 | 00688f |             | alphastr                             
+1486:079 | DONE dir | na 16 16 | 00688f | (35 bytes)  |         .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, (...) 
+1486:079 | DONE dir | na 16 16 |        |             |                 30 31 32 33 34 35 36 37  --  0 1 2 3 4 5 6 7
+1486:079 | DONE dir | na 16 16 |        |             |                 38 39 61 62 63 64 65 66  --  8 9 a b c d e f
+1486:079 | DONE dir | na 16 16 |        |             |                 67 68 69 6a 6b 6c 6d 6e  --  g h i j k l m n
+1486:079 | DONE dir | na 16 16 |        |             |                 6f 70 71 72 73 74 75 76  --  o p q r s t u v
+1486:079 | DONE dir | na 16 16 |        |             |                 77 79 7a                 --  w y z
 1487:000 | DONE wsp | na 16 16 |        |             |
-1488:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING (PRINT ONE "A") ---
-1489:000 | DONE cmt | na 16 16 |        |             |                 ; lda.# 61
-1490:000 | DONE cmt | na 16 16 |        |             |                 ; jsr put_chr
-1491:000 | DONE cmt | na 16 16 |        |             |                 ; .!a16
-1492:000 | DONE cmt | na 16 16 |        |             |                 ; brk 00
-1493:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING ---
-1494:000 | DONE wsp | na 16 16 |        |             |
-1495:000 | DONE cmt | na 16 16 |        |             |                 ; --- TESTING SHOW WHAT IS TOS ---
-1496:000 | DONE cmt | na 16 16 |        |             |                 ; tya
-1497:000 | DONE cmt | na 16 16 |        |             |                 ; and.# 0ff00
-1498:000 | DONE cmt | na 16 16 |        |             |                 ; xba
-1499:000 | DONE cmt | na 16 16 |        |             |                 ; jsr byte_to_ascii
-1500:000 | DONE cmt | na 16 16 |        |             |                 ; tya
-1501:000 | DONE cmt | na 16 16 |        |             |                 ; and.# 00ff
+1488:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1489:000 | DONE cmt | na 16 16 |        |             | ; TESTING ROUTINES (UNCOMMENT FOR USE)
+1490:000 | DONE wsp | na 16 16 |        |             |
+1491:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING (PRINT ONE "A") ---
+1492:000 | DONE cmt | na 16 16 |        |             |                 ; lda.# 61
+1493:000 | DONE cmt | na 16 16 |        |             |                 ; jsr put_chr
+1494:000 | DONE cmt | na 16 16 |        |             |                 ; .!a16
+1495:000 | DONE cmt | na 16 16 |        |             |                 ; brk 00
+1496:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING ---
+1497:000 | DONE wsp | na 16 16 |        |             |
+1498:000 | DONE cmt | na 16 16 |        |             |                 ; --- TESTING SHOW WHAT IS TOS ---
+1499:000 | DONE cmt | na 16 16 |        |             |                 ; tya
+1500:000 | DONE cmt | na 16 16 |        |             |                 ; and.# 0ff00
+1501:000 | DONE cmt | na 16 16 |        |             |                 ; xba
 1502:000 | DONE cmt | na 16 16 |        |             |                 ; jsr byte_to_ascii
-1503:000 | DONE cmt | na 16 16 |        |             |                 ; jsr a_cr
-1504:000 | DONE cmt | na 16 16 |        |             |                 ; --------------------------------
-1505:000 | DONE wsp | na 16 16 |        |             |
-1506:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING (HALT CPU) ---
-1507:000 | DONE cmt | na 16 16 |        |             |                 ; brk 00 ; BRK for 265sxb tests (drops back to Mensch Monitor)
-1508:000 | DONE cmt | na 16 16 |        |             |                 ; stp    ; STP for crude65816 emulator tests
-1509:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING ---
-1510:000 | DONE wsp | na 16 16 |        |             |
-1511:000 | DONE cmt | na 16 16 |        |             | ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1512:000 | DONE cmt | na 16 16 |        |             |                 ; --- TESTING SHOW WHAT IS TOS ---
-1513:000 | DONE ins | na 16 16 | 0068b2 | 98          |                 tya                  
-1514:000 | DONE ins | na 16 16 | 0068b3 | 29 00 ff    |                 and.# 0ff00          
-1515:000 | DONE ins | na 16 16 | 0068b6 | eb          |                 xba                  
-1516:000 | DONE ins | na 16 16 | 0068b7 | 20 70 66    |                 jsr 006670           
-1517:000 | DONE ins | na 16 16 | 0068ba | 98          |                 tya                  
-1518:000 | DONE ins | na 16 16 | 0068bb | 29 ff 00    |                 and.# 00ff           
-1519:000 | DONE ins | na 16 16 | 0068be | 20 70 66    |                 jsr 006670           
-1520:000 | DONE ins | na 16 16 | 0068c1 | 20 c9 61    |                 jsr 0061c9           
-1521:000 | DONE cmt | na 16 16 |        |             |                 ; --------------------------------
-1522:000 | DONE wsp | na 16 16 |        |             |
-1523:000 | DONE wsp | na 16 16 |        |             |
-1524:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
-1525:000 | DONE cmt | na 16 16 |        |             | ; END
+1503:000 | DONE cmt | na 16 16 |        |             |                 ; tya
+1504:000 | DONE cmt | na 16 16 |        |             |                 ; and.# 00ff
+1505:000 | DONE cmt | na 16 16 |        |             |                 ; jsr byte_to_ascii
+1506:000 | DONE cmt | na 16 16 |        |             |                 ; jsr a_cr
+1507:000 | DONE cmt | na 16 16 |        |             |                 ; --------------------------------
+1508:000 | DONE wsp | na 16 16 |        |             |
+1509:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING (HALT CPU) ---
+1510:000 | DONE cmt | na 16 16 |        |             |                 ; brk 00 ; BRK for 265sxb tests (drops back to Mensch Monitor)
+1511:000 | DONE cmt | na 16 16 |        |             |                 ; stp    ; STP for crude65816 emulator tests
+1512:000 | DONE cmt | na 16 16 |        |             |                 ; --- TODO TESTING ---
+1513:000 | DONE wsp | na 16 16 |        |             |
+1514:000 | DONE cmt | na 16 16 |        |             | ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1515:000 | DONE cmt | na 16 16 |        |             |                 ; --- TESTING SHOW WHAT IS TOS ---
+1516:000 | DONE ins | na 16 16 | 0068b2 | 98          |                 tya                  
+1517:000 | DONE ins | na 16 16 | 0068b3 | 29 00 ff    |                 and.# 0ff00          
+1518:000 | DONE ins | na 16 16 | 0068b6 | eb          |                 xba                  
+1519:000 | DONE ins | na 16 16 | 0068b7 | 20 70 66    |                 jsr 006670           
+1520:000 | DONE ins | na 16 16 | 0068ba | 98          |                 tya                  
+1521:000 | DONE ins | na 16 16 | 0068bb | 29 ff 00    |                 and.# 00ff           
+1522:000 | DONE ins | na 16 16 | 0068be | 20 70 66    |                 jsr 006670           
+1523:000 | DONE ins | na 16 16 | 0068c1 | 20 c9 61    |                 jsr 0061c9           
+1524:000 | DONE cmt | na 16 16 |        |             |                 ; --------------------------------
+1525:000 | DONE wsp | na 16 16 |        |             |
 1526:000 | DONE wsp | na 16 16 |        |             |
-1527:000 | DONE dir | na 16 16 |        |             |         .end                         
+1527:000 | DONE cmt | na 16 16 |        |             | ; ===================================================================
+1528:000 | DONE cmt | na 16 16 |        |             | ; END
+1529:000 | DONE wsp | na 16 16 |        |             |
+1530:000 | DONE dir | na 16 16 |        |             |         .end                         
 
 MACROS:
         (none)
