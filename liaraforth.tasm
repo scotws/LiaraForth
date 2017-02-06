@@ -146,11 +146,23 @@ quit_refill_successful
                 ; make >IN point to begining of buffer
                 stz.d toin
  
-                ; TESTING TALI FORTH F_COMPEXE BEGINS HERE
+                ; Main compile/execute routine. Consider moving this inside QUIT
+                ; once we know everything works 
                 jsr compex
 
-                ; TODO TEST FOR OVER- OR UNDERFLOW
+                ; Test for Data Stack underflow. Our stack is so large in single
+                ; user mode that we don't bother checking for overflow - if that
+                ; happens, we're screwed anyway
+                stx.d tmpdsp
+                lda.# dsp0
+                sec
+                sbc.d tmpdsp
+                
+                bpl quit_ok
+                lda.# es_underflow
+                jmp error
 
+quit_ok
                 ; Display system prompt if all went well
                 lda.# s_ok
                 jsr print_string
@@ -551,6 +563,7 @@ a_dots
                 jsr byte_to_ascii
                 ; --- TEMP print routine ---
 
+                ; TODO rewrite this to use EMIT
                 lda.# '>'
                 jsr put_chr
                 jsr a_space
@@ -570,7 +583,7 @@ dots_not_empty
                 ; Normally we would go with STX.D tmptos / LDX.D tmptos with
                 ; 4 bytes and 8 cycles because we value speed over size.
                 ; However, .S is used interactively, and humans
-                ; won't notice the one cycle more of PHX/PLY (2 bytes,
+                ; won't notice the one cycle more of PHX/PLX (2 bytes,
                 ; 9 cycles). We save the two bytes.
                 phx
 
@@ -579,15 +592,15 @@ dots_not_empty
                 ; see docs/INTERNALS.md for more details 
                 ldx.# dsp0      ; points to dsp0, which is garbage
                 dex
-                dex             ; points to dsp-2, which is garbage
+                dex             ; points to dsp0-2, which is more garbage
                 
 dots_loop
-                dex             ; get next element on DS, initially dsp+4
+                dex             ; get next element on DS, initially dsp0-4
                 dex             
 
                 ; --- TEMP print routine ---
                 ; TODO call EMIT
-                lda.dx 00               ; Actual TOS is NOS
+                lda.dx 00
                 and.# 0ff00
                 xba 
                 jsr byte_to_ascii

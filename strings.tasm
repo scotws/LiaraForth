@@ -26,19 +26,19 @@ s_ok         .byte " ok", 0     ; note empty space at beginning
 ; All error strings must be zero-terminated, names start with "es_"
 ; These are currently the same error strings as in Tali Forth
 
-es_channel  .byte "Accessing unknown channel", 0
-es_componly .byte "Interpreting a compile-only word", 0
-es_defer    .byte "DEFERed word not defined yet", 0
-es_divzero  .byte "Division by zero", 0
-es_empty    .byte " (empty)", 0
-es_error    .byte ">>>Error<<<", 0
-es_intonly  .byte "Not in interpret mode", 0
-es_noname   .byte "Parsing failure", 0
-es_radix    .byte "Digit larger than base", 0
-es_refill1  .byte "QUIT could not get input (REFILL returned -1)", 0
-es_refill2  .byte "Illegal SOURCE-ID during REFILL", 0
-es_stack    .byte "Stack over- or underflow", 0
-es_syntax   .byte " Undefined word", 0
+es_channel   .byte "Accessing unknown channel", 0
+es_componly  .byte "Interpreting a compile-only word", 0
+es_defer     .byte "DEFERed word not defined yet", 0
+es_divzero   .byte "Division by zero", 0
+es_empty     .byte " (empty)", 0
+es_error     .byte ">>>Error<<<", 0
+es_intonly   .byte "Not in interpret mode", 0
+es_noname    .byte "Parsing failure", 0
+es_radix     .byte "Digit larger than base", 0
+es_refill1   .byte "QUIT could not get input (REFILL returned -1)", 0
+es_refill2   .byte "Illegal SOURCE-ID during REFILL", 0
+es_underflow .byte "Stack underflow", 0
+es_syntax    .byte " Undefined word", 0
 
 ; ===================================================================
 ; TESTING STRINGS
