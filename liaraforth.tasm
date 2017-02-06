@@ -504,7 +504,7 @@ a_depth
 
                 dex
                 dex
-                sty.d 00
+                sty.dx 00
 
                 ; push result to stack
                 tay
@@ -812,7 +812,6 @@ z_find-name     rts
 ; -------------------------------------------------------------------
 ; HERE ( -- u ) 6 bytes / 13 cycles
 ; Push Compiler Pointer address on the Data Stack
-
 a_here          
         .!a16           ; paranoid
         .!xy16
@@ -827,7 +826,6 @@ z_here          rts
 ; -------------------------------------------------------------------
 ; NAME>INT ( nt -- xt ) 4 bytes / 8 cycles
 ; Given the Name Token (nt) of a word, return its Execute Token (xt)
-
 a_name>int      
         .!a16
         .!xy16
@@ -871,7 +869,6 @@ z_name>string   rts
 ; -------------------------------------------------------------------
 ; NIP ( n m -- m ) 2 bytes / 4 cycles
 ; Delete entry that is NOS
-
 a_nip           
         .!xy16
                 inx
@@ -883,6 +880,7 @@ z_nip           rts
 ; PAGE ( -- ) X bytes / X cycles
 ; Clear the screen on vt-100 terminals by sending the code "ESC[2J". This is
 ; only useful in interactive scenarios so we don't worry about speed
+; TODO rewrite with EMIT
 a_page          
                 lda.# vt100_page
                 jsr print_string
