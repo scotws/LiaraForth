@@ -1157,13 +1157,15 @@ z_space         rts
 
 ; -------------------------------------------------------------------
 ; SPACES ( u -- ) 12 bytes / X cycles
-; Print u spaces. Calls SPACE
+; Print u spaces. Calls SPACE, because this is probably interactive and humans
+; are slow enough we don't have to care about speed.
 a_spaces        
         .!a16
         .!xy16
 @
-                dey             ; this handles case u=0
+                dey             ; this also handles case u=0
                 bmi spaces_done
+
                 jsr a_space
                 bra - 
 
@@ -1178,8 +1180,8 @@ z_spaces        rts
 ; -------------------------------------------------------------------
 ; STATE ( -- addr ) 7 bytes / 12 cycles
 ; Return the address of a cell containing the compilation-state flag. STATE
-; is true when in compilation state, false otherwise. STATE should be changed
-; directly by the user; see
+; is true when in compilation state, false otherwise. STATE should not be 
+; changed directly by the user; see
 ; http://forth.sourceforge.net/standard/dpans/dpans6.htm#6.1.2250
 a_state         
         .!xy16
@@ -1193,8 +1195,8 @@ z_state         rts
 
 ; -------------------------------------------------------------------
 ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
-; Exchange TOS with NOS, destroys Y
-
+; Exchange TOS with NOS. We don't check if there are enough elements on the Data
+; Stack; underflow errors will go undetected and return garbage.
 a_swap          
         .!a16
         .!xy16
@@ -1207,7 +1209,6 @@ z_swap          rts
 ; -------------------------------------------------------------------
 ; TRUE ( -- f ) 7 bytes / 12 cycles
 ; Pushes value $FFFF for Forth true on Data Stack
-
 a_true          
         .!a16
         .!xy16
@@ -1220,8 +1221,8 @@ z_true          rts
 
 ; -------------------------------------------------------------------
 ; TUCK ( n m -- m n m ) 8 bytes / 19 cycles
-; Insert TOS below NOS
-
+; Insert TOS below NOS. We do not check if there are enough elements on the Data
+; Stack, underflow will go undetected and return garbage.
 a_tuck          
         .!a16
         .!xy16
@@ -1236,7 +1237,7 @@ z_tuck          rts
 ; -------------------------------------------------------------------
 ; TYPE ( addr u -- ) 23+ bytes / X cycles
 ; Print character string if u is not 0. We restrict all calls to put_chr and
-; get-chr to make porting easier.  We call put_chr here directly instead of
+; get_chr to make porting easier.  We call put_chr here directly instead of
 ; going through EMIT because EMIT will later have a PAUSE statement for
 ; multitasking and we probably don't want to PAUSE after every character.
 ; However, we'll make a final decision about that when multitasking is up and
@@ -1275,12 +1276,13 @@ z_type          rts
 
 ; -------------------------------------------------------------------
 ; WORDS ( -- ) X bytes / X cycles
-; Print list of all Forth words available
+; Print list of all Forth words available. This only really makes sense in an
+; interactive setting, so we don't have to worry about speed.
 a_words         
                 lda.d dp        ; nt of first entry in Dictionary (last added)
                 pha
 
-                dex
+                dex  
                 dex
                 sty.dx 00 
 
@@ -1312,7 +1314,7 @@ words_loop
                 bne words_loop          ; zero entry signals end of Dictionary
 
                 ; all done, clean up
-                pla
+                pla                     ; balance MPU stack, value discarded
 
                 ldy.dx 00
                 inx
@@ -1335,7 +1337,8 @@ z_words         rts
 ; COMPILE OR EXECUTE 
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
-; string is in ciblen
+; string is in ciblen. Consider moving this up to QUIT once we know what we are
+; doing
 compex
 compex_loop 
                 ; Normally we would use PARSE here with the SPACE character as
