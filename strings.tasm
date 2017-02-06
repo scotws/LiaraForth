@@ -24,8 +24,8 @@ s_ok         .byte " ok", 0     ; note empty space at beginning
 ; ERROR STRINGS
 
 ; All error strings must be zero-terminated, names start with "es_"
-; These are currently the same error strings as in Tali Forth
 
+es_allot     .byte "ALLOT out of bounds", 0
 es_channel   .byte "Accessing unknown channel", 0
 es_componly  .byte "Interpreting a compile-only word", 0
 es_defer     .byte "DEFERed word not defined yet", 0

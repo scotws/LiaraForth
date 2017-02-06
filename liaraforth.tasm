@@ -47,7 +47,6 @@ start
 
                 ; TODO switch to Single Task mode
                 ; TODO set up Direct Page stuff
-                ; TODO set up CP
                 ; TODO initiate PAD
                 ; TODO initiate User variables
                 ; TODO initiate high-level words 
@@ -59,13 +58,21 @@ start
                 lda.# h_drop
                 sta.d dp
                 
+                ; The compiler pointer (CP) starts after the Data Stack in
+                lda.# cp0
+                sta.d cp
+
                 ; Prepare input buffers
                 lda.# ibuffer1  ; start with first input buffer
                 sta.d cib
                 stz.d ciblen    ; current input buffer is empty
                 stz.d piblen    ; previous input buffer is empty
 
-                ; print boot strings
+                jsr a_page
+
+                ; Print boot strings
+                ; TODO consider putting this in one large string once we're sure
+                ; that we're done
                 lda.# s_title
                 jsr print_string
                 lda.# s_version
@@ -198,6 +205,25 @@ a_plus          tya
                 inx 
 
 z_plus          rts
+
+
+; -------------------------------------------------------------------
+; MINUS ( n m -- n-m ) 10 bytes / X cycles
+; Subtract NOS from TOS
+a_minus         
+        .!a16
+                lda.dx 00       ; NOS
+                sty.dx 00       ; TOS
+
+                sec
+                sbc.dx 00
+
+                tay
+                inx
+                inx
+                
+z_minus         rts
+
 
 ; -------------------------------------------------------------------
 ; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
@@ -390,11 +416,60 @@ accept_bs
 
 z_accept        rts
 
+; -------------------------------------------------------------------
+; ALLOT ( n -- ) X bytes / X cycles
+; Reserve a certain number of bytes (not cells) or release them. If n = 0, do
+; nothing. If n is negative, release n bytes, but only to the beginning of the
+; Dictionary. If n is positive (the most common case), reserve n bytes, but not
+; past the Dictionary.
+; See http://forth-standard.org/standard/core/ALLOT
+a_allot         
+        .!a16
+                tya                     ; force flag check
+                beq allot_real_gone     ; zero bytes, don't do anything 
+                bmi allot_minus         ; free memory instead of reserving it
+
+                ; most common case: reserve n bytes. We've already transfered
+                ; TOS to A, so we just have to add the current compile pointer
+                clc
+                adc.d cp                ; create new CP
+                bcs allot_error         ; oops, we've wrapped
+
+                tay                     ; save copy of new CP
+
+                sec
+                sbc.# maxram-single     
+                bmi allot_done          ; oops, fall thru if beyond max RAM
+
+allot_error
+                lda.# es_allot
+                jmp error
+
+allot_minus
+                ; negative value means we're freeing memory 
+                sec
+                sbc.d cp
+                bcc allot_error         ; oops, we've wrapped
+
+                tay
+
+                sbc.# cp0               ; Carry Flag must still be set
+                bmi allot_error         ; oops, gone too far back
+                
+                ; fall through to allot_done
+allot_done      
+                sty.d cp        ; new compiler pointer
+allot_real_gone
+                ldy.dx 00       ; DROP
+                inx
+                inx
+
+z_allot         rts
+
 
 ; -------------------------------------------------------------------
 ; BELL ( -- ) X bytes / X cycles
 ; Trigger terminal bell
-
 a_bell          
 	.!a16
 		lda.# AscBELL 
@@ -420,8 +495,10 @@ z_bl            rts
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
+a_bye           
+		cli
+		brk 00  ; status byte 00 required for assembler
 
-a_bye           brk 00  ; status byte 00 required for assembler
 z_bye           rts     ; dummy for compiling, never reached
 
 ; -------------------------------------------------------------------

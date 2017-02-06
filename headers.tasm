@@ -116,8 +116,12 @@ h_dot   .byte 1, { PW + NC }
         .word h_type, a_dot, z_dot
         .byte '.'
 
+h_allot .byte 5, { PW + NC }
+        .word h_dot, a_allot, z_allot
+        .byte "allot"
+
 h_name>string .byte 0b, { PW + NC }
-        .word h_dot, a_name>string, z_name>string
+        .word h_allot, a_name>string, z_name>string
         .byte "name>string"
 
 h_2dup  .byte 4, { PW + NC }
@@ -144,8 +148,12 @@ h_depth .byte 5, { PW + NC }
         .word h_source, a_depth, z_depth
         .byte "depth"
 
+h_minus .byte 1, { PW + NC }
+        .word h_depth, a_minus, z_minus
+        .byte '-'
+
 h_plus  .byte 1, { PW + NC }
-        .word h_depth, a_plus, z_plus
+        .word h_minus, a_plus, z_plus
         .byte '+'
 
 h_one-plus .byte 2, { PW + NC }

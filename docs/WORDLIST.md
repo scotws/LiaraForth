@@ -11,6 +11,7 @@ Last update: *6. February 2017*
 | .S             | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | , (COMMA)      | coded    | ANSI core     | PW, NC | 11    |     29 |
 | + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| - (MINUS)      | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | >IN (TO-IN)    | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 | 0 (ZERO)       | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1 (ONE)        | coded    | 265SXB        | PW, NC | 7     |     12 |
@@ -20,6 +21,7 @@ Last update: *6. February 2017*
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
 | ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
+| ALLOT          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
 | BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 

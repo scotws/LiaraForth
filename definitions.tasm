@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 03. Feb 2017
+; This version: 06. Feb 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -18,7 +18,7 @@
 ; ===================================================================
 ; MEMORY MAP (consider moving parts of these to kernel.tasm)
 
-        .equ ram0            0200   ; start of available RAM
+        .equ cp0              0300  ; start of available RAM for Dictionary
         .equ physicalram     07fff  ; end of installed RAM
         .equ maxram-single   07bff  ; end of available RAM (single task mode)
         .equ maxram-multiple 06fff  ; end of available RAM (multitask mode)
