@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 03. Feb 2017
+; This version: 06. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -476,7 +476,7 @@ a_cr
 z_cr            rts
 
 ; -------------------------------------------------------------------
-; DEPTH ( -- u ) X bytes / X cycles
+; DEPTH ( -- u ) 14 bytes / X cycles
 ; Push the number of entries in cells (not bytes) on the parameter stack.
 ; Assumes X is valid as the DSP.
 a_depth         
@@ -490,14 +490,14 @@ a_depth
                 ; now divide by two because each cells is to bytes long
                 lsr.a
 
-                ; push result to stack
                 dex
                 dex
                 sty.d 00
+
+                ; push result to stack
                 tay
 
 z_depth         rts
-
 
 ; -------------------------------------------------------------------
 ; DOT ( n -- ) X bytes / X cycles
