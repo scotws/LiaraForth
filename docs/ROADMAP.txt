@@ -1,14 +1,12 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 24. Jan 2017
+This version: 06. Feb 2017
 
 
 TODO NEXT (next on top)
 
-- Code basic editing of command line in ACCEPT (CTRL-H, etc)
-- Code FIND-NAME and FIND for basic Dictionary search
-- Code EXECUTE to complete basic loop
+- Add temporary versions of .S, . (DOT) and DEPTH for debugging
 - Test on hardware as milestone
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
@@ -20,13 +18,18 @@ TODO NEXT (next on top)
 
 
 TODO LATER (next on top)
+
 - Code vt100 support
+- Create series of drawings of stack antics in INTERNALS.md 
 - Code multitasking support with PAUSE etc
 - Add real multi-line history
 
 
 FINISHED (newest on top, with date if possible)
  
+- Code EXECUTE to complete basic loop
+- Code FIND-NAME and FIND for basic Dictionary search
+- Code basic editing of command line in ACCEPT (CTRL-H, etc)
 - Milestone: Test on 265SXB after rewriting Tinkasms
 - Added WORDS to validate Dictionary structure (02. Jan 2016)
 - Code PARSE-NAME and PARSE for basic parsing (31. Dec 2016)

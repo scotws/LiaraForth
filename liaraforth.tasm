@@ -523,21 +523,45 @@ z_dot           rts
 
 
 ; -------------------------------------------------------------------
-; .S "DOTS" ( -- ) X bytes / X cycles
-; Print content of Data Stack non-distructively. Our decision to put TOS in
-; Y makes this far more complicated than you might think
+; DOTS ".S" ( -- ) X bytes / X cycles
+; Print content of Data Stack non-distructively. Since this is for humans, we
+; don't have to worry too much about the speed, because humans are depressingy
+; slow (just ask GlaDOS). 
 a_dots          
-                ; Pretty much the most common case is nothing on the stack
-                txa
-                cmp.# dsp0
-                bne dots_gotstuff
+                jsr a_depth             ; ( -- u)
 
+                ; There will be a lot of cases where .S is used when the stack
+                ; is empty. Get them first and print a special string
+                tay                     ; force flag test
+                bne dots_not_empty
+                
                 lda.# s_dots_empty
                 jsr print_string
 
-                rts
+                bra dots_done
 
-dots_gotstuff
+dots_not_empty
+                ; We have at least one element on the stack, which used to be in
+                ; Y as TOS, but is now NOS and therefore accessable by X. 
+
+
+                ; We only have one element, which was in Y, but is now 
+                
+                ; --- TEMP print routine ---
+                lda.dx 00               ; Actual TOS is NOS
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                tya
+                and.# 00ff
+                jsr byte_to_ascii
+                ; --- TEMP print routine ---
+
+                bra dots_done
+                
+
+dots_gotmorestuff
+
                 ; we print from the bottom up and stop when we hit X
                 stx.d tmpdsp
                 phy
@@ -582,6 +606,10 @@ dots_tos
 dots_done
                 tay
                 ldx.d tmpdsp
+
+                inx             ; drop TOS from DEPTH
+                inx
+                ldy.dx 00
 
 z_dots          rts
 
