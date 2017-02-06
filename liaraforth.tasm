@@ -423,6 +423,7 @@ z_accept        rts
 ; Dictionary. If n is positive (the most common case), reserve n bytes, but not
 ; past the Dictionary.
 ; See http://forth-standard.org/standard/core/ALLOT
+; TODO test negative values
 a_allot         
         .!a16
                 tya                     ; force flag check

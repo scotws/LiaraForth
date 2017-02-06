@@ -21,7 +21,7 @@ Last update: *6. February 2017*
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
 | ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
-| ALLOT          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| ALLOT          | fragment | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
 | BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
@@ -38,6 +38,7 @@ Last update: *6. February 2017*
 | NAME>INT       | coded    | Gforth        | PW, NC | 4     |      8 |
 | NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
+| PAD            | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
 | PAGE           | coded    | ANSI facility | PW, NC | (TBA) |  (TBA) |
 | PARSE          | coded    | ANSI core ext | -      | 45    |    n/a |
 | PARSE-NAME     | coded    | ANSI core ext | -      | 41+   |    n/a |
