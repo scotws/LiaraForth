@@ -31,7 +31,7 @@ Last update: *7. February 2017*
 | DEPTH          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
 | DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |
-| EVALUATE       | fragment | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| EVALUATE       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | EXECUTE        | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | FIND-NAME      | coded    | Gforth        | PW, NC | (TBA) |    n/a |
