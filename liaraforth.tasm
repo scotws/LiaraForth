@@ -39,7 +39,6 @@ a_cold
 
                 jmp reset_hardware      ; don't use JSR, jump back to start
 start           
-
         .native
         .a16
         .xy16
@@ -49,7 +48,6 @@ start
                 ; TODO set up Direct Page stuff
                 ; TODO initiate PAD
                 ; TODO initiate User variables
-                ; TODO initiate high-level words 
                 
                 ; The name token (nt) of DROP is always the first one in the
                 ; clean Dictionary, so we start off the Dictionary Pointer (DP)
@@ -65,10 +63,27 @@ start
                 ; Prepare input buffers
                 lda.# ibuffer1  ; start with first input buffer
                 sta.d cib
-                stz.d ciblen    ; current input buffer is empty
+
                 stz.d piblen    ; previous input buffer is empty
+                stz.d insrc     ; SOURCE-ID is zero
+                stz.d state     ; STATE is zero (interpret)
+                
+                ; clear Data Stack
+                ldy.# 0000
+                ldx.# dsp0
 
                 jsr a_page
+                
+                ; Define high-level words via EVALUATE
+                dex
+                dex
+                dex
+                dex
+                lda.# hi-start  
+                sta.dx 00                       ; Start address goes in NOS
+                ldy.# { hi-end - hi-start }     ; length goes in TOS
+
+                jsr a_evaluate
 
                 ; Print boot strings
                 ; TODO consider putting this in one large string once we're sure
@@ -83,7 +98,7 @@ start
                 jsr print_string
                 lda.# s_typebye
                 jsr print_string
-                
+
                 ; drop through to QUIT
 
 ; -------------------------------------------------------------------
@@ -114,7 +129,8 @@ a_quit          ; clear Return Stack
                 tcs
 
                 ; make sure Instruction Pointer is empty
-                stz.d execute_ip
+                ; TODO move this someplace else
+                stz execute_ip
 
                 ; switch SOURCE-ID to zero (keyboard input)
                 stz.d insrc
@@ -744,6 +760,9 @@ a_evaluate
                 ; set SOURCE-ID to -1
                 lda.# 0ffff
                 sta.d insrc
+
+                ; set >IN to zero
+                stz.d toin
 
                 ; move TOS and NOS to input buffers
                 sty.d ciblen
@@ -1512,7 +1531,7 @@ z_words         rts
 
 
 ; ------------------------------------------------------------------- 
-; COMPILE OR EXECUTE (ALSO CALLED INTERPRET)
+; COMPILE OR EXECUTE (INTERPRET)
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
 ; string is in ciblen. Consider moving this up to QUIT once we know what we are
@@ -1659,6 +1678,17 @@ string_to_uppercase
                 rts
 
 ; ===================================================================
+; HIGH-LEVEL WORDS 
+
+; These are executed during start up. Remember that we have to put a space at
+; the end of the line if there is another line with code following it. No zero
+; or CR/LF is required
+hi-start
+        .byte "words" ; TEST - replace with other words
+hi-end
+
+
+; ===================================================================
 ; BOTTOM INCLUDES
 
         .include strings.tasm
@@ -1689,18 +1719,6 @@ string_to_uppercase
                 ; stp    ; STP for crude65816 emulator tests
                 ; --- TODO TESTING ---
                 
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                ; --- TESTING SHOW WHAT IS TOS --- 
-                tya
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                tya
-                and.# 00ff
-                jsr byte_to_ascii
-                jsr a_cr
-                ; --------------------------------
-
 
 ; ===================================================================
 ; END

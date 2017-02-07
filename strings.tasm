@@ -57,6 +57,7 @@ vt100_home .byte AscESC, "[H", 0        ; cursor home
 tests_prev_cmd .byte "(previous command)", 0
 tests_next_cmd .byte "(next command)", 0
 
+
 ; ===================================================================
 ; ALPHABET STRINGS
 
