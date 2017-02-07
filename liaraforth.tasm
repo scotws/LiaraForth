@@ -726,6 +726,53 @@ z_dup           rts
 
 
 ; -------------------------------------------------------------------
+; EVALUATE ( addr u -- ) X bytes / X cycles
+; Execute string. Set SOURCE-ID to -1, make addr u the input source, 
+; set >IN to zero. After processing the line, revert to old input source. 
+a_evaluate      
+                ; We follow pforth's procedure of pushing SOURCE, SOURCE-ID, and
+                ; >IN to the Return Stack
+                lda.d toin      ; >IN
+                pha
+                lda.d insrc     ; Input Source (SOURCE-ID)
+                pha
+                lda.d cib
+                pha
+                lda.d ciblen
+                pha
+
+                ; set SOURCE-ID to -1
+                lda.# 0ffff
+                sta.d insrc
+
+                ; move TOS and NOS to input buffers
+                sty.d ciblen
+                lda.dx 00
+                sta.d cib
+
+                ; dump address string from stack
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+
+                jsr compex
+
+                ; restore state from before evaluate
+                pla
+                sta.d ciblen
+                pla
+                sta.d cib
+                pla
+                sta.d insrc
+                pla
+                sta.d toin
+                
+z_evaluate      rts
+
+
+; -------------------------------------------------------------------
 ; EXECUTE ( xt -- ) X bytes / X cycles
 ; Run a word with help of its xt on the TOS
 
@@ -1465,7 +1512,7 @@ z_words         rts
 
 
 ; ------------------------------------------------------------------- 
-; COMPILE OR EXECUTE 
+; COMPILE OR EXECUTE (ALSO CALLED INTERPRET)
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
 ; string is in ciblen. Consider moving this up to QUIT once we know what we are
