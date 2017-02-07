@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 06. Feb 2017
+; This version: 07. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -160,12 +160,10 @@ quit_refill_successful
                 ; Test for Data Stack underflow. Our stack is so large in single
                 ; user mode that we don't bother checking for overflow - if that
                 ; happens, we're screwed anyway
-                stx.d tmpdsp
-                lda.# dsp0
-                sec
-                sbc.d tmpdsp
+                cpx.# dsp0
+                beq quit_ok     ; stack empty
+                bcc quit_ok     ; DSP must always be smaller (!) than DSP0
                 
-                bpl quit_ok
                 lda.# es_underflow
                 jmp error
 
