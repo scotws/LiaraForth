@@ -1,7 +1,7 @@
 # Word Template Generator for Liara Forth 
 # Scot W. Stevenson <scot.stevenson@gmail.com>
 # First version: 02. Dez 2016
-# This version: 04. Jan 2017
+# This version: 07. Jan 2017
 
 # Tool to create entries for the Dictionary and Code of a given Liara Forth
 # word. Prints template to screen. For copy and paste into the code.
@@ -20,8 +20,7 @@ code_template = """
 ; -------------------------------------------------------------------
 ; {0} ( -- ) X bytes / X cycles
 ; {1}
-
-a_{2:<14}nop
+a_{2:<14}
                 nop
 z_{2:<14}rts
 """
