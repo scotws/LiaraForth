@@ -269,6 +269,13 @@ fitness for a particular purpose and their equivalents under the laws of any
 jurisdiction. Put briefly, use this at your own risk.  
 
 
+### Thanks 
+
+A big thanks to the crew at 6502.org, without whom none of this would have
+happend. Also, special thanks to Mike Barry for a steady stream of
+most very clever code optimizations. 
+
+
 ### About the Name
 
 [Tali Forth](https://github.com/scotws/TaliForth) started simply as name I
