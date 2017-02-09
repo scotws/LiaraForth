@@ -228,7 +228,7 @@ a_minus
                 tya
                 eor.# 0ffff
 
-                clc
+                sec             ; not: CLC
                 adc.dx 00 
 
                 tay
