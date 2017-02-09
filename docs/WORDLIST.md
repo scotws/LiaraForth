@@ -18,8 +18,10 @@ Last update: *9. February 2017*
 | >IN (TO-IN)    | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 | 0 (ZERO)       | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1 (ONE)        | coded    | 265SXB        | PW, NC | 7     |     12 |
+| 1- (ONE-MINUS) | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | 1+ (ONE-PLUS)  | coded    | ANSI core     | PW, NC | 1     |      2 |
 | 2 (TWO)        | coded    | 265SXB        | PW, NC | 7     |     12 |
+| ' (TICK)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
 | ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |

@@ -88,12 +88,12 @@ h_quit  .byte 4, 00
         .word h_parse, a_quit, z_quit
         .byte "quit"
 
-h_name>int .byte 8, { PW + NC }
-        .word h_quit, a_name>int, z_name>int
+h_name-int .byte 8, { PW + NC }
+        .word h_quit, a_name-int, z_name-int
         .byte "name>int"
 
 h_cr    .byte 2, { PW + NC }
-        .word h_name>int, a_cr, z_cr 
+        .word h_name-int, a_cr, z_cr 
         .byte "cr"
 
 h_bl    .byte 2, { PW + NC }
@@ -164,16 +164,24 @@ h_depth .byte 5, { PW + NC }
         .word h_source, a_depth, z_depth
         .byte "depth"
 
+h_tick  .byte 1, { PW + NC }
+        .word h_depth, a_tick, z_tick
+        .byte 27	; hex for "'"
+
 h_minus .byte 1, { PW + NC }
-        .word h_depth, a_minus, z_minus
+        .word h_tick, a_minus, z_minus
         .byte '-'
 
 h_plus  .byte 1, { PW + NC }
         .word h_minus, a_plus, z_plus
         .byte '+'
 
+h_one-minus .byte 2, { PW + NC }
+        .word h_plus, a_one-minus, z_one-minus
+        .byte "1-"
+
 h_one-plus .byte 2, { PW + NC }
-        .word h_plus, a_one-plus, z_one-plus
+        .word h_one-minus, a_one-plus, z_one-plus
         .byte "1+"
 
 h_false .byte 5, { PW + NC }
