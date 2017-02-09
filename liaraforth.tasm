@@ -84,9 +84,8 @@ start
                 ldy.# { hi-end - hi-start }     ; length goes in TOS
 
                 jsr a_evaluate
-                jsr a_cr
 
-                ; drop through to QUIT
+                ; drop through to ABORT
 
 ; -------------------------------------------------------------------
 ; ABORT ( -- ) 6+ bytes / 6+ cycles
@@ -192,6 +191,49 @@ a_to-in         dex
 
                 ldy.# toin      ; >IN
 z_to-in         rts
+
+
+; -------------------------------------------------------------------
+; , "COMMA" ( n -- ) 11 bytes / 29 cycles
+; Allot one cell and store TOS in memory. We ignore alignment issues, though
+; satisfy the ANSI requirement that an aligned compiler pointer will remain
+; aligned
+; There is another variant possible: 
+;               tya
+;               ldy.d cp
+;               sta.y 0000
+;               iny
+;               iny
+;               sty.d cp
+;               ldy.dx 00
+;               inx
+;               inx
+; This is as fast as the variant below, but three bytes longer
+
+a_comma         tya
+                sta.di cp       ; STA (CP)
+                inc.d cp
+                inc.d cp
+
+                ldy.dx 00
+                inx
+                inx
+
+z_comma         rts
+
+
+; -------------------------------------------------------------------
+; ! "STORE" ( n addr -- ) 9 bytes / X cycles
+; Save value at designated memory location
+a_store         
+                lda.dx 00       ; NOS has value
+                sta.y 0000
+                inx
+                inx
+                inx
+                inx
+
+z_store         rts
 
 
 ; -------------------------------------------------------------------
@@ -508,34 +550,6 @@ a_bye
 		brk 00  ; status byte 00 required for assembler
 
 z_bye           rts     ; dummy for compiling, never reached
-
-; -------------------------------------------------------------------
-; COMMA "," ( n -- ) 11 bytes / 29 cycles
-; Allot one cell and store TOS in memory. We ignore alignment issues, though
-; satisfy the ANSI requirement that an aligned compiler pointer will remain
-; aligned
-; There is another variant possible: 
-;               tya
-;               ldy.d cp
-;               sta.y 0000
-;               iny
-;               iny
-;               sty.d cp
-;               ldy.dx 00
-;               inx
-;               inx
-; This is as fast as the variant below, but three bytes longer
-
-a_comma         tya
-                sta.di cp       ; STA (CP)
-                inc.d cp
-                inc.d cp
-
-                ldy.dx 00
-                inx
-                inx
-
-z_comma         rts
 
 ; -------------------------------------------------------------------
 ; COUNT ( c-addr -- addr u ) 14 bytes / X cycles
@@ -1696,7 +1710,7 @@ hi-start
         .byte "cr .( Version PRE-ALPHA 9. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
-        .byte "cr .( Type 'bye' to exit) cr"
+        .byte "cr .( Type 'bye' to exit)"
 hi-end
 
 

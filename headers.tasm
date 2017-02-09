@@ -244,8 +244,12 @@ h_fetch .byte 1, { PW + NC }
         .word h_here, a_fetch, z_fetch
         .byte '@' 
 
+h_store .byte 1, { PW + NC }
+        .word h_fetch, a_store, z_store
+        .byte '!'
+
 h_swap  .byte 4, { PW + NC }
-        .word h_fetch, a_swap, z_swap
+        .word h_store, a_swap, z_swap
         .byte "swap"
 
 h_dup   .byte 3, { PW + NC }

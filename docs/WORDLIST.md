@@ -11,6 +11,7 @@ Last update: *9. February 2017*
 | .( (DOTPAREN)  | coded    | ANSI core ext | IM, NC | 13    |  (TBA) |
 | .S             | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | , (COMMA)      | coded    | ANSI core     | PW, NC | 11    |     29 |
+| ! (STORE)      | coded    | ANSI core     | PW, NC | 9     |  (TBA) |
 | @ FETCH        | coded    | ANSI core     | PW, NC | 4     |  (TBA) |
 | + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | - (MINUS)      | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
