@@ -330,6 +330,20 @@ a_two
    
 z_two           rts
 
+
+; -------------------------------------------------------------------
+; TWO-STAR ( n -- n ) 3 bytes / X cycles
+; Multiply Top of Stack (TOS) by 2. This is also used by CELLS
+a_two-star      
+	.!a16
+	.!xy16
+                tya
+                asl.a
+                tay
+                
+z_two-star      rts
+
+
 ; -------------------------------------------------------------------
 ; 2DUP ( n m -- n m n m ) 10 bytes / 23 cycles
 ; Duplicated the top two data stack entries
@@ -584,13 +598,20 @@ a_bye
 
 z_bye           rts     ; dummy for compiling, never reached
 
+
+; -------------------------------------------------------------------
+; CELLS ( n -- n ) X bytes / X cycles
+; Given a number of cells, return the number of bytes that they will require.
+; This is 16 bit cell Forth, so the value returned by this word is the same as
+; returned by 2*, see there. 
+
+
 ; -------------------------------------------------------------------
 ; COUNT ( c-addr -- addr u ) 14 bytes / X cycles
 ; Convert old-style character string to address-length pair. Note that the
 ; length of the string c-addr ist stored in character length (8 bit), not cell
 ; length (16 bit). This is rarely used these days, though COUNT can also be used
 ; to step through a string character by character. 
-
 a_count         
         .!a16
         .!xy16

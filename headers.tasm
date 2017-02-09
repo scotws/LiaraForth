@@ -132,8 +132,12 @@ h_evaluate .byte 8, { PW + NC }
         .word h_pad, a_evaluate, z_evaluate
         .byte "evaluate"
 
+h_cells .byte 5, { PW + NC }	; 2* because we have 16 bit stack 
+        .word h_evaluate, a_two-star, z_two-star
+        .byte "cells"
+
 h_allot .byte 5, { PW + NC }
-        .word h_evaluate, a_allot, z_allot
+        .word h_cells, a_allot, z_allot
         .byte "allot"
 
 h_name>string .byte 0b, { PW + NC }
@@ -168,8 +172,12 @@ h_tick  .byte 1, { PW + NC }
         .word h_depth, a_tick, z_tick
         .byte 27	; hex for "'"
 
+h_two-star .byte 2, { PW + NC }
+        .word h_tick, a_two-star, z_two-star
+        .byte "2*"
+
 h_minus .byte 1, { PW + NC }
-        .word h_tick, a_minus, z_minus
+        .word h_two-star, a_minus, z_minus
         .byte '-'
 
 h_plus  .byte 1, { PW + NC }

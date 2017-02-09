@@ -18,9 +18,10 @@ Last update: *9. February 2017*
 | >IN (TO-IN)    | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 | 0 (ZERO)       | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 1 (ONE)        | coded    | 265SXB        | PW, NC | 7     |     12 |
-| 1- (ONE-MINUS) | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| 1- (ONE-MINUS) | coded    | ANSI core     | PW, NC | 1     |      2 |
 | 1+ (ONE-PLUS)  | coded    | ANSI core     | PW, NC | 1     |      2 |
 | 2 (TWO)        | coded    | 265SXB        | PW, NC | 7     |     12 |
+| 2* (TWO-STAR)  | coded    | ANSI core     | PW, NC | 3     |  (TBA) |
 | ' (TICK)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
@@ -30,6 +31,7 @@ Last update: *9. February 2017*
 | BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
 | BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
+| CELLS          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | COLD           | coded    | 265SXB        | -      | (TBA) |  (TBA) |
 | COUNT          | coded    | ANSI core     | PW, NC | 14    |  (TBA) |
 | CR             | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
