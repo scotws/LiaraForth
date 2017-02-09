@@ -3,11 +3,12 @@
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. 
 
-Last update: *7. February 2017*
+Last update: *9. February 2017*
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
 | . (DOT)        | fragment | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| .( (DOTPAREN)  | coded    | ANSI core ext | IM, NC | 13    |  (TBA) |
 | .S             | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | , (COMMA)      | coded    | ANSI core     | PW, NC | 11    |     29 |
 | + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |

@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 08. Feb 2017
+; This version: 09. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -84,20 +84,7 @@ start
                 ldy.# { hi-end - hi-start }     ; length goes in TOS
 
                 jsr a_evaluate
-
-                ; Print boot strings
-                ; TODO consider putting this in one large string once we're sure
-                ; that we're done
-                lda.# s_title
-                jsr print_string
-                lda.# s_version
-                jsr print_string
-                lda.# s_author
-                jsr print_string
-                lda.# s_disclaimer
-                jsr print_string
-                lda.# s_typebye
-                jsr print_string
+                jsr a_cr
 
                 ; drop through to QUIT
 
@@ -623,6 +610,23 @@ a_dot
                 jsr a_drop
                 
 z_dot           rts
+
+
+; -------------------------------------------------------------------
+; DOTPAREN ( "string" -- ) 13 bytes / X cycles
+; Display string delimited by ")" immediately, regardless if word is compiled or
+; interpreted. Forth definition is  .( [CHAR] ) PARSE TYPE ; IMMEDIATE
+a_dotparen     
+               ; use PARSE to find the end of the string
+               dex
+               dex
+               sty.dx 00
+               ldy.# ')'
+
+               jsr a_parse      ; ( -- addr u) 
+               jsr a_type
+
+z_dotparen     rts
 
 
 ; -------------------------------------------------------------------
@@ -1678,7 +1682,11 @@ string_to_uppercase
 ; the end of the line if there is another line with code following it. No zero
 ; or CR/LF is required
 hi-start
-        .byte "words" ; TEST - replace with other words
+        .byte ".( Liara Forth for the W65C265SXB )"
+        .byte "cr .( Version PRE-ALPHA 9. Feb 2017)"
+        .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
+        .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
+        .byte "cr .( Type 'bye' to exit)"
 hi-end
 
 

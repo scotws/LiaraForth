@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 07. Feb 2017
+; This version: 09. Feb 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -112,8 +112,12 @@ h_dots  .byte 2, { PW + NC }
         .word h_space, a_dots, z_dots
         .byte ".s"
 
+h_dotparen .byte 2, { IM + NC}
+        .word h_dots, a_dotparen, z_dotparen
+        .byte ".("
+
 h_type  .byte 4, 0
-        .word h_dots, a_type, z_type
+        .word h_dotparen, a_type, z_type
         .byte "type"
 
 h_dot   .byte 1, { PW + NC }
