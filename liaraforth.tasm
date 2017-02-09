@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 07. Feb 2017
+; This version: 08. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -176,8 +176,7 @@ quit_refill_successful
                 ; Test for Data Stack underflow. Our stack is so large in single
                 ; user mode that we don't bother checking for overflow - if that
                 ; happens, we're screwed anyway
-                cpx.# dsp0
-                beq quit_ok     ; stack empty
+                cpx.# { dsp0 + 1 }
                 bcc quit_ok     ; DSP must always be smaller (!) than DSP0
                 
                 lda.# es_underflow
@@ -222,15 +221,15 @@ z_plus          rts
 
 
 ; -------------------------------------------------------------------
-; MINUS ( n m -- n-m ) 10 bytes / X cycles
+; MINUS ( n m -- n-m ) X bytes / X cycles
 ; Subtract NOS from TOS
 a_minus         
         .!a16
-                lda.dx 00       ; NOS
-                sty.dx 00       ; TOS
+                tya
+                eor.# 0ffff
 
-                sec
-                sbc.dx 00
+                clc
+                adc.dx 00 
 
                 tay
                 inx
@@ -305,7 +304,7 @@ z_2dup          rts
 
 
 ; -------------------------------------------------------------------
-; ABS ( n -- u ) 12 bytes / X cycles
+; ABS ( n -- u ) X bytes / X cycles
 ; Return the absolute value of a single number
 a_abs           
         .!a16
@@ -314,11 +313,8 @@ a_abs
                 bpl z_abs       ; positive number is easy
 
                 ; negative: Calculate 0-n
-                sty.d tmp1
-                lda.# 0000
-
-                sec
-                sbc.d tmp1
+                eor.# 0ffff 
+                inc.a
                 tay
                 
 z_abs           rts
@@ -1251,14 +1247,14 @@ a_refill
 refill_src_not_kbd
                 ; If SOURCE-ID doesn't return a zero, it must be a string in
                 ; memory or a file (remember, no blocks in this version)
-                cmp.# 0ffff
+                inc.a
                 bne refill_source_is_not_string
 
                 ; Simply return FALSE flag as per specification
                 dex
                 dex
                 sty.dx 00
-                ldy.# 0000
+                tay
 
                 rts
 
@@ -1639,7 +1635,6 @@ print_string_done
 ; Convert byte in A to two ASCII hex digits and print them. Calls 
 ; nibble_to_ascii. Assumes A is 8 bit. 
 byte_to_ascii
-                and.# 00ff
                 pha
                 ; convert high nibble first 
                 lsr.a
@@ -1649,9 +1644,8 @@ byte_to_ascii
                 jsr nibble_to_ascii
 
                 pla
-                jsr nibble_to_ascii
         
-                rts
+                ; fall thru to nibble_to_ascii
 
 
 ; ------------------------------------------------------------------- 
