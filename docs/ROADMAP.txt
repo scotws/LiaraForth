@@ -1,16 +1,17 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 06. Feb 2017
+This version: 09. Feb 2017
 
 
 TODO NEXT (next on top)
 
+- Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design. This implies 
+  DOVAR, DOCONST
 - CLI words: Make sure BS doesn't end up on previous line, add PAGE etc.
 - Code BASE, DECIMAL, HEX, BINARY to prepare for number conversion
 - Code math routines required to input and output numbers of any base
 - Code DUMP so we can see what is happening when we modifiy the Dictionary
-- Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Code EVALUATE to be able to add high-level words
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
