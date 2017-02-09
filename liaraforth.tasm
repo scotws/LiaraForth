@@ -193,6 +193,16 @@ a_to-in         dex
                 ldy.# toin      ; >IN
 z_to-in         rts
 
+
+; -------------------------------------------------------------------
+; @ "FETCH" ( addr -- n ) 4 bytes / X cycles
+; Get one cell (16 bit) value from given address
+a_fetch         
+                lda.y 0000
+		tay
+z_fetch         rts
+
+
 ; -------------------------------------------------------------------
 ; + "PLUS" ( n m -- n+m ) 7 bytes / X cycles
 ; Add TOS and NOS
@@ -208,7 +218,7 @@ z_plus          rts
 
 
 ; -------------------------------------------------------------------
-; MINUS ( n m -- n-m ) X bytes / X cycles
+; - "MINUS" ( n m -- n-m ) X bytes / X cycles
 ; Subtract NOS from TOS
 a_minus         
         .!a16
@@ -1686,7 +1696,7 @@ hi-start
         .byte "cr .( Version PRE-ALPHA 9. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
-        .byte "cr .( Type 'bye' to exit)"
+        .byte "cr .( Type 'bye' to exit) cr"
 hi-end
 
 

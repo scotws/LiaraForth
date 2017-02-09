@@ -240,8 +240,12 @@ h_here  .byte 4, { PW + NC }
         .word h_execute, a_here, z_here
         .byte "here"
 
+h_fetch .byte 1, { PW + NC }
+        .word h_here, a_fetch, z_fetch
+        .byte '@' 
+
 h_swap  .byte 4, { PW + NC }
-        .word h_here, a_swap, z_swap
+        .word h_fetch, a_swap, z_swap
         .byte "swap"
 
 h_dup   .byte 3, { PW + NC }
