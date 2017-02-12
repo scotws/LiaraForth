@@ -1,19 +1,15 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 06. Feb 2017
+; This version: 12. Feb 2017
 
 ; This file is included by liaraforth.tasm
 
 ; Note that Typist's Assembler Notation does not distinguish between 
 ; upper andlower case. Variations in case are for human readers only.
 
-; I/O facilities are handled in the separate file kernel.tasm with symbols
-; prefixed with hw_ . No symbol with this prefix may be defined or used outside
-; of that file. 
-
-; The definitions for multitasking are preliminary and will probably 
-; change
+; I/O facilities are handled in the separate kernel files. The definitions for
+; multitasking are preliminary and will probably change
 
 ; ===================================================================
 ; MEMORY MAP (consider moving parts of these to kernel.tasm)
@@ -69,7 +65,7 @@
 ; ===================================================================
 ; HELPER DEFINITIONS
 
-; ASCII character set
+; ASCII characters
 
         .equ AscCC   03  ; break (Control-C) ASCII character
         .equ AscBELL 07  ; ACSCII bell sound
