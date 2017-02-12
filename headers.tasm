@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 09. Feb 2017
+; This version: 12. Feb 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -12,8 +12,8 @@
 ; itself, we use "h_<WORD>" ("header") for the nt and "a_<WORD>" ("A" as the
 ; beginning) for the xt. 
 ;
-; This gives us the following header structure for each header:
-
+; This gives us the following header structure:
+;
 ;              8 bit     8 bit
 ;               LSB       MSB
 ; h_word ->  +--------+--------+
@@ -50,7 +50,7 @@ h_bye   .byte 03    ; length of word string
         .word 0000  ; next word in dictionary, 0000 signals end
         .word a_bye ; start of code, the xt of this word
         .word z_bye ; end of code (points to RTS)
-        .byte "bye" ; lowercase word name
+        .byte "bye" ; word name, always lower case
 
 h_cold  .byte 4, 00
         .word h_bye, a_cold, z_cold
@@ -140,12 +140,16 @@ h_allot .byte 5, { PW + NC }
         .word h_cells, a_allot, z_allot
         .byte "allot"
 
-h_name>string .byte 0b, { PW + NC }
-        .word h_allot, a_name>string, z_name>string
+h_create .byte 6, { PW + NC }
+        .word h_allot, a_create, z_create
+        .byte "create"
+
+h_name-string .byte 0b, { PW + NC }
+        .word h_create, a_name-string, z_name-string
         .byte "name>string"
 
 h_2dup  .byte 4, { PW + NC }
-        .word h_name>string, a_2dup, z_2dup
+        .word h_name-string, a_2dup, z_2dup
         .byte "2dup"
 
 h_abs   .byte 3, { PW + NC }

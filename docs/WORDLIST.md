@@ -35,6 +35,7 @@ Last update: *9. February 2017*
 | COLD           | coded    | 265SXB        | -      | (TBA) |  (TBA) |
 | COUNT          | coded    | ANSI core     | PW, NC | 14    |  (TBA) |
 | CR             | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| CREATE         | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DEPTH          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
 | DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |

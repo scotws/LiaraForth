@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 09. Feb 2017
+; This version: 12. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -33,8 +33,7 @@
 
 ; -------------------------------------------------------------------
 ; COLD ( -- ) X bytes / X Cycles
-; Reboot the system. TODO determine how to compile this word
-
+; Reboot the system
 a_cold  
 
                 jmp reset_hardware      ; don't use JSR, jump back to start
@@ -46,17 +45,17 @@ start
 
                 ; TODO switch to Single Task mode
                 ; TODO set up Direct Page stuff
-                ; TODO initiate PAD
                 ; TODO initiate User variables
                 
                 ; The name token (nt) of DROP is always the first one in the
-                ; clean Dictionary, so we start off the Dictionary Pointer (DP)
+                ; virgin Dictionary, so we start off the Dictionary Pointer (DP)
                 ; there. Adding high-level words will change this before the
                 ; user has a chance to call WORDS
                 lda.# h_drop
                 sta.d dp
                 
-                ; The compiler pointer (CP) starts after the Data Stack in
+                ; The compiler pointer (CP) points to the first free cell 
+                ; in RAM
                 lda.# cp0
                 sta.d cp
 
@@ -68,13 +67,16 @@ start
                 stz.d insrc     ; SOURCE-ID is zero
                 stz.d state     ; STATE is zero (interpret)
                 
-                ; clear Data Stack
+                ; Clear Data Stack
                 ldy.# 0000
                 ldx.# dsp0
 
+                ; Clean the screen, assumes vt100 terminal
                 jsr a_page
                 
-                ; Define high-level words via EVALUATE
+                ; Define high-level words via EVALUATE. At this point, whatever
+                ; is in Y (TOS) is rubbish, so we don't have to push it to the 
+                ; stack first
                 dex
                 dex
                 dex
@@ -88,7 +90,7 @@ start
                 ; drop through to ABORT
 
 ; -------------------------------------------------------------------
-; ABORT ( -- ) 6+ bytes / 6+ cycles
+; ABORT ( -- ) 8+ bytes / X cycles
 ; Reset the parameter (data) stack pointer and continue as QUIT 
 ; We can jump here via subroutine because we reset the stack pointer
 ; anyway. Flows into QUIT.
@@ -107,13 +109,14 @@ a_abort
 ; Reset the input, clearning Return Stack. Jumps to QUIT do not have to be
 ; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
 ; the ANSI Forth recommendation to use REFILL. Note we don't display the "ok"
-; system prompt until after the first output.
-a_quit          ; clear Return Stack
+; system prompt until after the first output. This follows Gforth.
+a_quit          
+                ; clear Return Stack
                 lda.# stack0
                 tcs
 
                 ; make sure Instruction Pointer is empty
-                ; TODO move this someplace else
+                ; TODO move this someplace else or else it will end up in ROM
                 stz execute_ip
 
                 ; switch SOURCE-ID to zero (keyboard input)
@@ -123,19 +126,19 @@ a_quit          ; clear Return Stack
                 stz.d state
                
 quit_get_line
-                ; empty current input buffer. Note the previous input line is
+                ; Empty current input buffer. Note the previous input line is
                 ; conserved even if we came here from an abort
                 stz.d ciblen
                
-                ; accept a line from the current input source
+                ; Accept a line from the current input source
                 jsr a_refill            ; ( -- f ) 
                 
-                tya                     ; force flag test of TOS
+                tya                     ; force flag test
                 bne quit_refill_successful
 
                 ; If REFILL returned a FALSE flag, something went wrong and we
                 ; need to print an error message and reset the machine. We don't
-                ; need to save A because we're going to clobber it anyway when we
+                ; need to save TOS because we're going to clobber it anyway when we
                 ; go back to ABORT.
                 lda.# es_refill1 
                 jmp error 
@@ -180,9 +183,10 @@ z_abort
 z_quit          nop  ; dummy for compilation, TODO test if required
 
 ; -------------------------------------------------------------------
-; >IN "TO-IN" ( -- addr ) 6 bytes / X cycles
+; >IN "TO-IN" ( -- addr ) 6 bytes / 12 cycles
 ; Return address where pointer to current char in input buffer lives (>IN)
-a_to-in         dex
+a_to-in         
+                dex
                 dex
                 sty.dx 00
 
@@ -206,7 +210,8 @@ z_to-in         rts
 ;               inx
 ;               inx
 ; This is as fast as the variant below, but three bytes longer
-a_comma         tya
+a_comma         
+                tya
                 sta.di cp       ; STA (CP)
                 inc.d cp
                 inc.d cp
@@ -233,7 +238,7 @@ z_store         rts
 
 
 ; -------------------------------------------------------------------
-; @ "FETCH" ( addr -- n ) 4 bytes / X cycles
+; @ "FETCH" ( addr -- n ) 4 bytes / 7-8 cycles
 ; Get one cell (16 bit) value from given address
 a_fetch         
                 lda.y 0000
@@ -244,8 +249,9 @@ z_fetch         rts
 ; -------------------------------------------------------------------
 ; + "PLUS" ( n m -- n+m ) 7 bytes / X cycles
 ; Add TOS and NOS
-
-a_plus          tya
+a_plus          
+        .!a16
+                tya
                 clc
                 adc.dx 00
                 tay
@@ -256,14 +262,14 @@ z_plus          rts
 
 
 ; -------------------------------------------------------------------
-; - "MINUS" ( n m -- n-m ) X bytes / X cycles
+; - "MINUS" ( n m -- n-m ) 10 bytes / X cycles
 ; Subtract NOS from TOS
 a_minus         
         .!a16
                 tya
                 eor.# 0ffff
 
-                sec             ; not: CLC
+                sec             ; not CLC
                 adc.dx 00 
 
                 tay
@@ -285,6 +291,7 @@ a_zero
 
 z_zero          rts
                
+
 ; -------------------------------------------------------------------
 ; 1 "ONE" ( -- 1 ) 7 bytes / 12 cycles
 ; Pushes the number 1 on the Data Stack
@@ -297,8 +304,9 @@ a_one
    
 z_one           rts
 
+
 ; -------------------------------------------------------------------
-; 1- "ONE-MINUS" ( n -- n-1 ) 1 byte / X cycles
+; 1- "ONE-MINUS" ( n -- n-1 ) 1 byte / 2 cycles
 ; Subtract 1 from Top of Stack (TOS). Because there is no checking if there is
 ; actually anything on the Data Stack, this routine will fail silently if the
 ; stack is empty
@@ -332,7 +340,7 @@ z_two           rts
 
 
 ; -------------------------------------------------------------------
-; TWO-STAR ( n -- n ) 3 bytes / X cycles
+; TWO-STAR ( n -- 2*n ) 3 bytes / 6 cycles
 ; Multiply Top of Stack (TOS) by 2. This is also used by CELLS
 a_two-star      
 	.!a16
@@ -390,7 +398,7 @@ z_tick          rts
 
 
 ; -------------------------------------------------------------------
-; ABS ( n -- u ) X bytes / X cycles
+; ABS ( n -- u ) 8 bytes / X cycles
 ; Return the absolute value of a single number
 a_abs           
         .!a16
@@ -409,10 +417,10 @@ z_abs           rts
 ; ACCEPT ( addr n1 -- n2 ) X bytes / X cycles
 ; Receive a string of at most n1 characters, placing them at addr. Return the
 ; actual number of characters as n2. Characters are echoed as they are received.
-; ACCEPT is normally called by REFILL these days. 
+; ACCEPT is called by REFILL these days. 
 a_accept        
                 ; Set up loop
-                tya             ; max number of chars to accept is TOS
+                tya             ; force flag test
                 bne accept_nonzero
                                 
                 ; if we were told to get zero chars, just quit
@@ -433,29 +441,32 @@ accept_nonzero
 
 accept_loop
                 ; TODO rewrite with KEY so we can revector it
-                ; We don't need to check for CTRL-l, because vt100 terminal
+                ; We don't need to check for CTRL-l, because a vt100 terminal
                 ; clears the screen automatically
                 jsr get_chr
        .!a8 
-                cmp.# AscLF     ; we quit on both line feed and carriage return
+                ; we quit on both line feed and carriage return
+                cmp.# AscLF     
                 beq accept_eol
                 cmp.# AscCR
                 beq accept_eol
 
-                cmp.# AscBS     ; BS and DEL do the same thing for the moment
+                ; BS and DEL do the same thing for the moment
+                cmp.# AscBS     
                 beq accept_bs
                 cmp.# AscDEL
                 beq accept_bs
-                
-                cmp.# AscCC     ; CTRL-c aborts (see if this is too harsh)
+  
+                ; CTRL-c and ESC abort (see if this is too harsh)
+                cmp.# AscCC     
                 bne + 
-                jmp a_abort     ; ABORT switches back to 16-bit A
+                jmp a_abort
 @
-                cmp.# AscESC    ; ESC aborts (in this version)
+                cmp.# AscESC
                 bne + 
-                jmp a_abort     ; ABORT switches back to 16-bit A
+                jmp a_abort
 @
-                ; CTRL-p, will be used for "previous cmd", TODO
+                ; CTRL-p will be used for "previous cmd", TODO
                 cmp.# AscCP     
                 bne +
         .a16
@@ -464,7 +475,7 @@ accept_loop
         .a8
                 bra accept_loop
 @
-                ; CTRL-n, will be used for "next cmd", TODO 
+                ; CTRL-n will be used for "next cmd", TODO 
                 cmp.# AscCN
                 bne +
         .a16
@@ -474,7 +485,7 @@ accept_loop
                 bra accept_loop
 
 @
-                ; That's enough, echo character
+                ; That's quite enough, echo character
                 ; TODO change to EMIT 
                 jsr put_chr     ; echo character
         .!a8
@@ -503,7 +514,7 @@ accept_bs
                 dey
                 lda.# AscBS     ; move back one
                 jsr put_chr    
-                lda.# AscSP     ; print a space
+                lda.# AscSP     ; print a space (rubout) 
                 jsr put_chr
                 lda.# AscBS     ; move back over space
                 jsr put_chr
@@ -566,7 +577,8 @@ z_allot         rts
 
 ; -------------------------------------------------------------------
 ; BELL ( -- ) X bytes / X cycles
-; Trigger terminal bell
+; Trigger terminal bell on vt100 terminals
+; TODO replace with EMIT
 a_bell          
 	.!a16
 		lda.# AscBELL 
@@ -578,10 +590,8 @@ z_bell          rts
 ; -------------------------------------------------------------------
 ; BL ( -- u ) 7 bytes / 12 cycles
 ; Put ASCII char for SPACE on Data Stack
-
 a_bl            
         .!xy16
-        .!a16
                 dex
                 dex
                 sty.dx 00
@@ -617,6 +627,7 @@ a_count
         .!xy16
                 tya
                 inc.a           ; String address starts one char later
+
                 dex
                 dex
                 sta.dx 00       ; NOS
@@ -632,13 +643,154 @@ z_count         rts
 ; -------------------------------------------------------------------
 ; CR ( -- ) X bytes / X cycles
 ; Cause following output to appear at beginning of next line
-
+; TODO replace with EMIT
 a_cr            
                 lda.# AscLF     ; test with AscCR for emulators
                 jsr put_chr
-        .!a16
 
 z_cr            rts
+
+; -------------------------------------------------------------------
+; CREATE ( "name" -- ) X bytes / X cycles
+; Create a Dictionary entry associated with "name", used for various words,
+; especially for VARIABLE. When called, this new word will return the associated
+; address.
+a_create        
+        .!a16
+                jsr a_parse-name        ; ( -- addr u ) 
+                bne create_got_name
+
+                ; if we got a zero-length name string, complain and abort
+                lda.# es_noname
+                jmp error 
+
+create_got_name
+                ; all Dictionary entries are lowercase
+                jsr string_to_lowercase 
+
+                ; Remember the first free byte of memory as the start of the new
+                ; word
+                lda.d cp
+                sta.d tmp1              ; save start of new word
+
+                ; Enforce limit on 255 char length names by masking the MSB
+                ; of the length of the given string. We arrive here with 
+                ; ( addr u ) 
+                tya
+                and.# 00ff
+                sta.d tmp2      ; save length of name string
+
+                ; We need 8 bytes + the length of the name string for our new
+                ; header. This is also the offset for the start of the code
+                ; field (the a_ label) so we need to remember it. Otherwise, we
+                ; could just allot the space afterwards. 
+                clc
+                adc.# 0008
+                sta.d tmp3      ; total bytes required for header
+
+                ; We need to allocate three more bytes for the hardcoded
+                ; code field area (CFA), the "payload" of the word which by
+                ; default will be a subroutine jump to DOVAR
+                inc.a
+                inc.a
+                inc.a
+
+                ; Instead of jumping to ALLOT, we do things by hand for speed
+                ; and so we don't have to fool around with the stack
+                clc
+                adc.d cp
+                sta.d cp 
+
+                ; Now we walk through the header, using Y as the index. See
+                ; drawing of header in headers.tasm file for reference. We
+                ; arrive here with ( addr u ) still from PARSE-NAME. We need
+                ; that addr later for the name string, so we push it to the
+                ; Return Stack. We'll clean up the Data Stack later
+                lda.dx 00
+                pha
+
+                ; HEADER BYTES 0,1: Length byte and flags
+                ldy.# 0000      ; Y is now an index, not TOS
+                lda.d tmp2      ; get length byte
+                xba             ; Length is MSB, flags (all zero here) LSB
+                sta.diy tmp1    ; STA (TMP1),Y
+                iny
+                iny
+
+                ; BYTES 2,3: Next word in the dictionary (its nt). This is the
+                ; current Dictionary Pointer
+                lda.d dp
+                sta.diy tmp1
+                iny
+                iny
+                
+                ; BYTES 4,5: Start of code field (xt of this word, "a_" link)
+                ; This begins after the header, so we take the length of the
+                ; header, which we saved in tmp3, and use it as an offset to 
+                ; the address of the start of the word
+                lda.d tmp1      ; can't use CP, because we've allotted space
+                sta.d dp        ; while we've got it, make old CP the new DP
+
+                clc
+                adc.d tmp3      ; total header length
+                sta.diy tmp1
+                iny
+                iny
+               
+                ; BYTES 6,7: End of code ("z_" link)
+                ; By default, we execute a jump to the DOVAR routine, so we need
+                ; to move three bytes down, and then one more byte so the z_
+                ; label points to the (fictional) RTS instruction for correct
+                ; compilation. The start of the code field is still in A
+                inc.a
+                inc.a
+                inc.a
+                inc.a
+                sta.diy tmp1
+                iny
+                iny
+
+                ; BYTE 8: Start of name string
+                ; The addr of the string is on the Return Stack, the length of
+                ; the name string is in tmp2. We subtract eight from the address
+                ; so we can use the same loop index
+                pla             ; get back string address
+                sec
+                sbc.# 0008
+                sta.d tmp3
+        .a8
+@
+                lda.diy tmp3 
+                sta.diy tmp1
+                iny
+                dec.d tmp2
+                bne - 
+
+                ; After the name string, comes the Code Field (start at xt, that
+                ; is, the a_ label of the word) which is initially a jump to the
+                ; subroutine to DOVAR. We're still in 8-bit A-register, which is
+                ; good
+                lda.# 20        ; opcode of JSR
+                sta.diy tmp1
+                iny             ; single increase only because we have 8-bit A 
+
+                lda.# .lsb dovar 
+                sta.diy tmp1
+                iny
+
+                lda.# .msb dovar
+                sta.diy tmp1
+
+        .a16
+                ; We're done. Restore Data Stack (2DROP)
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+                
+z_create        rts
+
 
 ; -------------------------------------------------------------------
 ; DEPTH ( -- u ) 14 bytes / X cycles
@@ -1064,7 +1216,7 @@ z_name-int      rts
 ; Given a name token (nt) of a word, return its string. This is a Gforth word
 ; that works with the Dictionary header entries. It is not checked if nt is
 ; a valid name token. 
-a_name>string   
+a_name-string   
         .!a16
         .!xy16
                 dex             ; move NOS down one
@@ -1083,7 +1235,7 @@ a_name>string
                 and.# 00ff      ; mask all but length byte
                 tay
                 
-z_name>string   rts
+z_name-string   rts
 
 
 ; -------------------------------------------------------------------
@@ -1605,6 +1757,57 @@ z_words         rts
         .include headers.tasm
 
 ; ===================================================================
+; CODE FIELD ROUTINES
+
+; ------------------------------------------------------------------- 
+; DOVAR
+; Execute a variable: Push the address of the first bytes of the Data Field onto
+; the stack. This is called with JSR so we can pick up the address of the
+; calling variable off the 65816's Return Stack. The final RTS takes us to the
+; original caller of the routine that in turn called DOVAR. This is the default 
+; routine installed with CREATE
+dovar
+        .!a16
+        .!xy16
+                dex             ; make room on Data Stack 
+                dex
+                sty.dx 00
+ 
+                ; The address we need is stored in the two bytes after the JSR 
+                ; return address, which in turn is what is on top of the Return 
+                ; Stack
+                ply             ; value is now TOS
+                iny             ; add one because of 65816's address handling
+                
+                rts             ; takes us to original caller
+ 
+
+; ------------------------------------------------------------------- 
+; DOCONST 
+; Execute a constant: Push the data in the first two byte of the Data Field onto
+; the stack
+doconst
+        .!a16
+        .!xy16
+                dex             ; make room on Data Stack 
+                dex
+                sty.dx 00
+
+                ; The value we need is stored two bytes after the JSR return
+                ; address, which in turn is what is on top of the Return Stack
+                pla             ; get the return address
+                sta.d tmp1
+
+                ; start Y as index off with 1 instead of zero because of 65816's
+                ; address handling
+                ldy.# 0001
+                lda.diy tmp1    ; LDA (TMP1),Y
+                tay
+
+                rts             ; takes us to original caller
+              
+
+; ===================================================================
 ; LOW LEVEL HELPER FUNCTIONS
 
 
@@ -1629,8 +1832,8 @@ compex_loop
                 beq compex_line_done
                 
                 ; We let the user input words in any case, but use lower case
-                 ; internally (sorry, Garth).
-                jsr string_to_uppercase         ; returns ( addr u )
+                ; internally (sorry, Garth).
+                jsr string_to_lowercase         ; returns ( addr u )
 
                 ; If we got something that is not a zero, we go to FIND-NAME to
                 ; get the nt. Returns ( nt | 0 ) 
@@ -1746,10 +1949,10 @@ nibble_to_ascii
                 rts
 
 ; ------------------------------------------------------------------- 
-; Convert a string given by ( addr u ) to upper case in place. Since we have to
+; Convert a string given by ( addr u ) to lowercase in place. Since we have to
 ; treat the input buffer as read-only by ANS rules, we have to put the converted
 ; string somewhere and then return the new address and length
-string_to_uppercase
+string_to_lowercase
                 ; TODO CODE THIS
                 rts
 
