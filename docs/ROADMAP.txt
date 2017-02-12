@@ -1,14 +1,15 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 09. Feb 2017
+This version: 12. Feb 2017
 
 
 TODO NEXT (next on top)
 
 - Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design. This implies 
   DOVAR, DOCONST
-- CLI words: Make sure BS doesn't end up on previous line, add PAGE etc.
+- Rename a_word to xt_word, h_word to nt_word; leave z_word
+- CLI words: Make sure BS doesn't end up on previous line
 - Code BASE, DECIMAL, HEX, BINARY to prepare for number conversion
 - Code math routines required to input and output numbers of any base
 - Code DUMP so we can see what is happening when we modifiy the Dictionary
@@ -21,7 +22,7 @@ TODO NEXT (next on top)
 TODO LATER (next on top)
 
 - Code vt100 support
-- Create series of drawings of stack antics in INTERNALS.md 
+- Create drawings of stack antics in INTERNALS.md 
 - Code multitasking support with PAUSE etc
 - Add real multi-line history
 
