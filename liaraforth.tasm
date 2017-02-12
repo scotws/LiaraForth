@@ -1718,7 +1718,7 @@ a_words
 words_loop
                 tay                     ; ( nt )
 
-                jsr a_name>string       ; ( nt -- addr u ) 
+                jsr a_name-string       ; ( nt -- addr u ) 
                 jsr a_type              ; ( addr u -- ) 
                 jsr a_space
         .!a16
