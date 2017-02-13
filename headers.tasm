@@ -9,28 +9,28 @@
 ; well, executed; the Name Token (nt) is a pointer to the beginning of the
 ; word's header in the Dictionary. There, the link to the next word in the
 ; Dictionary is always one cell down from the current word's own nt. In the code
-; itself, we use "h_<WORD>" ("header") for the nt and "a_<WORD>" ("A" as the
+; itself, we use "nt_<WORD>" ("header") for the nt and "xt_<WORD>" ("A" as the
 ; beginning) for the xt. 
 ;
 ; This gives us the following header structure:
 ;
 ;              8 bit     8 bit
 ;               LSB       MSB
-; h_word ->  +--------+--------+
-;            | Length | Status |
-;         +2 +--------+--------+
-;            | Next Header     | -> h_next (nt of next word) 
-;         +4 +-----------------+
-;            | Start of Code   | -> a_word (xt of this word)
-;         +6 +-----------------+
-;            | End of Code     | -> z_word
-;         +8 +--------+--------+
-;            | Name   |        |
-;            +--------+--------+
-;            |        |        |
-;            +--------+--------+
-;            |        |  ...   | (name string does not end with a zero)
-;         +n +--------+--------+
+; nt_word ->  +--------+--------+
+;             | Length | Status |
+;          +2 +--------+--------+
+;             | Next Header     | -> nt_next_word
+;          +4 +-----------------+
+;             | Start of Code   | -> xt_word 
+;          +6 +-----------------+
+;             | End of Code     | -> z_word
+;          +8 +--------+--------+
+;             | Name   |        |
+;             +--------+--------+
+;             |        |        |
+;             +--------+--------+
+;             |        |  ...   | (name string does not end with a zero)
+;          +n +--------+--------+
 
 ; Status bytes are created by adding dictionary flags defined in
 ; definitions.tasm:
@@ -45,252 +45,252 @@
 ; ones first (further down in code) and the output words later (further up)
 ; because things will always be slow if there is a human involved.
 
-h_bye   .byte 03    ; length of word string
+nt_bye  .byte 03    ; length of word string
         .byte { PW + NC } ; status byte
         .word 0000  ; next word in dictionary, 0000 signals end
-        .word a_bye ; start of code, the xt of this word
+        .word xt_bye ; start of code, the xt of this word
         .word z_bye ; end of code (points to RTS)
         .byte "bye" ; word name, always lower case
 
-h_cold  .byte 4, 00
-        .word h_bye, a_cold, z_cold
+nt_cold .byte 4, 00
+        .word nt_bye, xt_cold, z_cold
         .byte "cold"  
 
-h_words .byte 5, { PW + NC }
-        .word h_cold, a_words, z_words
+nt_words .byte 5, { PW + NC }
+        .word nt_cold, xt_words, z_words
         .byte "words"
 
-h_dump  .byte 4, { PW + NC }
-        .word h_words, a_dump, z_dump
+nt_dump .byte 4, { PW + NC }
+        .word nt_words, xt_dump, z_dump
         .byte "dump"
 
-h_bell  .byte 4, { PW + NC }
-        .word h_dump, a_bell, z_bell
+nt_bell .byte 4, { PW + NC }
+        .word nt_dump, xt_bell, z_bell
         .byte "bell"
 
-h_unused .byte 6, { PW + NC }
-        .word h_bell, a_unused, z_unused
+nt_unused .byte 6, { PW + NC }
+        .word nt_bell, xt_unused, z_unused
         .byte "unused"
 
-h_page  .byte 4, { PW + NC }
-        .word h_unused, a_page, z_page
+nt_page .byte 4, { PW + NC }
+        .word nt_unused, xt_page, z_page
         .byte "page"
 
-h_count .byte 5, {NC + PW }
-        .word h_page, a_count, z_count
+nt_count .byte 5, {NC + PW }
+        .word nt_page, xt_count, z_count
         .byte "count"
 
-h_abort .byte 5, 00 ; TODO check flags
-        .word h_count, a_abort, z_abort
+nt_abort .byte 5, 00 ; TODO check flags
+        .word nt_count, xt_abort, z_abort
         .byte "abort"
 
-h_parse .byte 5, 00
-        .word h_abort, a_parse, z_parse
+nt_parse .byte 5, 00
+        .word nt_abort, xt_parse, z_parse
         .byte "parse"
 
-h_quit  .byte 4, 00
-        .word h_parse, a_quit, z_quit
+nt_quit .byte 4, 00
+        .word nt_parse, xt_quit, z_quit
         .byte "quit"
 
-h_name-int .byte 8, { PW + NC }
-        .word h_quit, a_name-int, z_name-int
+nt_name-int .byte 8, { PW + NC }
+        .word nt_quit, xt_name-int, z_name-int
         .byte "name>int"
 
-h_cr    .byte 2, { PW + NC }
-        .word h_name-int, a_cr, z_cr 
+nt_cr   .byte 2, { PW + NC }
+        .word nt_name-int, xt_cr, z_cr 
         .byte "cr"
 
-h_bl    .byte 2, { PW + NC }
-        .word h_cr, a_bl, z_bl
+nt_bl   .byte 2, { PW + NC }
+        .word nt_cr, xt_bl, z_bl
         .byte "bl"
 
-h_spaces .byte 6, { PW + NC }
-        .word h_bl, a_spaces, z_spaces
+nt_spaces .byte 6, { PW + NC }
+        .word nt_bl, xt_spaces, z_spaces
         .byte "spaces"
 
-h_space .byte 5, { PW + NC }
-        .word h_spaces, a_space, z_space
+nt_space .byte 5, { PW + NC }
+        .word nt_spaces, xt_space, z_space
         .byte "space"
 
-h_dots  .byte 2, { PW + NC }
-        .word h_space, a_dots, z_dots
+nt_dots .byte 2, { PW + NC }
+        .word nt_space, xt_dots, z_dots
         .byte ".s"
 
-h_dotparen .byte 2, { IM + NC}
-        .word h_dots, a_dotparen, z_dotparen
+nt_dotparen .byte 2, { IM + NC}
+        .word nt_dots, xt_dotparen, z_dotparen
         .byte ".("
 
-h_type  .byte 4, 0
-        .word h_dotparen, a_type, z_type
+nt_type .byte 4, 0
+        .word nt_dotparen, xt_type, z_type
         .byte "type"
 
-h_dot   .byte 1, { PW + NC }
-        .word h_type, a_dot, z_dot
+nt_dot  .byte 1, { PW + NC }
+        .word nt_type, xt_dot, z_dot
         .byte '.'
 
-h_pad   .byte 3, { PW + NC }
-        .word h_dot, a_pad, z_pad
+nt_pad  .byte 3, { PW + NC }
+        .word nt_dot, xt_pad, z_pad
         .byte "pad"
 
-h_evaluate .byte 8, { PW + NC }
-        .word h_pad, a_evaluate, z_evaluate
+nt_evaluate .byte 8, { PW + NC }
+        .word nt_pad, xt_evaluate, z_evaluate
         .byte "evaluate"
 
-h_cells .byte 5, { PW + NC }	; 2* because we have 16 bit stack 
-        .word h_evaluate, a_two-star, z_two-star
+nt_cells .byte 5, { PW + NC }	; 2* because we have 16 bit stack 
+        .word nt_evaluate, xt_two-star, z_two-star
         .byte "cells"
 
-h_allot .byte 5, { PW + NC }
-        .word h_cells, a_allot, z_allot
+nt_allot .byte 5, { PW + NC }
+        .word nt_cells, xt_allot, z_allot
         .byte "allot"
 
-h_create .byte 6, { PW + NC }
-        .word h_allot, a_create, z_create
+nt_create .byte 6, { PW + NC }
+        .word nt_allot, xt_create, z_create
         .byte "create"
 
-h_name-string .byte 0b, { PW + NC }
-        .word h_create, a_name-string, z_name-string
+nt_name-string .byte 0b, { PW + NC }
+        .word nt_create, xt_name-string, z_name-string
         .byte "name>string"
 
-h_2dup  .byte 4, { PW + NC }
-        .word h_name-string, a_2dup, z_2dup
+nt_2dup .byte 4, { PW + NC }
+        .word nt_name-string, xt_2dup, z_2dup
         .byte "2dup"
 
-h_abs   .byte 3, { PW + NC }
-        .word h_2dup, a_abs, z_abs
+nt_abs   .byte 3, { PW + NC }
+        .word nt_2dup, xt_abs, z_abs
         .byte "abs"
 
-h_state .byte 5, { PW + NC }
-        .word h_abs, a_state, z_state
+nt_state .byte 5, { PW + NC }
+        .word nt_abs, xt_state, z_state
         .byte "state"
 
-h_to-in .byte 3, { PW + NC }
-        .word h_state, a_to-in, z_to-in
+nt_to-in .byte 3, { PW + NC }
+        .word nt_state, xt_to-in, z_to-in
         .byte ">in"
 
-h_source .byte 6, { PW + NC }
-         .word h_to-in, a_source, z_source
+nt_source .byte 6, { PW + NC }
+         .word nt_to-in, xt_source, z_source
          .byte "source"
 
-h_depth .byte 5, { PW + NC }
-        .word h_source, a_depth, z_depth
+nt_depth .byte 5, { PW + NC }
+        .word nt_source, xt_depth, z_depth
         .byte "depth"
 
-h_tick  .byte 1, { PW + NC }
-        .word h_depth, a_tick, z_tick
+nt_tick  .byte 1, { PW + NC }
+        .word nt_depth, xt_tick, z_tick
         .byte 27	; hex for "'"
 
-h_two-star .byte 2, { PW + NC }
-        .word h_tick, a_two-star, z_two-star
+nt_two-star .byte 2, { PW + NC }
+        .word nt_tick, xt_two-star, z_two-star
         .byte "2*"
 
-h_minus .byte 1, { PW + NC }
-        .word h_two-star, a_minus, z_minus
+nt_minus .byte 1, { PW + NC }
+        .word nt_two-star, xt_minus, z_minus
         .byte '-'
 
-h_plus  .byte 1, { PW + NC }
-        .word h_minus, a_plus, z_plus
+nt_plus .byte 1, { PW + NC }
+        .word nt_minus, xt_plus, z_plus
         .byte '+'
 
-h_one-minus .byte 2, { PW + NC }
-        .word h_plus, a_one-minus, z_one-minus
+nt_one-minus .byte 2, { PW + NC }
+        .word nt_plus, xt_one-minus, z_one-minus
         .byte "1-"
 
-h_one-plus .byte 2, { PW + NC }
-        .word h_one-minus, a_one-plus, z_one-plus
+nt_one-plus .byte 2, { PW + NC }
+        .word nt_one-minus, xt_one-plus, z_one-plus
         .byte "1+"
 
-h_false .byte 5, { PW + NC }
-        .word h_one-plus, a_zero, z_zero
+nt_false .byte 5, { PW + NC }
+        .word nt_one-plus, xt_zero, z_zero
         .byte "false"
 
-h_true  .byte 4, { PW + NC }
-        .word h_false, a_true, z_true
+nt_true  .byte 4, { PW + NC }
+        .word nt_false, xt_true, z_true
         .byte "true"
 
-h_two   .byte 1, { PW + NC }
-        .word h_true, a_two, z_two
+nt_two  .byte 1, { PW + NC }
+        .word nt_true, xt_two, z_two
         .byte '2'
 
-h_one   .byte 1, { PW + NC }
-        .word h_two, a_one, z_one
+nt_one  .byte 1, { PW + NC }
+        .word nt_two, xt_one, z_one
         .byte '1'
 
-h_zero  .byte 1, { PW + NC }
-        .word h_one, a_zero, z_zero
+nt_zero  .byte 1, { PW + NC }
+        .word nt_one, xt_zero, z_zero
         .byte '0'
 
-h_find-name .byte 9, 0
-        .word h_zero, a_find-name, z_find-name
+nt_find-name .byte 9, 0
+        .word nt_zero, xt_find-name, z_find-name
         .byte "find-name"
 
-h_refill .byte 6, { PW } ; TODO check flags
-        .word h_find-name, a_refill, z_refill
+nt_refill .byte 6, { PW } ; TODO check flags
+        .word nt_find-name, xt_refill, z_refill
         .byte "refill"
 
-h_parse-name .byte &10, 0
-        .word h_refill, a_parse-name, z_parse-name
+nt_parse-name .byte &10, 0
+        .word nt_refill, xt_parse-name, z_parse-name
         .byte "parse-name"
 
-h_source-id .byte 9, { PW + NC }
-        .word h_parse-name, a_source-id, z_source-id
+nt_source-id .byte 9, { PW + NC }
+        .word nt_parse-name, xt_source-id, z_source-id
         .byte "source-id"
 
-h_comma .byte 1, { PW + NC }
-        .word h_source-id, a_comma, z_comma
+nt_comma .byte 1, { PW + NC }
+        .word nt_source-id, xt_comma, z_comma
         .byte ','
 
-h_accept .byte 6, 00 ; TODO check flags
-        .word h_comma, a_accept, z_accept 
+nt_accept .byte 6, 00 ; TODO check flags
+        .word nt_comma, xt_accept, z_accept 
         .byte "accept"
 
-h_tuck  .byte 4, { PW + NC }
-        .word h_accept, a_tuck, z_tuck
+nt_tuck .byte 4, { PW + NC }
+        .word nt_accept, xt_tuck, z_tuck
         .byte "tuck"
 
-h_nip   .byte 3, { PW + NC }
-        .word h_tuck, a_nip, z_nip
+nt_nip  .byte 3, { PW + NC }
+        .word nt_tuck, xt_nip, z_nip
         .byte "nip"
 
-h_rot   .byte 3, { PW + NC }
-        .word h_nip, a_rot, z_rot
+nt_rot  .byte 3, { PW + NC }
+        .word nt_nip, xt_rot, z_rot
         .byte "rot"
 
-h_execute .byte 7, { PW + NC }
-        .word h_rot, a_execute, z_execute
+nt_execute .byte 7, { PW + NC }
+        .word nt_rot, xt_execute, z_execute
         .byte "execute"
 
-h_here  .byte 4, { PW + NC }
-        .word h_execute, a_here, z_here
+nt_here .byte 4, { PW + NC }
+        .word nt_execute, xt_here, z_here
         .byte "here"
 
-h_2drop .byte 5, { PW + NC }
-        .word h_here, a_2drop, z_2drop
+nt_2drop .byte 5, { PW + NC }
+        .word nt_here, xt_2drop, z_2drop
         .byte "2drop"
 
-h_over  .byte 4, { PW + NC }
-        .word h_2drop, a_over, z_over
+nt_over .byte 4, { PW + NC }
+        .word nt_2drop, xt_over, z_over
         .byte "over"
 
-h_fetch .byte 1, { PW + NC }
-        .word h_over, a_fetch, z_fetch
+nt_fetch .byte 1, { PW + NC }
+        .word nt_over, xt_fetch, z_fetch
         .byte '@' 
 
-h_store .byte 1, { PW + NC }
-        .word h_fetch, a_store, z_store
+nt_store .byte 1, { PW + NC }
+        .word nt_fetch, xt_store, z_store
         .byte '!'
 
-h_swap  .byte 4, { PW + NC }
-        .word h_store, a_swap, z_swap
+nt_swap  .byte 4, { PW + NC }
+        .word nt_store, xt_swap, z_swap
         .byte "swap"
 
-h_dup   .byte 3, { PW + NC }
-        .word h_swap, a_dup, z_dup
+nt_dup   .byte 3, { PW + NC }
+        .word nt_swap, xt_dup, z_dup
         .byte "dup"
 
 ; DROP is always the first entry in dictionary
-h_drop  .byte 4, { PW + NC }
-        .word h_dup, a_drop, z_drop
+nt_drop  .byte 4, { PW + NC }
+        .word nt_dup, xt_drop, z_drop
         .byte "drop"
 
 ; END

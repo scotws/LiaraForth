@@ -34,7 +34,7 @@
 ; -------------------------------------------------------------------
 ; COLD ( -- ) X bytes / X Cycles
 ; Reboot the system
-a_cold  
+xt_cold  
 
                 jmp reset_hardware      ; don't use JSR, jump back to start
 start           
@@ -51,7 +51,7 @@ start
                 ; virgin Dictionary, so we start off the Dictionary Pointer (DP)
                 ; there. Adding high-level words will change this before the
                 ; user has a chance to call WORDS
-                lda.# h_drop
+                lda.# nt_drop
                 sta.d dp
                 
                 ; The compiler pointer (CP) points to the first free cell 
@@ -72,7 +72,7 @@ start
                 ldx.# dsp0
 
                 ; Clean the screen, assumes vt100 terminal
-                jsr a_page
+                jsr xt_page
                 
                 ; Define high-level words via EVALUATE. At this point, whatever
                 ; is in Y (TOS) is rubbish, so we don't have to push it to the 
@@ -85,7 +85,7 @@ start
                 sta.dx 00                       ; Start address goes in NOS
                 ldy.# { hi-end - hi-start }     ; length goes in TOS
 
-                jsr a_evaluate
+                jsr xt_evaluate
 
                 ; drop through to ABORT
 
@@ -95,7 +95,7 @@ start
 ; We can jump here via subroutine because we reset the stack pointer
 ; anyway. Flows into QUIT.
 ; TODO see which parts of COLD we should integrate here
-a_abort         
+xt_abort         
         .a16    
                 ; clear Data Stack
                 ldy.# 0000
@@ -110,7 +110,7 @@ a_abort
 ; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
 ; the ANSI Forth recommendation to use REFILL. Note we don't display the "ok"
 ; system prompt until after the first output. This follows Gforth.
-a_quit          
+xt_quit          
                 ; clear Return Stack
                 lda.# stack0
                 tcs
@@ -131,7 +131,7 @@ quit_get_line
                 stz.d ciblen
                
                 ; Accept a line from the current input source
-                jsr a_refill            ; ( -- f ) 
+                jsr xt_refill            ; ( -- f ) 
                 
                 tya                     ; force flag test
                 bne quit_refill_successful
@@ -185,7 +185,7 @@ z_quit          nop  ; dummy for compilation, TODO test if required
 ; -------------------------------------------------------------------
 ; >IN "TO-IN" ( -- addr ) 6 bytes / 12 cycles
 ; Return address where pointer to current char in input buffer lives (>IN)
-a_to-in         
+xt_to-in         
                 dex
                 dex
                 sty.dx 00
@@ -210,7 +210,7 @@ z_to-in         rts
 ;               inx
 ;               inx
 ; This is as fast as the variant below, but three bytes longer
-a_comma         
+xt_comma         
                 tya
                 sta.di cp       ; STA (CP)
                 inc.d cp
@@ -226,7 +226,7 @@ z_comma         rts
 ; -------------------------------------------------------------------
 ; ! "STORE" ( n addr -- ) 9 bytes / X cycles
 ; Save value at designated memory location
-a_store         
+xt_store         
                 lda.dx 00       ; NOS has value
                 sta.y 0000
                 inx
@@ -240,7 +240,7 @@ z_store         rts
 ; -------------------------------------------------------------------
 ; @ "FETCH" ( addr -- n ) 4 bytes / 7-8 cycles
 ; Get one cell (16 bit) value from given address
-a_fetch         
+xt_fetch         
                 lda.y 0000
 		tay
 z_fetch         rts
@@ -249,7 +249,7 @@ z_fetch         rts
 ; -------------------------------------------------------------------
 ; + "PLUS" ( n m -- n+m ) 7 bytes / X cycles
 ; Add TOS and NOS
-a_plus          
+xt_plus          
         .!a16
                 tya
                 clc
@@ -264,7 +264,7 @@ z_plus          rts
 ; -------------------------------------------------------------------
 ; - "MINUS" ( n m -- n-m ) 10 bytes / X cycles
 ; Subtract NOS from TOS
-a_minus         
+xt_minus         
         .!a16
                 tya
                 eor.# 0ffff
@@ -282,7 +282,7 @@ z_minus         rts
 ; -------------------------------------------------------------------
 ; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
 ; Pushes the number 0000 on the Data Stack
-a_zero          
+xt_zero          
         .!xy16
                 dex
                 dex
@@ -295,7 +295,7 @@ z_zero          rts
 ; -------------------------------------------------------------------
 ; 1 "ONE" ( -- 1 ) 7 bytes / 12 cycles
 ; Pushes the number 1 on the Data Stack
-a_one  
+xt_one  
         .!xy16
                 dex
                 dex
@@ -310,7 +310,7 @@ z_one           rts
 ; Subtract 1 from Top of Stack (TOS). Because there is no checking if there is
 ; actually anything on the Data Stack, this routine will fail silently if the
 ; stack is empty
-a_one-minus      
+xt_one-minus      
         .!xy16
                 dey
 z_one-minus     rts
@@ -320,7 +320,7 @@ z_one-minus     rts
 ; 1+ "ONE-PLUS" ( n -- n+1 ) 1 byte / 2 cycles
 ; Add 1 to TOS. Because there is no checking if there is actually anything on
 ; the Data Stack, this routine will fail silently if the stack is empty
-a_one-plus      
+xt_one-plus      
         .!xy16
                 iny
 z_one-plus      rts
@@ -329,7 +329,7 @@ z_one-plus      rts
 ; -------------------------------------------------------------------
 ; 2 "TWO" ( -- 2 ) 7 bytes / 12 cycles
 ; Pushes the number 2 on the Data Stack
-a_two           
+xt_two           
         .!xy16
                 dex
                 dex
@@ -342,7 +342,7 @@ z_two           rts
 ; -------------------------------------------------------------------
 ; 2* "TWO-STAR" ( n -- 2*n ) 3 bytes / 6 cycles
 ; Multiply Top of Stack (TOS) by 2. This is also used by CELLS
-a_two-star      
+xt_two-star      
 	.!a16
 	.!xy16
                 tya
@@ -355,7 +355,7 @@ z_two-star      rts
 ; -------------------------------------------------------------------
 ; 2DROP ( n m -- ) 6 bytes / 13 cycles
 ; Drop first two entries of Data Stack
-a_2drop         
+xt_2drop         
                 ldy.dx 02
                 inx
                 inx
@@ -369,7 +369,7 @@ z_2drop         rts
 ; 2DUP ( n m -- n m n m ) 10 bytes / 23 cycles
 ; Duplicated the top two data stack entries
 
-a_2dup          
+xt_2dup          
         .!xy16
                 dex
                 dex
@@ -386,8 +386,8 @@ z_2dup          rts
 ; ' "TICK" ( "string" -- xt ) X bytes / X cycles
 ; Given a string with the name of a word, return the word's execution token (xt)
 ; Abort if not found
-a_tick          
-		jsr a_parse-name	; ( -- addr u ) 
+xt_tick          
+		jsr xt_parse-name	; ( -- addr u ) 
 
 		; if we got a zero, complain and abort
                 bne tick_have_word
@@ -396,7 +396,7 @@ a_tick
                 jmp error
 
 tick_have_word
-                jsr a_find-name         ; ( addr u -- nt)
+                jsr xt_find-name         ; ( addr u -- nt)
 
                 ; if we didn't find string in the dictionary, complain and abort
                 bne tick_have_nt
@@ -405,7 +405,7 @@ tick_have_word
                 jmp error
                 
 tick_have_nt
-                jsr a_name-int            ; ( nt -- xt ) 
+                jsr xt_name-int            ; ( nt -- xt ) 
                 
 z_tick          rts
 
@@ -413,7 +413,7 @@ z_tick          rts
 ; -------------------------------------------------------------------
 ; ABS ( n -- u ) 8 bytes / X cycles
 ; Return the absolute value of a single number
-a_abs           
+xt_abs           
         .!a16
         .!xy16
                 tya             ; force flag test
@@ -431,7 +431,7 @@ z_abs           rts
 ; Receive a string of at most n1 characters, placing them at addr. Return the
 ; actual number of characters as n2. Characters are echoed as they are received.
 ; ACCEPT is called by REFILL these days. 
-a_accept        
+xt_accept        
                 ; Set up loop
                 tya             ; force flag test
                 bne accept_nonzero
@@ -473,11 +473,11 @@ accept_loop
                 ; CTRL-c and ESC abort (see if this is too harsh)
                 cmp.# AscCC     
                 bne + 
-                jmp a_abort
+                jmp xt_abort
 @
                 cmp.# AscESC
                 bne + 
-                jmp a_abort
+                jmp xt_abort
 @
                 ; CTRL-p will be used for "previous cmd", TODO
                 cmp.# AscCP     
@@ -512,7 +512,7 @@ accept_loop
 accept_eol
                 sty.d ciblen    ; Y contains number of chars accepted already
         .a16
-                jsr a_space     ; print final space
+                jsr xt_space     ; print final space
                 rts             ; this is the actual return of the routine
 
 accept_bs
@@ -544,7 +544,7 @@ z_accept        rts
 ; past the Dictionary.
 ; See http://forth-standard.org/standard/core/ALLOT
 ; TODO test negative values
-a_allot         
+xt_allot         
         .!a16
                 tya                     ; force flag check
                 beq allot_real_gone     ; zero bytes, don't do anything 
@@ -592,7 +592,7 @@ z_allot         rts
 ; BELL ( -- ) X bytes / X cycles
 ; Trigger terminal bell on vt100 terminals
 ; TODO replace with EMIT
-a_bell          
+xt_bell          
 	.!a16
 		lda.# AscBELL 
 		jsr put_chr
@@ -603,7 +603,7 @@ z_bell          rts
 ; -------------------------------------------------------------------
 ; BL ( -- u ) 7 bytes / 12 cycles
 ; Put ASCII char for SPACE on Data Stack
-a_bl            
+xt_bl            
         .!xy16
                 dex
                 dex
@@ -615,7 +615,7 @@ z_bl            rts
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
-a_bye           
+xt_bye           
 		cli
 		brk 00  ; status byte 00 required for assembler
 
@@ -635,7 +635,7 @@ z_bye           rts     ; dummy for compiling, never reached
 ; length of the string c-addr ist stored in character length (8 bit), not cell
 ; length (16 bit). This is rarely used these days, though COUNT can also be used
 ; to step through a string character by character. 
-a_count         
+xt_count         
         .!a16
         .!xy16
                 tya
@@ -657,7 +657,7 @@ z_count         rts
 ; CR ( -- ) X bytes / X cycles
 ; Cause following output to appear at beginning of next line
 ; TODO replace with EMIT
-a_cr            
+xt_cr            
                 lda.# AscLF     ; test with AscCR for emulators
                 jsr put_chr
 
@@ -668,9 +668,9 @@ z_cr            rts
 ; Create a Dictionary entry associated with "name", used for various words,
 ; especially for VARIABLE. When called, this new word will return the associated
 ; address.
-a_create        
+xt_create        
         .!a16
-                jsr a_parse-name        ; ( -- addr u ) 
+                jsr xt_parse-name        ; ( -- addr u ) 
                 bne create_got_name
 
                 ; if we got a zero-length name string, complain and abort
@@ -695,7 +695,7 @@ create_got_name
 
                 ; We need 8 bytes + the length of the name string for our new
                 ; header. This is also the offset for the start of the code
-                ; field (the a_ label) so we need to remember it. Otherwise, we
+                ; field (the xt_ label) so we need to remember it. Otherwise, we
                 ; could just allot the space afterwards. 
                 clc
                 adc.# 0008
@@ -736,7 +736,7 @@ create_got_name
                 iny
                 iny
                 
-                ; BYTES 4,5: Start of code field (xt of this word, "a_" link)
+                ; BYTES 4,5: Start of code field (xt of this word, "xt_" link)
                 ; This begins after the header, so we take the length of the
                 ; header, which we saved in tmp3, and use it as an offset to 
                 ; the address of the start of the word
@@ -778,7 +778,7 @@ create_got_name
                 bne - 
 
                 ; After the name string, comes the Code Field (start at xt, that
-                ; is, the a_ label of the word) which is initially a jump to the
+                ; is, the xt_ label of the word) which is initially a jump to the
                 ; subroutine to DOVAR. We're still in 8-bit A-register, which is
                 ; good
                 lda.# 20        ; opcode of JSR
@@ -807,7 +807,7 @@ z_create        rts
 ; DEPTH ( -- u ) 14 bytes / X cycles
 ; Push the number of entries in cells (not bytes) on the parameter stack.
 ; Assumes X is valid as the DSP.
-a_depth         
+xt_depth         
         .!a16
 		; We've got zero entries when X is dsp0
                 stx.d tmpdsp
@@ -834,7 +834,7 @@ z_depth         rts
 ; Since this is used interactively, and humans are slow (just ask GlaDOS), we
 ; focus on size
 ; TODO this is a temporary version
-a_dot           
+xt_dot           
                 ; --- TEMP print routine ---
                 tya
                 and.# 0ff00
@@ -843,12 +843,12 @@ a_dot
                 tya
                 and.# 00ff
                 jsr byte_to_ascii
-                jsr a_space
+                jsr xt_space
                 ; --- TEMP print routine ---
                 
                 ; Since we don't care about speed in this word, we save one byte
                 ; by doing DROP the slow way and save one byte
-                jsr a_drop
+                jsr xt_drop
                 
 z_dot           rts
 
@@ -857,15 +857,15 @@ z_dot           rts
 ; DOTPAREN ( "string" -- ) 13 bytes / X cycles
 ; Display string delimited by ")" immediately, regardless if word is compiled or
 ; interpreted. Forth definition is  .( [CHAR] ) PARSE TYPE ; IMMEDIATE
-a_dotparen     
+xt_dotparen     
                ; use PARSE to find the end of the string
                dex
                dex
                sty.dx 00
                ldy.# ')'
 
-               jsr a_parse      ; ( -- addr u) 
-               jsr a_type
+               jsr xt_parse      ; ( -- addr u) 
+               jsr xt_type
 
 z_dotparen     rts
 
@@ -876,10 +876,10 @@ z_dotparen     rts
 ; don't have to worry about speed. We follow the format of Gforth
 ; and print the number of elements first in brackets, followed by the Data Stack
 ; content (if present).
-a_dots          
+xt_dots          
         .!a16
         .!xy16
-                jsr a_depth             ; ( -- u)
+                jsr xt_depth             ; ( -- u)
 
                 ; Print stack depth in brackets
                 ; TODO rewrite this to use EMIT
@@ -899,7 +899,7 @@ a_dots
                 ; TODO rewrite this to use EMIT
                 lda.# '>'
                 jsr put_chr
-                jsr a_space
+                jsr xt_space
 
 
                 ; There will be a lot of cases where .S is used when the stack
@@ -940,7 +940,7 @@ dots_loop
                 lda.dx 00
                 and.# 00ff
                 jsr byte_to_ascii
-                jsr a_space
+                jsr xt_space
                 ; --- TEMP print routine ---
 
                 dey
@@ -951,7 +951,7 @@ dots_loop
 dots_done
                 ; Clean up. Again, we don't care about speed in this
                 ; word so we save one byte by doing DROP the slow way
-                jsr a_drop
+                jsr xt_drop
 
 z_dots          rts
 
@@ -960,7 +960,7 @@ z_dots          rts
 ; DROP ( n -- ) 4 bytes / 9 cycles
 ; Drop first entry on Data Stack
 
-a_drop          
+xt_drop          
         .!xy16
                 ldy.dx 00 
                 inx
@@ -973,13 +973,13 @@ z_drop          rts
 ; DUMP ( addr u -- ) X bytes / X cycles
 ; Print region of memory in a pretty way. 
 ; TODO This is a crude, temporary version for testing. Rewrite ASAP
-a_dump          
+xt_dump          
                 ; we use tmp1 as a counter because we need Y for other
                 ; stuff
                 sty.d tmp1
 
 dump_line_loop
-                jsr a_cr
+                jsr xt_cr
                 
                 ; start internal counter for 16 numbers per row
                 ldy.# 0010
@@ -991,7 +991,7 @@ dump_byte_loop
                 ; otherwise, print contents pointed to by address in NOS
                 lda.dxi 00
                 jsr byte_to_ascii       ; TODO replace by EMIT
-                jsr a_space
+                jsr xt_space
 
                 ; next character
                 inc.dx 00
@@ -1003,7 +1003,7 @@ dump_byte_loop
                 bra dump_line_loop
                 
 dump_done
-                jsr a_cr 
+                jsr xt_cr 
 
                 ; drop everything and return
                 ; TODO replace by call of 2DROP
@@ -1020,7 +1020,7 @@ z_dump          rts
 ; DUP  ( n -- n n ) 4 bytes / 9 cycles
 ; Duplicate first entry on Data Stack
 
-a_dup           
+xt_dup           
         .!xy16
                 dex
                 dex
@@ -1033,7 +1033,7 @@ z_dup           rts
 ; EVALUATE ( addr u -- ) X bytes / X cycles
 ; Execute string. Set SOURCE-ID to -1, make addr u the input source, 
 ; set >IN to zero. After processing the line, revert to old input source. 
-a_evaluate      
+xt_evaluate      
                 ; We follow pforth's procedure of pushing SOURCE, SOURCE-ID, and
                 ; >IN to the Return Stack
                 lda.d toin      ; >IN
@@ -1088,7 +1088,7 @@ z_evaluate      rts
 ; TODO move this to someplace that is assured to be RAM, not possibly ROM
 execute_ip      .byte 00, 00, 00    
 
-a_execute       
+xt_execute       
         .!xy16
 		; Store the xt for later use and then drop it off the stack
 		sty execute_ip
@@ -1114,8 +1114,8 @@ z_execute       rts
 ; -------------------------------------------------------------------
 ; FALSE ( -- f ) 7 bytes / 12 cycles
 ; Pushes value $0000 for Forth true on Data Stack. This is the same code as for 
-; ZERO, see there. Dictionary entry should have a_zero/z_zero instead of
-; a_false/z_false
+; ZERO, see there. Dictionary entry should have xt_zero/z_zero instead of
+; xt_false/z_false
 
 ; -------------------------------------------------------------------
 ; FIND-NAME ( addr u -- nt | 0 ) 91 bytes / X cycles
@@ -1125,7 +1125,7 @@ z_execute       rts
 ; of a word like FIND. To convert, use NAME>INT. This is a Gforth word. See
 ; https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Name-token.html 
 ; FIND calls this word for the hard word
-a_find-name     
+xt_find-name     
                 ; We abort when we get an empty string, that is, one with
                 ; a length of zero TOS. We could test for this, but it will
                 ; happen so rarely that the speed penalty is higher if we run
@@ -1179,7 +1179,7 @@ find-name_chars
                 cmp.di tmp2     ; CMP (TMP2) - first char of mystery string
                 beq find-name_all_chars
                 
-find-name_char_nomatch_8
+find-name_char_nomatcnt_8
                 ; First char is not the same, next entry
         .a16
                 bra find-name_next_entry
@@ -1215,7 +1215,7 @@ find-name_all_chars
 @
                 lda.diy tmp2    ; LDA (TMP2),Y - last char of mystery string
                 cmp.diy tmp3    ; CMP (TMP1),Y - last char of DP string
-                bne find-name_char_nomatch_8
+                bne find-name_char_nomatcnt_8
                 dey             ; start of string (Y=0) was already tested
                 bne -
                 
@@ -1242,7 +1242,7 @@ z_find-name     rts
 ; -------------------------------------------------------------------
 ; HERE ( -- u ) 6 bytes / 13 cycles
 ; Push Compiler Pointer address on the Data Stack
-a_here          
+xt_here          
         .!a16           ; paranoid
         .!xy16
                 dex
@@ -1256,7 +1256,7 @@ z_here          rts
 ; -------------------------------------------------------------------
 ; NAME>INT ( nt -- xt ) 4 bytes / 8 cycles
 ; Given the Name Token (nt) of a word, return its Execute Token (xt)
-a_name-int      
+xt_name-int      
         .!a16
         .!xy16
 		; The xt of a word beginns four bytes down from its nt
@@ -1274,7 +1274,7 @@ z_name-int      rts
 ; Given a name token (nt) of a word, return its string. This is a Gforth word
 ; that works with the Dictionary header entries. It is not checked if nt is
 ; a valid name token. 
-a_name-string   
+xt_name-string   
         .!a16
         .!xy16
                 dex             ; move NOS down one
@@ -1299,7 +1299,7 @@ z_name-string   rts
 ; -------------------------------------------------------------------
 ; NIP ( n m -- m ) 2 bytes / 4 cycles
 ; Delete entry that is NOS
-a_nip           
+xt_nip           
         .!xy16
                 inx
                 inx
@@ -1309,7 +1309,7 @@ z_nip           rts
 ; -------------------------------------------------------------------
 ; OVER ( n m -- n m n )  6 bytes / 14 cycles
 ; Push NOS on Data Stack
-a_over          
+xt_over          
                 dex 
                 dex
                 sty.dx 00
@@ -1324,7 +1324,7 @@ z_over          rts
 ; 84 bytes in size (says ANSI). It is located relative to the compile area
 ; pointer (CP) and therefore varies in position. This area is reserved for the
 ; user and not used by the system
-a_pad           
+xt_pad           
         .!a16
                 dex
                 dex
@@ -1343,7 +1343,7 @@ z_pad           rts
 ; Clear the screen on vt-100 terminals by sending the code "ESC[2J". This is
 ; only useful in interactive scenarios so we don't worry about speed
 ; TODO rewrite with EMIT
-a_page          
+xt_page          
                 lda.# vt100_page
                 jsr print_string
 
@@ -1361,7 +1361,7 @@ z_page          rts
 ; form of PARSE and drops through to that word. See PARSE for more detail. We
 ; use this word internally for the interpreter because it is a lot easier to use
 ; http://forth-standard.org/standard/core/PARSE-NAME has a Forth implementation
-a_parse-name    
+xt_parse-name    
         .!a16
         .!xy16
                 ; skip leading spaces, changing >IN, then place SPACE 
@@ -1436,7 +1436,7 @@ parse-name_found
 ; (CIB), the length of which is in CIBLEN. While searching for the delimiter,
 ; TOIN (>IN) points to the where we currently are. Since PARSE does not skip
 ; leading delimiters, we assume we are on a useful string.
-a_parse         
+xt_parse         
         .!a16
         .!xy16
                 sty.d tmp1      ; save delimiter, char is LSB
@@ -1508,7 +1508,7 @@ z_parse         rts
 ; is a string from EVALUATE, return false and perform no other action."
 ; See https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Input-Stream.html
 ; and Conklin & Rather p. 156
-a_refill        
+xt_refill        
         .!a16
         .!xy16
                 ; We handle buffer switches here so that regardless of input
@@ -1540,7 +1540,7 @@ a_refill
 
                 ldy.# buffersize 
 
-                jsr a_accept            ; ( addr n1 -- n2)
+                jsr xt_accept            ; ( addr n1 -- n2)
 
                 ; ACCEPT returns the number of characters accepted, but we don't
                 ; need them. We just overwrite TOS this with the flag
@@ -1576,7 +1576,7 @@ z_refill        rts     ; dummy for compiling
 ; ROT ( a b c -- b c a ) X bytes / X cycles
 ; Rotate the top three entries downwards (third entry becomes first)
 ; Remember this with the "R" for "revolution": The bottom entry becomes the top.
-a_rot           
+xt_rot           
         .!a16
         .!xy16
                 lda.dx 00       ; save b
@@ -1592,7 +1592,7 @@ z_rot           rts
 ; Return the address and size of current input buffer. Replaces TIB and #TIB in
 ; ANSI Forth
 
-a_source        dex             ; make room on Data Stack
+xt_source        dex             ; make room on Data Stack
                 dex
                 dex
                 dex
@@ -1611,7 +1611,7 @@ z_source        rts
 ; Since we don't have blocks (yet), this will give the input source: 0 is
 ; keyboard, -1 (0ffff) is character string, and a text file gives the fileid.
 
-a_source-id     
+xt_source-id     
         .!xy16
                 dex
                 dex
@@ -1624,7 +1624,7 @@ z_source-id     rts
 ; SPACE ( -- ) X bytes / X cycles
 ; Print one ASCII space character  
 ; TODO change to call EMIT
-a_space         
+xt_space         
                 lda.# AscSP
                 jsr put_chr
         .!a16
@@ -1636,14 +1636,14 @@ z_space         rts
 ; SPACES ( u -- ) 12 bytes / X cycles
 ; Print u spaces. Calls SPACE, because this is probably interactive and humans
 ; are slow enough we don't have to care about speed.
-a_spaces        
+xt_spaces        
         .!a16
         .!xy16
 @
                 dey             ; this also handles case u=0
                 bmi spaces_done
 
-                jsr a_space
+                jsr xt_space
                 bra - 
 
 spaces_done
@@ -1660,7 +1660,7 @@ z_spaces        rts
 ; is true when in compilation state, false otherwise. STATE should not be 
 ; changed directly by the user; see
 ; http://forth.sourceforge.net/standard/dpans/dpans6.htm#6.1.2250
-a_state         
+xt_state         
         .!xy16
                 dex
                 dex
@@ -1674,7 +1674,7 @@ z_state         rts
 ; SWAP ( n m -- m n ) 5 bytes / 12 cycles
 ; Exchange TOS with NOS. We don't check if there are enough elements on the Data
 ; Stack; underflow errors will go undetected and return garbage.
-a_swap          
+xt_swap          
         .!a16
         .!xy16
                 lda.dx 00
@@ -1686,7 +1686,7 @@ z_swap          rts
 ; -------------------------------------------------------------------
 ; TRUE ( -- f ) 7 bytes / 12 cycles
 ; Pushes value $FFFF for Forth true on Data Stack
-a_true          
+xt_true          
         .!a16
         .!xy16
                 dex
@@ -1700,7 +1700,7 @@ z_true          rts
 ; TUCK ( n m -- m n m ) 8 bytes / 19 cycles
 ; Insert TOS below NOS. We do not check if there are enough elements on the Data
 ; Stack, underflow will go undetected and return garbage.
-a_tuck          
+xt_tuck          
         .!a16
         .!xy16
                 dex
@@ -1719,7 +1719,7 @@ z_tuck          rts
 ; multitasking and we probably don't want to PAUSE after every character.
 ; However, we'll make a final decision about that when multitasking is up and
 ; running.
-a_type          
+xt_type          
         .!a16
         .!xy16
                 ; just leave if u is zero (empty string)
@@ -1756,7 +1756,7 @@ z_type          rts
 ; Return amount of memory available for the Dictionary. Does not include 
 ; memory for buffers, stacks etc. Does not exclude the space used by PAD
 ; TODO rewrite for multitasking
-a_unused        
+xt_unused        
         .!a16
                 lda.# maxram-single
                 sec
@@ -1775,8 +1775,8 @@ z_unused        rts
 ; WORDS ( -- ) X bytes / X cycles
 ; Print list of all Forth words available. This only really makes sense in an
 ; interactive setting, so we don't have to worry about speed.
-a_words         
-                jsr a_cr        ; start on next line, this is a style choice
+xt_words         
+                jsr xt_cr        ; start on next line, this is a style choice
 
                 lda.d dp        ; nt of first entry in Dictionary (last added)
                 pha
@@ -1788,9 +1788,9 @@ a_words
 words_loop
                 tay                     ; ( nt )
 
-                jsr a_name-string       ; ( nt -- addr u ) 
-                jsr a_type              ; ( addr u -- ) 
-                jsr a_space
+                jsr xt_name-string       ; ( nt -- addr u ) 
+                jsr xt_type              ; ( addr u -- ) 
+                jsr xt_space
         .!a16
         .!xy16
                 pla
@@ -1894,7 +1894,7 @@ compex_loop
                 ; Gforth's PARSE-NAME makes more sense as it uses spaces as
                 ; delimiters per default and skips any leading spaces, which
                 ; PARSE does not do.
-                jsr a_parse-name        ; ( 'string' -- addr u ) 
+                jsr xt_parse-name        ; ( 'string' -- addr u ) 
         .!a16
                 ; if PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
@@ -1907,7 +1907,7 @@ compex_loop
 
                 ; If we got something that is not a zero, we go to FIND-NAME to
                 ; get the nt. Returns ( nt | 0 ) 
-                jsr a_find-name
+                jsr xt_find-name
         .!a16
 
                 ; a zero signals that we didn't find a word in the Dictionary
@@ -1935,7 +1935,7 @@ compex_got_name_token
                 lda.y 0000              ; LDA $0000,Y
                 tay
                 
-                jsr a_execute
+                jsr xt_execute
 
                 ; that's quite enough for this word, let's get the next one
                 jmp compex_loop
@@ -1955,7 +1955,7 @@ compex_line_done
 ; then call abort
 error
                 jsr print_string
-                jmp a_abort
+                jmp xt_abort
 
 ; ------------------------------------------------------------------- 
 ; Print a zero terminated string to the console, adding a CR character. Takes
@@ -2064,7 +2064,7 @@ hi-end
                 ; tya
                 ; and.# 00ff
                 ; jsr byte_to_ascii
-                ; jsr a_cr
+                ; jsr xt_cr
                 ; --------------------------------
                
                 ; --- TODO TESTING (HALT CPU) ---
