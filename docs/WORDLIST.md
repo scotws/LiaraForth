@@ -1,7 +1,8 @@
 # Wordlist for Liara Forth
 
 This table is an alphabetical list of the words provided by Liara Forth, including
-their status and other information. 
+their status and other information - because only things that get measured get 
+optimized. 
 
 Last update: *13. February 2017*
 
@@ -22,6 +23,7 @@ Last update: *13. February 2017*
 | 1+ (ONE-PLUS)  | coded    | ANSI core     | PW, NC | 1     |      2 |
 | 2 (TWO)        | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 2* (TWO-STAR)  | coded    | ANSI core     | PW, NC | 3     |  (TBA) |
+| 2DROP          | coded    | ANSI core     | PW, NC | 6     |     13 |
 | ' (TICK)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
@@ -48,6 +50,7 @@ Last update: *13. February 2017*
 | NAME>INT       | coded    | Gforth        | PW, NC | 4     |      8 |
 | NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
+| OVER           | coded    | ANSI core     | PW, NC | 6     |     14 |
 | PAD            | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
 | PAGE           | coded    | ANSI facility | PW, NC | (TBA) |  (TBA) |
 | PARSE          | coded    | ANSI core ext | -      | 45    |    n/a |

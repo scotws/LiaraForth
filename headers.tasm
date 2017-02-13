@@ -264,8 +264,16 @@ h_here  .byte 4, { PW + NC }
         .word h_execute, a_here, z_here
         .byte "here"
 
+h_2drop .byte 5, { PW + NC }
+        .word h_here, a_2drop, z_2drop
+        .byte "2drop"
+
+h_over  .byte 4, { PW + NC }
+        .word h_2drop, a_over, z_over
+        .byte "over"
+
 h_fetch .byte 1, { PW + NC }
-        .word h_here, a_fetch, z_fetch
+        .word h_over, a_fetch, z_fetch
         .byte '@' 
 
 h_store .byte 1, { PW + NC }

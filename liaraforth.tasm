@@ -340,7 +340,7 @@ z_two           rts
 
 
 ; -------------------------------------------------------------------
-; TWO-STAR ( n -- 2*n ) 3 bytes / 6 cycles
+; 2* "TWO-STAR" ( n -- 2*n ) 3 bytes / 6 cycles
 ; Multiply Top of Stack (TOS) by 2. This is also used by CELLS
 a_two-star      
 	.!a16
@@ -350,6 +350,19 @@ a_two-star
                 tay
                 
 z_two-star      rts
+
+
+; -------------------------------------------------------------------
+; 2DROP ( n m -- ) 6 bytes / 13 cycles
+; Drop first two entries of Data Stack
+a_2drop         
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+
+z_2drop         rts
 
 
 ; -------------------------------------------------------------------
@@ -1294,6 +1307,18 @@ z_nip           rts
 
 
 ; -------------------------------------------------------------------
+; OVER ( n m -- n m n )  6 bytes / 14 cycles
+; Push NOS on Data Stack
+a_over          
+                dex 
+                dex
+                sty.dx 00
+                ldy.dx 02
+		
+z_over          rts
+
+
+; -------------------------------------------------------------------
 ; PAD ( -- addr ) 11 bytes / X cycles
 ; Return address to a temporary area in free memory for user. Must be at least 
 ; 84 bytes in size (says ANSI). It is located relative to the compile area
@@ -2009,7 +2034,7 @@ string_to_lowercase
 ; or CR/LF is required
 hi-start
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 9. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 13. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
