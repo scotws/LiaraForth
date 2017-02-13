@@ -3,7 +3,7 @@
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information. 
 
-Last update: *9. February 2017*
+Last update: *13. February 2017*
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
@@ -27,7 +27,7 @@ Last update: *9. February 2017*
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
 | ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
-| ALLOT          | fragment | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| ALLOT          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
 | BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
@@ -38,6 +38,7 @@ Last update: *9. February 2017*
 | CREATE         | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DEPTH          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
+| DUMP           | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |
 | EVALUATE       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | EXECUTE        | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |

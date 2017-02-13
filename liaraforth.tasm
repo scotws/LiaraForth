@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 12. Feb 2017
+; This version: 13. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -712,7 +712,6 @@ create_got_name
                 ; HEADER BYTES 0,1: Length byte and flags
                 ldy.# 0000      ; Y is now an index, not TOS
                 lda.d tmp2      ; get length byte
-                xba             ; Length is MSB, flags (all zero here) LSB
                 sta.diy tmp1    ; STA (TMP1),Y
                 iny
                 iny
@@ -742,7 +741,6 @@ create_got_name
                 ; to move three bytes down, and then one more byte so the z_
                 ; label points to the (fictional) RTS instruction for correct
                 ; compilation. The start of the code field is still in A
-                inc.a
                 inc.a
                 inc.a
                 inc.a
@@ -956,6 +954,53 @@ a_drop
                 inx
 
 z_drop          rts
+
+
+; -------------------------------------------------------------------
+; DUMP ( addr u -- ) X bytes / X cycles
+; Print region of memory in a pretty way. 
+; TODO This is a crude, temporary version for testing. Rewrite ASAP
+a_dump          
+                ; we use tmp1 as a counter because we need Y for other
+                ; stuff
+                sty.d tmp1
+
+dump_line_loop
+                jsr a_cr
+                
+                ; start internal counter for 16 numbers per row
+                ldy.# 0010
+dump_byte_loop
+                ; if there are zero bytes left to display, we're done
+                lda.d tmp1
+                beq dump_done
+
+                ; otherwise, print contents pointed to by address in NOS
+                lda.dxi 00
+                jsr byte_to_ascii       ; TODO replace by EMIT
+                jsr a_space
+
+                ; next character
+                inc.dx 00
+
+                ; loop counter
+                dec.d tmp1
+                dey
+                bne dump_byte_loop
+                bra dump_line_loop
+                
+dump_done
+                jsr a_cr 
+
+                ; drop everything and return
+                ; TODO replace by call of 2DROP
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+                
+z_dump          rts
 
 
 ; -------------------------------------------------------------------
