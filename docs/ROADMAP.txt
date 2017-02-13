@@ -1,20 +1,18 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 12. Feb 2017
+This version: 13. Feb 2017
 
 
 TODO NEXT (next on top)
 
 - Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design. This implies 
   DOVAR, DOCONST
-- Rename a_word to xt_word, h_word to nt_word; leave z_word
+- Rename a_word -> xt_word, h_word -> nt_word; leave z_word; change tools accordingly
 - CLI words: Make sure BS doesn't end up on previous line
 - Code BASE, DECIMAL, HEX, BINARY to prepare for number conversion
 - Code math routines required to input and output numbers of any base
-- Code DUMP so we can see what is happening when we modifiy the Dictionary
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
-- Code EVALUATE to be able to add high-level words
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
 - Decide which words should be high-level
 
@@ -29,7 +27,9 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
+- Added temporary version of DUMP for testing (13. Feb 2016)
 - Added HERE and ALLOT, figure out where CP starts (7. Feb 2016)
+- Coded EVALUATE to be able to add high-level words
 - Added temporary versions of .S, . (DOT) and DEPTH for debugging
 - Code EXECUTE to complete basic loop
 - Code FIND-NAME and FIND for basic Dictionary search
