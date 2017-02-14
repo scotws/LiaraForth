@@ -7,13 +7,13 @@ This version: 13. Feb 2017
 TODO NEXT (next on top)
 
 - Code CREATE, CONSTANT, and VARIABLE to force check of Dictionary design. This implies 
-  DOVAR, DOCONST
-- Rename a_word -> xt_word, h_word -> nt_word; leave z_word; change tools accordingly
+  DOVAR, DOCONST. Also code ? while we're at it
 - CLI words: Make sure BS doesn't end up on previous line
 - Code BASE, DECIMAL, HEX, BINARY to prepare for number conversion
 - Code math routines required to input and output numbers of any base
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
+- Code COLON and SEMICOLON, followed by POSTPONE and COMPILE-ONLY
 - Decide which words should be high-level
 
 
@@ -27,6 +27,7 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
+- Renamed a_word -> xt_word, h_word -> nt_word; leave z_word; changed tools accordingly
 - Added temporary version of DUMP for testing (13. Feb 2016)
 - Added HERE and ALLOT, figure out where CP starts (7. Feb 2016)
 - Coded EVALUATE to be able to add high-level words

@@ -4,12 +4,12 @@ Copyright 2015-2017 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 
 Code listing for file liaraforth.tasm
-Generated on Mon Feb 13 13:18:40 2017
+Generated on Tue Feb 14 10:43:44 2017
 Target MPU: 65816
 External files loaded: 4
 Number of passes executed: 35
 Number of steps executed: 10
-Assembly time: 0.08302 seconds
+Assembly time: 0.09942 seconds
 Code origin: 006000
 Bytes of machine code: 2841
 
@@ -18,7 +18,7 @@ LISTING:
    1:000 | DONE cmt | em  8  8 |        |             | ; Liara Forth for the W65C265SXB
    2:000 | DONE cmt | em  8  8 |        |             | ; Scot W. Stevenson <scot.stevenson@gmail.com>
    3:000 | DONE cmt | em  8  8 |        |             | ; First version: 01. Apr 2016
-   4:000 | DONE cmt | em  8  8 |        |             | ; This version: 13. Feb 2017
+   4:000 | DONE cmt | em  8  8 |        |             | ; This version: 14. Feb 2017
    5:000 | DONE wsp | em  8  8 |        |             |
    6:000 | DONE cmt | em  8  8 |        |             | ; This code is written in Typist's Assembler Notation for the 65c02/65816
    7:000 | DONE cmt | em  8  8 |        |             | ; See docs/MANUAL.md for more information
