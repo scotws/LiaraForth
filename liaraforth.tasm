@@ -1089,6 +1089,7 @@ z_evaluate      rts
 execute_ip      .byte 00, 00, 00    
 
 xt_execute       
+        .!a16
         .!xy16
 		; Store the xt for later use and then drop it off the stack
 		sty execute_ip
@@ -1096,20 +1097,14 @@ xt_execute
                 inx
                 inx
 
-                ; Only JMP has the addressing mode we need, and all the 
-                ; Forth commands end with a RTS instruction. We fake the address
-                ; by saving it by hand to the stack
-        .!a16
-                lda.# execute_done
-                pha
+                ; Only JMP has the addressing mode we need. All our Forth
+                ; words end with a RTS instruction, so they will take us back to
+                ; the original caller of this routine without us having to muck
+                ; about with the Return Stack. 
                 jmp.i execute_ip        ; JMP (EXECUTE_IP)
   
-execute_done    ; keep the NOP here as the landing site for the indirect 
-                ; subroutine jump (easier and quicker than adjusting the
-                ; return address on the stack)
-                nop
-
-z_execute       rts
+z_execute       nop             ; Never reached, see if we need the NOP
+                
 
 ; -------------------------------------------------------------------
 ; FALSE ( -- f ) 7 bytes / 12 cycles
