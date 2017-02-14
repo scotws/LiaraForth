@@ -51,6 +51,8 @@ Last update: *14. February 2017*
 | FIND-NAME      | coded    | Gforth        | PW, NC | (TBA) |    n/a |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
 | INVERT         | coded    | ANSI core     | PW, NC | 5     |  (TBA) |
+| MAX            | coded    | ANSI core     | PW, NC | 18    |  (TBA) |
+| MIN            | coded    | ANSI core     | PW, NC | 18    |  (TBA) |
 | NAME>INT       | coded    | Gforth        | PW, NC | 4     |      8 |
 | NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
 | NEGATE         | coded    | ANSI core     | PW, NC | 6     |  (TBA) |

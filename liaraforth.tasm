@@ -1319,6 +1319,69 @@ xt_here
 
 z_here          rts
 
+
+; -------------------------------------------------------------------
+; MAX ( n m -- n ) 18 bytes / X cycles
+; Compare TOS and NOS and keep which one is larger. Adapted from Lance A.
+; Leventhal "6502 Assembly Language Subroutines". Negative Flag indicates which
+; number is larger. See also http://6502.org/tutorials/compare_instructions.html
+; and http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html 
+xt_max           
+                tya
+                cmp.dx 00
+                
+                ; If they are the same, life is good. This step also sets the
+                ; Carry flag
+                beq max_nip     ; Faster than DROP because TOS is in Y
+
+                sbc.dx 00
+                bvc max_no_ov   ; no overflow, skip ahead
+
+                ; Deal with oveflow because we use signed numbers
+                eor.# 8000      ; compliment negative flag
+
+max_no_ov
+                bpl max_nip     ; keep TOS
+max_drop
+                ldy.dx 00       ; DROP so NOS is result 
+max_nip
+                inx
+                inx
+                
+z_max           rts
+
+
+; -------------------------------------------------------------------
+; MIN ( n m -- n ) 18 bytes / X cycles
+; Compare TOS and NOS and keep which one is smaller Adapted from Lance A.
+; Leventhal "6502 Assembly Language Subroutines". Negative Flag indicates which
+; number is larger. See also http://6502.org/tutorials/compare_instructions.html
+; and http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html 
+xt_min           
+                tya
+                cmp.dx 00
+                
+                ; If they are the same, life is good. This step also sets the
+                ; Carry flag
+                beq min_nip     ; Faster than DROP because TOS is in Y
+
+                sbc.dx 00
+                bvc min_no_ov   ; no overflow, skip ahead
+
+                ; Deal with oveflow because we use signed numbers
+                eor.# 8000      ; compliment negative flag
+
+min_no_ov
+                bmi min_nip     ; keep TOS
+min_drop
+                ldy.dx 00       ; DROP so NOS is result 
+min_nip
+                inx
+                inx
+                
+z_min           rts
+
+
 ; -------------------------------------------------------------------
 ; NAME>INT ( nt -- xt ) 4 bytes / 8 cycles
 ; Given the Name Token (nt) of a word, return its Execute Token (xt)

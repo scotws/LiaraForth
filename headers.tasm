@@ -192,8 +192,16 @@ nt_tick  .byte 1, { PW + NC }
         .word nt_variable, xt_tick, z_tick
         .byte 27	; hex for "'"
 
+nt_min  .byte 3, { PW + NC }
+        .word nt_tick, xt_min, z_min
+        .byte "min"
+
+nt_max  .byte 3, { PW + NC }
+        .word nt_min, xt_max, z_max
+        .byte "max"
+
 nt_negate .byte 6, { PW + NC }
-        .word nt_tick, xt_negate, z_negate
+        .word nt_max, xt_negate, z_negate
         .byte "negate"
 
 nt_invert .byte 6, { PW + NC }
