@@ -192,8 +192,28 @@ nt_tick  .byte 1, { PW + NC }
         .word nt_variable, xt_tick, z_tick
         .byte 27	; hex for "'"
 
+nt_negate .byte 6, { PW + NC }
+        .word nt_tick, xt_negate, z_negate
+        .byte "negate"
+
+nt_invert .byte 6, { PW + NC }
+        .word nt_negate, xt_invert, z_invert
+        .byte "invert"
+
+nt_xor  .byte 3, { PW + NC }
+        .word nt_invert, xt_xor, z_xor
+        .byte "xor"
+
+nt_or   .byte 2, { PW + NC }
+        .word nt_xor, xt_or, z_or
+        .byte "or"
+
+nt_and  .byte 3, { PW + NC }
+        .word nt_or, xt_and, z_and
+        .byte "and"
+
 nt_two-star .byte 2, { PW + NC }
-        .word nt_tick, xt_two-star, z_two-star
+        .word nt_and, xt_two-star, z_two-star
         .byte "2*"
 
 nt_minus .byte 1, { PW + NC }

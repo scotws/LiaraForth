@@ -31,6 +31,7 @@ Last update: *14. February 2017*
 | ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
 | ALLOT          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| AND            | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 | BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
 | BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
@@ -49,9 +50,12 @@ Last update: *14. February 2017*
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | FIND-NAME      | coded    | Gforth        | PW, NC | (TBA) |    n/a |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
+| INVERT         | coded    | ANSI core     | PW, NC | 5     |  (TBA) |
 | NAME>INT       | coded    | Gforth        | PW, NC | 4     |      8 |
 | NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
+| NEGATE         | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 | NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
+| OR             | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 | OVER           | coded    | ANSI core     | PW, NC | 6     |     14 |
 | PAD            | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
 | PAGE           | coded    | ANSI facility | PW, NC | (TBA) |  (TBA) |
@@ -72,6 +76,7 @@ Last update: *14. February 2017*
 | UNUSED         | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
 | VARIABLE       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | WORDS          | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
+| XOR            | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
 
 
 ### Entries

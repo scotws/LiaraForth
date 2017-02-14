@@ -26,7 +26,7 @@ z_{2:<14}rts
 """
 
 dict_template = """
-nt_{0:<5} .byte {2}, {{ PW + NC }}
+nt_{0:<4} .byte {2}, {{ PW + NC }}
         .word nt_{1}, xt_{0}, z_{0}
         .byte "{0}"
 """
