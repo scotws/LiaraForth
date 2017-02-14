@@ -176,8 +176,12 @@ nt_depth .byte 5, { PW + NC }
         .word nt_source, xt_depth, z_depth
         .byte "depth"
 
+nt_constant .byte 8, { PW + NC }
+        .word nt_depth, xt_constant, z_constant
+        .byte "constant"
+
 nt_variable .byte 8, { PW + NC }
-        .word nt_depth, xt_variable, z_variable
+        .word nt_constant, xt_variable, z_variable
         .byte "variable"
 
 nt_tick  .byte 1, { PW + NC }

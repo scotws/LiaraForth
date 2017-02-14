@@ -632,6 +632,40 @@ z_bye           rts     ; dummy for compiling, never reached
 
 
 ; -------------------------------------------------------------------
+; CONSTANT ( "name" n -- ) X bytes / X cycles
+; Associate a fixed value with a word. This could be realized as 
+; CREATE , DOES> @  as well. We do more in assembler but let CREATE do the heavy
+; lifting. 
+; See http://www.bradrodriguez.com/papers/moving3.htm for a primer on how
+; this works in various Forths. 
+xt_constant      
+                jsr xt_create
+
+                ; CREATE by default installs a subroutine jump to DOVAR, but we
+                ; actually want DOCONST this time. Go back two bytes and repace
+                ; the subroutine jump target
+                lda.d cp
+                dec.a
+                dec.a
+                sta.d tmp1
+
+                lda.# doconst
+                sta.di tmp1     ; STA (TMP1)
+
+                ; Save TOS in next cell. This is a direct version of COMMA
+                tya             ; there is no "sty.di cp"
+                sta.di cp
+                inc.d cp
+                inc.d cp
+
+                ldy.dx 00       ; DROP
+                inx
+                inx
+
+z_constant      rts
+
+
+; -------------------------------------------------------------------
 ; COUNT ( c-addr -- addr u ) 14 bytes / X cycles
 ; Convert old-style character string to address-length pair. Note that the
 ; length of the string c-addr ist stored in character length (8 bit), not cell

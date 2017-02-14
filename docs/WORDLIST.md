@@ -35,6 +35,7 @@ Last update: *14. February 2017*
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
 | CELLS          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | COLD           | coded    | 265SXB        | -      | (TBA) |  (TBA) |
+| CONSTANT       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | COUNT          | coded    | ANSI core     | PW, NC | 14    |  (TBA) |
 | CR             | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | CREATE         | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
