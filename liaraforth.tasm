@@ -390,13 +390,15 @@ xt_tick
 		jsr xt_parse-name	; ( -- addr u ) 
 
 		; if we got a zero, complain and abort
+                tya                     ; force flag check
                 bne tick_have_word
 
                 lda.# es_noname
                 jmp error
 
 tick_have_word
-                jsr xt_find-name         ; ( addr u -- nt)
+                jsr xt_find-name        ; ( addr u -- nt)
+                tya                     ; force flag check
 
                 ; if we didn't find string in the dictionary, complain and abort
                 bne tick_have_nt
