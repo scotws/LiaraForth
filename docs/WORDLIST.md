@@ -4,7 +4,7 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information - because only things that get measured get 
 optimized. 
 
-Last update: *13. February 2017*
+Last update: *14. February 2017*
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 
@@ -68,6 +68,7 @@ Last update: *13. February 2017*
 | TUCK           | coded    | ANSI core ext | PW, NC | 8     |     19 |
 | TYPE           | coded    | ANSI core     | -      | 23+   |  (TBA) |
 | UNUSED         | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
+| VARIABLE       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | WORDS          | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 
 

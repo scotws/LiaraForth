@@ -176,8 +176,12 @@ nt_depth .byte 5, { PW + NC }
         .word nt_source, xt_depth, z_depth
         .byte "depth"
 
+nt_variable .byte 8, { PW + NC }
+        .word nt_depth, xt_variable, z_variable
+        .byte "variable"
+
 nt_tick  .byte 1, { PW + NC }
-        .word nt_depth, xt_tick, z_tick
+        .word nt_variable, xt_tick, z_tick
         .byte 27	; hex for "'"
 
 nt_two-star .byte 2, { PW + NC }

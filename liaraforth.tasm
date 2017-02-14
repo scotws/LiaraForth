@@ -1769,6 +1769,26 @@ z_unused        rts
 
 
 ; -------------------------------------------------------------------
+; VARIABLE ( "name" -- ) X bytes / X cycles
+; Define a word that returns the address for a variable. There are various Forth
+; definitions for this word, such as  CREATE 1 CELLS ALLOT  or CREATE 0 ,
+; We use a variant of the second one so the variable is initialized to zero
+xt_variable      
+                ; We let CREATE do most of the heavy lifting
+                jsr xt_create
+
+                ; There is no "stz.di cp" so we have to do this the
+                ; old way, which is still faster than a subroutine jump to ZERO
+                lda.# 0000
+                sta.di cp       ; STA (CP)
+
+                inc.d cp        ; direct COMMA
+                inc.d cp
+
+z_variable      rts
+
+
+; -------------------------------------------------------------------
 ; WORDS ( -- ) X bytes / X cycles
 ; Print list of all Forth words available. This only really makes sense in an
 ; interactive setting, so we don't have to worry about speed.
@@ -2023,6 +2043,7 @@ string_to_lowercase
                 ; TODO CODE THIS
                 rts
 
+
 ; ===================================================================
 ; HIGH-LEVEL WORDS 
 
@@ -2031,7 +2052,7 @@ string_to_lowercase
 ; or CR/LF is required
 hi-start
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 13. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 14. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
