@@ -13,6 +13,7 @@ Last update: *14. February 2017*
 | .S             | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | , (COMMA)      | coded    | ANSI core     | PW, NC | 11    |     29 |
 | ! (STORE)      | coded    | ANSI core     | PW, NC | 9     |  (TBA) |
+| ? (QUESTION)   | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | @ FETCH        | coded    | ANSI core     | PW, NC | 4     |  (TBA) |
 | + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | - (MINUS)      | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |

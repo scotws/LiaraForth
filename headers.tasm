@@ -92,8 +92,12 @@ nt_quit .byte 4, 00
         .word nt_parse, xt_quit, z_quit
         .byte "quit"
 
+nt_question .byte 1, { PW + NC }
+        .word nt_quit, xt_question, z_question
+        .byte '?'
+
 nt_name-int .byte 8, { PW + NC }
-        .word nt_quit, xt_name-int, z_name-int
+        .word nt_question, xt_name-int, z_name-int
         .byte "name>int"
 
 nt_cr   .byte 2, { PW + NC }

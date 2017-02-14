@@ -224,6 +224,17 @@ z_comma         rts
 
 
 ; -------------------------------------------------------------------
+; ? "QUESTION" ( addr -- ) X bytes / X cycles
+; Print content of a variable. This is used interactively and so can be pretty
+; slow, so we just go for the subroutine jumps to keep it short
+xt_question      
+                jsr xt_fetch
+                jsr xt_dot
+
+z_question      rts
+
+
+; -------------------------------------------------------------------
 ; ! "STORE" ( n addr -- ) 9 bytes / X cycles
 ; Save value at designated memory location
 xt_store         
