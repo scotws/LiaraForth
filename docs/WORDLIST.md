@@ -15,6 +15,7 @@ Last update: *14. February 2017*
 | ! (STORE)      | coded    | ANSI core     | PW, NC | 9     |  (TBA) |
 | ? (QUESTION)   | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
 | @ FETCH        | coded    | ANSI core     | PW, NC | 4     |  (TBA) |
+| ' (TICK)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | - (MINUS)      | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | >IN (TO-IN)    | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
@@ -25,7 +26,6 @@ Last update: *14. February 2017*
 | 2 (TWO)        | coded    | 265SXB        | PW, NC | 7     |     12 |
 | 2* (TWO-STAR)  | coded    | ANSI core     | PW, NC | 3     |  (TBA) |
 | 2DROP          | coded    | ANSI core     | PW, NC | 6     |     13 |
-| ' (TICK)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
 | ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
 | ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
