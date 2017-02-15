@@ -784,6 +784,20 @@ z_bye           rts     ; dummy for compiling, never reached
 
 
 ; -------------------------------------------------------------------
+; COMPILE-ONLY ( -- ) 8 bytes / X cycles
+; Mark the most recently defined word as COMPILE-ONLY. The alternative (and
+; traditional) way to do this is to include a word ?COMPILE that makes sure
+; we're in compile mode
+xt_compile-only  
+                lda.# CO
+                xba             ; flags are MSB
+                ora.di dp       ; ORA (DP)
+                sta.di dp
+
+z_compile-only  rts
+
+
+; -------------------------------------------------------------------
 ; COMPILE, ( xt -- ) X bytes / X cycles
 ; Compile a given xt in the current word definition. It is an error if we are
 ; not in the compile state. Because we are using subroutine threading, we can't
@@ -1470,6 +1484,21 @@ find-name_done
                 inx
 
 z_find-name     rts
+
+
+; -------------------------------------------------------------------
+; IMMEDIATE ( -- ) X bytes / X cycles
+; Mark the most recently defined word as IMMEDIATE. Will only affect the last
+; word in the Dictionary. If the words is still in ROM for some reason, this
+; will have no effect and will fail without an error message
+xt_immediate     
+        .!a16
+                lda.# IM        ; Immediate flag
+                xba             ; flags are MSB
+                ora.di dp       ; ORA (DP)
+                sta.di dp
+                
+z_immediate     rts
 
 
 ; -------------------------------------------------------------------
@@ -2321,7 +2350,7 @@ compex_got_name_token
                 ; though, see if this isn't a compile-only word, which would be
                 ; illegal.
                 lda.di tmp1
-                xba
+                xba                     ; flags are MSB
                 and.# CO                ; mask everything but Compile Only bit
                 beq compex_interpret
 
@@ -2346,7 +2375,7 @@ compex_compile
                 ; during compilation mode. Fortunately, we saved the nt so life
                 ; is easier
                 lda.di tmp1
-                xba
+                xba                     ; flags are MSB
                 and.# IM                ; Mask all but IM bit
                 bne compex_interpret    ; IMMEDIATE word, execute right now
 

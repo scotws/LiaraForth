@@ -43,6 +43,7 @@ Last update: *15. February 2017*
 | CELLS             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | COLD              | coded    | 265SXB        | -        | (TBA) |  (TBA) |
 | COMPILE,          | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
+| COMPILE-ONLY      | coded    | Gforth        | PW NC    | 8     |  (TBA) |
 | CONSTANT          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | COUNT             | coded    | ANSI core     | PW NC    | 14    |  (TBA) |
 | CR                | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
@@ -58,6 +59,7 @@ Last update: *15. February 2017*
 | FIND-NAME         | coded    | Gforth        | PW NC    | (TBA) |    n/a |
 | HERE              | coded    | ANSI core     | PW NC    | 6     |     13 |
 | HEX               | coded    | ANSI core     | PW NC    | 7     |  (TBA) |
+| IMMEDIATE         | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
 | INVERT            | coded    | ANSI core     | PW NC    | 5     |  (TBA) |
 | MAX               | coded    | ANSI core     | PW NC    | 18    |  (TBA) |
 | MIN               | coded    | ANSI core     | PW NC    | 18    |  (TBA) |

@@ -156,8 +156,16 @@ nt_cells .byte 5, { PW + NC }	; 2* because we have 16 bit stack
         .word nt_evaluate, xt_two-star, z_two-star
         .byte "cells"
 
+nt_compile-only .byte 0c, { PW + NC }
+        .word nt_cells, xt_compile-only, z_compile-only
+        .byte "compile-only"
+
+nt_immediate .byte 9, { PW + NC }
+        .word nt_compile-only, xt_immediate, z_immediate
+        .byte "immediate"
+
 nt_rightbracket .byte 1, { PW + NC }
-        .word nt_cells, xt_rightbracket, z_rightbracket
+        .word nt_immediate, xt_rightbracket, z_rightbracket
         .byte ']'
 
 nt_leftbracket .byte 1, { IM + CO }
@@ -172,7 +180,7 @@ nt_semicolon .byte 1, { CO + IM }
         .word nt_compilecomma, xt_semicolon, z_semicolon
         .byte 3b	; ASCII for semicolon 
 
-nt_colon .byte 1, { NC + IM }
+nt_colon .byte 1, { NC }
         .word nt_semicolon, xt_colon, z_colon
         .byte ':'
 
