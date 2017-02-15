@@ -25,6 +25,7 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
+- Coded AND, OR, XOR, NEGATE, INVERT, MAX and MIN (14. Feb 2017)
 - Coded CREATE, CONSTANT, and VARIABLE to force check of Dictionary design. This implies 
   DOVAR, DOCONST. Also coded ? while we're at it (14. Feb 2017)
 - Renamed a_word -> xt_word, h_word -> nt_word; leave z_word; changed tools accordingly

@@ -38,14 +38,19 @@ xt_cold
 
                 jmp reset_hardware      ; don't use JSR, jump back to start
 start           
-        .native
-        .a16
-        .xy16
+        .!native        ; these should be handled by hardware reset
+        .!a16
+        .!xy16
                 sei
 
                 ; TODO switch to Single Task mode
                 ; TODO set up Direct Page stuff
                 ; TODO initiate User variables
+
+
+		; We start out in decimal mode
+                jsr xt_decimal
+
                 
                 ; The name token (nt) of DROP is always the first one in the
                 ; virgin Dictionary, so we start off the Dictionary Pointer (DP)
@@ -614,6 +619,18 @@ xt_and
 z_and           rts
 
 ; -------------------------------------------------------------------
+; BASE ( -- addr ) X bytes / X cycles
+; Get the address of where the radix for number conversion is stored
+xt_base          
+                dex
+                dex
+                sty.dx 00 
+
+                ldy.# base
+
+z_base          rts
+
+; -------------------------------------------------------------------
 ; BELL ( -- ) X bytes / X cycles
 ; Trigger terminal bell on vt100 terminals
 ; TODO replace with EMIT
@@ -860,6 +877,17 @@ create_got_name
                 inx
                 
 z_create        rts
+
+
+; -------------------------------------------------------------------
+; DECIMAL ( -- ) 7 bytes / X cycles
+; Change radix for number conversion to 10
+xt_decimal       
+	.!a16
+		lda.# 000a
+                sta.d base
+
+z_decimal       rts
 
 
 ; -------------------------------------------------------------------
@@ -1309,7 +1337,6 @@ z_invert        rts
 ; HERE ( -- u ) 6 bytes / 13 cycles
 ; Push Compiler Pointer address on the Data Stack
 xt_here          
-        .!a16           ; paranoid
         .!xy16
                 dex
                 dex
@@ -1318,6 +1345,17 @@ xt_here
                 ldy.d cp
 
 z_here          rts
+
+
+; -------------------------------------------------------------------
+; HEX ( -- ) X bytes / X cycles
+; Change radix for number conversion to 16
+xt_hex           
+	.!a16
+                lda.# 0010
+		sta.d base
+
+z_hex           rts
 
 
 ; -------------------------------------------------------------------

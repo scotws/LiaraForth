@@ -38,7 +38,7 @@
 ; Initial values
 
         .equ stack0 7fff  ; single task Stack (S) start (bottom)
-        .equ dsp0   02f0  ; initial Data Stack Pointer (X)
+        .equ dsp0   02f8  ; initial Data Stack Pointer (X)
 
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
@@ -57,9 +57,10 @@
         .equ piblen  { directpage + &16 } ; Length of previous input buffer
         .equ toin    { directpage + &18 } ; Pointer to CIB (>IN in Forth)
         .equ state   { directpage + &20 } ; STATE: 1 compile, 0 interpret
-        .equ tmp1    { directpage + &22 } ; Temporary storage, usually address
-        .equ tmp2    { directpage + &24 } ; Temporary storage, usually counter
+        .equ tmp1    { directpage + &22 } ; Temporary storage
+        .equ tmp2    { directpage + &24 } ; Temporary storage
         .equ tmp3    { directpage + &26 } ; Temporary storage
+        .equ base    { directpage + &28 } ; Radix for number conversion
 
 
 ; ===================================================================

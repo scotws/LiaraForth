@@ -1,7 +1,7 @@
 ; Basic hardware routines for Liara Forth: 265SXB version
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 04. Jan 2017
-; This version: 29. Jan 2017
+; This version: 15. Feb 2017
 
 ; This section provides basic hardware interface to the 265SXB, providing the
 ; PUT_CHR and GET_CHR routines that Liara Forth uses. It is in its own section
@@ -103,6 +103,7 @@ reset_hardware
                 sei
         .native
         .xy16
+        .!a8
                 ; temporarily reset the stack
                 ldx.# 01ff
                 txs 
@@ -124,6 +125,11 @@ reset_hardware
 
                 lda.# %00100101         ; Set UART0 for 8-N-1
                 sta hw_acsr0            ; UART 0 Control/Status Register (ACSR0)
+
+                ; set up direct page
+        .a16
+                lda.# directpage
+                tcd
 
                 jmp start               ; we return with A as 8 bits
 

@@ -32,6 +32,7 @@ Last update: *14. February 2017*
 | ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
 | ALLOT          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | AND            | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
+| BASE           | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
 | BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
 | BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
@@ -41,6 +42,7 @@ Last update: *14. February 2017*
 | COUNT          | coded    | ANSI core     | PW, NC | 14    |  (TBA) |
 | CR             | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | CREATE         | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
+| DECIMAL        | coded    | ANSI core     | PW, NC | 7     |  (TBA) |
 | DEPTH          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
 | DUMP           | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
@@ -50,6 +52,7 @@ Last update: *14. February 2017*
 | FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | FIND-NAME      | coded    | Gforth        | PW, NC | (TBA) |    n/a |
 | HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
+| HEX            | coded    | ANSI core     | PW, NC | 7     |  (TBA) |
 | INVERT         | coded    | ANSI core     | PW, NC | 5     |  (TBA) |
 | MAX            | coded    | ANSI core     | PW, NC | 18    |  (TBA) |
 | MIN            | coded    | ANSI core     | PW, NC | 18    |  (TBA) |
@@ -74,7 +77,7 @@ Last update: *14. February 2017*
 | SWAP           | coded    | ANSI core     | PW, NC | 5     |     12 |
 | TRUE           | coded    | ANSI core ext | PW, NC | 7     |     12 |
 | TUCK           | coded    | ANSI core ext | PW, NC | 8     |     19 |
-| TYPE           | coded    | ANSI core     | -      | 23+   |  (TBA) |
+| TYPE           | fragment | ANSI core     | -      | 23+   |  (TBA) |
 | UNUSED         | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
 | VARIABLE       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
 | WORDS          | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
