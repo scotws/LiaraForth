@@ -4,7 +4,7 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information - because only things that get measured get 
 optimized. 
 
-Last update: *14. February 2017*
+Last update: *15. February 2017*
 
 | Word           | Status   | Group         | Flags  | Size  | Cycles |
 | :------------- | -------- | ------------- | ------ | ----: | -----: | 

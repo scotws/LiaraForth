@@ -1,16 +1,15 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 14. Feb 2017
+This version: 15. Feb 2017
 
 
 TODO NEXT (next on top)
 
-- Code BASE, DECIMAL, HEX, BINARY to prepare for number conversion
+- Code COLON and SEMICOLON, followed by POSTPONE, IMMEDIATE and COMPILE-ONLY
 - Code math routines required to input and output numbers of any base
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
-- Code COLON and SEMICOLON, followed by POSTPONE and COMPILE-ONLY
 - Decide which words should be high-level
 - CLI words: Make sure BS doesn't end up on previous line
 
@@ -25,6 +24,7 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
+- Coded BASE, DECIMAL, HEX, BINARY to prepare for number conversion (15. Feb 2017)
 - Coded AND, OR, XOR, NEGATE, INVERT, MAX and MIN (14. Feb 2017)
 - Coded CREATE, CONSTANT, and VARIABLE to force check of Dictionary design. This implies 
   DOVAR, DOCONST. Also coded ? while we're at it (14. Feb 2017)
