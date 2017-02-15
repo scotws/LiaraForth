@@ -174,12 +174,19 @@ quit_refill_successful
                 jmp error
 
 quit_ok
-                ; Display system prompt if all went well
+                ; Display system prompt if all went well. If we're interpreting,
+                ; this is " ok", if we're compiling, it's " compiled"
+                lda.d state
+                bne quit_compiled
+
                 lda.# s_ok
+                bra quit_print
+quit_compiled
+                lda.# s_compiled        ; fall through to quit_print
+quit_print
                 jsr print_string
 
-
-                ; get next line
+                ; Awesome line, guys. Now get the next one
                 jmp quit_get_line
 
 z_cold
@@ -244,7 +251,23 @@ xt_colon
                 ; Dictionary
                 inc.d state
 
+                ; CREATE is going to change DP to point to the new word's
+                ; header. While this is fine for (say) variables, it would mean
+                ; that FIND-NAME etc would find a half-finished word when
+                ; looking in the Dictionary. To prevent this, we save the old
+                ; version of DP and restore it later. The new DP is placed in
+                ; the variable WORKWORD until we're finished with a SEMICOLON.
+                lda.d dp
+                pha             ; CREATE uses tmp1, tmp2 and tmp3
+
                 jsr xt_create
+
+                ; Get the nt of the new word as described above. Only COLON,
+                ; SEMICOLON and RECURSE access WORKWORD
+                lda.d dp
+                sta.d workword
+                pla
+                sta.d dp 
 
                 ; CREATE includes a subroutine jump to DOVAR by default. We back
                 ; up three bytes and overwrite that. Note that 3 x DEC.D would
@@ -255,43 +278,43 @@ xt_colon
                 sbc.# 0003
                 sta.d cp
 
-                ; save the link to the beginning of the new word's Dictionary
-                ; entry (nt) in a special variable to make life easier when it
-                ; is time to add it to the dictionary. COLON and SEMICOLON are
-                ; the only words allowed access, which is read by RECURSE
-                ; TODO why do we need this anymore?
-                lda.d dp
-                sta.d workword
-
 z_colon         rts
 
 
 ; -------------------------------------------------------------------
 ; ; "SEMICOLON" ( -- ) X bytes / X cycles
-; End the compilation of a new word into the Dictionary. When we enter this, DP
-; is pointing to the nt_ of this word in the Dictionary, CP to the next free
-; byte and WORKWORD to the nt of the new word we've been compiling.
-; TODO see if we need WORKWORD at all
+; End the compilation of a new word into the Dictionary. When we enter this, 
+; WORKWORD is pointing to the nt_ of this word in the Dictionary, DP to the
+; previous word, and CP to the next free
+; byte.
 xt_semicolon     
         .!a16
                 sty.d tmptos
 
-                ; CP is the byte that will be address we use in the header for
+                ; CP is the byte that will be the address we use in the header for
                 ; the end-of-compile address (z_word). This is six bytes down in
                 ; the header
                 ldy.# 0006
                 lda.d cp
                 sta.diy workword        ; STA (WORKWORD),Y
 
-                ; Add the RTS instruction to the end of the current word
-        .a8
+                ; Add the RTS instruction to the end of the current word. We
+                ; don't have to switch the size of the A register because we
+                ; only move up the CP by one and the MSB will be overwritten. 
+                ; Little endian MPUs for the win!
                 lda.# 60                ; opcode for RTS
                 sta.di cp               ; STA (CP)
-                inc.d cp
-        .a16
+                inc.d cp                ; MSB will be overwritten
                 
-                ; Word definition is complete. Now set compile flag back to zero
-                ; so we're back in interpert mode
+                ; Word definition is complete. Make the new word the last one in
+                ; the Dictionary
+                lda.d workword
+                sta.d dp
+
+                ; Get our TOS back
+                ldy.d tmptos
+                
+                ; Set compile flag back to zero so we're back in interpret mode
                 stz.d state
                 
 z_semicolon     rts
@@ -342,7 +365,8 @@ z_leftbracket   rts
 ; -------------------------------------------------------------------
 ; ] "RIGHTBRACKET" ( -- ) X bytes / X cycles
 ; Enter the compile state. In theory, we should be able to get away with
-; a simple INC.A, but this is more error tolerant
+; a simple INC.A, but this is more error tolerant. For obvious reasons, this
+; cannot be COMPILE-ONLY, and native compile doesn't make much sense either
 xt_rightbracket  
 		lda.# 0001
 		sta.d state
@@ -763,26 +787,31 @@ z_bye           rts     ; dummy for compiling, never reached
 ; COMPILE, ( xt -- ) X bytes / X cycles
 ; Compile a given xt in the current word definition. It is an error if we are
 ; not in the compile state. Because we are using subroutine threading, we can't
-; use , (COMMA) to compile new words the traditional way. Note we only code
-; native fragments of up to a certain size. If the size is larger, we silently switch
-; back to subroutine compiling 
+; use , (COMMA) to compile new words the traditional way. We use the NC (Native
+; Compile) flag to decide if native compilation is allowed. If yes, we use the
+; value NC_LIMIT (in definitions.tasm) to decide if the code is too large to be
+; natively coded: If the size is smaller than NC_LIMIT, we silently use
+; subroutine coding. 
 xt_compilecomma  
 
 compile_as_code
                 ; Compile xt as native code
+                ; use nc_limit to decide if we want native compile
                 ; TODO currently just compiles subroutine jumps
 
 compile_as_jump
-                ; Compile xt as a subroutine jump
-        .a8
+                ; Compile xt as a subroutine jump. We don't have to switch A to
+                ; 8-bit register size because we only advance CP by one byte, so
+                ; the MSB of A is overwritten. Little endian machines for the
+                ; win!
                 lda.# 20        ; opcode for JSR
-                sta.di cp
+                sta.di cp       ; STA (CP)
                 inc.d cp
-        .a16
+
                 ; There is no "sty.di" instruction, so we have to do this the
                 ; hard way
                 tya
-                sta.di cp       ; STA (CP)
+                sta.di cp
                 inc.d cp
                 inc.d cp
 
@@ -1301,7 +1330,7 @@ xt_execute
         .!a16
         .!xy16
 		; Store the xt for later use and then drop it off the stack
-		sty execute_ip
+                sty execute_ip
                 ldy.dx 00
                 inx
                 inx
@@ -1907,7 +1936,8 @@ z_rot           rts
 ; Return the address and size of current input buffer. Replaces TIB and #TIB in
 ; ANSI Forth
 
-xt_source        dex             ; make room on Data Stack
+xt_source       
+                dex             ; make room on Data Stack
                 dex
                 dex
                 dex
@@ -1925,7 +1955,6 @@ z_source        rts
 ; Identify the input source unless it is a block (s. Conklin & Rather p. 156).
 ; Since we don't have blocks (yet), this will give the input source: 0 is
 ; keyboard, -1 (0ffff) is character string, and a text file gives the fileid.
-
 xt_source-id     
         .!xy16
                 dex
@@ -2092,7 +2121,7 @@ z_unused        rts
 ; definitions for this word, such as  CREATE 1 CELLS ALLOT  or CREATE 0 ,
 ; We use a variant of the second one so the variable is initialized to zero
 xt_variable      
-                ; We let CREATE do most of the heavy lifting
+                ; We let CREATE do the heavy lifting
                 jsr xt_create
 
                 ; There is no "stz.di cp" so we have to do this the
@@ -2111,6 +2140,8 @@ z_variable      rts
 ; Print list of all Forth words available. This only really makes sense in an
 ; interactive setting, so we don't have to worry about speed.
 xt_words         
+        .!a16
+        .!xy16
                 jsr xt_cr        ; start on next line, this is a style choice
 
                 lda.d dp        ; nt of first entry in Dictionary (last added)
@@ -2121,18 +2152,15 @@ xt_words
                 sty.dx 00 
 
 words_loop
-                tay                     ; ( nt )
-
+                tay                      ; ( nt )
                 jsr xt_name-string       ; ( nt -- addr u ) 
                 jsr xt_type              ; ( addr u -- ) 
                 jsr xt_space
-        .!a16
-        .!xy16
-                pla
 
-                ; the next nt is two bytes below the nt of the current one in
+                pla                      ; get back first entry in Dictionary
+
+                ; The next nt is two bytes below the nt of the current one in
                 ; the Dictionary header
-                ;
                 inc.a
                 inc.a
 
@@ -2230,62 +2258,101 @@ doconst
 
 
 ; ------------------------------------------------------------------- 
-; COMPILE OR EXECUTE (INTERPRET)
+; COMPILE OR EXECUTE (AKA INTERPRET)
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
-; string is in ciblen. Consider moving this up to QUIT once we know what we are
-; doing
+; string is in ciblen
 compex
 compex_loop 
+        .!a16
+        .!xy16
                 ; Normally we would use PARSE here with the SPACE character as
                 ; a parameter (PARSE replaces WORD in modern Forths). However,
                 ; Gforth's PARSE-NAME makes more sense as it uses spaces as
                 ; delimiters per default and skips any leading spaces, which
-                ; PARSE does not do.
-                jsr xt_parse-name        ; ( 'string' -- addr u ) 
-        .!a16
-                ; if PARSE-NAME returns 0 (empty line), no characters were left
+                ; PARSE doesn't
+                jsr xt_parse-name       ; ( "string" -- addr u ) 
+
+                ; TODO decide if we want to make a copy of the string here so
+                ; that we can provide a better error message
+
+                ; If PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
-                tya             ; force flag check
+                tya                     ; force flag check
                 beq compex_line_done
                 
                 ; We let the user input words in any case, but use lower case
                 ; internally (sorry, Garth).
-                jsr string_to_lowercase         ; returns ( addr u )
+                jsr string_to_lowercase
 
-                ; If we got something that is not a zero, we go to FIND-NAME to
-                ; get the nt. Returns ( nt | 0 ) 
-                jsr xt_find-name
-        .!a16
+                ; Go to FIND-NAME to see if this is a word we know
+                jsr xt_find-name        ; ( addr u -- nt | 0 )
 
                 ; a zero signals that we didn't find a word in the Dictionary
-                tya             ; force flag check
+                tya
                 bne compex_got_name_token
 
                 ; TODO No name token, try NUMBER CONVERSION
                 
-                ; Woe is us, all has failed
+                ; Number conversion has failed, which means the user screwed up, 
+                ; so complain and abort 
+                ; TODO see if we can print the offending string first
                 lda.# es_syntax         ; "Unknown word"
                 jmp error
 
 compex_got_name_token
-                ; TODO see if INTERPRETED OR COMPILED
-                
-                ; INTERPRET WORD
-                ; We arrive here with the nt as TOS. The xt of a word is
-                ; four bytes farther on, so this is a quick version of NAME>INT
-
-        .!xy16
+                ; We have a known word's nt as TOS. We're going to need its xt
+                ; though, which is four byte father down. This is a quicker
+                ; version of NAME>INT. But first, save a version of nt for
+                ; error handling and compilation stuff.
+                sty.d tmp1
                 iny
                 iny
                 iny
                 iny                    
                 lda.y 0000              ; LDA $0000,Y
-                tay
-                
+                tay                     ; xt is TOS
+
+                ; See if we are in interpret or compile mode
+                lda.d state
+                bne compex_compile
+               
+                ; We are interpreting, so EXECUTE the xt that is TOS. First,
+                ; though, see if this isn't a compile-only word, which would be
+                ; illegal.
+                lda.di tmp1
+                xba
+                and.# CO                ; mask everything but Compile Only bit
+                beq compex_interpret
+
+                ; TODO see if we can print offending word first
+                lda.# es_componly
+                jmp error
+               
+compex_interpret
+                ; We JSR to EXECUTE instead of calling the xt directly because
+                ; the RTS of the word we're executing will bring us back here,
+                ; skipping EXECUTE completely during RTS. If we were to execute
+                ; xt directly, we have to fool around with the Return Stack
+                ; instead, which is actually slightly slower
                 jsr xt_execute
 
-                ; that's quite enough for this word, let's get the next one
+                ; That's quite enough for this word, let's get the next one
+                jmp compex_loop
+
+compex_compile
+                ; We're compiling. However, we need to see if this is an
+                ; IMMEDIATE word, which would mean we execute it right now even
+                ; during compilation mode. Fortunately, we saved the nt so life
+                ; is easier
+                lda.di tmp1
+                xba
+                and.# IM                ; Mask all but IM bit
+                bne compex_interpret    ; IMMEDIATE word, execute right now
+
+                ; Compile the xt into the Dictionary with COMPILE,
+                jsr xt_compilecomma
+
                 jmp compex_loop
 
 compex_line_done

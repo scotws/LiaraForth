@@ -84,7 +84,7 @@ nt_page .byte 4, { PW + NC }
         .word nt_unused, xt_page, z_page
         .byte "page"
 
-nt_count .byte 5, {NC + PW }
+nt_count .byte 5, { NC + PW }
         .word nt_page, xt_count, z_count
         .byte "count"
 
@@ -128,7 +128,7 @@ nt_dots .byte 2, { PW + NC }
         .word nt_space, xt_dots, z_dots
         .byte ".s"
 
-nt_dotparen .byte 2, { IM + NC}
+nt_dotparen .byte 2, { IM + NC }
         .word nt_dots, xt_dotparen, z_dotparen
         .byte ".("
 

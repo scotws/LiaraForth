@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  12. Feb 2017
+; This version:  15. Feb 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -12,7 +12,8 @@
 ; TODO see if "ok" needs trailing space. The printstring routine adds the EOL
 ; character
 
-s_ok         .byte " ok", 0     ; note space at beginning
+s_ok         .byte " ok", 0             ; note space at beginning
+s_compiled   .byte " compiled", 0
 
 
 ; ===================================================================
