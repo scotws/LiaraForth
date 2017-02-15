@@ -6,82 +6,87 @@ optimized.
 
 Last update: *15. February 2017*
 
-| Word           | Status   | Group         | Flags  | Size  | Cycles |
-| :------------- | -------- | ------------- | ------ | ----: | -----: | 
-| . (DOT)        | fragment | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| .( (DOTPAREN)  | coded    | ANSI core ext | IM, NC | 13    |  (TBA) |
-| .S             | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
-| , (COMMA)      | coded    | ANSI core     | PW, NC | 11    |     29 |
-| ! (STORE)      | coded    | ANSI core     | PW, NC | 9     |  (TBA) |
-| ? (QUESTION)   | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
-| @ FETCH        | coded    | ANSI core     | PW, NC | 4     |  (TBA) |
-| ' (TICK)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| + (PLUS)       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| - (MINUS)      | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| >IN (TO-IN)    | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
-| 0 (ZERO)       | coded    | 265SXB        | PW, NC | 7     |     12 |
-| 1 (ONE)        | coded    | 265SXB        | PW, NC | 7     |     12 |
-| 1- (ONE-MINUS) | coded    | ANSI core     | PW, NC | 1     |      2 |
-| 1+ (ONE-PLUS)  | coded    | ANSI core     | PW, NC | 1     |      2 |
-| 2 (TWO)        | coded    | 265SXB        | PW, NC | 7     |     12 |
-| 2* (TWO-STAR)  | coded    | ANSI core     | PW, NC | 3     |  (TBA) |
-| 2DROP          | coded    | ANSI core     | PW, NC | 6     |     13 |
-| 2DUP           | coded    | ANSI core     | PW, NC | 10    |     23 |
-| ABORT          | coded    | ANSI core     | (TBA)  | 6+    |     6+ | 
-| ABS            | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
-| ACCEPT         | fragment | ANSI core     | -      | (TBA) |  (TBA) |
-| ALLOT          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| AND            | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
-| BASE           | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| BELL           | coded    | Gforth        | PW, NC | (TBA) |  (TBA) |
-| BL             | coded    | ANSI core     | PW, NC | 7     |     12 |
-| BYE            | coded    | ANSI tools    | PW, NC | 2     |    7-8 | 
-| CELLS          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| COLD           | coded    | 265SXB        | -      | (TBA) |  (TBA) |
-| CONSTANT       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| COUNT          | coded    | ANSI core     | PW, NC | 14    |  (TBA) |
-| CR             | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| CREATE         | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| DECIMAL        | coded    | ANSI core     | PW, NC | 7     |  (TBA) |
-| DEPTH          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| DROP           | coded    | ANSI core     | PW, NC | 4     |      9 |
-| DUMP           | fragment | ANSI tools    | PW, NC | (TBA) |  (TBA) |
-| DUP            | coded    | ANSI core     | PW, NC | 4     |      9 |
-| EVALUATE       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| EXECUTE        | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| FALSE          | coded    | ANSI core ext | PW, NC | 7     |     12 |
-| FIND-NAME      | coded    | Gforth        | PW, NC | (TBA) |    n/a |
-| HERE           | coded    | ANSI core     | PW, NC | 6     |     13 |
-| HEX            | coded    | ANSI core     | PW, NC | 7     |  (TBA) |
-| INVERT         | coded    | ANSI core     | PW, NC | 5     |  (TBA) |
-| MAX            | coded    | ANSI core     | PW, NC | 18    |  (TBA) |
-| MIN            | coded    | ANSI core     | PW, NC | 18    |  (TBA) |
-| NAME>INT       | coded    | Gforth        | PW, NC | 4     |      8 |
-| NAME>STRING    | coded    | Gforth        | PW, NC | 16    |  (TBA) |
-| NEGATE         | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
-| NIP            | coded    | ANSI core ext | PW, NC | 2     |      4 |
-| OR             | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
-| OVER           | coded    | ANSI core     | PW, NC | 6     |     14 |
-| PAD            | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
-| PAGE           | coded    | ANSI facility | PW, NC | (TBA) |  (TBA) |
-| PARSE          | coded    | ANSI core ext | -      | 45    |    n/a |
-| PARSE-NAME     | coded    | ANSI core ext | -      | 41+   |    n/a |
-| QUIT           | fragment | ANSI core     | -      | (TBA) |    n/a |
-| REFILL         | fragment | ANSI core ext | PW     | (TBA) |  (TBA) |
-| ROT            | coded    | ANSI core     | PW, NC | 8     |  (TBA) |
-| SOURCE         | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
-| SOURCE-ID      | coded    | ANSI core ext | PW, NC | 6     |     13 |
-| SPACE          | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| SPACES         | coded    | ANSI core     | PW, NC | 12    |  (TBA) |
-| STATE          | coded    | ANSI core     | PW, NC | 7     |     12 |
-| SWAP           | coded    | ANSI core     | PW, NC | 5     |     12 |
-| TRUE           | coded    | ANSI core ext | PW, NC | 7     |     12 |
-| TUCK           | coded    | ANSI core ext | PW, NC | 8     |     19 |
-| TYPE           | fragment | ANSI core     | -      | 23+   |  (TBA) |
-| UNUSED         | coded    | ANSI core ext | PW, NC | (TBA) |  (TBA) |
-| VARIABLE       | coded    | ANSI core     | PW, NC | (TBA) |  (TBA) |
-| WORDS          | coded    | ANSI tools    | PW, NC | (TBA) |  (TBA) |
-| XOR            | coded    | ANSI core     | PW, NC | 6     |  (TBA) |
+| Word              | Status   | Group         | Flags    | Size  | Cycles |
+| :---------------- | -------- | ------------- | -------- | ----: | -----: | 
+| . (DOT)           | fragment | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| .( (DOTPAREN)     | coded    | ANSI core ext | IM NC    | 13    |  (TBA) |
+| .S                | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
+| , (COMMA)         | coded    | ANSI core     | PW NC    | 11    |     29 |
+| : (COLON)         | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| ; (SEMICOLON)     | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |
+| ! (STORE)         | coded    | ANSI core     | PW NC    | 9     |  (TBA) |
+| ? (QUESTION)      | coded    | ANSI tools    | PW NC    | (TBA) |  (TBA) |
+| @ FETCH           | coded    | ANSI core     | PW NC    | 4     |  (TBA) |
+| \[ (LEFTBRACKET)  | coded    | ANSI core     | PW CO IM | (TBA) |  (TBA) |
+| \] (RIGHTBRACKET) | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| ' (TICK)          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| + (PLUS)          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| - (MINUS)         | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| >IN (TO-IN)       | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
+| 0 (ZERO)          | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 1 (ONE)           | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 1- (ONE-MINUS)    | coded    | ANSI core     | PW NC    | 1     |      2 |
+| 1+ (ONE-PLUS)     | coded    | ANSI core     | PW NC    | 1     |      2 |
+| 2 (TWO)           | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 2* (TWO-STAR)     | coded    | ANSI core     | PW NC    | 3     |  (TBA) |
+| 2DROP             | coded    | ANSI core     | PW NC    | 6     |     13 |
+| 2DUP              | coded    | ANSI core     | PW NC    | 10    |     23 |
+| ABORT             | coded    | ANSI core     | (TBA)    | 6+    |     6+ | 
+| ABS               | coded    | ANSI core     | PW NC    | 12    |  (TBA) |
+| ACCEPT            | fragment | ANSI core     | -        | (TBA) |  (TBA) |
+| ALLOT             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| AND               | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
+| BASE              | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| BELL              | coded    | Gforth        | PW NC    | (TBA) |  (TBA) |
+| BL                | coded    | ANSI core     | PW NC    | 7     |     12 |
+| BYE               | coded    | ANSI tools    | PW NC    | 2     |    7-8 | 
+| CELLS             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| COLD              | coded    | 265SXB        | -        | (TBA) |  (TBA) |
+| COMPILE,          | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
+| CONSTANT          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| COUNT             | coded    | ANSI core     | PW NC    | 14    |  (TBA) |
+| CR                | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| CREATE            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| DECIMAL           | coded    | ANSI core     | PW NC    | 7     |  (TBA) |
+| DEPTH             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| DROP              | coded    | ANSI core     | PW NC    | 4     |      9 |
+| DUMP              | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
+| DUP               | coded    | ANSI core     | PW NC    | 4     |      9 |
+| EVALUATE          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| EXECUTE           | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| FALSE             | coded    | ANSI core ext | PW NC    | 7     |     12 |
+| FIND-NAME         | coded    | Gforth        | PW NC    | (TBA) |    n/a |
+| HERE              | coded    | ANSI core     | PW NC    | 6     |     13 |
+| HEX               | coded    | ANSI core     | PW NC    | 7     |  (TBA) |
+| INVERT            | coded    | ANSI core     | PW NC    | 5     |  (TBA) |
+| MAX               | coded    | ANSI core     | PW NC    | 18    |  (TBA) |
+| MIN               | coded    | ANSI core     | PW NC    | 18    |  (TBA) |
+| NAME>INT          | coded    | Gforth        | PW NC    | 4     |      8 |
+| NAME>STRING       | coded    | Gforth        | PW NC    | 16    |  (TBA) |
+| NEGATE            | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
+| NIP               | coded    | ANSI core ext | PW NC    | 2     |      4 |
+| OR                | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
+| OVER              | coded    | ANSI core     | PW NC    | 6     |     14 |
+| PAD               | coded    | ANSI core ext | PW NC    | (TBA) |  (TBA) |
+| PAGE              | coded    | ANSI facility | PW NC    | (TBA) |  (TBA) |
+| PARSE             | coded    | ANSI core ext | -        | 45    |    n/a |
+| PARSE-NAME        | coded    | ANSI core ext | -        | 41+   |    n/a |
+| QUIT              | fragment | ANSI core     | -        | (TBA) |    n/a |
+| REFILL            | fragment | ANSI core ext | PW       | (TBA) |  (TBA) |
+| ROT               | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
+| SOURCE            | coded    | ANSI core     | PW NC    | 12    |  (TBA) |
+| SOURCE-ID         | coded    | ANSI core ext | PW NC    | 6     |     13 |
+| SPACE             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| SPACES            | coded    | ANSI core     | PW NC    | 12    |  (TBA) |
+| STATE             | coded    | ANSI core     | PW NC    | 7     |     12 |
+| SWAP              | coded    | ANSI core     | PW NC    | 5     |     12 |
+| TRUE              | coded    | ANSI core ext | PW NC    | 7     |     12 |
+| TUCK              | coded    | ANSI core ext | PW NC    | 8     |     19 |
+| TYPE              | fragment | ANSI core     | -        | 23+   |  (TBA) |
+| UNUSED            | coded    | ANSI core ext | PW NC    | (TBA) |  (TBA) |
+| VARIABLE          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| WORDS             | coded    | ANSI tools    | PW NC    | (TBA) |  (TBA) |
+| XOR               | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
 
 
 ### Entries

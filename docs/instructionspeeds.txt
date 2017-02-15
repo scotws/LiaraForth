@@ -1,7 +1,7 @@
 Size and Execution Speed of Commonly Used Instructions
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 05. Apr 2016
-This version: 10. Dec 2016
+This version: 15. Feb 2017
 
 This is a list of commonly used instructions and instruction combinations to make calculating the speed and size of Forth word implementations easier.
 
@@ -24,8 +24,9 @@ cmp.dx     2/5
 cpx.#      3/3 
 cpx.d      3/4 
 
-dec.dx     2/7 
-dex        1/2 (as dec.a and dey)
+dec.d      2/6  (very expensive!)
+dec.dx     2/7  (very expensive!)
+dex        1/2  (same as dec.a and dey)
 
 eor.#      3/3
 
@@ -52,7 +53,7 @@ plx        1/5
 
 rep        2/3 
 rts        1/6 
-rts.l      1/6
+rts.l      1/6  (same speed as plain rts)
 
 sep        2/3 
 sta.d      2/4  ( 8 bit: 2/3)
