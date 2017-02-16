@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 02. Jan 2017
+This version 16. Feb 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -17,6 +17,11 @@ From
 
 char & parse jack& type                 \ should print "jack"    
 ```
+
+### LITERAL test
+
+: aaa \[ 1 \] literal ;         \ should put 1 on the stack during runtime
+
 
 ### FIND-NAME test
 

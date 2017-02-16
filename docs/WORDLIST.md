@@ -65,6 +65,7 @@ Last update: *16. February 2017*
 | HEX               | coded    | ANSI core     | PW NC    | 7     |  (TBA) |
 | IMMEDIATE         | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
 | INVERT            | coded    | ANSI core     | PW NC    | 5     |  (TBA) |
+| LITERAL           | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | MAX               | coded    | ANSI core     | PW NC    | 18    |  (TBA) |
 | MIN               | coded    | ANSI core     | PW NC    | 18    |  (TBA) |
 | NAME>INT          | coded    | Gforth        | PW NC    | 4     |      8 |

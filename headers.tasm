@@ -156,8 +156,12 @@ nt_cells .byte 5, { PW + NC }	; 2* because we have 16 bit stack
         .word nt_evaluate, xt_two-star, z_two-star
         .byte "cells"
 
+nt_literal .byte 7, { IM + CO }
+        .word nt_cells, xt_literal, z_literal
+        .byte "literal"
+
 nt_compile-only .byte 0c, { PW + NC }
-        .word nt_cells, xt_compile-only, z_compile-only
+        .word nt_literal, xt_compile-only, z_compile-only
         .byte "compile-only"
 
 nt_immediate .byte 9, { PW + NC }

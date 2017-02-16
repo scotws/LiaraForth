@@ -6,8 +6,8 @@ This version: 16. Feb 2017
 
 TODO NEXT (next on top)
 
-- Code LITERAL (for [CHAR] which gives us an alternate version of .( ) POSTPONE,
-  :NONAME 
+- Code [CHAR] which gives us an alternate version of .( 
+- Code POSTPONE, :NONAME 
 - Write DOES> which gives us MARKER
 - Code math routines required to input and output numbers of any base
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
@@ -18,14 +18,16 @@ TODO NEXT (next on top)
 
 TODO LATER (next on top)
 
+- Code multitasking support with PAUSE etc
 - Code vt100 support
 - Create drawings of stack antics in INTERNALS.md 
-- Code multitasking support with PAUSE etc
 - Add real multi-line history
+- Consider morse code output because that would be cool
 
 
 FINISHED (newest on top, with date if possible)
  
+- Coded LITERAL and the cmpl_ routines (16. Feb 2016)
 - Coded C!, C, and C@ (16. Feb 2016)
 - Coded COLON and SEMICOLON, followed by POSTPONE, IMMEDIATE, COMPILE-ONLY, [, ] (15. Feb 2017)
 - Coded BASE, DECIMAL, HEX, BINARY to prepare for number conversion (15. Feb 2017)

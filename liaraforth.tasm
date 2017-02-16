@@ -1613,6 +1613,56 @@ z_hex           rts
 
 
 ; -------------------------------------------------------------------
+; LITERAL ( n -- ) X bytes / X cycles
+; Compile-only word to store TOS so that it is pushed on stack during runtime.
+; This is a immediate, compile-only word. Test it with  : AAA [ 1 ] LITERAL ;
+; for instance
+xt_literal       
+                ; During runtime, we call the routine at the bottom by compiling 
+                ; JSR LITERAL_RT. Note the cmpl_ routines use tmptos
+                phe.# literal_rt        ; PEA LIT_RT_START
+                jsr cmpl_subroutine
+
+                ; compile the value that is to be pushed to the Data Stack at
+                ; runtime. There is no "sty.di", so we have to do this the hard
+                ; way. This is basically , ("comma") 
+                tya
+                sta.di cp
+                inc.d cp
+                inc.d cp
+
+                ldy.dx 00               ; DROP
+                inx
+                inx
+
+z_literal       rts
+
+literal_rt
+                ; During runtime, we push the value following this word
+                ; back on the Data Stack. The subroutine jump that brought us
+                ; here put the address to return to on the Return Stack - this
+                ; points to the data we need to get
+
+                ; Make room on Data Stack, Y now free to use
+                dex
+                dex
+                sty.dx 00
+
+                ; The 65816 stores (<RETURN-ADDRESS> - 1) on the Return Stack
+                ; so we have to manipulate the address
+                ply
+                iny
+                lda.y 0000      ; LDA $0000,Y - get value after jump
+
+                iny             ; move return address past data and restore
+                phy             ; so we can get back home
+
+                tay             ; Value is now on the Data Stack ( -- n )
+
+                rts
+
+
+; -------------------------------------------------------------------
 ; MAX ( n m -- n ) 18 bytes / X cycles
 ; Compare TOS and NOS and keep which one is larger. Adapted from Lance A.
 ; Leventhal "6502 Assembly Language Subroutines". Negative Flag indicates which
@@ -2469,8 +2519,58 @@ compex_line_done
                 rts
                 
 ; ------------------------------------------------------------------- 
-; Fatal error encountered: Take address of error string from A, print it and
-; then call abort
+; COMPILE WORDS, JUMPS AND SUBROUTINE JUMPS INTO CODE
+; These three routines compile instructions such as "jsr xt_words" into a word
+; at compile time so they are available at run time. Use by pushing the word or
+; address to be compiled on the Return Stack with
+;
+;       phe.# <WORD>    ; PEA <WORD>
+;
+; Followed by a jump to which ever versions we need. Words that use this routine
+; may not be natively compiled. We use "cmpl" as not to confuse these routines
+; with the COMPILE, word. This routine uses tmptos
+; TODO see if we need to add a JSR.L variant at some point
+
+        .!a16                   ; paranoid
+cmpl_word
+                lda.# 0000      ; zero value as a flag, compile word only
+                bra cmpl_common
+cmpl_subroutine
+                lda.# 0020      ; compile "JSR" opcode first
+                bra cmpl_common
+cmpl_jump
+                lda.# 004c      ; compile "JMP", fall through to cmpl_common
+cmpl_common
+                ; we're going to need the Y register to get anything done 
+                sty.d tmptos
+
+                tay             ; force flag check 
+                beq cmpl_body   ; came in through cmpl_word, just compile body
+
+                ; A contains an opcode that must be compiled first. This is an
+                ; optimized version of C, ("c-comma")
+        .a8
+                sta.di cp       ; STA (CP)
+        .a16
+                inc.d cp        ; fall through to cmpl_body
+cmpl_body       
+                ply             ; the return address we'll need later
+
+                pla             ; next value on stack is the word to compile
+                sta.di cp       ; this is a quicker version of , ("comma")
+                inc.d cp
+                inc.d cp
+
+                phy             ; make sure we can get back home
+
+                ldy.d tmptos    ; restore Data Stack
+
+                rts
+
+
+; ------------------------------------------------------------------- 
+; FATAL ERROR 
+; Take address of error string from A, print it and then call abort
 error
                 jsr print_string
                 jmp xt_abort
@@ -2553,7 +2653,7 @@ string_to_lowercase
 ; or CR/LF is required
 hi-start
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 15. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 16. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
