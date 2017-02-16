@@ -156,8 +156,12 @@ nt_cells .byte 5, { PW + NC }	; 2* because we have 16 bit stack
         .word nt_evaluate, xt_two-star, z_two-star
         .byte "cells"
 
+nt_bracket-char .byte 6, { IM + CO }
+        .word nt_cells, xt_bracket-char, z_bracket-char
+        .byte "[char]"
+
 nt_literal .byte 7, { IM + CO }
-        .word nt_cells, xt_literal, z_literal
+        .word nt_bracket-char, xt_literal, z_literal
         .byte "literal"
 
 nt_compile-only .byte 0c, { PW + NC }

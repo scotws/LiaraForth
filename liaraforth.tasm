@@ -351,7 +351,20 @@ z_store         rts
 xt_fetch         
                 lda.y 0000
 		tay
+
 z_fetch         rts
+
+
+; -------------------------------------------------------------------
+; [CHAR] "BRACKET-CHAR" ( -- ) X bytes / X cycles
+; At compile time, compile the ASCII value of a character as a literal
+; This is an immediate, compile-only word
+; TODO decide if this is worth unrolling
+xt_bracket-char  
+                jsr xt_char
+                jsr xt_literal
+             
+z_bracket-char  rts
 
 
 ; -------------------------------------------------------------------
@@ -1183,6 +1196,7 @@ z_dot           rts
 ; DOTPAREN ( "string" -- ) 13 bytes / X cycles
 ; Display string delimited by ")" immediately, regardless if word is compiled or
 ; interpreted. Forth definition is  .( [CHAR] ) PARSE TYPE ; IMMEDIATE
+; TODO Decide if this should be a high-level word
 xt_dotparen     
                ; use PARSE to find the end of the string
                dex

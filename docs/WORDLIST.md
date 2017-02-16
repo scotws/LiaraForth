@@ -18,6 +18,7 @@ Last update: *16. February 2017*
 | ? "QUESTION"      | coded    | ANSI tools    | PW NC    | "TBA" |  "TBA" |
 | @ FETCH           | coded    | ANSI core     | PW NC    | 4     |  "TBA" |
 | \[ "LEFTBRACKET"  | coded    | ANSI core     | PW CO IM | "TBA" |  "TBA" |
+| \[CHAR\]          | coded    | ANSI core     | IM CO NC | (TBA) |  (TBA) |
 | \] "RIGHTBRACKET" | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
 | ' "TICK"          | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
 | + "PLUS"          | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
