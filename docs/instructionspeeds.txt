@@ -57,6 +57,7 @@ rts.l      1/6  (same speed as plain rts)
 
 sep        2/3 
 sta.d      2/4  ( 8 bit: 2/3)
+sta.di     2/6
 sta.dx     2/5 
 sta.y      3/6
 sty.dx     2/5 

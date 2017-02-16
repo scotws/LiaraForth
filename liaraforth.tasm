@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 15. Feb 2017
+; This version: 16. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -769,11 +769,59 @@ z_bl            rts
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
+; TODO make sure this actually calls the MM
 xt_bye           
 		cli
 		brk 00  ; status byte 00 required for assembler
 
 z_bye           rts     ; dummy for compiling, never reached
+
+
+; -------------------------------------------------------------------
+; C, "C-COMMA" ( char -- ) 13 bytes / 28 cycles
+; Store one character in the Dictionary
+xt_c-comma       
+                tya
+        .a8
+                sta.di cp       ; STA (CP)
+        .a16
+                inc.d cp        ; quick version of 1 ALLOT
+
+                ldy.dx 00
+                inx
+                inx
+
+z_c-comma       rts
+
+
+; -------------------------------------------------------------------
+; C@ "C-FETCH" ( addr -- n ) 11 bytes / 16 cycles
+; Get a single byte from the given address
+xt_c-fetch       
+        .a8
+                lda.y 0000
+        .a16
+                and.# 00ff
+                tay
+
+z_c-fetch       rts
+
+
+; -------------------------------------------------------------------
+; C! "C-STORE" ( n addr -- ) 15 bytes / 29 cycles
+; Store LSB of NOS at location given as TOS
+xt_c-store       
+                lda.dx 00
+        .a8
+                sta.y 0000
+        .a16
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+                
+z_c-store       rts
 
 
 ; -------------------------------------------------------------------

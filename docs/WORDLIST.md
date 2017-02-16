@@ -4,31 +4,31 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information - because only things that get measured get 
 optimized. 
 
-Last update: *15. February 2017*
+Last update: *16. February 2017*
 
 | Word              | Status   | Group         | Flags    | Size  | Cycles |
 | :---------------- | -------- | ------------- | -------- | ----: | -----: | 
-| . (DOT)           | fragment | ANSI core     | PW NC    | (TBA) |  (TBA) |
-| .( (DOTPAREN)     | coded    | ANSI core ext | IM NC    | 13    |  (TBA) |
-| .S                | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
-| , (COMMA)         | coded    | ANSI core     | PW NC    | 11    |     29 |
-| : (COLON)         | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
-| ; (SEMICOLON)     | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |
-| ! (STORE)         | coded    | ANSI core     | PW NC    | 9     |  (TBA) |
-| ? (QUESTION)      | coded    | ANSI tools    | PW NC    | (TBA) |  (TBA) |
-| @ FETCH           | coded    | ANSI core     | PW NC    | 4     |  (TBA) |
-| \[ (LEFTBRACKET)  | coded    | ANSI core     | PW CO IM | (TBA) |  (TBA) |
-| \] (RIGHTBRACKET) | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
-| ' (TICK)          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
-| + (PLUS)          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
-| - (MINUS)         | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
-| >IN (TO-IN)       | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
-| 0 (ZERO)          | coded    | 265SXB        | PW NC    | 7     |     12 |
-| 1 (ONE)           | coded    | 265SXB        | PW NC    | 7     |     12 |
-| 1- (ONE-MINUS)    | coded    | ANSI core     | PW NC    | 1     |      2 |
-| 1+ (ONE-PLUS)     | coded    | ANSI core     | PW NC    | 1     |      2 |
-| 2 (TWO)           | coded    | 265SXB        | PW NC    | 7     |     12 |
-| 2* (TWO-STAR)     | coded    | ANSI core     | PW NC    | 3     |  (TBA) |
+| . "DOT"           | fragment | ANSI core     | PW NC    | "TBA" |  "TBA" |
+| ." "DOTPAREN"     | coded    | ANSI core ext | IM NC    | 13    |  "TBA" |
+| .S "DOT-S"        | fragment | ANSI tools    | PW NC    | "TBA" |  "TBA" |
+| , "COMMA"         | coded    | ANSI core     | PW NC    | 11    |     29 |
+| : "COLON"         | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
+| ; "SEMICOLON"     | coded    | ANSI core     | CO IM NC | "TBA" |  "TBA" |
+| ! "STORE"         | coded    | ANSI core     | PW NC    | 9     |  "TBA" |
+| ? "QUESTION"      | coded    | ANSI tools    | PW NC    | "TBA" |  "TBA" |
+| @ FETCH           | coded    | ANSI core     | PW NC    | 4     |  "TBA" |
+| \[ "LEFTBRACKET"  | coded    | ANSI core     | PW CO IM | "TBA" |  "TBA" |
+| \] "RIGHTBRACKET" | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
+| ' "TICK"          | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
+| + "PLUS"          | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
+| - "MINUS"         | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
+| >IN "TO-IN"       | coded    | ANSI core     | PW NC    | 6     |  "TBA" |
+| 0 "ZERO"          | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 1 "ONE"           | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 1- "ONE-MINUS"    | coded    | ANSI core     | PW NC    | 1     |      2 |
+| 1+ "ONE-PLUS"     | coded    | ANSI core     | PW NC    | 1     |      2 |
+| 2 "TWO"           | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 2* "TWO-STAR"     | coded    | ANSI core     | PW NC    | 3     |  (TBA) |
 | 2DROP             | coded    | ANSI core     | PW NC    | 6     |     13 |
 | 2DUP              | coded    | ANSI core     | PW NC    | 10    |     23 |
 | ABORT             | coded    | ANSI core     | (TBA)    | 6+    |     6+ | 
@@ -40,6 +40,9 @@ Last update: *15. February 2017*
 | BELL              | coded    | Gforth        | PW NC    | (TBA) |  (TBA) |
 | BL                | coded    | ANSI core     | PW NC    | 7     |     12 |
 | BYE               | coded    | ANSI tools    | PW NC    | 2     |    7-8 | 
+| C, "C-COMMA"      | coded    | ANSI core     | PW NC    | 13    |     28 |
+| C! "C-STORE"      | coded    | ANSI core     | PW NC    | 11    |     29 |
+| C@ "C-FETCH"      | coded    | ANSI core     | PW NC    | 11    |     16 |
 | CELLS             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | COLD              | coded    | 265SXB        | -        | (TBA) |  (TBA) |
 | COMPILE,          | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
