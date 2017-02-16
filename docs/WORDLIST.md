@@ -44,6 +44,7 @@ Last update: *16. February 2017*
 | C! "C-STORE"      | coded    | ANSI core     | PW NC    | 11    |     29 |
 | C@ "C-FETCH"      | coded    | ANSI core     | PW NC    | 11    |     16 |
 | CELLS             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| CHAR              | coded    | ANSI core     | PW NC    | 23    |  (TBA) |
 | COLD              | coded    | 265SXB        | -        | (TBA) |  (TBA) |
 | COMPILE,          | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
 | COMPILE-ONLY      | coded    | Gforth        | PW NC    | 8     |  (TBA) |

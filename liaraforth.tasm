@@ -830,6 +830,31 @@ z_c-store       rts
 ; This is 16 bit cell Forth, so the value returned by this word is the same as
 ; returned by 2*, see there. 
 
+; -------------------------------------------------------------------
+; CHAR ( "c" -- u ) 23 bytes / X cycles
+; Convert a character to its ASCII value
+xt_char          
+        .!a16
+                jsr xt_parse-name       ; ( -- addr u ) 
+
+                ; if we got back a zero, we have a problem
+                tya                     ; force flag check
+                bne char_got_char
+
+                lda.# es_noname
+                jmp error
+
+char_got_char
+                ldy.dx 00               ; get addr from NOS
+                lda.y 0000              ; LDA 0000,Y - could be C@
+                and.# 00ff
+                tay
+                
+                inx
+                inx
+                
+z_char          rts
+
 
 ; -------------------------------------------------------------------
 ; COMPILE-ONLY ( -- ) 8 bytes / X cycles
@@ -837,6 +862,7 @@ z_c-store       rts
 ; traditional) way to do this is to include a word ?COMPILE that makes sure
 ; we're in compile mode
 xt_compile-only  
+        .!a16
                 lda.# CO
                 xba             ; flags are MSB
                 ora.di dp       ; ORA (DP)

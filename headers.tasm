@@ -248,8 +248,12 @@ nt_invert .byte 6, { PW + NC }
         .word nt_negate, xt_invert, z_invert
         .byte "invert"
 
+nt_char .byte 4, { PW + NC }
+        .word nt_invert, xt_char, z_char
+        .byte "char"
+
 nt_xor  .byte 3, { PW + NC }
-        .word nt_invert, xt_xor, z_xor
+        .word nt_char, xt_xor, z_xor
         .byte "xor"
 
 nt_or   .byte 2, { PW + NC }
@@ -265,7 +269,7 @@ nt_c-comma .byte 2, { PW + NC }
         .byte "c,"
 
 nt_c-fetch .byte 2, { PW + NC }
-        .word nt_and, xt_c-fetch, z_c-fetch
+        .word nt_c-comma, xt_c-fetch, z_c-fetch
         .byte "c@"
 
 nt_c-store .byte 2, { PW + NC }
