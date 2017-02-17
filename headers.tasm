@@ -156,12 +156,16 @@ nt_sliteral .byte 8, { IM + CO }
         .word nt_cells, xt_sliteral, z_sliteral
         .byte "sliteral"
 
-nt_bracket-char .byte 6, { IM + CO }
-        .word nt_sliteral, xt_bracket-char, z_bracket-char
+nt_brackettick .byte 3, { IM + CO }
+        .word nt_sliteral, xt_brackettick, z_brackettick
+        .byte "[']"
+
+nt_bracketchar .byte 6, { IM + CO }
+        .word nt_brackettick, xt_bracketchar, z_bracketchar
         .byte "[char]"
 
 nt_literal .byte 7, { IM + CO }
-        .word nt_bracket-char, xt_literal, z_literal
+        .word nt_bracketchar, xt_literal, z_literal
         .byte "literal"
 
 nt_compile-only .byte 0c, { PW + NC }

@@ -206,6 +206,136 @@ z_to-in         rts
 
 
 ; -------------------------------------------------------------------
+; . "DOT" ( n -- ) X bytes / X cycles
+; Print value that is TOS followed by a single space
+; Forth code is  DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE 
+; Since this is used interactively, and humans are slow (just ask GlaDOS), we
+; focus on size
+; TODO this is a temporary version
+xt_dot           
+                ; --- TEMP print routine ---
+                tya
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                tya
+                and.# 00ff
+                jsr byte_to_ascii
+                jsr xt_space
+                ; --- TEMP print routine ---
+                
+                ; Since we don't care about speed in this word, we save one byte
+                ; by doing DROP the slow way and save one byte
+                jsr xt_drop
+                
+z_dot           rts
+
+
+; -------------------------------------------------------------------
+; .( "DOTPAREN" ( "string" -- ) 13 bytes / X cycles
+; Display string delimited by ")" immediately, regardless if word is compiled or
+; interpreted. Forth definition is  .( [CHAR] ) PARSE TYPE ; IMMEDIATE
+; TODO Decide if this should be a high-level word
+xt_dotparen     
+               ; use PARSE to find the end of the string
+               dex
+               dex
+               sty.dx 00
+               ldy.# ')'
+
+               jsr xt_parse      ; ( -- addr u) 
+               jsr xt_type
+
+z_dotparen     rts
+
+
+; -------------------------------------------------------------------
+; .S "DOTS" ( -- ) X bytes / X cycles
+; Print content of Data Stack non-distructively. Since this is for humans, we
+; don't have to worry about speed. We follow the format of Gforth
+; and print the number of elements first in brackets, followed by the Data Stack
+; content (if present).
+xt_dots          
+        .!a16
+        .!xy16
+                jsr xt_depth             ; ( -- u)
+
+                ; Print stack depth in brackets
+                ; TODO rewrite this to use EMIT
+                lda.# '<'
+                jsr put_chr
+
+                ; --- TEMP print routine ---
+                tya
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                tya
+                and.# 00ff
+                jsr byte_to_ascii
+                ; --- TEMP print routine ---
+
+                ; TODO rewrite this to use EMIT
+                lda.# '>'
+                jsr put_chr
+                jsr xt_space
+
+
+                ; There will be a lot of cases where .S is used when the stack
+                ; is empty. Get them first and exit quickly
+                tya                     ; force flag test
+                beq dots_done
+
+dots_not_empty
+                ; We have at least one element on the stack, which used to be in
+                ; Y as TOS, but is now NOS and therefore accessable by X. Also,
+                ; the depth of the Data Stack is already in Y waiting to be used
+                ; as a counter. We use this to our advantage. 
+                
+                ; Normally we would go with STX.D tmptos / LDX.D tmptos with
+                ; 4 bytes and 8 cycles because we value speed over size.
+                ; However, .S is used interactively, and humans
+                ; won't notice the one cycle more of PHX/PLX (2 bytes,
+                ; 9 cycles). We save the two bytes.
+                phx
+
+                ; We print from the bottom up. Note that the Data Stack locations
+                ; dsp0 and dsp0+2 always contain garbage so they can be skipped,
+                ; see docs/INTERNALS.md for more details 
+                ldx.# dsp0      ; points to dsp0, which is garbage
+                dex
+                dex             ; points to dsp0-2, which is more garbage
+                
+dots_loop
+                dex             ; get next element on DS, initially dsp0-4
+                dex             
+
+                ; --- TEMP print routine ---
+                ; TODO call EMIT
+                lda.dx 00
+                and.# 0ff00
+                xba 
+                jsr byte_to_ascii
+                lda.dx 00
+                and.# 00ff
+                jsr byte_to_ascii
+                jsr xt_space
+                ; --- TEMP print routine ---
+
+                dey
+                bne dots_loop
+
+                plx             ; restore original DSP
+
+dots_done
+                ; Clean up. Again, we don't care about speed in this
+                ; word so we save one byte by doing DROP the slow way
+                jsr xt_drop
+
+z_dots          rts
+
+
+; -------------------------------------------------------------------
 ; , "COMMA" ( n -- ) 11 bytes / 29 cycles
 ; Allot one cell and store TOS in memory. We ignore alignment issues, though
 ; satisfy the ANSI requirement that an aligned compiler pointer will remain
@@ -357,15 +487,12 @@ z_fetch         rts
 
 
 ; -------------------------------------------------------------------
-; [CHAR] "BRACKET-CHAR" ( -- ) X bytes / X cycles
-; At compile time, compile the ASCII value of a character as a literal
-; This is an immediate, compile-only word
-; TODO decide if this is worth unrolling
-xt_bracket-char  
-                jsr xt_char
-                jsr xt_literal
-             
-z_bracket-char  rts
+; ['] "BRACKET-TICK" ( -- ) X bytes / X cycles
+; Store xt of following word during compilation
+xt_brackettick   
+                jsr xt_tick
+		jmp xt_literal	; JSR/RTS
+z_brackettick   
 
 
 ; -------------------------------------------------------------------
@@ -386,6 +513,17 @@ xt_rightbracket
 		sta.d state
                 
 z_rightbracket  rts
+
+; -------------------------------------------------------------------
+; [CHAR] "BRACKET-CHAR" ( -- ) X bytes / X cycles
+; At compile time, compile the ASCII value of a character as a literal
+; This is an immediate, compile-only word
+; TODO decide if this is worth unrolling
+xt_bracketchar  
+                jsr xt_char
+                jsr xt_literal
+             
+z_bracketchar  rts
 
 
 ; -------------------------------------------------------------------
@@ -1223,136 +1361,6 @@ does_rt
                 ; smash into the subroutine jump to DODOES.
                 rts
                 
-
-; -------------------------------------------------------------------
-; DOT ( n -- ) X bytes / X cycles
-; Print value that is TOS followed by a single space
-; Forth code is  DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE 
-; Since this is used interactively, and humans are slow (just ask GlaDOS), we
-; focus on size
-; TODO this is a temporary version
-xt_dot           
-                ; --- TEMP print routine ---
-                tya
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                tya
-                and.# 00ff
-                jsr byte_to_ascii
-                jsr xt_space
-                ; --- TEMP print routine ---
-                
-                ; Since we don't care about speed in this word, we save one byte
-                ; by doing DROP the slow way and save one byte
-                jsr xt_drop
-                
-z_dot           rts
-
-
-; -------------------------------------------------------------------
-; DOTPAREN ( "string" -- ) 13 bytes / X cycles
-; Display string delimited by ")" immediately, regardless if word is compiled or
-; interpreted. Forth definition is  .( [CHAR] ) PARSE TYPE ; IMMEDIATE
-; TODO Decide if this should be a high-level word
-xt_dotparen     
-               ; use PARSE to find the end of the string
-               dex
-               dex
-               sty.dx 00
-               ldy.# ')'
-
-               jsr xt_parse      ; ( -- addr u) 
-               jsr xt_type
-
-z_dotparen     rts
-
-
-; -------------------------------------------------------------------
-; DOTS ".S" ( -- ) X bytes / X cycles
-; Print content of Data Stack non-distructively. Since this is for humans, we
-; don't have to worry about speed. We follow the format of Gforth
-; and print the number of elements first in brackets, followed by the Data Stack
-; content (if present).
-xt_dots          
-        .!a16
-        .!xy16
-                jsr xt_depth             ; ( -- u)
-
-                ; Print stack depth in brackets
-                ; TODO rewrite this to use EMIT
-                lda.# '<'
-                jsr put_chr
-
-                ; --- TEMP print routine ---
-                tya
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                tya
-                and.# 00ff
-                jsr byte_to_ascii
-                ; --- TEMP print routine ---
-
-                ; TODO rewrite this to use EMIT
-                lda.# '>'
-                jsr put_chr
-                jsr xt_space
-
-
-                ; There will be a lot of cases where .S is used when the stack
-                ; is empty. Get them first and exit quickly
-                tya                     ; force flag test
-                beq dots_done
-
-dots_not_empty
-                ; We have at least one element on the stack, which used to be in
-                ; Y as TOS, but is now NOS and therefore accessable by X. Also,
-                ; the depth of the Data Stack is already in Y waiting to be used
-                ; as a counter. We use this to our advantage. 
-                
-                ; Normally we would go with STX.D tmptos / LDX.D tmptos with
-                ; 4 bytes and 8 cycles because we value speed over size.
-                ; However, .S is used interactively, and humans
-                ; won't notice the one cycle more of PHX/PLX (2 bytes,
-                ; 9 cycles). We save the two bytes.
-                phx
-
-                ; We print from the bottom up. Note that the Data Stack locations
-                ; dsp0 and dsp0+2 always contain garbage so they can be skipped,
-                ; see docs/INTERNALS.md for more details 
-                ldx.# dsp0      ; points to dsp0, which is garbage
-                dex
-                dex             ; points to dsp0-2, which is more garbage
-                
-dots_loop
-                dex             ; get next element on DS, initially dsp0-4
-                dex             
-
-                ; --- TEMP print routine ---
-                ; TODO call EMIT
-                lda.dx 00
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                lda.dx 00
-                and.# 00ff
-                jsr byte_to_ascii
-                jsr xt_space
-                ; --- TEMP print routine ---
-
-                dey
-                bne dots_loop
-
-                plx             ; restore original DSP
-
-dots_done
-                ; Clean up. Again, we don't care about speed in this
-                ; word so we save one byte by doing DROP the slow way
-                jsr xt_drop
-
-z_dots          rts
-
 
 ; -------------------------------------------------------------------
 ; DROP ( n -- ) 4 bytes / 9 cycles
@@ -2223,7 +2231,6 @@ xt_rot
                 
 z_rot           rts
 
-
 ; -------------------------------------------------------------------
 ; SLITERAL ( addr u -- ) ( -- addr u ) X bytes / X cycles 
 ; At compile time, store string, at runtime, return address and length of string
@@ -2941,10 +2948,10 @@ string_to_lowercase
 ; or CR/LF is required
 hi-start
         ; High level definitions
-        .byte ":  ( [char] ) parse 2drop ; immediate " ; ( "parens"
-        .byte ":  .( [char] ) parse type ; immediate " ; .( "dotparens"
-        .byte ": s", &34, " [char] ", &34, " parse postpone sliteral ; immediate " ; s"
-        
+        .byte ": ( [char] ) parse 2drop ; immediate " ; ( "parens"
+        .byte ": .( [char] ) parse type ; immediate " ; .( "dotparens"
+        .byte ": s", &34, " [char] ", &34, " parse postpone sliteral ; immediate " 
+
         ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"
         .byte "cr .( Version PRE-ALPHA 17. Feb 2017)"
