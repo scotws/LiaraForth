@@ -2231,6 +2231,36 @@ xt_rot
                 
 z_rot           rts
 
+
+; -------------------------------------------------------------------
+; S" "SQUOTE" ( "string" -- addr u ) X bytes / X cycles
+; Store address and length of string given, returning ( addr u ). ANSI core
+; claims this is compile-only, but the file set expands it to be interpreted, so
+; it is a state-sensitive word, which are evil. This can also be realized as
+; : S" [CHAR] " PARSE POSTPONE SLITERAL ; IMMEDIATE  but it is used so much we
+; want it in code
+xt_squote        
+                ; we use PARSE to find the end of the sting. If the string is
+                ; empty, we don't complain, following Gforth's behavior
+                dex
+                dex
+                sty.dx 00
+
+                ldy.# 0022              ; ASCII for " in hex
+                jsr xt_parse            ; Returns ( addr u ) of string
+
+                ; What happens now depends on the state. If we are compiling, we
+                ; include a subroutine jump to SLITERAL to save the string. If
+                ; we are interpreting, we're done
+                lda.d state
+                beq z_squote            ; if we're interpreting, we're done
+                
+                ; We're compiling, so we need SLITERAL. We use it's RTS while
+                ; we're at it
+                jmp xt_sliteral         ; JSR/RTS
+
+z_squote        rts
+
 ; -------------------------------------------------------------------
 ; SLITERAL ( addr u -- ) ( -- addr u ) X bytes / X cycles 
 ; At compile time, store string, at runtime, return address and length of string
@@ -2950,7 +2980,6 @@ hi-start
         ; High level definitions
         .byte ": ( [char] ) parse 2drop ; immediate " ; ( "parens"
         .byte ": .( [char] ) parse type ; immediate " ; .( "dotparens"
-        .byte ": s", &34, " [char] ", &34, " parse postpone sliteral ; immediate " 
 
         ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"

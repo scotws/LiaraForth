@@ -10,7 +10,6 @@ Last update: *17. February 2017*
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
 | . "dot"             | fragment | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | .( "dotparen"       | coded    | ANSI core ext | IM       | Forth | Forth  |
-| ." "dotquote"       | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
 | .S "dot-s"          | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
 | , "comma"           | coded    | ANSI core     | PW NC    | 11    |     29 |
 | : "colon"           | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
