@@ -196,8 +196,12 @@ nt_leftbracket .byte 1, { IM + CO }
         .word nt_rightbracket, xt_leftbracket, z_leftbracket
         .byte '['
 
+nt_zbranch .byte 7, { IM + CO }
+        .word nt_leftbracket, xt_zbranch, z_zbranch
+        .byte "0branch"
+
 nt_compilecomma .byte 08, { CO }
-        .word nt_leftbracket, xt_compilecomma, z_compilecomma
+        .word nt_zbranch, xt_compilecomma, z_compilecomma
         .byte "compile,"
 
 nt_semicolon .byte 1, { CO + IM }

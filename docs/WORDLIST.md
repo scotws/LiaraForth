@@ -28,6 +28,7 @@ Last update: *17. February 2017*
 | - "minus"           | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | >IN "to-in"         | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
 | 0 "zero"            | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 0BRANCH             | coded    | 265SXB        | CO IM    | (TBA) |  (TBA) |
 | 1 "one"             | coded    | 265SXB        | PW NC    | 7     |     12 |
 | 1- "one-minus"      | coded    | ANSI core     | PW NC    | 1     |      2 |
 | 1+ "one-plus"       | coded    | ANSI core     | PW NC    | 1     |      2 |
