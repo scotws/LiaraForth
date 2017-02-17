@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 16. Feb 2017
+This version 17. Feb 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -20,7 +20,18 @@ char & parse jack& type                 \ should print "jack"
 
 ### LITERAL test
 
+```
 : aaa \[ 1 \] literal ;         \ should put 1 on the stack during runtime
+```
+
+
+### POSTPONE test
+
+Based on https://www.forth.com/starting-forth/11-forth-compiler-defining-words/
+```
+: say-hello ." Hello" ; immediate
+: greet postpone say-hello ." I speak Forth" ; \ won't print "Hello" right away
+```
 
 
 ### FIND-NAME test
@@ -44,7 +55,7 @@ leading spaces. However, with leading spaces, TEST2 will find an empty string
 and abort, then throw an error because ABC will not be found in the dictionary.
 
 
-## Loop testing
+## LOOP testing
 
 Test normal loop:
 ```

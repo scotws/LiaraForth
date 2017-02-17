@@ -285,8 +285,9 @@ z_colon         rts
 ; ; "SEMICOLON" ( -- ) X bytes / X cycles
 ; End the compilation of a new word into the Dictionary. When we enter this, 
 ; WORKWORD is pointing to the nt_ of this word in the Dictionary, DP to the
-; previous word, and CP to the next free
-; byte.
+; previous word, and CP to the next free byte.  A Forth definition would be 
+; (see "Starting Forth"):
+;  : ;  POSTPONE EXIT  REVEAL POSTPONE ; [ ; IMMEDIATE
 xt_semicolon     
         .!a16
                 sty.d tmptos
@@ -1691,7 +1692,7 @@ z_hex           rts
 xt_literal       
                 ; During runtime, we call the routine at the bottom by compiling 
                 ; JSR LITERAL_RT. Note the cmpl_ routines use tmptos
-                phe.# literal_rt        ; PEA LIT_RT_START
+                phe.# literal_rt        ; PEA LITERAL_RT
                 jsr cmpl_subroutine
 
                 ; compile the value that is to be pushed to the Data Stack at
@@ -2065,6 +2066,74 @@ parse_reached_eol
 z_parse-name
 z_parse         rts
 
+
+; -------------------------------------------------------------------
+; POSTPONE ( -- ) X bytes / X cycles
+; Add the compilation behavior of a word to a new word at compile time. If the
+; word that follows it is immediate, include it so that it will be compiled when
+; the word being defined is itself used for a new word. Tricky, but very useful.
+; Because POSTPONE expects a word (not an xt) in the input stream (not on the
+; Data Stack). This means we cannot build words with "jsr xt_postpone, jsr
+; <word>" directly. This word uses tmp1
+xt_postpone      
+                ; get name from string
+                jsr xt_parse-name       ; ( addr n ) 
+
+                ; if there is no word in stream, complain and abort
+                bne pp_got_word
+                lda.# es_noname
+                jmp error
+
+pp_got_word
+                ; convert to lower
+                ; TODO move this to FIND-NAME
+                jsr string_to_lowercase
+
+                jsr xt_find-name        ; ( nt | 0 )
+
+                ; if word is not in Dictionary, complain and abort
+                bne pp_got_nt
+                lda.# es_syntax
+
+pp_got_nt
+                ; Keep nt safe for later use
+                sty.d tmp1
+
+                ; We need the xt instead of the nt for the actual compiling
+                jsr xt_name-int         ; ( xt ) 
+
+                ; See if this is an immediate word. This is easier with nt than
+                ; with xt
+                lda.di tmp1             ; LDA (TMP1) - get status byte of word
+                xba                     ; flags are MSB
+                and.# IM                ; mask everything but Immediate bit
+                beq pp_not_immediate
+                
+                ; The word is immediate, so instead of executing it right now,
+                ; we compile it. xt is on the stack, so this is simple. The RTS
+                ; of COMPILE, takes us back to the original caller
+                jmp xt_compilecomma     ; JSR/RTS
+
+pp_not_immediate
+                ; This is not an immediate word, so we enact "deffered
+                ; compilation" by including ' <NAME> COMPILE, which we do by
+                ; compiling the run-time routine of LITERAL, the xt itself, and
+                ; a subroutine jump to COMPILE,
+                phe.# literal_rt        ; PEA LITERAL_RT
+                jsr cmpl_subroutine
+
+                ; The xt is TOS. We can't use COMPILE, here because it might
+                ; decided to do something silly like compile it as a native word
+                ; and ruin everything
+                jsr xt_comma
+
+                ; compile COMPILE, - it's RTS takes us back to original caller
+                phe.# xt_compilecomma
+                jmp cmpl_subroutine     ; JSR/RTS
+
+z_postpone      ; never reached
+
+
 ; ------------------------------------------------------------------- 
 ; REFILL ( -- f ) X bytes / X cycles
 ; "Attempt to fill the input buffer from the input source, returning a true flag
@@ -2153,6 +2222,124 @@ xt_rot
                 sta.dx 02       ; save b as 3OS
                 
 z_rot           rts
+
+
+; -------------------------------------------------------------------
+; SLITERAL ( addr u -- ) ( -- addr u ) X bytes / X cycles 
+; At compile time, store string, at runtime, return address and length of string
+; on the Data Stack. Used for S" among other things. This routine uses tmp1,
+; tmp2
+xt_sliteral      
+        .!a16
+                ; We can't assume that ( addr u ) of the current string is in
+                ; a stable area, so we first have to move them to safety. Since
+                ; CP points to where the interpreter expects to be able to
+                ; continue in the code, we have to jump over the string. We use
+                ; JMP instead of BRA so we can use longer strings
+                lda.dx 00       ; Address of string is NOS
+                sta.d tmp1
+                sty.d tmp2      ; keep copy of string length
+
+        .a8     
+                lda.# 04c       ; opcode for JMP
+                sta.di cp       ; STA (CP)
+        .a16
+                inc.d cp
+                
+                ; Our jump target is CP + 2 (for the length of the jump
+                ; instruction itself ) + the length of the string
+                lda.d tmp2      ; string length
+                inc.a
+                inc.a
+
+                clc
+                adc.d cp        ; current address
+                sta.di cp       ; store jump target
+
+                ; update CP to move past JMP instruction
+                inc.d cp
+                inc.d cp
+
+                ; now we can safely copy the code
+                dey             ; last offset is one less than length
+        .a8
+sl_loop
+                lda.diy tmp1    ; LDA (TMP1),Y
+                sta.diy cp      ; STA (CP),Y
+                dey
+                bpl sl_loop
+        
+        .a16
+                ; keep old CP as new address of string
+                lda.d cp
+                sta.d tmp1      ; overwrites original address
+
+                ; update CP
+                clc
+                adc.d tmp2      ; length of string
+                sta.d cp
+
+                ; Compile a subroutine jump to the runtime of SLITERAL that
+                ; pushes the new ( addr u ) pair to the Data Stack. When we're
+                ; done, the code will look like this:
+                ;
+                ;       jsr sliteral_rt
+                ;       <string address>
+                ;       <string length>
+                ;
+                ; This means we'll have to adjust the return address for two
+                ; cells, not just one
+                phe.# sliteral_rt
+                jsr cmpl_subroutine
+
+                ; We want to have the addr end up as NOS and the length as TOS,
+                ; so we store the address first
+                lda.d tmp1      ; new address of string
+                pha
+                jsr cmpl_word
+
+                lda.d tmp2
+                pha
+                jsr cmpl_word
+
+                ; all done, clean up and leave
+                ldy.dx 02       ; 2DROP
+                inx
+                inx
+                inx
+                inx
+                
+z_sliteral      rts
+
+sliteral_rt
+                ; Run time behaviour of SLITERAL: Push ( addr u ) of string to
+                ; the Data Stack. We arrive here with the return address as the
+                ; top of Return Stack, which points to the address of the string
+
+                ; Make room on stack, which also frees Y for other use
+                dex
+                dex
+                dex
+                dex
+                sty.dx 02
+                
+                ; Get the address of the string address off the stack and
+                ; increase by one because of the RTS mechanics
+                ply
+                iny
+
+                lda.y 0000      ; LDA $0000,Y 
+                sta.dx 00       ; save string address as NOS
+                iny
+                iny
+                lda.y 0000      ; get length of string, will be TOS ...
+                
+                iny             ; ... first, though, repair return jump
+                phy             
+
+                tay             ; TOS is now length of string
+
+                rts
 
 
 ; -------------------------------------------------------------------
@@ -2753,9 +2940,10 @@ string_to_lowercase
 ; the end of the line if there is another line with code following it. No zero
 ; or CR/LF is required
 hi-start
-        ; High level definitions. 
-        .byte ":  ( [char] ) parse 2drop ; immediate " ; ( "PARENS"
-        .byte ":  .( [char] ) parse type ; immediate " ; .( "DOTPARENS"
+        ; High level definitions
+        .byte ":  ( [char] ) parse 2drop ; immediate " ; ( "parens"
+        .byte ":  .( [char] ) parse type ; immediate " ; .( "dotparens"
+        .byte ": s", &34, " [char] ", &34, " parse postpone sliteral ; immediate " ; s"
         
         ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"

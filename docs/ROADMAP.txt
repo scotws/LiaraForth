@@ -6,7 +6,8 @@ This version: 17. Feb 2017
 
 TODO NEXT (next on top)
 
-- Code POSTPONE, :NONAME, MARKER 
+- Code :NONAME, MARKER 
+- Move string_to_lowercase to FIND-NAME
 - Code math routines required to input and output numbers of any base
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
@@ -25,7 +26,7 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
-- Coded DOES> (17. Feb 2017)
+- Coded DOES>, POSTPONE (17. Feb 2017)
 - Coded [CHAR] which gives us an alternate version of .( (17. Feb 2017)
 - Coded LITERAL and the cmpl_ routines (16. Feb 2017)
 - Coded C!, C, and C@ (16. Feb 2017)

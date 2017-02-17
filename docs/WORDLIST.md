@@ -8,29 +8,29 @@ Last update: *17. February 2017*
 
 | Word              | Status   | Group         | Flags    | Size  | Cycles |
 | :---------------- | -------- | ------------- | -------- | ----: | -----: | 
-| . "DOT"           | fragment | ANSI core     | PW NC    | "TBA" |  "TBA" |
-| .( "DOTPAREN"     | coded    | ANSI core ext | IM       | Forth | Forth  |
-| .S "DOT-S"        | fragment | ANSI tools    | PW NC    | "TBA" |  "TBA" |
-| , "COMMA"         | coded    | ANSI core     | PW NC    | 11    |     29 |
-| : "COLON"         | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
-| ; "SEMICOLON"     | coded    | ANSI core     | CO IM NC | "TBA" |  "TBA" |
-| ! "STORE"         | coded    | ANSI core     | PW NC    | 9     |  "TBA" |
-| ? "QUESTION"      | coded    | ANSI tools    | PW NC    | "TBA" |  "TBA" |
-| @ "FETCH"         | coded    | ANSI core     | PW NC    | 4     |  "TBA" |
-| ( "PAREN"         | coded    | ANSI core     | PW NC    | Forth |  Forth |
-| \[ "LEFTBRACKET"  | coded    | ANSI core     | PW CO IM | "TBA" |  "TBA" |
+| . "dot"           | fragment | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| .( "dotparen"     | coded    | ANSI core ext | IM       | Forth | Forth  |
+| .S "dot-s"        | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
+| , "comma"         | coded    | ANSI core     | PW NC    | 11    |     29 |
+| : "colon"         | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| ; "semicolon"     | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |
+| ! "store"         | coded    | ANSI core     | PW NC    | 9     |  (TBA) |
+| ? "question"      | coded    | ANSI tools    | PW NC    | (TBA) |  (TBA) |
+| @ "fetch"         | coded    | ANSI core     | PW NC    | 4     |  (TBA) |
+| ( "paren"         | coded    | ANSI core     | PW NC    | Forth |  Forth |
+| \[ "leftbracket"  | coded    | ANSI core     | PW CO IM | (TBA) |  (TBA) |
 | \[CHAR\]          | coded    | ANSI core     | IM CO NC | (TBA) |  (TBA) |
-| \] "RIGHTBRACKET" | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
-| ' "TICK"          | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
-| + "PLUS"          | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
-| - "MINUS"         | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
-| >IN "TO-IN"       | coded    | ANSI core     | PW NC    | 6     |  "TBA" |
-| 0 "ZERO"          | coded    | 265SXB        | PW NC    | 7     |     12 |
-| 1 "ONE"           | coded    | 265SXB        | PW NC    | 7     |     12 |
-| 1- "ONE-MINUS"    | coded    | ANSI core     | PW NC    | 1     |      2 |
-| 1+ "ONE-PLUS"     | coded    | ANSI core     | PW NC    | 1     |      2 |
-| 2 "TWO"           | coded    | 265SXB        | PW NC    | 7     |     12 |
-| 2* "TWO-STAR"     | coded    | ANSI core     | PW NC    | 3     |  (TBA) |
+| \] "rightbracket" | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| ' "tick"          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| + "plus"          | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| - "minus"         | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| >IN "to-in"       | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
+| 0 "zero"          | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 1 "one"           | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 1- "one-minus"    | coded    | ANSI core     | PW NC    | 1     |      2 |
+| 1+ "one-plus"     | coded    | ANSI core     | PW NC    | 1     |      2 |
+| 2 "two"           | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 2* "two-star"     | coded    | ANSI core     | PW NC    | 3     |  (TBA) |
 | 2DROP             | coded    | ANSI core     | PW NC    | 6     |     13 |
 | 2DUP              | coded    | ANSI core     | PW NC    | 10    |     23 |
 | ABORT             | coded    | ANSI core     | (TBA)    | 6+    |     6+ | 
@@ -42,9 +42,9 @@ Last update: *17. February 2017*
 | BELL              | coded    | Gforth        | PW NC    | (TBA) |  (TBA) |
 | BL                | coded    | ANSI core     | PW NC    | 7     |     12 |
 | BYE               | coded    | ANSI tools    | PW NC    | 2     |    7-8 | 
-| C, "C-COMMA"      | coded    | ANSI core     | PW NC    | 13    |     28 |
-| C! "C-STORE"      | coded    | ANSI core     | PW NC    | 11    |     29 |
-| C@ "C-FETCH"      | coded    | ANSI core     | PW NC    | 11    |     16 |
+| C, "c-comma"      | coded    | ANSI core     | PW NC    | 13    |     28 |
+| C! "c-store"      | coded    | ANSI core     | PW NC    | 11    |     29 |
+| C@ "c-fetch"      | coded    | ANSI core     | PW NC    | 11    |     16 |
 | CELLS             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | CHAR              | coded    | ANSI core     | PW NC    | 23    |  (TBA) |
 | COLD              | coded    | 265SXB        | -        | (TBA) |  (TBA) |
@@ -81,9 +81,11 @@ Last update: *17. February 2017*
 | PAGE              | coded    | ANSI facility | PW NC    | (TBA) |  (TBA) |
 | PARSE             | coded    | ANSI core ext | -        | 45    |    n/a |
 | PARSE-NAME        | coded    | ANSI core ext | -        | 41+   |    n/a |
+| POSTPONE          | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | QUIT              | fragment | ANSI core     | -        | (TBA) |    n/a |
 | REFILL            | fragment | ANSI core ext | PW       | (TBA) |  (TBA) |
 | ROT               | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
+| SLITERAL          | coded    | ANSI string   | IM CO    | (TBA) |  (TBA) |
 | SOURCE            | coded    | ANSI core     | PW NC    | 12    |  (TBA) |
 | SOURCE-ID         | coded    | ANSI core ext | PW NC    | 6     |     13 |
 | SPACE             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
