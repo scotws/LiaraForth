@@ -1,14 +1,12 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 16. Feb 2017
+This version: 17. Feb 2017
 
 
 TODO NEXT (next on top)
 
-- Code [CHAR] which gives us an alternate version of .( 
-- Code POSTPONE, :NONAME 
-- Write DOES> which gives us MARKER
+- Code POSTPONE, :NONAME, MARKER 
 - Code math routines required to input and output numbers of any base
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
@@ -27,8 +25,10 @@ TODO LATER (next on top)
 
 FINISHED (newest on top, with date if possible)
  
-- Coded LITERAL and the cmpl_ routines (16. Feb 2016)
-- Coded C!, C, and C@ (16. Feb 2016)
+- Coded DOES> (17. Feb 2017)
+- Coded [CHAR] which gives us an alternate version of .( (17. Feb 2017)
+- Coded LITERAL and the cmpl_ routines (16. Feb 2017)
+- Coded C!, C, and C@ (16. Feb 2017)
 - Coded COLON and SEMICOLON, followed by POSTPONE, IMMEDIATE, COMPILE-ONLY, [, ] (15. Feb 2017)
 - Coded BASE, DECIMAL, HEX, BINARY to prepare for number conversion (15. Feb 2017)
 - Coded AND, OR, XOR, NEGATE, INVERT, MAX and MIN (14. Feb 2017)

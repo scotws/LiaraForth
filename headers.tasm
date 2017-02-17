@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 16. Feb 2017
+; This version: 17. Feb 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -128,12 +128,8 @@ nt_dots .byte 2, { PW + NC }
         .word nt_space, xt_dots, z_dots
         .byte ".s"
 
-nt_dotparen .byte 2, { IM + NC }
-        .word nt_dots, xt_dotparen, z_dotparen
-        .byte ".("
-
 nt_type .byte 4, 0
-        .word nt_dotparen, xt_type, z_type
+        .word nt_dots, xt_type, z_type
         .byte "type"
 
 nt_dot  .byte 1, { PW + NC }
@@ -186,7 +182,7 @@ nt_compilecomma .byte 08, { CO }
 
 nt_semicolon .byte 1, { CO + IM }
         .word nt_compilecomma, xt_semicolon, z_semicolon
-        .byte 3b	; ASCII for semicolon 
+        .byte ';'
 
 nt_colon .byte 1, { NC }
         .word nt_semicolon, xt_colon, z_colon
@@ -196,8 +192,12 @@ nt_allot .byte 5, { PW + NC }
         .word nt_colon, xt_allot, z_allot
         .byte "allot"
 
+nt_does .byte 5, { IM + CO }
+        .word nt_allot, xt_does, z_does
+        .byte "does>"
+
 nt_create .byte 6, { PW + NC }
-        .word nt_allot, xt_create, z_create
+        .word nt_does, xt_create, z_create
         .byte "create"
 
 nt_name-string .byte 0b, { PW + NC }

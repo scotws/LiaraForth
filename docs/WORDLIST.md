@@ -4,19 +4,20 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information - because only things that get measured get 
 optimized. 
 
-Last update: *16. February 2017*
+Last update: *17. February 2017*
 
 | Word              | Status   | Group         | Flags    | Size  | Cycles |
 | :---------------- | -------- | ------------- | -------- | ----: | -----: | 
 | . "DOT"           | fragment | ANSI core     | PW NC    | "TBA" |  "TBA" |
-| ." "DOTPAREN"     | coded    | ANSI core ext | IM NC    | 13    |  "TBA" |
+| .( "DOTPAREN"     | coded    | ANSI core ext | IM       | Forth | Forth  |
 | .S "DOT-S"        | fragment | ANSI tools    | PW NC    | "TBA" |  "TBA" |
 | , "COMMA"         | coded    | ANSI core     | PW NC    | 11    |     29 |
 | : "COLON"         | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
 | ; "SEMICOLON"     | coded    | ANSI core     | CO IM NC | "TBA" |  "TBA" |
 | ! "STORE"         | coded    | ANSI core     | PW NC    | 9     |  "TBA" |
 | ? "QUESTION"      | coded    | ANSI tools    | PW NC    | "TBA" |  "TBA" |
-| @ FETCH           | coded    | ANSI core     | PW NC    | 4     |  "TBA" |
+| @ "FETCH"         | coded    | ANSI core     | PW NC    | 4     |  "TBA" |
+| ( "PAREN"         | coded    | ANSI core     | PW NC    | Forth |  Forth |
 | \[ "LEFTBRACKET"  | coded    | ANSI core     | PW CO IM | "TBA" |  "TBA" |
 | \[CHAR\]          | coded    | ANSI core     | IM CO NC | (TBA) |  (TBA) |
 | \] "RIGHTBRACKET" | coded    | ANSI core     | PW NC    | "TBA" |  "TBA" |
@@ -55,6 +56,7 @@ Last update: *16. February 2017*
 | CREATE            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | DECIMAL           | coded    | ANSI core     | PW NC    | 7     |  (TBA) |
 | DEPTH             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| DOES>             | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | DROP              | coded    | ANSI core     | PW NC    | 4     |      9 |
 | DUMP              | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
 | DUP               | coded    | ANSI core     | PW NC    | 4     |      9 |

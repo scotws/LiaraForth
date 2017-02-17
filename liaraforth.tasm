@@ -1166,6 +1166,63 @@ xt_depth
 
 z_depth         rts
 
+
+; -------------------------------------------------------------------
+; DOES> ( -- ) X bytes / X cycles
+; Create the payload for defining new defining words. See the file
+; docs/create-does.txt and 
+; http://www.bradrodriguez.com/papers/moving3.htm for a discussion of 
+; DOES>'s internal workings. This uses tmp1 and tmp2
+xt_does
+		; compile a subroutine jump to the runtime of DOES>
+                phe.# does_rt
+                jsr cmpl_subroutine
+
+                ; compile a subroutine jump to DODOES. In traditional terms,
+                ; this is the Code Field Area (CFA) of the new word
+                phe.# dodoes
+                jsr cmpl_subroutine
+                
+z_does          rts
+
+does_rt
+                ; Runtime portion of DOES>. This replaces the subroutine jump to
+                ; DOVAR that CREATE automatically encodes by a jump to the
+                ; address that contains a subroutine jump to DODOES. We don't
+                ; jump to DODOES directly because we need to work our magic with
+                ; the return addresses
+                pla
+                inc.a           ; increase by one because of RTS mechanics
+                sta.d tmp1
+
+                ; CREATE has also already modified the DP to point to the new
+                ; word. We have no idea which instructions followed the CREATE
+                ; command if there is a DOES> so the CP could point anywhere by
+                ; now.
+                lda.d dp
+
+                ; The address of the word's xt is four bytes down (see
+                ; header.tasm for details).
+                clc
+                adc.# 0004
+                sta.d tmp2
+
+                ; Now we get that address and add one byte to skip over the JSR
+                ; opcode
+                lda.di tmp2     ; LDA (TMP2)
+                inc.a
+                sta.d tmp2      ; Points to address to be replaced
+
+                ; Replace the DOVAR address
+                lda.d tmp1
+                sta.di tmp2     ; STA (TMP2)
+
+                ; Since we removed the return address that brought us here, we
+                ; go back to whatever the main routine was. Otherwise, we we
+                ; smash into the subroutine jump to DODOES.
+                rts
+                
+
 ; -------------------------------------------------------------------
 ; DOT ( n -- ) X bytes / X cycles
 ; Print value that is TOS followed by a single space
@@ -2373,29 +2430,6 @@ z_xor            rts
 ; CODE FIELD ROUTINES
 
 ; ------------------------------------------------------------------- 
-; DOVAR
-; Execute a variable: Push the address of the first bytes of the Data Field onto
-; the stack. This is called with JSR so we can pick up the address of the
-; calling variable off the 65816's Return Stack. The final RTS takes us to the
-; original caller of the routine that in turn called DOVAR. This is the default 
-; routine installed with CREATE
-dovar
-        .!a16
-        .!xy16
-                dex             ; make room on Data Stack 
-                dex
-                sty.dx 00
- 
-                ; The address we need is stored in the two bytes after the JSR 
-                ; return address, which in turn is what is on top of the Return 
-                ; Stack
-                ply             ; value is now TOS
-                iny             ; add one because of 65816's address handling
-                
-                rts             ; takes us to original caller
- 
-
-; ------------------------------------------------------------------- 
 ; DOCONST 
 ; Execute a constant: Push the data in the first two byte of the Data Field onto
 ; the stack
@@ -2418,7 +2452,60 @@ doconst
                 tay
 
                 rts             ; takes us to original caller
-              
+ 
+
+; ------------------------------------------------------------------- 
+; DODOES
+; Used in combination with DOES>'s runtime portion to actually do the work of
+; the new word. See DOES> and docs/create-does.txt for details. Uses tmp3
+dodoes
+                ; Assumes the address of the CFA of the original defining word
+                ; (say, CONSTANT) is on the top of the Return Stack. Save it for
+                ; a later jump, adding one byte because of the way the 65816
+                ; works
+                pla
+                inc.a
+                sta.d tmp3
+
+                ; Next on the Return Stack should be the address of the PFA of
+                ; the calling defined word (say, the name of whatever constant we
+                ; just defined). Move this to the Data Stack, again adding one.
+                dex
+                dex
+                sty.dx 00
+
+                ply
+                iny
+
+                ; This leaves the return address from the original main routine
+                ; on top of the Return Stack. We leave that untouched and jump
+                ; to the special code of the defining word. It's RTS instruction
+                ; will take us back to the main routine
+                jmp.i tmp3      ; JMP (TMP3)
+
+
+; ------------------------------------------------------------------- 
+; DOVAR
+; Execute a variable: Push the address of the first bytes of the Data Field onto
+; the stack. This is called with JSR so we can pick up the address of the
+; calling variable off the 65816's Return Stack. The final RTS takes us to the
+; original caller of the routine that in turn called DOVAR. This is the default 
+; routine installed with CREATE
+dovar
+        .!a16
+        .!xy16
+                dex             ; make room on Data Stack 
+                dex
+                sty.dx 00
+ 
+                ; The address we need is stored in the two bytes after the JSR 
+                ; return address, which in turn is what is on top of the Return 
+                ; Stack
+                ply             ; value is now TOS
+                iny             ; add one because of 65816's address handling
+                
+                rts             ; takes us to original caller
+
 
 ; ===================================================================
 ; LOW LEVEL HELPER FUNCTIONS
@@ -2666,8 +2753,13 @@ string_to_lowercase
 ; the end of the line if there is another line with code following it. No zero
 ; or CR/LF is required
 hi-start
+        ; High level definitions. 
+        .byte ":  ( [char] ) parse 2drop ; immediate " ; ( "PARENS"
+        .byte ":  .( [char] ) parse type ; immediate " ; .( "DOTPARENS"
+        
+        ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 16. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 17. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
@@ -2708,5 +2800,4 @@ hi-end
 
 ; ===================================================================
 ; END
-
         .end
