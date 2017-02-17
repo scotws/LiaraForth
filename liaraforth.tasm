@@ -250,6 +250,27 @@ z_dotparen     rts
 
 
 ; -------------------------------------------------------------------
+; ." "DOTQUOTE" ( -- ) X bytes / X cycles
+; Compile string that is printed during run time. ANSI Forth wants this to be
+; compile-only, even though everybody and their friend uses it for everything.
+; We follow the book here, and recommend .( for general printing. 
+xt_dotquote      
+                dex
+                dex
+                sty.dx 00
+                ldy.# 0022              ; ASCII for "
+
+                jsr xt_parse
+                jsr xt_sliteral
+
+                phe.# xt_type
+                jsr cmpl_subroutine     
+
+                rts
+z_dotquote      
+
+
+; -------------------------------------------------------------------
 ; .S "DOTS" ( -- ) X bytes / X cycles
 ; Print content of Data Stack non-distructively. Since this is for humans, we
 ; don't have to worry about speed. We follow the format of Gforth
@@ -2853,7 +2874,8 @@ compex_line_done
 ;
 ; Followed by a jump to which ever versions we need. Words that use this routine
 ; may not be natively compiled. We use "cmpl" as not to confuse these routines
-; with the COMPILE, word. This routine uses tmptos
+; with the COMPILE, word. This routine uses tmptos. Always call this with
+; a subroutine jump, which means no combining JSR/RTS to JMP.
 ; TODO see if we need to add a JSR.L variant at some point
 
         .!a16                   ; paranoid

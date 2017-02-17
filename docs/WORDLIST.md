@@ -10,6 +10,7 @@ Last update: *17. February 2017*
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
 | . "dot"             | fragment | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | .( "dotparen"       | coded    | ANSI core ext | IM       | Forth | Forth  |
+| ." "dotquote"       | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
 | .S "dot-s"          | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
 | , "comma"           | coded    | ANSI core     | PW NC    | 11    |     29 |
 | : "colon"           | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
@@ -86,7 +87,7 @@ Last update: *17. February 2017*
 | QUIT                | fragment | ANSI core     | -        | (TBA) |    n/a |
 | REFILL              | fragment | ANSI core ext | PW       | (TBA) |  (TBA) |
 | ROT                 | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
-| S" "squote"         | coded    | ANSI core     | IM       | (TBA) |  (TBA) |
+| S" "squote"         | coded    | ANSI core     | IM NC    | (TBA) |  (TBA) |
 | SLITERAL            | coded    | ANSI string   | IM CO    | (TBA) |  (TBA) |
 | SOURCE              | coded    | ANSI core     | PW NC    | 12    |  (TBA) |
 | SOURCE-ID           | coded    | ANSI core ext | PW NC    | 6     |     13 |
