@@ -46,6 +46,7 @@ Last update: *17. February 2017*
 | BELL                | coded    | Gforth        | PW NC    | (TBA) |  (TBA) |
 | BEGIN               | coded    | ANSI core     | IM CO NC | 6     |     13 |
 | BL                  | coded    | ANSI core     | PW NC    | 7     |     12 |
+| BRANCH              | coded    | 265SXB        | IM CO NC | (TBA) |  (TBA) |
 | BYE                 | coded    | ANSI tools    | PW NC    | 2     |    7-8 | 
 | C, "c-comma"        | coded    | ANSI core     | PW NC    | 13    |     28 |
 | C! "c-store"        | coded    | ANSI core     | PW NC    | 11    |     29 |
@@ -65,6 +66,7 @@ Last update: *17. February 2017*
 | DROP                | coded    | ANSI core     | PW NC    | 4     |      9 |
 | DUMP                | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
 | DUP                 | coded    | ANSI core     | PW NC    | 4     |      9 |
+| ELSE                | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | EVALUATE            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | EXECUTE             | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | FALSE               | coded    | ANSI core ext | PW NC    | 7     |     12 |

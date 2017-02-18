@@ -200,8 +200,12 @@ nt_zbranch .byte 7, { IM + CO }
         .word nt_leftbracket, xt_zbranch, z_zbranch
         .byte "0branch"
 
+nt_branch .byte 6, { IM + CO }
+        .word nt_zbranch, xt_branch, z_branch
+        .byte "branch"
+
 nt_again .byte 5, { IM + NC + CO }
-        .word nt_zbranch, xt_again, z_again
+        .word nt_branch, xt_again, z_again
         .byte "again"
 
 nt_begin .byte 5, { IM + NC + CO }

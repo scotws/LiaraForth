@@ -373,6 +373,7 @@ z_dots          rts
 ;               inx
 ; This is as fast as the variant below, but three bytes longer
 xt_comma         
+        .!a16
                 tya
                 sta.di cp       ; STA (CP)
                 inc.d cp
@@ -487,8 +488,11 @@ z_question      rts
 ; ! "STORE" ( n addr -- ) 9 bytes / X cycles
 ; Save value at designated memory location
 xt_store         
+        .!a16
                 lda.dx 00       ; NOS has value
                 sta.y 0000
+
+                ldy.dx 02
                 inx
                 inx
                 inx
@@ -1034,6 +1038,35 @@ xt_bl
                 ldy.# AscSP
 
 z_bl            rts
+
+
+; -------------------------------------------------------------------
+; BRANCH ( -- ) X bytes / X cycles
+; Transfer control to given address. Uses tmptos
+xt_branch        
+        .!a16
+                ; encode subroutine branch to runtime portion
+                phe.# branch_rt
+                jsr cmpl_subroutine
+
+z_branch        rts
+
+branch_rt
+                pla
+                phy
+
+                ; The value on the Return Stack determines where we go to
+                sta.d tmp3
+                
+                ldy.# 0001
+                lda.diy tmp3    ; LDA (TMP1),Y ; get address we're pointing to
+                dec.a
+
+                ply
+                pha             ; put target address back on Return Stack 
+
+                rts
+
 
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
@@ -3103,13 +3136,14 @@ hi-start
         .byte ": .( [char] ) parse type ; immediate " ; .( "dotparens"
         .byte ": if postpone 0branch here 0 , ; immediate compile-only " ; IF 
         .byte ": then here swap ! ; immediate compile-only " ; THEN
+        .byte ": else postpone branch here 0 , here rot ! ; immediate compile-only " ; ELSE
         .byte ": repeat postpone again here swap ! ; immediate compile-only " ; REPEAT
         .byte ": until postpone 0branch , ; immediate compile-only " ; UNTIL
         .byte ": while postpone 0branch here 0 , swap ; immediate compile-only "; WHILE
 
         ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 17. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 18. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
