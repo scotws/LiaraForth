@@ -893,6 +893,34 @@ accept_bs
 z_accept        rts
 
 ; -------------------------------------------------------------------
+; AGAIN ( addr -- ) 22 bytes / 50 cycles
+; Code a backwards branch to an address usually left by BEGIN. We use JMP
+; instead of BRA to make sure we have the range.
+; TODO see if we should insert a KEY? to make sure we can abort and/or a PAUSE
+xt_again         
+
+                ; Add the opcode for a JMP 
+        .a8
+                lda.# 4c
+                sta.di cp       ; STA (CP)
+        .a16
+                inc.d cp        
+
+                ; Add the address which should be TOS
+                tya
+                sta.di cp
+                inc.d cp
+                inc.d cp
+
+                ; drop the address
+                ldy.dx 00
+                inx
+                inx
+
+z_again         rts
+
+
+; -------------------------------------------------------------------
 ; ALLOT ( n -- ) X bytes / X cycles
 ; Reserve a certain number of bytes (not cells) or release them. If n = 0, do
 ; nothing. If n is negative, release n bytes, but only to the beginning of the
@@ -978,6 +1006,21 @@ xt_bell
 		jsr put_chr
 
 z_bell          rts
+
+; -------------------------------------------------------------------
+; BEGIN ( -- addr ) 6 bytes / 13 cycles
+; Mark entry point for a loop. This is just an immediate version of here which
+; could just as welle be coded as  : BEGIN HERE ; IMMEDIATE  but we code it here
+; differently for speed
+xt_begin         
+                ; really just the same code as HERE
+                dex
+                dex
+                sty.dx 00
+
+                ldy.d cp
+
+z_begin         rts
 
 
 ; -------------------------------------------------------------------
@@ -3060,6 +3103,9 @@ hi-start
         .byte ": .( [char] ) parse type ; immediate " ; .( "dotparens"
         .byte ": if postpone 0branch here 0 , ; immediate compile-only " ; IF 
         .byte ": then here swap ! ; immediate compile-only " ; THEN
+        .byte ": repeat postpone again here swap ! ; immediate compile-only " ; REPEAT
+        .byte ": until postpone 0branch , ; immediate compile-only " ; UNTIL
+        .byte ": while postpone 0branch here 0 , swap ; immediate compile-only "; WHILE
 
         ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"

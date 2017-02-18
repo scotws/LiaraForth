@@ -39,10 +39,12 @@ Last update: *17. February 2017*
 | ABORT               | coded    | ANSI core     | (TBA)    | 6+    |     6+ | 
 | ABS                 | coded    | ANSI core     | PW NC    | 12    |  (TBA) |
 | ACCEPT              | fragment | ANSI core     | -        | (TBA) |  (TBA) |
+| AGAIN               | coded    | ANSI core ext | IM NC CO | 22    |     50 |
 | ALLOT               | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | AND                 | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
 | BASE                | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | BELL                | coded    | Gforth        | PW NC    | (TBA) |  (TBA) |
+| BEGIN               | coded    | ANSI core     | IM CO NC | 6     |     13 |
 | BL                  | coded    | ANSI core     | PW NC    | 7     |     12 |
 | BYE                 | coded    | ANSI tools    | PW NC    | 2     |    7-8 | 
 | C, "c-comma"        | coded    | ANSI core     | PW NC    | 13    |     28 |
@@ -69,6 +71,7 @@ Last update: *17. February 2017*
 | FIND-NAME           | coded    | Gforth        | PW NC    | (TBA) |    n/a |
 | HERE                | coded    | ANSI core     | PW NC    | 6     |     13 |
 | HEX                 | coded    | ANSI core     | PW NC    | 7     |  (TBA) |
+| IF                  | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | IMMEDIATE           | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
 | INVERT              | coded    | ANSI core     | PW NC    | 5     |  (TBA) |
 | LITERAL             | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
@@ -87,6 +90,7 @@ Last update: *17. February 2017*
 | POSTPONE            | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | QUIT                | fragment | ANSI core     | -        | (TBA) |    n/a |
 | REFILL              | fragment | ANSI core ext | PW       | (TBA) |  (TBA) |
+| REPEAT              | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | ROT                 | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
 | S" "squote"         | coded    | ANSI core     | IM NC    | (TBA) |  (TBA) |
 | SLITERAL            | coded    | ANSI string   | IM CO    | (TBA) |  (TBA) |
@@ -96,6 +100,7 @@ Last update: *17. February 2017*
 | SPACES              | coded    | ANSI core     | PW NC    | 12    |  (TBA) |
 | STATE               | coded    | ANSI core     | PW NC    | 7     |     12 |
 | SWAP                | coded    | ANSI core     | PW NC    | 5     |     12 |
+| THEN                | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | TRUE                | coded    | ANSI core ext | PW NC    | 7     |     12 |
 | TUCK                | coded    | ANSI core ext | PW NC    | 8     |     19 |
 | TYPE                | fragment | ANSI core     | -        | 23+   |  (TBA) |

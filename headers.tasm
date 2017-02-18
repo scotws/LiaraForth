@@ -200,8 +200,16 @@ nt_zbranch .byte 7, { IM + CO }
         .word nt_leftbracket, xt_zbranch, z_zbranch
         .byte "0branch"
 
+nt_again .byte 5, { IM + NC + CO }
+        .word nt_zbranch, xt_again, z_again
+        .byte "again"
+
+nt_begin .byte 5, { IM + NC + CO }
+        .word nt_again, xt_begin, z_begin
+        .byte "begin"
+
 nt_compilecomma .byte 08, { CO }
-        .word nt_zbranch, xt_compilecomma, z_compilecomma
+        .word nt_begin, xt_compilecomma, z_compilecomma
         .byte "compile,"
 
 nt_semicolon .byte 1, { CO + IM }
