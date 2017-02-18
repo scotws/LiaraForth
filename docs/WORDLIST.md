@@ -24,6 +24,7 @@ Last update: *18. February 2017*
 | \[CHAR\]            | coded    | ANSI core     | IM CO NC | (TBA) |  (TBA) |
 | \] "rightbracket"   | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | ' "tick"            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| * "star"            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | + "plus"            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | - "minus"           | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | = "equal"           | coded    | ANSI core     | NC       | 11    |  18-20 |

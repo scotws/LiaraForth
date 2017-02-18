@@ -92,8 +92,12 @@ nt_ummod .byte 6, { NC }
         .word nt_dnegate, xt_ummod, z_ummod
         .byte "um/mod"
 
+nt_star .byte 1, { NC }
+        .word nt_ummod, xt_star, z_star
+        .byte '*'
+
 nt_mstar .byte 2, { NC }
-        .word nt_ummod, xt_mstar, z_mstar
+        .word nt_star, xt_mstar, z_mstar
         .byte "m*"
 
 nt_umstar .byte 3, { NC }
@@ -104,7 +108,7 @@ nt_count .byte 5, { NC + PW }
         .word nt_umstar, xt_count, z_count
         .byte "count"
 
-nt_abort .byte 5, 00 ; TODO check flags
+nt_abort .byte 5, 00 ; TODO check flags - NC possible?
         .word nt_count, xt_abort, z_abort
         .byte "abort"
 

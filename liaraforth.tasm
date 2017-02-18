@@ -2828,6 +2828,18 @@ spaces_done
 
 z_spaces        rts
 
+; -------------------------------------------------------------------
+; STAR ( n n -- n ) 16*16 -> 16  X bytes / X cycles
+; Multiply two signed 16 bit numbers, returning a 16 bit result. This is nothing
+; more than UM* DROP
+xt_star          
+                jsr xt_umstar
+                ldy.dx 00       ; DROP
+                inx
+                inx
+
+z_star          rts
+
 
 ; -------------------------------------------------------------------
 ; STATE ( -- addr ) 7 bytes / 12 cycles
