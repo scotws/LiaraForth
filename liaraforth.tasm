@@ -1613,6 +1613,29 @@ xt_depth
 
 z_depth         rts
 
+; -------------------------------------------------------------------
+; DNEGATE ( d -- d ) 19 bytes / X cycles
+; Change the sign of a double number. This is the double equivalent of NEGATE
+xt_dnegate       
+        .!a16
+                ; start off with LSW (in NOS)
+                lda.dx 00
+                eor.# 0ffff
+
+                ; INC doesn't affect the carry flag, so we have to do this the
+                ; hard way
+                clc
+                adc.# 0001
+                sta.dx 00
+
+                ; now MSW (in TOS)
+                tya
+                eor.# 0ffff
+                adc.# 0000      ; we are only interested in the carry
+                tay
+             
+z_dnegate       rts
+
 
 ; -------------------------------------------------------------------
 ; DOES> ( -- ) X bytes / X cycles
@@ -2048,6 +2071,55 @@ literal_rt
                 tay             ; Value is now on the Data Stack ( -- n )
 
                 rts
+
+; -------------------------------------------------------------------
+; M* "MSTAR" ( n n -- d ) 16*16 -> 32  X bytes / X cycles
+; Multiply two 16 bit numbers, producing a 32 bit result. All values are signed.
+; This was originally adapted from FIG Forth for Tali Forth. The original Forth
+; code is : M* OVER OVER XOR >R ABS SWAP ABS UM* R> D+- ;  with 
+; : D+- O< IF DNEGATE THEN ; 
+; TODO Test this more once we have the Double words etc all working
+xt_mstar         
+        .!a16
+                ; figure out the sign
+                tya             
+                eor.dx 00
+
+                ; um* uses all kinds of tmp stuff so we don't risk a conflict
+                ; and just take the cycle hit by pushing this to the stack
+                pha
+
+                ; get the absolute value of both numbers so we can feed them to
+                ; UM*, which does the real work
+                tya
+                bpl mstar_abs_nos
+              
+                ; TOS is negative so we have to ABS it
+                eor.# 0ffff
+                inc.a
+                tay
+
+mstar_abs_nos
+                lda.dx 00
+                bpl mstar_umstar
+                
+                ; NOS is negative so we have to ABS it
+                eor.# 0ffff
+                inc.a
+                sta.dx 00
+
+mstar_umstar
+                jsr xt_umstar   ; now ( d ) on stack
+
+                ; handle the sign
+                pla
+
+                ; postive, we don't have to care
+                bpl z_mstar
+
+                jsr xt_dnegate
+
+z_mstar         rts
 
 
 ; -------------------------------------------------------------------
@@ -2920,7 +2992,7 @@ umstar_loop
                 adc.d tmp1      ; we have a set bit, so add TOS
 
                 ; if we have a carry, increase the MSW of result
-                bcc umstar_count
+                bcc umstar_counter
                 inc.d tmp3
 
 umstar_counter

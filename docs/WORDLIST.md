@@ -70,6 +70,7 @@ Last update: *18. February 2017*
 | CREATE              | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | DECIMAL             | coded    | ANSI core     | PW NC    | 7     |  (TBA) |
 | DEPTH               | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| DNEGATE             | coded    | ANSI double   | NC       | 19    |  (TBA) |
 | DOES>               | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | DROP                | coded    | ANSI core     | PW NC    | 4     |      9 |
 | DUMP                | fragment | ANSI tools    | PW NC    | (TBA) |  (TBA) |
@@ -85,6 +86,7 @@ Last update: *18. February 2017*
 | IMMEDIATE           | coded    | ANSI core     | PW NC    | 8     |  (TBA) |
 | INVERT              | coded    | ANSI core     | PW NC    | 5     |  (TBA) |
 | LITERAL             | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
+| M* "mstar"          | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | MAX                 | coded    | ANSI core     | PW NC    | 18    |  (TBA) |
 | MIN                 | coded    | ANSI core     | PW NC    | 18    |  (TBA) |
 | NAME>INT            | coded    | Gforth        | PW NC    | 4     |      8 |

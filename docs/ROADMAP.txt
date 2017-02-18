@@ -21,6 +21,7 @@ TODO LATER (next on top)
 - Create drawings of stack antics in INTERNALS.md 
 - Add real multi-line history
 - Consider morse code output because that would be cool
+- Add better version of UM* and other multiple/division routines based on tables
 
 
 FINISHED (newest on top, with date if possible)
