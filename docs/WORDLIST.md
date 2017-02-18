@@ -27,11 +27,15 @@ Last update: *18. February 2017*
 | + "plus"            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | - "minus"           | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | = "equal"           | coded    | ANSI core     | NC       | 11    |  18-20 |
+| < "less"            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | <> "not-equal"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| > "greater"         | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | >IN "to-in"         | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
 | 0 "zero"            | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 0= "zero-equal"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | 0< "zero-less"      | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | 0> "zero-more"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| 0<> "zero-notequal" | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | 0BRANCH             | coded    | 265SXB        | CO IM    | (TBA) |  (TBA) |
 | 1 "one"             | coded    | 265SXB        | PW NC    | 7     |     12 |
 | 1- "one-minus"      | coded    | ANSI core     | PW NC    | 1     |      2 |

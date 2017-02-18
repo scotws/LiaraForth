@@ -340,16 +340,32 @@ nt_one-plus .byte 2, { PW + NC }
         .word nt_one-minus, xt_one-plus, z_one-plus
         .byte "1+"
 
+nt_zero-notequal .byte 3, { NC }
+        .word nt_one-plus, xt_zero-notequal, z_zero-notequal
+        .byte "0<>"
+
 nt_zero-more .byte 2, { NC }
-        .word nt_one-plus, xt_zero-more, z_zero-more
+        .word nt_zero-notequal, xt_zero-more, z_zero-more
         .byte "0>"
 
 nt_zero-less .byte 2, { NC }
         .word nt_zero-more, xt_zero-less, z_zero-less
         .byte "0<"
 
+nt_greater .byte 1, { NC }
+        .word nt_zero-less, xt_greater, z_greater
+        .byte '>'
+
+nt_less .byte 1, { NC }
+        .word nt_greater, xt_less, z_less
+        .byte '<'
+
+nt_zero-equal .byte 2, { NC }
+        .word nt_less, xt_zero-equal, z_zero-equal
+        .byte "0="
+
 nt_not-equal .byte 2, { NC }
-        .word nt_zero-less, xt_not-equal, z_not-equal
+        .word nt_zero-equal, xt_not-equal, z_not-equal
         .byte "<>"
 
 nt_equal .byte 1, { NC }

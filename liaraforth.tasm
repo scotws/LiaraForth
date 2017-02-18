@@ -193,6 +193,33 @@ z_cold
 z_abort         
 z_quit          nop  ; dummy for compilation, TODO test if required
 
+; -------------------------------------------------------------------
+; < "LESS" ( n m -- f ) X bytes / X cycles
+; Return true flag if NOS < TOS. See
+; http://www.6502.org/tutorials/compare_beyond.html for details on the
+; comparisons
+xt_less          
+                tya
+                ldy.# 0000      ; default is false
+
+                sec 
+                sbc.dx 00
+                beq xt_less_nip      ; the same is not greater
+                bvc xt_less_no_ov    ; no overflow, skip ahead
+
+                ; Deal with oveflow because we use signed numbers
+                eor.# 8000      ; compliment negative flag
+
+xt_less_no_ov
+                ; if we're negative TOS > NOS
+                bmi xt_less_nip     
+                dey             
+xt_less_nip
+                inx
+                inx
+
+z_less          rts
+
 
 ; -------------------------------------------------------------------
 ; <> "NOT-EQUAL" ( n m -- f ) X bytes / X cycles
@@ -211,6 +238,34 @@ not-equal_equal                 ; yes, this is a silly name
                 inx
      
 z_not-equal     rts
+
+
+; -------------------------------------------------------------------
+; > "GREATER" ( n m -- f ) X bytes / X cycles
+; Return true flag if NOS > TOS. See
+; http://www.6502.org/tutorials/compare_beyond.html for details on the
+; comparisons
+xt_greater       
+                tya
+                ldy.# 0000      ; default is false
+
+                sec 
+                sbc.dx 00
+                beq xt_greater_nip      ; the same is not greater
+                bvc xt_greater_no_ov    ; no overflow, skip ahead
+
+                ; Deal with oveflow because we use signed numbers
+                eor.# 8000      ; compliment negative flag
+
+xt_greater_no_ov
+                ; if we're still positiv, TOS < NOS
+                bpl xt_greater_nip     
+                dey             
+xt_greater_nip
+                inx
+                inx
+
+z_greater       rts
 
 
 ; -------------------------------------------------------------------
@@ -633,6 +688,21 @@ xt_zero
 
 z_zero          rts
                
+; -------------------------------------------------------------------
+; 0= "ZERO-EQUAL" ( n -- f ) X bytes / X cycles
+; Return the true flag if TOS is zero
+xt_zero-equal    
+        .!a16
+                tya             ; force flag check
+                bne ze_not_zero
+
+                ldy.# 0fff
+                bra z_zero-equal
+ze_not_zero     
+                ldy.# 0000
+
+z_zero-equal    rts
+
 
 ; -------------------------------------------------------------------
 ; 0< "ZERO-LESS" ( n -- f ) 11 bytes / X cycles
@@ -649,6 +719,20 @@ zero-less-is-less
                 ldy.# 0ffff
 
 z_zero-less     rts
+
+; -------------------------------------------------------------------
+; 0<> "ZERO-NOTEQUAL" ( n -- f ) 11 bytes / X cycles
+; Return the true flag if TOS is not zero
+xt_zero-notequal
+	.!a16
+		tya     ; force flag check
+                beq zne_is_zero
+                ldy.# 0ffff
+                bra z_zero-notequal
+zne_is_zero
+                ldy.# 0000
+z_zero-notequal
+                rts
 
 
 ; -------------------------------------------------------------------
