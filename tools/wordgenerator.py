@@ -26,13 +26,13 @@ z_{2:<14}rts
 """
 
 dict_template = """
-nt_{0:<4} .byte {2}, {{ PW + NC }}
+nt_{0:<4} .byte {2}, {{ NC }}
         .word nt_{1}, xt_{0}, z_{0}
         .byte "{0}"
 """
 
 entry_template = """
-| {0:<20}| coded    | {1:<13} | PW NC    | (TBA) |  (TBA) |
+| {0:<20}| coded    | {1:<13} | NC       | (TBA) |  (TBA) |
 """
 
 while True:

@@ -4,7 +4,7 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information - because only things that get measured get 
 optimized. 
 
-Last update: *17. February 2017*
+Last update: *18. February 2017*
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -26,8 +26,12 @@ Last update: *17. February 2017*
 | ' "tick"            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | + "plus"            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | - "minus"           | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
+| = "equal"           | coded    | ANSI core     | NC       | 11    |  18-20 |
+| <> "not-equal"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | >IN "to-in"         | coded    | ANSI core     | PW NC    | 6     |  (TBA) |
 | 0 "zero"            | coded    | 265SXB        | PW NC    | 7     |     12 |
+| 0< "zero-less"      | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| 0> "zero-more"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | 0BRANCH             | coded    | 265SXB        | CO IM    | (TBA) |  (TBA) |
 | 1 "one"             | coded    | 265SXB        | PW NC    | 7     |     12 |
 | 1- "one-minus"      | coded    | ANSI core     | PW NC    | 1     |      2 |

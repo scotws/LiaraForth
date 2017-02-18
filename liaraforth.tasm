@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 17. Feb 2017
+; This version: 18. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -48,7 +48,7 @@ start
                 ; TODO initiate User variables
 
 
-		; We start out in decimal mode
+                ; We start out in decimal mode
                 jsr xt_decimal
                 
                 ; The name token (nt) of DROP is always the first one in the
@@ -192,6 +192,26 @@ quit_print
 z_cold
 z_abort         
 z_quit          nop  ; dummy for compilation, TODO test if required
+
+
+; -------------------------------------------------------------------
+; <> "NOT-EQUAL" ( n m -- f ) X bytes / X cycles
+; Return true flag if TOS and NOS are not the same. This is just a different
+; version of EQUAL, we repeat the code for speed reasons
+xt_not-equal     
+                tya
+                ldy.# 0000      ; default value is false
+
+                cmp.dx 00
+                beq not-equal_equal 
+                dey             ; wraps to 0FFFF (true) 
+
+not-equal_equal                 ; yes, this is a silly name
+                inx
+                inx
+     
+z_not-equal     rts
+
 
 ; -------------------------------------------------------------------
 ; >IN "TO-IN" ( -- addr ) 6 bytes / 12 cycles
@@ -506,7 +526,7 @@ z_store         rts
 ; Get one cell (16 bit) value from given address
 xt_fetch         
                 lda.y 0000
-		tay
+                tay
 
 z_fetch         rts
 
@@ -516,7 +536,7 @@ z_fetch         rts
 ; Store xt of following word during compilation
 xt_brackettick   
                 jsr xt_tick
-		jmp xt_literal	; JSR/RTS
+                jmp xt_literal  ; JSR/RTS
 z_brackettick   
 
 
@@ -534,8 +554,8 @@ z_leftbracket   rts
 ; a simple INC.A, but this is more error tolerant. For obvious reasons, this
 ; cannot be COMPILE-ONLY, and native compile doesn't make much sense either
 xt_rightbracket  
-		lda.# 0001
-		sta.d state
+                lda.# 0001
+                sta.d state
                 
 z_rightbracket  rts
 
@@ -583,6 +603,23 @@ xt_minus
                 
 z_minus         rts
 
+; -------------------------------------------------------------------
+; = "EQUAL" ( n m -- f ) 11 bytes / 18-20 cycles
+; See if TOS and NOS are the same
+xt_equal         
+                tya
+                ldy.# 0000      ; default value is false
+
+                cmp.dx 00
+                bne equal_not
+                dey             ; wraps to 0FFFF (true) 
+
+equal_not
+                inx
+                inx
+
+z_equal         rts
+
 
 ; -------------------------------------------------------------------
 ; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
@@ -596,12 +633,50 @@ xt_zero
 
 z_zero          rts
                
+
+; -------------------------------------------------------------------
+; 0< "ZERO-LESS" ( n -- f ) 11 bytes / X cycles
+; Return the true flag if TOS is less than zero
+xt_zero-less     
+	.!a16
+                tya	; force flag check
+		bmi zero-less-is-less
+
+                ldy.# 0000
+                bra z_zero-less
+
+zero-less-is-less
+                ldy.# 0ffff
+
+z_zero-less     rts
+
+
+; -------------------------------------------------------------------
+; 0> "ZERO-MORE" ( n -- f ) X bytes / X cycles
+; Return the true flag if TOS is more than zero
+xt_zero-more     
+        .!a16
+                lda.# 0000              ; default is false
+
+                dey
+                bpl zero-more_true      ; was at least 1
+
+                bra zero-more_done      ; nope, stays false
+
+zero-more_true
+                dec.a   ; wraps to 0ffff, true
+zero-more_done
+                tay
+
+z_zero-more     rts
+
+
 ; -------------------------------------------------------------------
 ; 0BRANCH ( 0 | f -- ) X bytes / X cycles
 ; Branch if TOS is zero. This exects the next two bytes to be the address of
 ; where to branch to if the test fails. The code may not be natively compiled
 ; because we need the return address provided by JSR's push to the Return Stack
-; This routine uses tmp1 and tmp2
+; This routine uses tmp1
 xt_zbranch       
         .!a16
                 ; encode subroutine jump to run time code 
@@ -632,7 +707,7 @@ zbranch_rt
 zb_zero
                 ; Flag is FALSE, so we take the dump to the address given in the
                 ; next two bytes. We don't need Y anymore, so we can use it for
-                ; more useful things 
+                ; indexing
                 ldy.# 0001
                 lda.diy tmp1
 
@@ -641,6 +716,7 @@ zb_zero
                 dec.a
 
 zb_done
+                ; One we or another, this is where we're going to jump to
                 pha
 
                 ; Clean up the Data Stack and jump
@@ -701,8 +777,8 @@ z_two           rts
 ; 2* "TWO-STAR" ( n -- 2*n ) 3 bytes / 6 cycles
 ; Multiply Top of Stack (TOS) by 2. This is also used by CELLS
 xt_two-star      
-	.!a16
-	.!xy16
+        .!a16
+        .!xy16
                 tya
                 asl.a
                 tay
@@ -745,9 +821,9 @@ z_2dup          rts
 ; Given a string with the name of a word, return the word's execution token (xt)
 ; Abort if not found
 xt_tick          
-		jsr xt_parse-name	; ( -- addr u ) 
+                jsr xt_parse-name       ; ( -- addr u ) 
 
-		; if we got a zero, complain and abort
+                ; if we got a zero, complain and abort
                 tya                     ; force flag check
                 bne tick_have_word
 
@@ -979,9 +1055,9 @@ z_allot         rts
 ; AND ( n m -- n ) 6 bytes / X cycles
 ; Logical AND
 xt_and           
-		tya
+                tya
                 and.dx 00
-		tay
+                tay
 
                 inx     ; NIP
                 inx
@@ -1005,9 +1081,9 @@ z_base          rts
 ; Trigger terminal bell on vt100 terminals
 ; TODO replace with EMIT
 xt_bell          
-	.!a16
-		lda.# AscBELL 
-		jsr put_chr
+        .!a16
+                lda.# AscBELL 
+                jsr put_chr
 
 z_bell          rts
 
@@ -1042,7 +1118,7 @@ z_bl            rts
 
 ; -------------------------------------------------------------------
 ; BRANCH ( -- ) X bytes / X cycles
-; Transfer control to given address. Uses tmptos
+; Transfer control to given address. Uses tmp3 and tmptos
 xt_branch        
         .!a16
                 ; encode subroutine branch to runtime portion
@@ -1052,29 +1128,27 @@ xt_branch
 z_branch        rts
 
 branch_rt
-                pla
-                phy
+                sty.d tmptos
 
                 ; The value on the Return Stack determines where we go to
+                pla
                 sta.d tmp3
-                
                 ldy.# 0001
                 lda.diy tmp3    ; LDA (TMP1),Y ; get address we're pointing to
                 dec.a
-
-                ply
                 pha             ; put target address back on Return Stack 
 
-                rts
+                ldy.d tmptos
 
+                rts
 
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
 ; TODO make sure this actually calls the MM
 xt_bye           
-		cli
-		brk 00  ; status byte 00 required for assembler
+                cli
+                brk 00  ; status byte 00 required for assembler
 
 z_bye           rts     ; dummy for compiling, never reached
 
@@ -1424,8 +1498,8 @@ z_create        rts
 ; DECIMAL ( -- ) 7 bytes / X cycles
 ; Change radix for number conversion to 10
 xt_decimal       
-	.!a16
-		lda.# 000a
+        .!a16
+                lda.# 000a
                 sta.d base
 
 z_decimal       rts
@@ -1437,7 +1511,7 @@ z_decimal       rts
 ; Assumes X is valid as the DSP.
 xt_depth         
         .!a16
-		; We've got zero entries when X is dsp0
+                ; We've got zero entries when X is dsp0
                 stx.d tmpdsp
                 lda.# dsp0
                 sec
@@ -1463,7 +1537,7 @@ z_depth         rts
 ; http://www.bradrodriguez.com/papers/moving3.htm for a discussion of 
 ; DOES>'s internal workings. This uses tmp1 and tmp2
 xt_does
-		; compile a subroutine jump to the runtime of DOES>
+                ; compile a subroutine jump to the runtime of DOES>
                 phe.# does_rt
                 jsr cmpl_subroutine
 
@@ -1647,7 +1721,7 @@ execute_ip      .byte 00, 00, 00
 xt_execute       
         .!a16
         .!xy16
-		; Store the xt for later use and then drop it off the stack
+                ; Store the xt for later use and then drop it off the stack
                 sty execute_ip
                 ldy.dx 00
                 inx
@@ -1835,9 +1909,9 @@ z_here          rts
 ; HEX ( -- ) X bytes / X cycles
 ; Change radix for number conversion to 16
 xt_hex           
-	.!a16
+        .!a16
                 lda.# 0010
-		sta.d base
+                sta.d base
 
 z_hex           rts
 
@@ -1960,11 +2034,11 @@ z_min           rts
 xt_name-int      
         .!a16
         .!xy16
-		; The xt of a word beginns four bytes down from its nt
-		iny
-		iny
-		iny
-		iny
+                ; The xt of a word beginns four bytes down from its nt
+                iny
+                iny
+                iny
+                iny
                 lda.y 0000
                 tay
                 
@@ -2041,7 +2115,7 @@ xt_over
                 dex
                 sty.dx 00
                 ldy.dx 02
-		
+                
 z_over          rts
 
 
