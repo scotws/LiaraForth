@@ -114,6 +114,8 @@ Last update: *18. February 2017*
 | TRUE                | coded    | ANSI core ext | PW NC    | 7     |     12 |
 | TUCK                | coded    | ANSI core ext | PW NC    | 8     |     19 |
 | TYPE                | fragment | ANSI core     | -        | 23+   |  (TBA) |
+| UM* "um-star"       | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
+| UM/MOD              | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | UNUSED              | coded    | ANSI core ext | PW NC    | (TBA) |  (TBA) |
 | VARIABLE            | coded    | ANSI core     | PW NC    | (TBA) |  (TBA) |
 | WORDS               | coded    | ANSI tools    | PW NC    | (TBA) |  (TBA) |

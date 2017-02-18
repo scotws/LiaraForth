@@ -2854,6 +2854,134 @@ type_done
                 
 z_type          rts
 
+
+; -------------------------------------------------------------------
+; UM* "UMSTAR" ( u u -- ud ) 16*16 -> 32  X bytes / X cycles
+; Multiply two unsigned 16 bit numbers, producing a 32 bit result.This is based
+; on modified FIG Forth code by Dr. Jefyll, see
+; http://forum.6502.org/viewtopic.php?f=9&t=689 for a detailed discussion. We
+; use the system scratch pad (SYSPAD) for temp storage (N in the original code)
+; FIG Forth is in the public domain. Note old Forth versions such as FIG Forth
+; call this "U*"
+
+; This is currently a brute-force loop based on the 8-bit variant in "6502
+; Assembly Language Programming" by Leventhal. Once everything is working,
+; consider switching to a table-supported version based on
+; http://codebase64.org/doku.php?id=base:seriously_fast_multiplication
+; http://codebase64.org/doku.php?id=magazines:chacking16#d_graphics_for_the_masseslib3d_and_cool_world
+; http://forum.6502.org/viewtopic.php?p=205#p205
+; http://forum.6502.org/viewtopic.php?f=9&t=689 We use tmp1, tmp2, tmp3 for
+; this, with the assumption that tmp3 immediately follows tmp2
+ 
+xt_umstar        
+        .!a16
+                ; SPECIAL CASE 1: multiplication by zero
+                tya
+                beq umstar_zero
+                lda.dx 00
+                beq umstar_zero
+
+                ; SPECIAL CASE 2: multiplication by one
+                ; This is a different routine than 2* because that instruction
+                ; stays inside one cell, whereas UM* produces a Double Cell
+                ; answer
+                cpy.# 0001      ; non-distructively
+                beq umstar_one_tos
+                lda.dx 00
+                dec.a           ; don't care about distruction
+                beq umstar_one_nos
+
+                ; SPECIAL CASE 3: multiplication by two
+                cpy.# 0002 
+                beq umstar_two_tos
+
+                lda.dx 00
+                cmp.# 0002
+                beq umstar_two_nos
+
+                ; NO SPECIAL CASE ("THE HARD WAY") 
+                sty.d tmp1      ; TOS number  "40"
+                sta.d tmp2      ; NOS number  "41"
+                ldy.# &16       ; loop counter
+
+                lda.# 0000
+                sta.d tmp3      ; Most Significat Word (MSW) of result
+                
+umstar_loop
+                asl.a           ; useless for first iteration
+                rol.d tmp3      ; move carry into MSB, useless first iteration
+                asl.d tmp2      ; move bit of NOS number into carry
+
+                ; if there is no carry bit, we don't have to add and can go to
+                ; the next bit
+                bcc umstar_counter
+                
+                clc
+                adc.d tmp1      ; we have a set bit, so add TOS
+
+                ; if we have a carry, increase the MSW of result
+                bcc umstar_count
+                inc.d tmp3
+
+umstar_counter
+                dey
+                bne umstar_loop
+
+                ; We're all done, clean up and leave
+                sta.dx 00       ; store lower cell of number in NOS
+                ldy.d tmp3      ; store MSB in TOS as double cell
+               
+                bra z_umstar    ; don't use RTS so we can natively compile
+                
+umstar_zero
+                ; one or both of the numbers is zero, so we got off light
+                ldy.# 0000
+                sty.dx 00
+                bra z_umstar
+
+umstar_one_tos
+                ; TOS is one, life is easy
+                dey             ; NOS is LSW, TOS becomes zero
+                bra z_umstar
+umstar_one_nos  
+                ; NOS is one, life is easy
+                sty.dx 00
+                ldy.# 0000
+                bra z_umstar
+
+umstar_two_tos
+                ; TOS is two, life is easy
+                lda.dx 00
+                bra umstar_two_common
+umstar_two_nos
+                ; NOS is two, life is still easy
+                tya 
+umstar_two_common
+                asl.a           ; multiply by two, top bit in Carry Flag
+                sta.dx 00       ; Double Cell LSW is NOS
+
+                lda.# 0000
+                rol.a           ; Rotate any Carry Flag into MSW
+                tay
+                
+z_umstar        rts
+
+; -------------------------------------------------------------------
+; UM/MOD ( ud u -- u u ) 32/16 -> 16  X bytes / X cycles
+; Divide double cell number by single cell number, returning the quotient as TOS
+; and any remainder as NOS. All numbers are unsigned. This is the basic division
+; operation all others use. Based on Garth Wilson's code at
+; http://6502.org/source/integers/ummodfix/ummodfix.htm 
+xt_ummod         
+                ; save Data Stack Pointer with one less cell
+                ; stx.d tmpdsp
+                ; inc.d tmpdsp
+                ; inc.d tmpdsp
+                
+z_ummod         rts
+
+
+
 ; -------------------------------------------------------------------
 ; UNUSED ( -- u ) 11 bytes / X cycles
 ; Return amount of memory available for the Dictionary. Does not include 

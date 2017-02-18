@@ -38,6 +38,7 @@ jmp        3/3
 jsr        3/6 
 jsr.l      4/8
 
+lda        3/5
 lda.#      3/3 
 lda.d      2/4  (8 bit: 2/3)
 lda.di     2/6  (+1 if crossing page boundary)
@@ -58,6 +59,7 @@ rts        1/6
 rts.l      1/6  (same speed as plain rts)
 
 sep        2/3 
+sta        3/5
 sta.d      2/4  ( 8 bit: 2/3)
 sta.di     2/6
 sta.dx     2/5 
