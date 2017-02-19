@@ -76,3 +76,6 @@ size in bytes and the speed in cycles are recorded in the source code. A list of
 the size and execution time of the most used instructions in 16 bit mode is
 included in the documentation folder. 
 
+
+## Notes (convert these later)
+We use SM/REM instad of FM/MOD where the difference is not apparent

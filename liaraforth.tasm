@@ -680,6 +680,20 @@ xt_minus
 z_minus         rts
 
 ; -------------------------------------------------------------------
+; -ROT ( a b c -- c a b )  X bytes / X cycles
+; Rotate top three entries of Data Stack upwards
+xt_mrot          
+        .!a16
+        .!xy16
+                lda.dx 02       ; save a
+                sty.dx 02       ; move c to 3OS
+                ldy.dx 00       ; move b to TOS
+                sta.dx 00       ; save a as NOS
+             
+z_mrot          rts
+
+
+; -------------------------------------------------------------------
 ; = "EQUAL" ( n m -- f ) 11 bytes / 18-20 cycles
 ; See if TOS and NOS are the same
 xt_equal         
@@ -2748,53 +2762,6 @@ z_stod          rts
 
 
 ; -------------------------------------------------------------------
-; SMREM ( d n  -- rem qut ) 32/16 -> 16  X bytes / X cycles
-; Symmetrical signed division. Compare FM/MOD. Based on F-PC 3.6 by Ulrich
-; Hoffmann  F-PC is in the public domain. See http://www.xlerb.de/uho/ansi.seq
-; Original Forth Code, adapted from 8-bit version for Tali Forth: 
-; OVER >R 2DUP XOR 0< >R ABS >R DABS R> UM/MOD R> ?NEGATE SWAP R> ?NEGATE SWAP
-; See http://www.forth200x.org/documents/html/usage.html#usage:div for details
-; TODO consider unrolling this further
-; TODO test further
-xt_smrem         
-        .!a16
-                ; Save the high cell of d so we can check its sign later
-                lda.dx 02
-                pha
-
-                ; XOR the high cell and low cell of d to figure out its sign 
-                ; as well
-                lda.dx 00
-                eor.dx 02
-                pha
-                
-                ; Get absolute value of quotient and divident
-                ; TODO consider unrolling this further
-                jsr xt_abs      ; ABS
-                jsr xt_tor      ; >R
-                jsr xt_dabs     ; DABS
-                jsr xt_fromr    ; R>
-
-                jsr xt_ummod    ; UM/MOD        ; actual division
-
-                ; if the XOR created is negative, negate the quotient as well
-                pla
-                bpl smrem_rem
-
-                jsr xt_negate
-smrem_rem
-                ; if d was negative, negate the remainder rem
-                pla
-                bpl z_smrem
-
-                jsr xt_swap
-                jsr xt_negate
-                jsr xt_swap
-                
-z_smrem         rts
-
-
-; -------------------------------------------------------------------
 ; SLITERAL ( addr u -- ) ( -- addr u ) X bytes / X cycles 
 ; At compile time, store string, at runtime, return address and length of string
 ; on the Data Stack. Used for S" among other things. This routine uses tmp1,
@@ -3766,6 +3733,20 @@ hi-start
         .byte ": repeat postpone again here swap ! ; immediate compile-only " ; REPEAT
         .byte ": until postpone 0branch , ; immediate compile-only " ; UNTIL
         .byte ": while postpone 0branch here 0 , swap ; immediate compile-only "; WHILE
+
+        ; High level math definitions. The should be moved to actual 65816 code
+        ; for speed at some point. Note we use SM/REM instead of FM/MOD for most
+        ; stuff anyway. Definitions for SM/REM and FM/MOD taken von Gforth
+        ; sources, see
+        ; https://groups.google.com/forum/#!topic/comp.lang.forth/_bx4dJFb9R0
+        .byte ": sm/rem over >r dup >r abs -rot dabs rot um/mod r> r@ xor "
+        .byte "0< if negate then r> 0< if swap negate swap then ; "
+        .byte ": fm/mod dup >r dup 0< if negate >r dnegate r> then over " 
+        .byte "0< if tuck + swap then um/mod r> 0< if swap negate swap then ; "
+        .byte ": / >r s>d r> sm/rem swap drop ; "
+        .byte ": /mod >r s>d r> sm/rem ; "
+        .byte ": */ >r m* r> sm/rem swap drop ; "
+        .byte ": */mod >r m* r> sm/rem ; "
 
         ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"

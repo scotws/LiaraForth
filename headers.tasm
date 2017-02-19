@@ -97,12 +97,8 @@ nt_stod .byte 3, { NC }
         .word nt_dnegate, xt_stod, z_stod
         .byte "s>d"
 
-nt_smrem .byte 6, { NC }
-        .word nt_stod, xt_smrem, z_smrem
-        .byte "sm/rem"
-
 nt_ummod .byte 6, { NC }
-        .word nt_smrem, xt_ummod, z_ummod
+        .word nt_stod, xt_ummod, z_ummod
         .byte "um/mod"
 
 nt_star .byte 1, { NC }
@@ -457,8 +453,12 @@ nt_nip  .byte 3, { NC }
         .word nt_tuck, xt_nip, z_nip
         .byte "nip"
 
+nt_mrot .byte 4, { NC }
+        .word nt_nip, xt_mrot, z_mrot
+        .byte "-rot"
+
 nt_rot  .byte 3, { NC }
-        .word nt_nip, xt_rot, z_rot
+        .word nt_mrot, xt_rot, z_rot
         .byte "rot"
 
 nt_execute .byte 7, { NC }

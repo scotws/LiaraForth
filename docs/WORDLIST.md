@@ -12,33 +12,38 @@ Last update: *19. February 2017*
 | . "dot"             | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | .( "dotparen"       | coded    | ANSI core ext | IM       | Forth | Forth  |
 | ." "dotquote"       | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
-| .S "dot-s"          | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
-| , "comma"           | coded    | ANSI core     | NC       | 11    |     29 |
-| : "colon"           | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| ; "semicolon"       | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |
+| / "slash"           | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| /MOD "slashmod"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| .S                  | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
+| ,                   | coded    | ANSI core     | NC       | 11    |     29 |
+| :                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| ;                   | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |
 | ! "store"           | coded    | ANSI core     | NC       | 9     |  (TBA) |
 | ? "question"        | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
 | @ "fetch"           | coded    | ANSI core     | NC       | 4     |  (TBA) |
-| ( "paren"           | coded    | ANSI core     | NC       | Forth |  Forth |
-| \[ "leftbracket"    | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
+| (                   | coded    | ANSI core     | NC       | Forth |  Forth |
+| \[                  | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | \['\] "brackettick" | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | \[CHAR\]            | coded    | ANSI core     | IM CO NC | (TBA) |  (TBA) |
-| \] "rightbracket"   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| \]                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ' "tick"            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| * "star"            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| + "plus"            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| - "minus"           | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| = "equal"           | coded    | ANSI core     | NC       | 11    |  18-20 |
-| < "less"            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| <> "not-equal"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
-| > "greater"         | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| >IN "to-in"         | coded    | ANSI core     | NC       | 6     |  (TBA) |
+| *                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| */                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| */MOD               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| +                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| -                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| -ROT                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| =                   | coded    | ANSI core     | NC       | 11    |  18-20 |
+| <                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| <>                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| >                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| >IN                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | >R                  | coded    | ANSI core     | NC CO    | 7     |     22 |
-| 0 "zero"            | coded    | 265SXB        | NC       | 7     |     12 |
-| 0= "zero-equal"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| 0< "zero-less"      | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| 0> "zero-more"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
-| 0<> "zero-notequal" | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| 0                   | coded    | 265SXB        | NC       | 7     |     12 |
+| 0=                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| 0<                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| 0>                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| 0<>                 | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | 0BRANCH             | coded    | 265SXB        | CO IM    | (TBA) |  (TBA) |
 | 1                   | coded    | 265SXB        | NC       | 7     |     12 |
 | 1-                  | coded    | ANSI core     | NC       | 1     |      2 |
@@ -84,6 +89,7 @@ Last update: *19. February 2017*
 | EXECUTE             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | FALSE               | coded    | ANSI core ext | NC       | 7     |     12 |
 | FIND-NAME           | coded    | Gforth        | NC       | (TBA) |    n/a |
+| FM/MOD              | coded    | ANSI core     | NC       | Forth |  Forth |
 | HERE                | coded    | ANSI core     | NC       | 6     |     13 |
 | HEX                 | coded    | ANSI core     | NC       | 7     |  (TBA) |
 | IF                  | coded    | ANSI core     | IM CO    | Forth |  Forth |
