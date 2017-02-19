@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 15. Feb 2017
+; This version: 19. Feb 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -65,7 +65,7 @@
         .equ ciblen   { directpage + &14 } ; Length of current input buffer
         .equ piblen   { directpage + &16 } ; Length of previous input buffer
         .equ toin     { directpage + &18 } ; Pointer to CIB (>IN in Forth)
-        .equ state    { directpage + &20 } ; STATE: 1 compile, 0 interpret
+        .equ state    { directpage + &20 } ; STATE: -1 compile, 0 interpret
         .equ tmp1     { directpage + &22 } ; Temporary storage
         .equ tmp2     { directpage + &24 } ; Temporary storage
         .equ tmp3     { directpage + &26 } ; Temporary storage
@@ -89,8 +89,7 @@
         .equ AscDEL  7f  ; DEL ASCII character
 
 ; Dictionary flags. The first four are currently unused
-        .equ PW 0008 ; Primitive (Native) Word
         .equ CO 0004 ; Compile Only
         .equ IM 0002 ; Immediate Word
-        .equ NC 0001 ; Native (inline) Compile
+        .equ NC 0001 ; Native Compile allowed
 

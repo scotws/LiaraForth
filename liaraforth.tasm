@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 18. Feb 2017
+; This version: 19. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -53,8 +53,8 @@ start
                 
                 ; The name token (nt) of DROP is always the first one in the
                 ; virgin Dictionary, so we start off the Dictionary Pointer (DP)
-                ; there. Adding high-level words will change this before the
-                ; user has a chance to call WORDS
+                ; there. Anything that comes after that (with WORDS, before
+                ; that) is high-level
                 lda.# nt_drop
                 sta.d dp
                 
@@ -66,7 +66,6 @@ start
                 ; Prepare input buffers
                 lda.# ibuffer1  ; start with first input buffer
                 sta.d cib
-
                 stz.d piblen    ; previous input buffer is empty
                 stz.d insrc     ; SOURCE-ID is zero
                 stz.d state     ; STATE is zero (interpret)
@@ -79,7 +78,7 @@ start
                 jsr xt_page
                 
                 ; Define high-level words via EVALUATE. At this point, whatever
-                ; is in Y (TOS) is rubbish, so we don't have to push it to the 
+                ; is in Y (TOS) is garbage, so we don't have to push it to the 
                 ; stack first
                 dex
                 dex
@@ -91,7 +90,7 @@ start
 
                 jsr xt_evaluate
 
-                ; drop through to ABORT
+                ; fall through to ABORT
 
 ; -------------------------------------------------------------------
 ; ABORT ( -- ) 8+ bytes / X cycles
