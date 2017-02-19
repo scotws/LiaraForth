@@ -461,8 +461,20 @@ nt_2drop .byte 5, { NC }
         .word nt_here, xt_2drop, z_2drop
         .byte "2drop"
 
+nt_rfetch .byte 2, 0 ; we follow Gforth in making this not CO
+        .word nt_2drop, xt_rfetch, z_rfetch
+        .byte "r@"
+
+nt_fromr .byte 2, { CO }
+        .word nt_rfetch, xt_fromr, z_fromr
+        .byte "r>"
+
+nt_tor  .byte 2, { CO }
+        .word nt_fromr, xt_tor, z_tor
+        .byte ">r"
+
 nt_over .byte 4, { NC }
-        .word nt_2drop, xt_over, z_over
+        .word nt_tor, xt_over, z_over
         .byte "over"
 
 nt_fetch .byte 1, { NC }

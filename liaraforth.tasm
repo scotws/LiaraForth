@@ -280,6 +280,28 @@ z_to-in         rts
 
 
 ; -------------------------------------------------------------------
+; >R "TOR" ( n -- ) (R: -- n )  7 bytes / 22 cycles
+; Move Top of Data Stack to Top of Return Stack
+; TODO consider stripping PHA/PLA if natively compiled (see COMPILE,)
+xt_tor           
+        .!a16                
+                ; Save the return address. If this word is natively coded, this
+                ; is a complete waste of nine cycles, but required for
+                ; subroutine coding
+                pla
+
+                phy             ; the actual work
+
+                ldy.dx 00       ; DROP
+                inx
+                inx
+
+                pha             ; put return address back in place
+
+z_tor           rts
+
+
+; -------------------------------------------------------------------
 ; . "DOT" ( n -- ) X bytes / X cycles
 ; Print value that is TOS followed by a single space
 ; Forth code is  DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE 
@@ -1344,6 +1366,9 @@ xt_compilecomma
 compile_as_code
                 ; Compile xt as native code
                 ; use nc_limit to decide if we want native compile
+                ; TODO consider special cases: 
+                ; - >R R> R@ should strip PLA/PHA if native compiled
+
                 ; TODO currently just compiles subroutine jumps
 
 compile_as_jump
@@ -2519,6 +2544,52 @@ pp_not_immediate
                 jmp cmpl_subroutine     ; JSR/RTS
 
 z_postpone      ; never reached
+
+
+; -------------------------------------------------------------------
+; R@ "RFETCH" ( -- n ) (R: n -- n )  X bytes / X cycles
+; Get (not pull) Top of Return Stack. We follow Gforth in that this word is not
+; compiled only, because it can be interesting to know what the top of R is in
+; an interactive setting. However, this causes all kinds of problems if we try
+; to natively compile the word, so it does not get the NC flag even though it is
+; actually short enough to make that reasonable
+; TODO consider special case in COMPILE, see there
+xt_rfetch        
+                ; get return address that is on top of the return stack
+                pla
+
+                dex
+                dex
+                sty.dx 00
+
+                ply     ; get top of return stack and push copy back again
+                phy
+
+                pha     ; restore the return address
+
+z_rfetch        rts
+
+
+; -------------------------------------------------------------------
+; R> "FROMR" ( -- n ) (R: n -- )  7 bytes / 23 cycles
+; Move Top of Return Stack to Top of Data Stack. Remember we have to move the
+; jump address out of the way first.
+; TODO consider stripping PHA/PLA if natively compiled (see COMPILE,)
+xt_fromr         
+                ; Rescue the address of the return jump that is currently top of
+                ; the Return Stack. If this word is natively compiled, this is
+                ; a waste of nine cycles
+                pla
+
+                dex
+                dex
+                sty.dx 00
+
+                ply             ; the actual work
+
+                pha             ; get return address back
+
+z_fromr         rts
 
 
 ; ------------------------------------------------------------------- 

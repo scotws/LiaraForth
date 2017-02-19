@@ -2,7 +2,8 @@
 
 This table is an alphabetical list of the words provided by Liara Forth, including
 their status and other information - because only things that get measured get 
-optimized. 
+optimized. Words here are upper case to make reading easier, but are lower case in 
+Liara Forth itself.
 
 Last update: *19. February 2017*
 
@@ -32,6 +33,7 @@ Last update: *19. February 2017*
 | <> "not-equal"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | > "greater"         | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | >IN "to-in"         | coded    | ANSI core     | NC       | 6     |  (TBA) |
+| >R                  | coded    | ANSI core     | NC CO    | 7     |     22 |
 | 0 "zero"            | coded    | 265SXB        | NC       | 7     |     12 |
 | 0= "zero-equal"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | 0< "zero-less"      | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -102,6 +104,8 @@ Last update: *19. February 2017*
 | PARSE-NAME          | coded    | ANSI core ext |          | 41+   |    n/a |
 | POSTPONE            | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | QUIT                | fragment | ANSI core     |          | (TBA) |    n/a |
+| R@                  | coded    | ANSI core     |          | (TBA) |  (TBA) |
+| R>                  | coded    | ANSI core     | NC CO    | 7     |     23 |
 | REFILL              | fragment | ANSI core ext |          | (TBA) |  (TBA) |
 | REPEAT              | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | ROT                 | coded    | ANSI core     | NC       | 8     |  (TBA) |
