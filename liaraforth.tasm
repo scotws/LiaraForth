@@ -185,7 +185,7 @@ quit_compiled
 quit_print
                 jsr print_string
 
-                ; Awesome line, guys. Now get the next one
+                ; Awesome line, everybody. Now get the next one
                 jmp quit_get_line
 
 z_cold
@@ -391,15 +391,15 @@ dots_not_empty
                 ; 4 bytes and 8 cycles because we value speed over size.
                 ; However, .S is used interactively, and humans
                 ; won't notice the one cycle more of PHX/PLX (2 bytes,
-                ; 9 cycles). We save the two bytes.
+                ; 9 cycles), and we save the two bytes.
                 phx
 
                 ; We print from the bottom up. Note that the Data Stack locations
-                ; dsp0 and dsp0+2 always contain garbage so they can be skipped,
-                ; see docs/INTERNALS.md for more details 
+                ; dsp0 and dsp0+2 always contain garbage so they can be skipped.
+                ; See docs/INTERNALS.md for details 
                 ldx.# dsp0      ; points to dsp0, which is garbage
                 dex
-                dex             ; points to dsp0-2, which is more garbage
+                dex             ; points to dsp0-2, which is also garbage
                 
 dots_loop
                 dex             ; get next element on DS, initially dsp0-4
@@ -549,7 +549,7 @@ z_semicolon     rts
 
 ; -------------------------------------------------------------------
 ; ? "QUESTION" ( addr -- ) X bytes / X cycles
-; Print content of a variable. This is used interactively and so can be pretty
+; Print content of a variable. This is used interactively and humans are
 ; slow, so we just go for the subroutine jumps to keep it short
 xt_question      
                 jsr xt_fetch
@@ -3054,15 +3054,118 @@ z_umstar        rts
 ; Divide double cell number by single cell number, returning the quotient as TOS
 ; and any remainder as NOS. All numbers are unsigned. This is the basic division
 ; operation all others use. Based on Garth Wilson's code at
-; http://6502.org/source/integers/ummodfix/ummodfix.htm 
+; http://6502.org/source/integers/ummodfix/ummodfix.htm We use "scratch" for N
+; and include a separate detection of division by zero to force an error code
 xt_ummod         
-                ; save Data Stack Pointer with one less cell
-                ; stx.d tmpdsp
-                ; inc.d tmpdsp
-                ; inc.d tmpdsp
+        .!a16
+        .!xy16
+                ; Move the inputs to the scratchpad to avoid having to fool
+                ; around with the Data Stack and for speed. Garth's original
+                ; code uses the MVN instruction for this, but our TOS is Y which
+                ; makes that harder. When we're done, the setup will look likes
+                ; this: (S is start of the scratchpad in Direct Page)
+                ;
+                ;     +-----+-----+-----+-----+-----+-----+-----+-----+
+                ;     |  DIVISOR  |        DIVIDEND       | TEMP AREA |
+                ;     |           |  hi cell     lo cell  | carry bit |
+                ;     |  S    S+1 | S+2   S+3 | S+4   S+5 | S+6   S+7 |
+                ;     +-----+-----+-----+-----+-----+-----+-----+-----+
+                ;
+                ; The divisor is TOS (in Y), high cell of the dividend in NOS,
+                ; and low cell in 3OS
+
+                ; Catch division by zero. We could include this in the code as
+                ; part of overflow detection (see below), but we want an error
+                ; to appear like in Gforth
+                tya             ; force flag test
+                bne ummod_notzero
+                
+                lda.# es_divzero
+                jmp error
+
+ummod_notzero
+                sty.d scratch           ; Y is now free
+                lda.dx 00               ; high cell of dividend
+                sta.d { scratch + 2 }
+                lda.dx 02               ; low cell of dividend
+                sta.d { scratch + 4 }
+
+                ; Drop one entry off of the stack and save the new Data Stack
+                ; Pointer, freeing X for index duty
+                inx
+                inx
+                stx.d tmpdsp
+                
+                ; Detect overflow. Subtract divisor from high cell of dividend.
+                ; If carry flag remains set, divisor was not large enough to
+                ; avoid overflow. This also would detect division by zero, but
+                ; we did that already in a separate step
+                sec
+                lda.d { scratch + 2 }
+                sbc.d scratch
+                bcs ummod_overflow
+
+                ; If there is no overflow, the carry flag remains clear for
+                ; first roll. We loop 16 times, but since we shift the dividend
+                ; over at the same time as shifting the answer in, the operation
+                ; must start and (!) finish with a shift of the low cell of the
+                ; dividend (which ends up holding the quotient), so we start
+                ; with 17 times in X. Y is used for temporary storage
+                ldx.# &17
+
+ummod_shift
+                ; Move low cell of dividend left one bit, also shifting answer
+                ; in. The first rotation brings in a zero, which later gets
+                ; pushed off the other end in the last rotation
+                rol.d { scratch + 4 }
+
+                ; loop control
+                dex
+                beq ummod_complete
+
+                ; Shift high cell of divident left one bit, also shifting the
+                ; next bit in from high bit of low cell
+                rol.d { scratch + 2 }
+                lda.# 0000
+                rol.a
+                sta.d { scratch + 6 }   ; store old high bit of dividend
+
+                ; See if divisor will fit into high 17 bits of dividend by
+                ; subtracting and then looking at the carry flag. If carry was
+                ; cleared, divisor did not fit
+                sec
+                lda.d { scratch + 2 }
+                sbc.d scratch
+                tay     ; save difference in Y until we know if we need it
+
+                ; Bit 0 of S+6 serves as the 17th bit. Complete the subtraction
+                ; by doing the 17th bit before determining if the divisor fits
+                ; into the high 17 bits of the dividend. If so, the carry flag
+                ; remains set
+                lda.d { scratch + 6 }
+                sbc.# 0000
+                bcc ummod_shift
+
+                ; Since the divisor fit into high 17 bits, update dividend high
+                ; cell to what it would be after subtraction
+                sty.d { scratch + 2 }
+                bra ummod_shift
+                
+ummod_overflow
+                ; If an overflow condition occurs, put 0ffff
+                ; in both the quotient and remainder
+                ldx.d tmpdsp            ; restore DSP
+                ldy.# 0ffff
+                sty.dx 00
+                bra z_ummod             ; go to end to enable native coding
+
+ummod_complete
+                ldx.d tmpdsp            ; restore DSP
+                ldy.d { scratch + 4 }   ; quotient is TOS
+                lda.d { scratch + 2 }   ; remainder is NOS
+                sta.dx 00       
                 
 z_ummod         rts
-
 
 
 ; -------------------------------------------------------------------
@@ -3512,7 +3615,7 @@ hi-start
 
         ; Splash strings
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 18. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 19. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"

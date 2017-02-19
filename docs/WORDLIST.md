@@ -4,7 +4,7 @@ This table is an alphabetical list of the words provided by Liara Forth, includi
 their status and other information - because only things that get measured get 
 optimized. 
 
-Last update: *18. February 2017*
+Last update: *19. February 2017*
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -38,11 +38,11 @@ Last update: *18. February 2017*
 | 0> "zero-more"      | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | 0<> "zero-notequal" | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | 0BRANCH             | coded    | 265SXB        | CO IM    | (TBA) |  (TBA) |
-| 1 "one"             | coded    | 265SXB        | NC       | 7     |     12 |
-| 1- "one-minus"      | coded    | ANSI core     | NC       | 1     |      2 |
-| 1+ "one-plus"       | coded    | ANSI core     | NC       | 1     |      2 |
-| 2 "two"             | coded    | 265SXB        | NC       | 7     |     12 |
-| 2* "two-star"       | coded    | ANSI core     | NC       | 3     |  (TBA) |
+| 1                   | coded    | 265SXB        | NC       | 7     |     12 |
+| 1-                  | coded    | ANSI core     | NC       | 1     |      2 |
+| 1+                  | coded    | ANSI core     | NC       | 1     |      2 |
+| 2                   | coded    | 265SXB        | NC       | 7     |     12 |
+| 2*                  | coded    | ANSI core     | NC       | 3     |  (TBA) |
 | 2DROP               | coded    | ANSI core     | NC       | 6     |     13 |
 | 2DUP                | coded    | ANSI core     | NC       | 10    |     23 |
 | ABORT               | coded    | ANSI core     | (TBA)    | 6+    |     6+ | 
@@ -57,9 +57,9 @@ Last update: *18. February 2017*
 | BL                  | coded    | ANSI core     | NC       | 7     |     12 |
 | BRANCH              | coded    | 265SXB        | IM CO NC | (TBA) |  (TBA) |
 | BYE                 | coded    | ANSI tools    | NC       | 2     |    7-8 | 
-| C, "c-comma"        | coded    | ANSI core     | NC       | 13    |     28 |
-| C! "c-store"        | coded    | ANSI core     | NC       | 11    |     29 |
-| C@ "c-fetch"        | coded    | ANSI core     | NC       | 11    |     16 |
+| C,                  | coded    | ANSI core     | NC       | 13    |     28 |
+| C!                  | coded    | ANSI core     | NC       | 11    |     29 |
+| C@                  | coded    | ANSI core     | NC       | 11    |     16 |
 | CELLS               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CHAR                | coded    | ANSI core     | NC       | 23    |  (TBA) |
 | COLD                | coded    | 265SXB        | -        | (TBA) |  (TBA) |
@@ -87,7 +87,7 @@ Last update: *18. February 2017*
 | IMMEDIATE           | coded    | ANSI core     | NC       | 8     |  (TBA) |
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
 | LITERAL             | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
-| M* "mstar"          | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| M*                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | MAX                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
 | MIN                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
 | NAME>INT            | coded    | Gforth        | NC       | 4     |      8 |
@@ -117,8 +117,8 @@ Last update: *18. February 2017*
 | TRUE                | coded    | ANSI core ext | NC       | 7     |     12 |
 | TUCK                | coded    | ANSI core ext | NC       | 8     |     19 |
 | TYPE                | fragment | ANSI core     | -        | 23+   |  (TBA) |
-| UM* "um-star"       | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| UM/MOD              | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
+| UM*                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| UM/MOD              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | UNUSED              | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VARIABLE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | WORDS               | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
