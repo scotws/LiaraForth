@@ -1601,6 +1601,19 @@ create_got_name
                 
 z_create        rts
 
+; -------------------------------------------------------------------
+; DABS ( d -- ud ) X bytes / X cycles
+; Return the absolute value of a double number
+; TODO recode in assembler
+xt_dabs          
+                ; double cell is TOS 
+                tya             ; force flag test
+                beq z_dabs      ; already positive, life is good
+
+                jsr xt_dnegate
+
+z_dabs          rts
+
 
 ; -------------------------------------------------------------------
 ; DECIMAL ( -- ) 7 bytes / X cycles
@@ -2710,6 +2723,76 @@ xt_squote
                 jmp xt_sliteral         ; JSR/RTS
 
 z_squote        rts
+
+
+; -------------------------------------------------------------------
+; S>D ( n -- d ) 15 bytes / X cycles
+; Convert a single cell number to double cells, conserving the sign
+xt_stod          
+                dex     ; make room on stack 
+                dex
+                sty.dx 00
+
+                tya     ; force sign check
+                bpl stod_pos
+                
+                ; negative number, extend sign
+                ldy.# 0ffff
+                bra z_stod
+
+stod_pos
+                ; positive number
+                ldy.# 0000      ; fall through
+
+z_stod          rts
+
+
+; -------------------------------------------------------------------
+; SMREM ( d n  -- rem qut ) 32/16 -> 16  X bytes / X cycles
+; Symmetrical signed division. Compare FM/MOD. Based on F-PC 3.6 by Ulrich
+; Hoffmann  F-PC is in the public domain. See http://www.xlerb.de/uho/ansi.seq
+; Original Forth Code, adapted from 8-bit version for Tali Forth: 
+; OVER >R 2DUP XOR 0< >R ABS >R DABS R> UM/MOD R> ?NEGATE SWAP R> ?NEGATE SWAP
+; See http://www.forth200x.org/documents/html/usage.html#usage:div for details
+; TODO consider unrolling this further
+; TODO test further
+xt_smrem         
+        .!a16
+                ; Save the high cell of d so we can check its sign later
+                lda.dx 02
+                pha
+
+                ; XOR the high cell and low cell of d to figure out its sign 
+                ; as well
+                lda.dx 00
+                eor.dx 02
+                pha
+                
+                ; Get absolute value of quotient and divident
+                ; TODO consider unrolling this further
+                jsr xt_abs      ; ABS
+                jsr xt_tor      ; >R
+                jsr xt_dabs     ; DABS
+                jsr xt_fromr    ; R>
+
+                jsr xt_ummod    ; UM/MOD        ; actual division
+
+                ; if the XOR created is negative, negate the quotient as well
+                pla
+                bpl smrem_rem
+
+                jsr xt_negate
+smrem_rem
+                ; if d was negative, negate the remainder rem
+                pla
+                bpl z_smrem
+
+                jsr xt_swap
+                jsr xt_negate
+                jsr xt_swap
+                
+z_smrem         rts
+
 
 ; -------------------------------------------------------------------
 ; SLITERAL ( addr u -- ) ( -- addr u ) X bytes / X cycles 

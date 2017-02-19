@@ -71,6 +71,7 @@ Last update: *19. February 2017*
 | COUNT               | coded    | ANSI core     | NC       | 14    |  (TBA) |
 | CR                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CREATE              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| DABS                | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | DECIMAL             | coded    | ANSI core     | NC       | 7     |  (TBA) |
 | DEPTH               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | DNEGATE             | coded    | ANSI double   | NC       | 19    |  (TBA) |
@@ -109,8 +110,10 @@ Last update: *19. February 2017*
 | REFILL              | fragment | ANSI core ext |          | (TBA) |  (TBA) |
 | REPEAT              | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | ROT                 | coded    | ANSI core     | NC       | 8     |  (TBA) |
-| S" "squote"         | coded    | ANSI core     | IM NC    | (TBA) |  (TBA) |
+| S"                  | coded    | ANSI core     | IM NC    | (TBA) |  (TBA) |
+| S>D                 | coded    | ANSI core     | NC       | 14    |  (TBA) |
 | SLITERAL            | coded    | ANSI string   | IM CO    | (TBA) |  (TBA) |
+| SM/REM              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | SOURCE              | coded    | ANSI core     | NC       | 12    |  (TBA) |
 | SOURCE-ID           | coded    | ANSI core ext | NC       | 6     |     13 |
 | SPACE               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |

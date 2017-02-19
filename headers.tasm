@@ -85,12 +85,24 @@ nt_page .byte 4, { NC }
         .word nt_unused, xt_page, z_page
         .byte "page"
 
+nt_dabs .byte 4, { NC }
+        .word nt_page, xt_dabs, z_dabs
+        .byte "dabs"
+
 nt_dnegate .byte 7, { NC }
-        .word nt_page, xt_dnegate, z_dnegate
+        .word nt_dabs, xt_dnegate, z_dnegate
         .byte "dnegate"
 
+nt_stod .byte 3, { NC }
+        .word nt_dnegate, xt_stod, z_stod
+        .byte "s>d"
+
+nt_smrem .byte 6, { NC }
+        .word nt_stod, xt_smrem, z_smrem
+        .byte "sm/rem"
+
 nt_ummod .byte 6, { NC }
-        .word nt_dnegate, xt_ummod, z_ummod
+        .word nt_smrem, xt_ummod, z_ummod
         .byte "um/mod"
 
 nt_star .byte 1, { NC }

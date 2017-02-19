@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 17. Feb 2017
+This version 19. Feb 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -109,3 +109,11 @@ The Data Stack should be empty after all of these words, check with .S
 
 See
 [https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs](https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs)
+
+
+### Math stuff
+
+For examples of interger divsion, see
+[http://www.forth200x.org/documents/html/usage.html#usage:div](http://www.forth200x.org/documents/html/usage.html#usage:div)
+
+
