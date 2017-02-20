@@ -97,8 +97,12 @@ nt_stod .byte 3, { NC }
         .word nt_dnegate, xt_stod, z_stod
         .byte "s>d"
 
+nt_udmod .byte 6, { NC }
+        .word nt_stod, xt_udmod, z_udmod
+        .byte "ud/mod"
+
 nt_ummod .byte 6, { NC }
-        .word nt_stod, xt_ummod, z_ummod
+        .word nt_udmod, xt_ummod, z_ummod
         .byte "um/mod"
 
 nt_star .byte 1, { NC }
@@ -141,8 +145,32 @@ nt_cr   .byte 2, { NC }
         .word nt_name-int, xt_cr, z_cr 
         .byte "cr"
 
+nt_numbermore .byte 2, { NC } ; "quoth the rumben"
+        .word nt_cr, xt_numbermore, z_numbermore
+        .byte "#>"
+
+nt_hold .byte 4, { NC }
+        .word nt_numbermore, xt_hold, z_hold
+        .byte "hold"
+
+nt_hashs .byte 2, { NC } ; also known as "number-s"
+        .word nt_hold, xt_hashs, z_hashs
+        .byte "#s"
+
+nt_sign .byte 4, { NC }
+        .word nt_hashs, xt_sign, z_sign
+        .byte "sign"
+
+nt_hash .byte 1, { NC }  ; also known as "number-sign"
+        .word nt_sign, xt_hash, z_hash
+        .byte '#'
+
+nt_lessnumber .byte 2, { NC }
+        .word nt_hash, xt_lessnumber, z_lessnumber
+        .byte "<#"
+
 nt_bl   .byte 2, { NC }
-        .word nt_cr, xt_bl, z_bl
+        .word nt_lessnumber, xt_bl, z_bl
         .byte "bl"
 
 nt_spaces .byte 6, { NC }

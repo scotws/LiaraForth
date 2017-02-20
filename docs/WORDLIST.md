@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: *19. February 2017*
+Last update: *20. February 2017*
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -14,10 +14,14 @@ Last update: *19. February 2017*
 | ." "dotquote"       | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
 | / "slash"           | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | /MOD "slashmod"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| .R                  | coded    | ANSI core ext |          | Forth |  Forth |
 | .S                  | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
 | ,                   | coded    | ANSI core     | NC       | 11    |     29 |
 | :                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ;                   | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |
+| # "number-sign"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| #> "number-greater" | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| #S "number-s"       | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ! "store"           | coded    | ANSI core     | NC       | 9     |  (TBA) |
 | ? "question"        | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
 | @ "fetch"           | coded    | ANSI core     | NC       | 4     |  (TBA) |
@@ -36,6 +40,7 @@ Last update: *19. February 2017*
 | =                   | coded    | ANSI core     | NC       | 11    |  18-20 |
 | <                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | <>                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| <# "less-number"    | coded    | ANSI core     | NC       |     8 |  (TBA) |
 | >                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | >IN                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | >R                  | coded    | ANSI core     | NC CO    | 7     |     22 |
@@ -76,6 +81,8 @@ Last update: *19. February 2017*
 | COUNT               | coded    | ANSI core     | NC       | 14    |  (TBA) |
 | CR                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CREATE              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| D.                  | coded    | ANSI double   |          | Forth |  Forth |
+| D.R                 | coded    | ANSI double   |          | Forth |  Forth |
 | DABS                | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | DECIMAL             | coded    | ANSI core     | NC       | 7     |  (TBA) |
 | DEPTH               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -92,6 +99,7 @@ Last update: *19. February 2017*
 | FM/MOD              | coded    | ANSI core     | NC       | Forth |  Forth |
 | HERE                | coded    | ANSI core     | NC       | 6     |     13 |
 | HEX                 | coded    | ANSI core     | NC       | 7     |  (TBA) |
+| HOLD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | IF                  | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | IMMEDIATE           | coded    | ANSI core     | NC       | 8     |  (TBA) |
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
@@ -118,6 +126,7 @@ Last update: *19. February 2017*
 | ROT                 | coded    | ANSI core     | NC       | 8     |  (TBA) |
 | S"                  | coded    | ANSI core     | IM NC    | (TBA) |  (TBA) |
 | S>D                 | coded    | ANSI core     | NC       | 14    |  (TBA) |
+| SIGN                | coded    | ANSI core     | NC       | 13    |  (TBA) |
 | SLITERAL            | coded    | ANSI string   | IM CO    | (TBA) |  (TBA) |
 | SM/REM              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | SOURCE              | coded    | ANSI core     | NC       | 12    |  (TBA) |
@@ -130,7 +139,12 @@ Last update: *19. February 2017*
 | TRUE                | coded    | ANSI core ext | NC       | 7     |     12 |
 | TUCK                | coded    | ANSI core ext | NC       | 8     |     19 |
 | TYPE                | fragment | ANSI core     | -        | 23+   |  (TBA) |
+| U.                  | coded    | ANSI core     |          | Forth |  Forth |
+| U.R                 | coded    | ANSI core ext |          | Forth |  Forth |
+| UD.                 | coded    | ANSI core     |          | Forth |  Forth |
+| UD.R                | coded    | ANSI core     |          | Forth |  Forth |
 | UM*                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| UD/MOD              | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | UM/MOD              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | UNUSED              | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VARIABLE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -150,9 +164,9 @@ for basis.
 ***Flags*** - **CO** (compile only), **IM** (immediate word), 
 **NC** (Native Compile Allowed)
 
-***Size*** - If a native word, number of bytes the code uses (without the final
-RTS). If the information is not available
-yet, size is "(TBA)". 
+***Size*** - If a native word, number of bytes the code uses (without the
+initial JSR call and final RTS, which together add 4 bytes and 12 cycles). If
+the information is not available yet, size is "(TBA)". 
 
 ***Cycles*** - For native words, the number of machine cycles the routine uses.
 For Forth words, this will usually be "n/a" because of the effort involved.  If

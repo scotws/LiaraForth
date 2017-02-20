@@ -240,6 +240,28 @@ z_not-equal     rts
 
 
 ; -------------------------------------------------------------------
+; <# "LESSNUMBER" ( -- ) 8 bytes / X cycles
+; Start the process to create pictured numeric output. The new string is
+; constructed from back to front, saving the new character at the beginning of
+; the output string. Since we use PAD as a starting address and work backward
+; (!), the string is constructed in the space between the end of the dictionary
+; (as defined by CP) and the PAD. This allows us to satisfy the ANS Forth
+; condition that programs don't fool around with the PAD but still use its
+; address. Code based on pForth, see
+; http://pforth.googlecode.com/svn/trunk/fth/numberio.fth pForth is in the pubic
+; domain. Forth is : <# PAD HLD ! ; we use the internal variable tohold instead
+; of HLD.
+xt_lessnumber    
+                jsr xt_pad
+                sty.d tohold
+                ldy.dx 00
+                inx
+                inx
+   
+z_lessnumber    rts
+
+
+; -------------------------------------------------------------------
 ; > "GREATER" ( n m -- f ) X bytes / X cycles
 ; Return true flag if NOS > TOS. See
 ; http://www.6502.org/tutorials/compare_beyond.html for details on the
@@ -303,29 +325,25 @@ z_tor           rts
 
 ; -------------------------------------------------------------------
 ; . "DOT" ( n -- ) X bytes / X cycles
-; Print value that is TOS followed by a single space
-; Forth code is  DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE 
+; Print value that is TOS followed by a single space. Forth code is  
+; DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE  Based on 
+; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
 ; Since this is used interactively, and humans are slow (just ask GlaDOS), we
-; focus on size
-; TODO this is a temporary version
+; focus on size.
+; TODO Once we know this works, move to assembler
 xt_dot           
-                ; --- TEMP print routine ---
-                tya
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                tya
-                and.# 00ff
-                jsr byte_to_ascii
+                jsr xt_dup              ; ( n n ) 
+                jsr xt_abs              ; ( n n ) 
+                jsr xt_zero             ; ( n n 0 ) 
+                jsr xt_lessnumber       ; ( n n 0 ) 
+                jsr xt_hashs            ; ( n ud ) 
+                jsr xt_rot              ; ( ud n ) 
+                jsr xt_sign             ; ( ud ) 
+                jsr xt_numbermore       
+                jsr xt_type
                 jsr xt_space
-                ; --- TEMP print routine ---
-                
-                ; Since we don't care about speed in this word, we save one byte
-                ; by doing DROP the slow way and save one byte
-                jsr xt_drop
-                
-z_dot           rts
 
+z_dot           rts
 
 ; -------------------------------------------------------------------
 ; .( "DOTPAREN" ( "string" -- ) 13 bytes / X cycles
@@ -568,6 +586,78 @@ xt_semicolon
                 
 z_semicolon     rts
 
+
+; -------------------------------------------------------------------
+; # "HASH" / "NUMBER-SIGN" ( ud -- ud )  X bytes / X cycles
+; Add one character to the beginning of the pictured output string.
+; Code based on https://github.com/philburk/pforth/blob/master/fth/numberio.fth
+; Forth code is  BASE @ UD/MOD ROT 9 OVER < IF 7 + THEN [CHAR] 0 + HOLD ;
+; TODO convert more parts to assembler
+xt_hash          
+        .!a16
+                jsr xt_base     ; ( ud addr ) 
+                jsr xt_fetch    ; ( ud u )  
+                jsr xt_udmod    ; ( rem ud )
+                jsr xt_rot      ; ( ud rem ) 
+ 
+                ; Convert the number that is left over to an ASCII character. We
+                ; use a string lookup for speed
+        .a8
+                lda.y alphastring
+        .a16
+                ; overwrite remainder with ASCII value
+                and.# 00ff
+                tay             ; ( ud char ) 
+
+                jsr xt_hold     ; JSR/RTS
+                
+z_hash          rts 
+
+
+; -------------------------------------------------------------------
+; #> "NUMBERMORE" / "NUMBER-GREATER" ( d -- addr u ) X bytes / X cycles
+; Finish conversion of pictured number string, putting address and length on the 
+; Data Stack. Original Fort is  2DROP HLD @ PAD OVER -  Based on
+; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
+xt_numbermore    
+        .!a16
+                ; We simply overwrite the double cell number, saving us a lot of
+                ; stack thrashing. First, put the address of the string's head in
+                ; TOS and NOS
+                ldy.d tohold
+                sty.dx 00       ; ( addr addr ) 
+
+                ; add the address of the string's end, which is PAD
+                jsr xt_pad      ; ( addr addr pad ) 
+
+                sec
+                tya
+                sbc.dx 00       ; pad - addr is the length of the string
+                tay             ; ( addr addr n ) 
+
+                inx             ; NIP
+                inx
+
+z_numbermore    rts
+
+
+; -------------------------------------------------------------------
+; #S "HASHS" / "NUMBER SIGN" ( ud -- ud ) X bytes / X cycles
+; Completely convert number for pictured numerical output. Based on
+; https://github.com/philburk/pforth/blob/master/fth/system.fth
+; Original Forth code  BEGIN # 2DUP OR 0= UNTIL
+xt_hashs         
+        .!a16
+hashs_loop
+                ; covert a single number ("#")
+                jsr xt_hash     ; ( ud -- ud ) 
+
+                ; stop when the double-celled number on the TOS is zero
+                tya
+                ora.dx 00
+                bne hashs_loop 
+                
+z_hashs         rts
 
 ; -------------------------------------------------------------------
 ; ? "QUESTION" ( addr -- ) X bytes / X cycles
@@ -2062,7 +2152,6 @@ xt_here
 
 z_here          rts
 
-
 ; -------------------------------------------------------------------
 ; HEX ( -- ) X bytes / X cycles
 ; Change radix for number conversion to 16
@@ -2073,6 +2162,25 @@ xt_hex
 
 z_hex           rts
 
+; -------------------------------------------------------------------
+; HOLD ( char -- ) X bytes / X cycles
+; Insert a character at the current position of a pictured numeric output string
+; Code based on https://github.com/philburk/pforth/blob/master/fth/numberio.fth
+; Forth code is : HOLD  -1 HLD +!  HLD @ C! ;  We use the the internal variable
+; tohold instead of HLD.
+xt_hold          
+        .!a16
+                dec.d tohold    ; -1 HLD +!
+
+                tya
+        .a8
+                sta.di tohold   ; STA (TOHOLD)
+        .a16
+                ldy.dx 00
+                inx
+                inx
+
+z_hold          rts
 
 ; -------------------------------------------------------------------
 ; LITERAL ( n -- ) X bytes / X cycles
@@ -2747,7 +2855,7 @@ xt_stod
                 dex
                 sty.dx 00
 
-                tya     ; force sign check
+                tya     ; force flag check
                 bpl stod_pos
                 
                 ; negative number, extend sign
@@ -2759,6 +2867,29 @@ stod_pos
                 ldy.# 0000      ; fall through
 
 z_stod          rts
+
+; -------------------------------------------------------------------
+; SIGN ( n -- ) 13 bytes / X cycles
+; If TOS is negative, add a minus sign to the pictured output. Code based on
+; https://github.com/philburk/pforth/blob/master/fth/system.fth
+; Origin Forth code is  0< IF [CHAR] - HOLD THEN
+xt_sign          
+        .!a16
+                ; See if number is negative
+                tya             ; force flag check
+                bpl sign_plus
+
+                ; We're negative, overwrite number TOS
+                ldy.# 002d      ; ASCII for '-'
+
+                jmp xt_hold     ; JSR/RTS, does not fall through
+
+sign_plus
+                ldy.dx 00       ; get rid of number and leave
+                inx
+                inx
+                
+z_sign          rts
 
 
 ; -------------------------------------------------------------------
@@ -3060,6 +3191,28 @@ z_type          rts
 
 
 ; -------------------------------------------------------------------
+; UDMOD ( ud u -- u ud ) 32/16 --> 32  X bytes / X cycles
+; Devide double-cell number by single-cell number, producing a double-cell
+; result and a single-cell remainder. Based on 
+; Gforth  : UD/MOD  >R 0 R@ UM/MOD R> SWAP >R UM/MOD R> ;
+; pForth  : UD/MOD  >R 0 R@ UM/MOD ROT ROT R> UM/MOD ROT ; 
+; This doesn't seem to be used anywhere else but for # (HASH) in coverting
+; pictured numerical output, though pForth claims it uses UM/MOD for that
+; At some point, we need to get back to UM/MOD because it's optimized
+xt_udmod         
+                jsr xt_tor
+                jsr xt_zero
+                jsr xt_rfetch
+                jsr xt_ummod
+                jsr xt_rot
+                jsr xt_rot
+                jsr xt_fromr
+                jsr xt_ummod
+                jmp xt_rot       ; JSR/RTS
+z_udmod         
+
+
+; -------------------------------------------------------------------
 ; UM* "UMSTAR" ( u u -- ud ) 16*16 -> 32  X bytes / X cycles
 ; Multiply two unsigned 16 bit numbers, producing a 32 bit result.This is based
 ; on modified FIG Forth code by Dr. Jefyll, see
@@ -3285,7 +3438,7 @@ ummod_complete
                 ldy.d { scratch + 4 }   ; quotient is TOS
                 lda.d { scratch + 2 }   ; remainder is NOS
                 sta.dx 00       
-                
+
 z_ummod         rts
 
 
@@ -3748,9 +3901,23 @@ hi-start
         .byte ": */ >r m* r> sm/rem swap drop ; "
         .byte ": */mod >r m* r> sm/rem ; "
 
-        ; Splash strings
+        ; Output definitions. Since these usually involve the user, and humans
+        ; are slow, these can stay high-level for the moment. Based on
+        ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
+        .byte ": u. 0 <# #s #> type space ; "   
+        .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
+        .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
+        .byte ": ud. <# #s #> type space ; "
+        .byte ": ud.r >r <# #s #> r> over - spaces type ; "
+        .byte ": d. tuck dabs <# #s rot sign #> type space ; "
+        .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
+;       .byte ": . dup abs 0 <# #s rot sign #> type space ; "
+
+        ; Splash strings. We leave these as high-level words because they are
+        ; generated at the end of the boot process and signal that the other
+        ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 19. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 20. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
@@ -3764,7 +3931,7 @@ hi-end
 
 ; ===================================================================
 ; TESTING ROUTINES (UNCOMMENT FOR USE)
-                
+              
                 ; --- TODO TESTING (PRINT ONE "A") ---
                 ; lda.# 61
                 ; jsr put_chr

@@ -72,7 +72,7 @@
         .equ base     { directpage + &28 } ; Radix for number conversion
         .equ workword { directpage + &30 } ; Currently compiliing word
         .equ scratch  { directpage + &32 } ; 8 byte scratchpad (see UM/MOD)
-;       .equ UNUSED   { directpage + &40 } ; 
+        .equ tohold   { directpage + &40 } ; Pointer for formatted output 
 
 
 ; ===================================================================
