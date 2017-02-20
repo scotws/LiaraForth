@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 19. Feb 2017
+This version 21. Feb 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -111,9 +111,29 @@ See
 [https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs](https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs)
 
 
-### Math stuff
+### TEST MATH STUFF
 
 For examples of interger divsion, see
 [http://www.forth200x.org/documents/html/usage.html#usage:div](http://www.forth200x.org/documents/html/usage.html#usage:div)
+
+For **FM/MOD**
+```
+: fm swap s>d rot fm/mod swap . . ; 
+```
+Should give you: 
+10 7 --> 3 1
+-10 7 --> 4 -2 
+10 -7 --> -4 -2
+-10 -7 --> -3 1
+
+For **SM/REM**
+```
+: sm swap s>d rot sm/rem swap . . ; 
+```
+Should give you: 
+10 7 --> 3 1
+-10 7 --> -3 -1 
+10 -7 --> 3 -1
+-10 -7 --> -3 1
 
 
