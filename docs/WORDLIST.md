@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: *20. February 2017*
+Last update: *21. February 2017*
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -30,11 +30,13 @@ Last update: *20. February 2017*
 | \['\] "brackettick" | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | \[CHAR\]            | coded    | ANSI core     | IM CO NC | (TBA) |  (TBA) |
 | \]                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| \                   | coded    | ANSI core     | NC       | 4     |  (TBA) |
 | ' "tick"            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | *                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | */                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | */MOD               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | +                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| +!                  | coded    | ANSI core     | NC       | 15    |  (TBA) |
 | -                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | -ROT                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | =                   | coded    | ANSI core     | NC       | 11    |  18-20 |
@@ -74,7 +76,8 @@ Last update: *20. February 2017*
 | C@                  | coded    | ANSI core     | NC       | 11    |     16 |
 | CELLS               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CHAR                | coded    | ANSI core     | NC       | 23    |  (TBA) |
-| COLD                | coded    | 265SXB        | -        | (TBA) |  (TBA) |
+| CHAR>NUMBER         | coded    | 265SXB        | NC       | (TBA) |  (TBA) |
+| COLD                | coded    | 265SXB        |          | (TBA) |  (TBA) |
 | COMPILE,            | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
 | COMPILE-ONLY        | coded    | Gforth        | NC       | 8     |  (TBA) |
 | CONSTANT            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |

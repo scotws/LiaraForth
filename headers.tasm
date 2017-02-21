@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 19. Feb 2017
+; This version: 21. Feb 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -365,8 +365,12 @@ nt_and  .byte 3, { NC }
         .word nt_or, xt_and, z_and
         .byte "and"
 
+nt_plusstore .byte 2, { NC }
+        .word nt_and, xt_plusstore, z_plusstore
+        .byte "+!"
+
 nt_c-comma .byte 2, { NC }
-        .word nt_and, xt_c-comma, z_c-comma
+        .word nt_plusstore, xt_c-comma, z_c-comma
         .byte "c,"
 
 nt_c-fetch .byte 2, { NC }
@@ -473,8 +477,12 @@ nt_accept .byte 6, 00 ; TODO check flags
         .word nt_comma, xt_accept, z_accept 
         .byte "accept"
 
+nt_backslash .byte 1, { NC }
+        .word nt_accept, xt_backslash, z_backslash
+        .byte '\'
+
 nt_tuck .byte 4, { NC }
-        .word nt_accept, xt_tuck, z_tuck
+        .word nt_backslash, xt_tuck, z_tuck
         .byte "tuck"
 
 nt_nip  .byte 3, { NC }
@@ -513,8 +521,12 @@ nt_tor  .byte 2, { CO }
         .word nt_fromr, xt_tor, z_tor
         .byte ">r"
 
+nt_char-num .byte &11, { NC }
+        .word nt_tor, xt_char-num, z_char-num
+        .byte "char>number"
+
 nt_over .byte 4, { NC }
-        .word nt_tor, xt_over, z_over
+        .word nt_char-num, xt_over, z_over
         .byte "over"
 
 nt_fetch .byte 1, { NC }

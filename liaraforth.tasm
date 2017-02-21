@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 20. Feb 2017
+; This version: 21. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -726,7 +726,7 @@ xt_rightbracket
 z_rightbracket  rts
 
 ; -------------------------------------------------------------------
-; [CHAR] "BRACKET-CHAR" ( -- ) X bytes / X cycles
+; [CHAR] "BRACKET-CHAR" ( "c" -- ) X bytes / X cycles
 ; At compile time, compile the ASCII value of a character as a literal
 ; This is an immediate, compile-only word
 ; TODO decide if this is worth unrolling
@@ -735,6 +735,18 @@ xt_bracketchar
                 jsr xt_literal
              
 z_bracketchar  rts
+
+
+; -------------------------------------------------------------------
+; \ "BACKSLASH" ( -- ) 4 bytes / X cycles
+; Ignore rest of line as comment
+xt_backslash     
+        .!a16
+                ; Advance >IN to end of the line 
+                lda.d ciblen
+                sta.d toin
+
+z_backslash     rts
 
 
 ; -------------------------------------------------------------------
@@ -1440,6 +1452,73 @@ char_got_char
                 
 z_char          rts
 
+; -------------------------------------------------------------------
+; CHAR>NUMBER ( char -- u f | char f )  X bytes / X cycles
+; Convert a single ASCII character to a number in the current radix. Inspired by
+; the pForth instruction DIGIT in pForth, see
+; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
+; Rewritten from DIGIT>NUMBER in Tali Forth. Note in contrast to pForth, we get
+; the base (radix) ourselves instead of having the user provide it
+xt_char-num      
+        .!a16
+                tya
+                and.# 00ff
+
+        .a8 
+                ; Make sure we're not below the ASCII code for '0'
+                cmp.# '0'
+                bcc cn_notdigit
+
+                ; Then see if we are below '9', because that would make this
+                ; a normal number
+                cmp.# { '9' + 1 }       ; This is ':'
+                bcc cn_checkbase
+
+                ; Well, then let's see if this is the gap between '9' and 'A' so
+                ; we can treat the whole range as a number
+                cmp.# { 'A' - 1 }       ; This is '@'
+                bcc cn_notdigit
+
+                ; Probably a letter, so we make sure it is uppercase
+                cmp.# 'a'
+                bcc cn_case_done        ; not lower case, too low
+                cmp.# { 'z' + 1 }
+                bcs cn_case_done        ; not lower case, too high
+
+                clc                     ; just right
+                adc.# e0                ; offset to uppercase (wraps)
+
+cn_case_done
+                ; Get rid of the gap between '9' and 'A' so we can treat the
+                ; whole range as one number
+                sec
+                sbc.# 07                ; fall through to cn_checkbase
+
+cn_checkbase
+                ; We have a number, now see if it inside the range given by BASE
+                sec
+                sbc.# '0'               ; This is also the actual conversion step
+                cmp.d base
+                bcc cn_success
+                
+cn_notdigit
+                ; not a digit, add a false flag
+                dex
+                dex
+                sty.dx 00       ; keep the offending character in NOS
+                ldy.# 0000
+        .a16
+                bra z_char-num
+
+cn_success
+                dex
+                dex
+        .a16
+                sta.dx 00       ; put the number in NOS
+                ldy.# 0ffff
+                
+z_char-num      rts
+
 
 ; -------------------------------------------------------------------
 ; COMPILE-ONLY ( -- ) 8 bytes / X cycles
@@ -1465,15 +1544,15 @@ z_compile-only  rts
 ; value NC_LIMIT (in definitions.tasm) to decide if the code is too large to be
 ; natively coded: If the size is smaller than NC_LIMIT, we silently use
 ; subroutine coding. 
+; TODO currently just compiles subroutine jumps
 xt_compilecomma  
 
 compile_as_code
                 ; Compile xt as native code
                 ; use nc_limit to decide if we want native compile
                 ; TODO consider special cases: 
-                ; - >R R> R@ should strip PLA/PHA if native compiled
-
-                ; TODO currently just compiles subroutine jumps
+                ;  - >R R> R@ should strip PLA/PHA if native compiled
+                ;  - Don't compile comments
 
 compile_as_jump
                 ; Compile xt as a subroutine jump. We don't have to switch A to
@@ -2612,6 +2691,25 @@ parse_reached_eol
 
 z_parse-name
 z_parse         rts
+
+
+; -------------------------------------------------------------------
+; +! "PLUSSTORE" ( n addr -- ) 15 bytes / X cycles
+; Add NOS to address in TOS
+xt_plusstore     
+        .!a16
+                lda.y 0000
+                clc
+                adc.dx 00
+                sta.y 0000
+
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+
+z_plusstore     rts
 
 
 ; -------------------------------------------------------------------
