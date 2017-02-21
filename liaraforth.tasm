@@ -302,10 +302,139 @@ z_to-in         rts
 
 ; -------------------------------------------------------------------
 ; >NUMBER ( ud addr u -- ud addr u ) X bytes / X cycles
-; Convert a string to a double number. 
-; This routine is called by NUMBER, which already uses tmptos, tmp2 and tmp3
+; Convert a string to a double number. Logic here is based on the routine by
+; Phil Burk of the same name in pForth; see
+; https://github.com/philburk/pforth/blob/master/fth/numberio.fth the origional
+; Forth code. We arrive here from NUMBER which has made sure that we don't have
+; to deal with a sign and we don't have to deal with a dot as a last character
+; that signalizes double - this should be a pure number string.
+; This routine calles UM*, which uses tmp1, tmp2 and tmp3, so we cannot access
+; any of those.
 xt_gtnumber      
-		; TODO not coded yet
+        .!a16
+                ; For the math routine, we move the inputs to the scratchpad to
+                ; avoid having to fool around with the Data Stack. 
+                ;
+                ;     +-----+-----+-----+-----+-----+-----+-----+-----+
+                ;     |   UD-LO   |   UD-HI   |     N     | UD-HI-LO  |
+                ;     |           |           |           |           |
+                ;     |  S    S+1 | S+2   S+3 | S+4   S+5 | S+6   S+7 |
+                ;     +-----+-----+-----+-----+-----+-----+-----+-----+
+                
+                ; The math routine works by converting one character to its
+                ; numerical value (N) via CHAR>NUMBER and storing it in S+4 for
+                ; the moment. We then multiply the UD-HI value with the radix
+                ; (from BASE) using UM*, which returns a double-cell result. We
+                ; discard the high cell of that result (UD-HI-HI) and store the
+                ; low cell (UD-HI-LO) in S+6 for now. -- The second part is
+                ; multiplying UD-LO with the radix. The high cell (UD-LO-HI)
+                ; gets put in S+2, the low cell (HD-LO-LO) in S. We then use
+                ; a version of D+ to add ( S S+2 ) and ( S+4 S+6) together,
+                ; storing the result back in S and S+2, before we start another
+                ; round with it as the new UD-LO and UD-HI.
+
+                ; Fill the scratchpad. We arrive with ( ud-lo ud-hi addr u ).
+                ; After this step, the original ud-lo and ud-hi will still be on
+                ; the Data Stack, but will be ignored and later overwritten
+                lda.dx 04               ; ud-lo
+                sta.d scratch 
+                lda.dx 02               ; ud-hi
+                sta.d { scratch + 2 } 
+
+                ; We push down one on the Data Stack to use TOS for character
+                ; conversion - now ( ud-lo ud-hi addr u u ) 
+                dex
+                dex
+                sty.dx 00
+
+gtnumber_loop
+                ; Get one character
+                lda.dxi 02       
+                tay             ; ( ud-lo ud-hi addr u char ) 
+
+                ; Convert one character. CHAR>NUMBER takes care of the correct
+                ; register size for A and does a paranoid AND to make sure that
+                ; B is zero, so we don't have to do any of that here. 
+                jsr xt_char-num         ; ( char -- n -1 | char 0 ) 
+                
+                ; This gives us (ud-lo ud-hi addr u char f | n f ), so check the
+                ; flag. If it is zero, we return what we have and let the caller
+                ; (usually NUMBER) complain to the user
+                tya             
+                bne gtnumber_ok
+
+                ldy.dx 00
+                inx
+                inx
+                bra gtnumber_done
+
+gtnumber_ok
+                ; Conversion was successful, so we're here with 
+                ; ( ud-lo ud-hi addr u n -1 ) and can start the math routine.
+                
+                ; Save N so we don't have to fool around with the Data Stack
+                lda.dx 00
+                sta.d { scratch + 4 }
+
+                ; Now multiply ud-hi (the one in the scratchpad, not the
+                ; original one in the Data Stack) by the radix from BASE. We can
+                ; clobber TOS and NOS
+                lda.d  { scratch + 2 }  
+                sta.dx 00
+                ldy.d base              ; ( ud-lo ud-hi addr u ud-hi base )
+
+                ; UM* returns a double celled number
+                jsr xt_umstar   ; ( ud-lo ud-hi addr u ud-hi-lo ud-hi-hi ) 
+
+                ; Move ud-hi-lo to safety
+                lda.dx 00               ; ud-hi-lo
+                sta.d { scratch + 6 } 
+
+                ; Now we multiply ud-lo, overwriting the stack entries
+                lda.d scratch
+                sta.dx 00               ; ( ud-lo ud-hi addr u ud-lo ud-hi-hi )
+                ldy.d base              ; ( ud-lo ud-hi addr u ud-lo base )
+
+                jsr xt_umstar   ; ( ud-lo ud-hi addr u ud-lo-lo ud-lo-hi ) 
+                sty.d { scratch + 2 }
+                lda.dx 00
+                sta.d scratch
+
+                ; This is a faster version of D+
+                lda.d scratch
+                clc
+                adc.d { scratch + 4 }
+                sta.d scratch           ; this is the new ud-lo
+                lda.d { scratch + 2 }
+                adc.d { scratch + 6 }
+                sta.d { scratch + 2 }   ; this is the new ud-hi
+
+                ; Clean up: Get rid of one of the two top elements on the Data
+                ; Stack. NIP is faster if Y is TOS
+                inx
+                inx             ; ( ud-lo ud-hi addr u ud-lo-hi ) 
+
+                ; One character down
+                inc.dx 02               ; increase address
+                dec.dx 00               ; decrease length
+
+                bne gtnumber_loop
+
+gtnumber_done
+                ; Counter has reached zero or we have an error. In both cases,
+                ; we clean up the Data Stack and return. We arrive here with
+                ; ( ud-lo ud-hi addr u char ) if there was an error
+                ; and ( ud-lo ud-hi addr u ud-lo ) if not
+	        ldy.dx 00
+                inx
+                inx             ; ( ud-lo ud-hi addr u ) 
+
+                ; The new ud-lo and ud-hi are still on the scratch pad
+                lda.d scratch   ; new ud-lo
+                sta.dx 04
+                lda.d { scratch + 2 }
+                sta.dx 02       ; new ud-hi
+	
 z_gtnumber      rts
 
 
@@ -1472,7 +1601,7 @@ z_char          rts
 xt_char-num      
         .!a16
                 tya
-                and.# 00ff
+                and.# 00ff              ; paranoid
 
         .a8 
                 ; Make sure we're not below the ASCII code for '0'
@@ -1793,6 +1922,31 @@ create_got_name
                 inx
                 
 z_create        rts
+
+
+; -------------------------------------------------------------------
+; DPLUS ( d d -- d ) X bytes / X cycles
+; Add two double cell numbers. 
+xt_dplus         
+        .!a16
+                phy             ; save hi word of first number, frees Y
+                lda.dx 00       ; lo word of first number
+                clc
+                adc.dx 04       ; add lo word of second number
+                tay
+
+                pla             ; get hi word of first number
+                adc.dx 02       ; add hi word of second number
+
+                inx
+                inx
+                inx
+                inx
+                
+                sty.dx 00       ; lo result goes NOS
+                tay             ; to result goes TOS
+
+z_dplus         rts
 
 ; -------------------------------------------------------------------
 ; D>S ( ud -- u ) X bytes / X cycles
@@ -3482,7 +3636,6 @@ z_udmod
 ; http://forum.6502.org/viewtopic.php?p=205#p205
 ; http://forum.6502.org/viewtopic.php?f=9&t=689 We use tmp1, tmp2, tmp3 for
 ; this, with the assumption that tmp3 immediately follows tmp2
- 
 xt_umstar        
         .!a16
                 ; SPECIAL CASE 1: multiplication by zero
@@ -3509,7 +3662,7 @@ xt_umstar
                 cmp.# 0002
                 beq umstar_two_nos
 
-                ; NO SPECIAL CASE ("THE HARD WAY") 
+                ; NO SPECIAL CASE ("The Hard Way") 
                 sty.d tmp1      ; TOS number  "40"
                 sta.d tmp2      ; NOS number  "41"
                 ldy.# &16       ; loop counter

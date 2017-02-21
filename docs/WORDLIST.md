@@ -85,6 +85,7 @@ Last update: *21. February 2017*
 | COUNT               | coded    | ANSI core     | NC       | 14    |  (TBA) |
 | CR                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CREATE              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| D+                  | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | D.                  | coded    | ANSI double   |          | Forth |  Forth |
 | D.R                 | coded    | ANSI double   |          | Forth |  Forth |
 | D>S                 | coded    | ANSI double   | NC       | (TBA) |  (TBA) |

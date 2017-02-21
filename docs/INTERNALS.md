@@ -199,7 +199,7 @@ Gforth uses this for >NUMBER:
   ELSE   1- I' I - UNLOOP 
   THEN ; 
 ```
-wth DIGIT? as
+with DIGIT? as
 ```
 : DIGIT?  
   TOUPPER 48 - DUP 9 U> 
@@ -214,10 +214,43 @@ wth DIGIT? as
 ```
 and ACCUMULATE as
 ```
-: ACCUMULATE SWAP >R SWAP USERADDR <112>  @ UM* DROP ROT USERADDR <112>  @ UM* D+ R> ;
+: ACCUMULATE SWAP >R SWAP USERADDR <112>  @ UM* DROP ROT 
+  USERADDR <112>  @ UM* D+ R> ;
 ```
 
+pForth's version (see
+https://github.com/philburk/pforth/blob/master/fth/numberio.fth)
 
+```
+: >NUMBER ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 , convert till bad char , CORE )
+    >r
+    BEGIN
+        r@ 0>    \ any characters left?
+        IF
+            dup c@ base @
+            digit ( ud1 c-addr , n true | char false )
+            IF
+                TRUE
+            ELSE
+                drop FALSE
+            THEN
+        ELSE
+            false
+        THEN
+    WHILE ( -- ud1 c-addr n  )
+        swap >r  ( -- ud1lo ud1hi n  )
+        swap  base @ ( -- ud1lo n ud1hi base  )
+        um* drop ( -- ud1lo n ud1hi*baselo  )
+        rot  base @ ( -- n ud1hi*baselo ud1lo base )
+        um* ( -- n ud1hi*baselo ud1lo*basello ud1lo*baselhi )
+        d+  ( -- ud2 )
+        r> 1+     \ increment char*
+        r> 1- >r  \ decrement count
+    REPEAT
+    r>
+; 
+
+```
 
 One common example for >NUMBER includes
 ```

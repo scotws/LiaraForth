@@ -101,8 +101,12 @@ nt_stod .byte 3, { NC }
         .word nt_dtos, xt_stod, z_stod
         .byte "s>d"
 
+nt_dplus .byte 2, { NC }
+        .word nt_stod, xt_dplus, z_dplus
+        .byte "d+"
+
 nt_udmod .byte 6, { NC }
-        .word nt_stod, xt_udmod, z_udmod
+        .word nt_dplus, xt_udmod, z_udmod
         .byte "ud/mod"
 
 nt_ummod .byte 6, { NC }
