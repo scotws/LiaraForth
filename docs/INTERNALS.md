@@ -138,6 +138,96 @@ Liara Forth is focussed on being fast, not small. A list of the size and
 execution time of the most used instructions in 16 bit mode is included in the
 documentation folder. 
 
+## Input of text
+
+Liara Forth follows ANSI Forth by discarding the traditional WORD and FIND for
+REFILL, PARSE-NAME and FIND-NAME. 
+(See http://forum.6502.org/viewtopic.php?f=9&t=4364 for a discussion)
+
+
+## Conversion of input numbers
+
+- See https://www.forth.com/starting-forth/10-input-output-operators/ for a
+  version of NUMBER ( addr u -- n | d )
+
+  The Definition given is
+```
+VARIABLE punct  \ Hold the flag TRUE if number contains valid punctuation
+: NUMBER ( addr u -- n | d )
+  0 punct !             \ initialize flag, no punctuation occurred
+  OVER C@               \ get the first digit
+  [CHAR] - =            \ Is it a minus sign?
+  DUP >R                \ Save flag on Return Stack
+  IF 1 /STRING THEN     \ If is '-', strip the '-' character and continue
+  0. 2SWAP              \ Provide double length zero as accumulator
+  BEGIN
+        >NUMBER
+        DUP             \ While there are still chars left, get the digit
+        WHILE
+        OVER C@ DUP [CHAR] : =         \ a colon
+        SWAP [CHAR] , [CHAR] /          \ a comma, hyphen, perido, slash
+        1+
+        WITHIN OR
+        DUP punct !     \ set flag for punctuation
+        0= ABORT" ? "   \ otherweise error message
+        1 /STRING       \ skip punctionation character
+ REPEAT                 \ exit if blank, else repeat conversion
+ 2DROP                  \ Drop string form stack
+ R> IF DNEGATE THEN     \ If flag for minus is true, negate the d
+ punct @  0= IF         \ If no punctuation, return single-value 
+        DROP THEN
+; 
+```
+
+- NUMBER is discussed page 87 in "Forth Programmer's Handbook" with the same
+  format but no implementation
+
+- Gforth uses S>NUMBER? and S>UNUMBER? which take a string and return either ( d
+  f ) or ( ud f ), see
+  https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Line-input-and-conversion.html
+  https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Number-Conversion.html
+
+
+Gforth uses this for >NUMBER:
+```
+: >NUMBER  
+  0 
+  ?DO    COUNT DIGIT? 
+         IF     ACCUMULATE 
+         LOOP
+         0 
+  ELSE   1- I' I - UNLOOP 
+  THEN ; 
+```
+wth DIGIT? as
+```
+: DIGIT?  
+  TOUPPER 48 - DUP 9 U> 
+  IF     7 - DUP 9 U<= 
+         IF     DROP FALSE EXIT 
+         THEN 
+  THEN 
+  DUP USERADDR <112>  @ U>= 
+  IF     DROP FALSE EXIT 
+  THEN 
+  TRUE ;
+```
+and ACCUMULATE as
+```
+: ACCUMULATE SWAP >R SWAP USERADDR <112>  @ UM* DROP ROT USERADDR <112>  @ UM* D+ R> ;
+```
+
+
+
+One common example for >NUMBER includes
+```
+0. BL WORD COUNT >NUMBER
+```
+which in modern terms is 
+```
+0. PARSE-NAME >NUMBER
+```
+
 
 ## Notes (convert these later)
 

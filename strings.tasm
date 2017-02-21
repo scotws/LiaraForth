@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  19. Feb 2017
+; This version:  21. Feb 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -34,7 +34,7 @@ es_refill1    .byte "QUIT could not get input (REFILL returned -1)", 0
 es_refill2    .byte "Illegal SOURCE-ID during REFILL", 0
 es_state      .byte "Already in compile mode", 0
 es_underflow  .byte "Stack underflow", 0
-es_syntax     .byte " Undefined word", 0
+es_syntax     .byte "Undefined word", 0
 
 
 ; ===================================================================

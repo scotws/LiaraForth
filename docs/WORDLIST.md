@@ -45,6 +45,7 @@ Last update: *21. February 2017*
 | <# "less-number"    | coded    | ANSI core     | NC       |     8 |  (TBA) |
 | >                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | >IN                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
+| >NUMBER             | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | >R                  | coded    | ANSI core     | NC CO    | 7     |     22 |
 | 0                   | coded    | 265SXB        | NC       | 7     |     12 |
 | 0=                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -86,6 +87,7 @@ Last update: *21. February 2017*
 | CREATE              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | D.                  | coded    | ANSI double   |          | Forth |  Forth |
 | D.R                 | coded    | ANSI double   |          | Forth |  Forth |
+| D>S                 | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | DABS                | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | DECIMAL             | coded    | ANSI core     | NC       | 7     |  (TBA) |
 | DEPTH               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -114,6 +116,7 @@ Last update: *21. February 2017*
 | NAME>STRING         | coded    | Gforth        | NC       | 16    |  (TBA) |
 | NEGATE              | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | NIP                 | coded    | ANSI core ext | NC       | 2     |      4 |
+| NUMBER              | coded    | 265SXB        | NC       | (TBA) |  (TBA) |
 | OR                  | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | OVER                | coded    | ANSI core     | NC       | 6     |     14 |
 | PAD                 | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |

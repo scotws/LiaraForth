@@ -290,7 +290,7 @@ z_greater       rts
 
 
 ; -------------------------------------------------------------------
-; >IN "TO-IN" ( -- addr ) 6 bytes / 12 cycles
+; >IN "TOIN" ( -- addr ) 6 bytes / 12 cycles
 ; Return address where pointer to current char in input buffer lives (>IN)
 xt_to-in         
                 dex
@@ -299,6 +299,14 @@ xt_to-in
 
                 ldy.# toin      ; >IN
 z_to-in         rts
+
+; -------------------------------------------------------------------
+; >NUMBER ( ud addr u -- ud addr u ) X bytes / X cycles
+; Convert a string to a double number. 
+; This routine is called by NUMBER, which already uses tmptos, tmp2 and tmp3
+xt_gtnumber      
+		; TODO not coded yet
+z_gtnumber      rts
 
 
 ; -------------------------------------------------------------------
@@ -728,7 +736,9 @@ z_rightbracket  rts
 ; -------------------------------------------------------------------
 ; [CHAR] "BRACKET-CHAR" ( "c" -- ) X bytes / X cycles
 ; At compile time, compile the ASCII value of a character as a literal
-; This is an immediate, compile-only word
+; This is an immediate, compile-only word. A definition given in 
+; http://forth-standard.org/standard/implement is 
+; : [CHAR] CHAR POSTPONE LITERAL ; IMMEDIATE
 ; TODO decide if this is worth unrolling
 xt_bracketchar  
                 jsr xt_char
@@ -1785,6 +1795,20 @@ create_got_name
 z_create        rts
 
 ; -------------------------------------------------------------------
+; D>S ( ud -- u ) X bytes / X cycles
+; Convert double cell number to single cell. Note this currently does not
+; respect the sign, in constrast to Gforth - this is simply DROP
+; TODO make this work the way Gforth's does
+xt_dtos          
+        .!a16
+                ldy.dx 00
+                inx
+                inx 
+
+z_dtos          rts
+
+
+; -------------------------------------------------------------------
 ; DABS ( d -- ud ) X bytes / X cycles
 ; Return the absolute value of a double number
 ; TODO recode in assembler
@@ -2488,6 +2512,136 @@ z_nip           rts
 
 
 ; -------------------------------------------------------------------
+; NUMBER ( addr u -- u | d ) X bytes / X cycles
+; Convert a number string to a double or single cell number. This is a wrapper
+; for >NUMBER and follows the convention set out in the "Forth Programmer's
+; Handbook" (Conklin & Rather) 3rd edition p. 87. Based in part on the "Starting
+; Forth" code https://www.forth.com/starting-forth/10-input-output-operators/
+; Gforth uses S>NUMBER? and S>UNUMBER? which return the numbers and a flag, see
+; https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Number-Conversion.html
+; Another difference to Gforth is that we follow ANSI Forth that the dot to
+; signal a double cell number is required to be the last character of the
+; string. Uses tmptos, tmp2, tmp3
+xt_number        
+        .!a16
+                stz.d tmp2      ; get sign flag ready (zero means no minus)
+                stz.d tmp3      ; get dot flag read (zero means single cell)
+                sty.d tmptos    ; save length of string, freeing Y
+
+                ; if the first character is a minus, strip it off and set
+                ; a flag
+                ldy.dx 00       ; get address of first character
+        .a8
+                lda.y 0000      ; get first character
+                cmp.# '-'
+        .a16                    ; zero flag is uneffected
+                bne number_dot
+
+                ; we have a minus
+                sta.d tmp2      ; any non-zero means we have minus
+                inc.dx 00       ; start one character later
+                dec.d tmptos    ; reduce string length by one
+
+number_dot
+                ; if the last character is a dot, strip it off and set a flag
+                lda.dx tmptos   ; get the string length
+                dec.a           ; subtract one to convert length to index
+                clc
+                adc.dx 00       ; add length of string
+                tay
+        .a8
+                lda.y 0000      ; get last character
+                cmp.# '.'
+        .a16
+                bne number_main
+                
+                ; we have a dot
+                sta.d tmp3      ; any non-zero means we have a dot
+                dec.d tmptos    ; reduce string length by one
+
+number_main
+                ; set up stack for subroutine jump to >NUMBER 
+                lda.dx 00       ; get the string address to safety
+
+                stz.dx 00       ; NOS is now zero
+                dex
+                dex
+                stz.dx 00       ; 3OS and NOS are now zero
+                dex
+                dex
+
+                sta.dx 02       ; address is back as NOS
+                ldy.d tmptos    ; length is back as TOS
+        
+number_loop
+                jsr xt_gtnumber ; ( ud addr u -- ud addr u ) 
+
+                tya             ; test length of returned string, should be 0
+                beq number_ok
+
+                ; Something went wrong during conversion, we still have stuff
+                ; left over. Print error string and abort. If number was called
+                ; by INTERPRET, we've already checked for words, so we're in
+                ; trouble one way or another
+                ; TODO print offending string
+                lda.# es_syntax
+                jmp error
+                
+number_ok
+                ; All characters successfully converted. Drop the string info
+                ldy.dx 04
+                inx
+                inx
+                inx
+                inx
+
+                ; We have a double-cell number on the Data Stack that might have
+                ; a minus and might actually be single-cell
+                lda.d tmp3      ; get flag for cell size
+                beq number_single
+                
+                ; This is a double-cell number. If it had a minus, we'll have to
+                ; negate it
+                lda.d tmp2
+                beq z_number    ; no minus, all done
+                
+                lda.dx 00       ; DNEGATE, starts with LSW
+                eor.# 0ffff
+
+                ; INC won't affect the carry flag, so we have to do this the
+                ; hard way
+                clc
+                adc.# 0001
+                sta.dx 00
+
+                ; now MSW (in TOS)
+                tya
+                eor.# 0ffff
+                adc.# 0000      ; we are only interested in the carry
+                tay
+ 
+                bra z_number
+
+number_single                
+                ; This is a single cell number, so we just drop the top cell
+                ldy.dx 00
+                inx
+                inx
+                
+                ; If we have a minus, we'll have to negate it. Note this code is
+                ; doubled for speed
+                lda.d tmp2      ; get flag for sign
+                beq z_number    ; no minus, all done
+                
+                tya             ; NEGATE
+                eor.# 0ffff
+                inc.a
+                tay             ; fall through to end
+               
+z_number        rts
+
+
+; -------------------------------------------------------------------
 ; OR ( n m -- n ) 6 bytes / X cycles
 ; Logical OR
 xt_or            
@@ -2556,6 +2710,7 @@ z_page          rts
 ; form of PARSE and drops through to that word. See PARSE for more detail. We
 ; use this word internally for the interpreter because it is a lot easier to use
 ; http://forth-standard.org/standard/core/PARSE-NAME has a Forth implementation
+; Roughly, the word is comparable to  BL WORD COUNT in old terms.
 xt_parse-name    
         .!a16
         .!xy16
