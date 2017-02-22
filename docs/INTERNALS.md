@@ -254,11 +254,15 @@ https://github.com/philburk/pforth/blob/master/fth/numberio.fth)
 
 One common example for >NUMBER includes
 ```
-0. BL WORD COUNT >NUMBER
+: TEST  0 0 BL WORD COUNT >NUMBER .S ; 
 ```
 which in modern terms is 
 ```
-0. PARSE-NAME >NUMBER
+: TEST 0 0 PARSE-NAME >NUMBER .S ; 
+```
+later followed by 
+```
+: TEST 0 0 PARSE-NAME >NUMBER 2DROP D>S . ; 
 ```
 
 

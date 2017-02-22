@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: *21. February 2017*
+Last update: *22. February 2017*
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -45,7 +45,7 @@ Last update: *21. February 2017*
 | <# "less-number"    | coded    | ANSI core     | NC       |     8 |  (TBA) |
 | >                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | >IN                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
-| >NUMBER             | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
+| >NUMBER             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | >R                  | coded    | ANSI core     | NC CO    | 7     |     22 |
 | 0                   | coded    | 265SXB        | NC       | 7     |     12 |
 | 0=                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |

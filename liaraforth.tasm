@@ -2675,30 +2675,36 @@ z_nip           rts
 ; https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Number-Conversion.html
 ; Another difference to Gforth is that we follow ANSI Forth that the dot to
 ; signal a double cell number is required to be the last character of the
-; string. Uses tmptos, tmp2, tmp3
+; string. Number calls >NUMBER which in turn calls UM*, which uses tmp1, tmp2,
+; and tmp3, so we can't use them here, which is pain. 
 xt_number        
         .!a16
-                stz.d tmp2      ; get sign flag ready (zero means no minus)
-                stz.d tmp3      ; get dot flag read (zero means single cell)
+                ; The flags for sign and double are kept on the stack because
+                ; we've run out of temporary variables. MSB is for minus, LSB is
+                ; for double
+                phe.# 0000
+
                 sty.d tmptos    ; save length of string, freeing Y
 
                 ; if the first character is a minus, strip it off and set
                 ; a flag
-                ldy.dx 00       ; get address of first character
         .a8
-                lda.y 0000      ; get first character
+                lda.dxi 00      ; get first character
                 cmp.# '-'
         .a16                    ; zero flag is uneffected
                 bne number_dot
 
-                ; we have a minus
-                sta.d tmp2      ; any non-zero means we have minus
+                ; We have a minus. 
+                pla
+                ora.# 0ff00     ; MSB is minus
+                pha
+
                 inc.dx 00       ; start one character later
                 dec.d tmptos    ; reduce string length by one
 
 number_dot
                 ; if the last character is a dot, strip it off and set a flag
-                lda.dx tmptos   ; get the string length
+                lda.d tmptos    ; get the string length
                 dec.a           ; subtract one to convert length to index
                 clc
                 adc.dx 00       ; add length of string
@@ -2710,13 +2716,15 @@ number_dot
                 bne number_main
                 
                 ; we have a dot
-                sta.d tmp3      ; any non-zero means we have a dot
+                pla             ; get the flag back
+                ora.# 00ff      ; LSB is double
+                pha
+
                 dec.d tmptos    ; reduce string length by one
 
 number_main
                 ; set up stack for subroutine jump to >NUMBER 
                 lda.dx 00       ; get the string address to safety
-
                 stz.dx 00       ; NOS is now zero
                 dex
                 dex
@@ -2724,7 +2732,7 @@ number_main
                 dex
                 dex
 
-                sta.dx 02       ; address is back as NOS
+                sta.dx 00       ; address is back as NOS
                 ldy.d tmptos    ; length is back as TOS
         
 number_loop
@@ -2743,7 +2751,7 @@ number_loop
                 
 number_ok
                 ; All characters successfully converted. Drop the string info
-                ldy.dx 04
+                ldy.dx 02
                 inx
                 inx
                 inx
@@ -2751,12 +2759,15 @@ number_ok
 
                 ; We have a double-cell number on the Data Stack that might have
                 ; a minus and might actually be single-cell
-                lda.d tmp3      ; get flag for cell size
+                pla             ; get copy of the flags
+                pha
+                and.# 00ff      ; only keep the part with the number size (LSB)
                 beq number_single
                 
                 ; This is a double-cell number. If it had a minus, we'll have to
                 ; negate it
-                lda.d tmp2
+                pla
+                and.# 0ff00     ; only keep part with the sing (MSB)
                 beq z_number    ; no minus, all done
                 
                 lda.dx 00       ; DNEGATE, starts with LSW
@@ -2784,7 +2795,8 @@ number_single
                 
                 ; If we have a minus, we'll have to negate it. Note this code is
                 ; doubled for speed
-                lda.d tmp2      ; get flag for sign
+                pla
+                and.# 0ff00
                 beq z_number    ; no minus, all done
                 
                 tya             ; NEGATE
