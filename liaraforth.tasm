@@ -161,7 +161,7 @@ quit_refill_successful
  
                 ; Main compile/execute routine. Consider moving this inside QUIT
                 ; once we know everything works 
-                jsr compex
+                jsr interpret
 
                 ; Test for Data Stack underflow. Our stack is so large in single
                 ; user mode that we don't bother checking for overflow - if that
@@ -2199,7 +2199,7 @@ xt_evaluate
                 inx
                 inx
 
-                jsr compex
+                jsr interpret
 
                 ; restore state from before evaluate
                 pla
@@ -4053,12 +4053,12 @@ dovar
 
 
 ; ------------------------------------------------------------------- 
-; COMPILE OR EXECUTE (AKA INTERPRET)
+; INTERPRET
 ; Core routine for interpreter called by EVALUATE and QUIT. We process one line
 ; only. Assumes that address of name is in cib and length of whole input 
 ; string is in ciblen
-compex
-compex_loop 
+interpret
+interpret_loop 
         .!a16
         .!xy16
                 ; Normally we would use PARSE here with the SPACE character as
@@ -4068,36 +4068,49 @@ compex_loop
                 ; PARSE doesn't
                 jsr xt_parse-name       ; ( "string" -- addr u ) 
 
-                ; TODO decide if we want to make a copy of the string here so
-                ; that we can provide a better error message
-
                 ; If PARSE-NAME returns 0 (empty line), no characters were left
                 ; in the line and we need to go get a new line
                 tya                     ; force flag check
-                beq compex_line_done
+                beq interpret_line_done
                 
                 ; We let the user input words in any case, but use lower case
                 ; internally (sorry, Garth).
                 jsr string_to_lowercase
 
-                ; Go to FIND-NAME to see if this is a word we know
+                ; Go to FIND-NAME to see if this is a word we know. We have to
+                ; make a copy of the address in case it isn't a word we know and
+                ; we have to go see if it is a number
+                jsr xt_2dup             ; TODO convert this to assembler
                 jsr xt_find-name        ; ( addr u -- nt | 0 )
 
                 ; a zero signals that we didn't find a word in the Dictionary
                 tya
-                bne compex_got_name_token
+                bne interpret_got_name_token
 
-                ; TODO No name token, try NUMBER CONVERSION
+                ; We didn't get any nt we know of, so let's see if this is
+                ; a number. 
+                jsr xt_drop             ; TODO convert this to assembler
+
+
+                ; If the number conversion doesn't work, NUMBER will do the
+                ; complaining for us
+                jsr xt_number           ; ( addr u -- u | d ) 
                 
-                ; Number conversion has failed, which means the user screwed up, 
-                ; so complain and abort 
-                ; TODO see if we can print the offending string first
-                lda.# es_syntax         ; "Unknown word"
-                jmp error
+                ; That was so much fun we should do it again!
+                bra interpret_loop
 
-compex_got_name_token
+interpret_got_name_token
                 ; We have a known word's nt as TOS. We're going to need its xt
-                ; though, which is four byte father down. This is a quicker
+                ; though, which is four byte father down. 
+                
+                ; Arrive here with ( addr u nt ), so we NIP twice, which is
+                ; really fast if Y is TOS 
+                inx
+                inx
+                inx
+                inx 
+
+                ; This is a quicker
                 ; version of NAME>INT. But first, save a version of nt for
                 ; error handling and compilation stuff.
                 sty.d tmp1
@@ -4110,7 +4123,7 @@ compex_got_name_token
 
                 ; See if we are in interpret or compile mode
                 lda.d state
-                bne compex_compile
+                bne interpret_compile
                
                 ; We are interpreting, so EXECUTE the xt that is TOS. First,
                 ; though, see if this isn't a compile-only word, which would be
@@ -4118,13 +4131,13 @@ compex_got_name_token
                 lda.di tmp1
                 xba                     ; flags are MSB
                 and.# CO                ; mask everything but Compile Only bit
-                beq compex_interpret
+                beq interpret_interpret
 
                 ; TODO see if we can print offending word first
                 lda.# es_componly
                 jmp error
                
-compex_interpret
+interpret_interpret
                 ; We JSR to EXECUTE instead of calling the xt directly because
                 ; the RTS of the word we're executing will bring us back here,
                 ; skipping EXECUTE completely during RTS. If we were to execute
@@ -4133,9 +4146,9 @@ compex_interpret
                 jsr xt_execute
 
                 ; That's quite enough for this word, let's get the next one
-                jmp compex_loop
+                jmp interpret_loop
 
-compex_compile
+interpret_compile
                 ; We're compiling. However, we need to see if this is an
                 ; IMMEDIATE word, which would mean we execute it right now even
                 ; during compilation mode. Fortunately, we saved the nt so life
@@ -4143,14 +4156,14 @@ compex_compile
                 lda.di tmp1
                 xba                     ; flags are MSB
                 and.# IM                ; Mask all but IM bit
-                bne compex_interpret    ; IMMEDIATE word, execute right now
+                bne interpret_interpret ; IMMEDIATE word, execute right now
 
                 ; Compile the xt into the Dictionary with COMPILE,
                 jsr xt_compilecomma
 
-                jmp compex_loop
+                jmp interpret_loop
 
-compex_line_done
+interpret_line_done
                 ; drop stuff from PARSE_NAME
                 ldy.dx 02
                 inx
