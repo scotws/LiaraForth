@@ -1,25 +1,27 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 22. Feb 2017
+This version: 25. Feb 2017
 
 
 TODO NEXT (next on top)
 
 - Code :NONAME, MARKER, LATESTXT, LATESTNT, WORD-SIZE
+- Code DO/LOOP and friends
 - Move string_to_lowercase to FIND-NAME
 - CLI handling: Make sure BS doesn't end up on previous line, add CTRL-p, CTRL-n
 - Move all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Move all single GET_CHR calls to vectored KEY (allows PAUSE later)
 
 
-TODO LATER (next on top)
+TODO LATER 
 
 - Code multitasking support with PAUSE etc
 - Code vt100 support
-- Create drawings of stack antics in INTERNALS.md 
+- Create drawings of data stack antics in INTERNALS.md 
+- Rewrite loops, branches etc with CS-ROLL and CS-PICK to fit ANSI standard
 - Add real multi-line history
-- Consider morse code output because that would be cool
+- Consider morse code output because that would be awesome
 - Add better version of UM* and other multiple/division routines based on tables
 
 
