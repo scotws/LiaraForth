@@ -537,12 +537,12 @@ nt_tor  .byte 2, { CO }
         .word nt_fromr, xt_tor, z_tor
         .byte ">r"
 
-nt_char-num .byte &11, { NC }
-        .word nt_tor, xt_char-num, z_char-num
-        .byte "char>number"
+nt_digitq .byte 6, { NC }
+        .word nt_tor, xt_digitq, z_digitq
+        .byte "digit?"
 
 nt_over .byte 4, { NC }
-        .word nt_char-num, xt_over, z_over
+        .word nt_digitq, xt_over, z_over
         .byte "over"
 
 nt_fetch .byte 1, { NC }

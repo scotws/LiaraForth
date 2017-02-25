@@ -322,7 +322,7 @@ xt_tonumber
                 ;     +-----+-----+-----+-----+-----+-----+-----+-----+
                 
                 ; The math routine works by converting one character to its
-                ; numerical value (N) via CHAR>NUMBER and storing it in S+4 for
+                ; numerical value (N) via DIGIT? and storing it in S+4 for
                 ; the moment. We then multiply the UD-HI value with the radix
                 ; (from BASE) using UM*, which returns a double-cell result. We
                 ; discard the high cell of that result (UD-HI-HI) and store the
@@ -352,10 +352,10 @@ tonumber_loop
                 lda.dxi 02       
                 tay             ; ( ud-lo ud-hi addr u char ) 
 
-                ; Convert one character. CHAR>NUMBER takes care of the correct
+                ; Convert one character. DIGIT? takes care of the correct
                 ; register size for A and does a paranoid AND to make sure that
                 ; B is zero, so we don't have to do any of that here. 
-                jsr xt_char-num         ; ( char -- n -1 | char 0 ) 
+                jsr xt_digitq   ; ( char -- n -1 | char 0 ) 
                 
                 ; This gives us (ud-lo ud-hi addr u char f | n f ), so check the
                 ; flag. If it is zero, we return what we have and let the caller
@@ -1591,73 +1591,6 @@ char_got_char
                 
 z_char          rts
 
-; -------------------------------------------------------------------
-; CHAR>NUMBER ( char -- u f | char f )  X bytes / X cycles
-; Convert a single ASCII character to a number in the current radix. Inspired by
-; the pForth instruction DIGIT in pForth, see
-; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
-; Rewritten from DIGIT>NUMBER in Tali Forth. Note in contrast to pForth, we get
-; the base (radix) ourselves instead of having the user provide it
-xt_char-num      
-        .!a16
-                tya
-                and.# 00ff              ; paranoid
-
-        .a8 
-                ; Make sure we're not below the ASCII code for '0'
-                cmp.# '0'
-                bcc cn_notdigit
-
-                ; Then see if we are below '9', because that would make this
-                ; a normal number
-                cmp.# { '9' + 1 }       ; This is ':'
-                bcc cn_checkbase
-
-                ; Well, then let's see if this is the gap between '9' and 'A' so
-                ; we can treat the whole range as a number
-                cmp.# { 'A' - 1 }       ; This is '@'
-                bcc cn_notdigit
-
-                ; Probably a letter, so we make sure it is uppercase
-                cmp.# 'a'
-                bcc cn_case_done        ; not lower case, too low
-                cmp.# { 'z' + 1 }
-                bcs cn_case_done        ; not lower case, too high
-
-                clc                     ; just right
-                adc.# e0                ; offset to uppercase (wraps)
-
-cn_case_done
-                ; Get rid of the gap between '9' and 'A' so we can treat the
-                ; whole range as one number
-                sec
-                sbc.# 07                ; fall through to cn_checkbase
-
-cn_checkbase
-                ; We have a number, now see if it inside the range given by BASE
-                sec
-                sbc.# '0'               ; This is also the actual conversion step
-                cmp.d base
-                bcc cn_success
-                
-cn_notdigit
-                ; not a digit, add a false flag
-                dex
-                dex
-                sty.dx 00       ; keep the offending character in NOS
-                ldy.# 0000
-        .a16
-                bra z_char-num
-
-cn_success
-                dex
-                dex
-        .a16
-                sta.dx 00       ; put the number in NOS
-                ldy.# 0ffff
-                
-z_char-num      rts
-
 
 ; -------------------------------------------------------------------
 ; COMPILE-ONLY ( -- ) 8 bytes / X cycles
@@ -1922,6 +1855,76 @@ create_got_name
                 inx
                 
 z_create        rts
+
+
+; -------------------------------------------------------------------
+; DIGIT? ( char -- u f | char f )  X bytes / X cycles
+; Convert a single ASCII character to a number in the current radix. Inspired by
+; the pForth instruction DIGIT in pForth, see
+; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
+; Rewritten from DIGIT>NUMBER in Tali Forth. Note in contrast to pForth, we get
+; the base (radix) ourselves instead of having the user provide it. There is no
+; standard name for this routine, which itself is not ANSI; we use DIGIT?
+; following pForth and Gforth. 
+xt_digitq
+        .!a16
+                tya
+                and.# 00ff              ; paranoid
+
+        .a8 
+                ; Make sure we're not below the ASCII code for '0'
+                cmp.# '0'
+                bcc dq_notdigit
+
+                ; Then see if we are below '9', because that would make this
+                ; a normal number
+                cmp.# { '9' + 1 }       ; This is ':'
+                bcc dq_checkbase
+
+                ; Well, then let's see if this is the gap between '9' and 'A' so
+                ; we can treat the whole range as a number
+                cmp.# { 'A' - 1 }       ; This is '@'
+                bcc dq_notdigit
+
+                ; Probably a letter, so we make sure it is uppercase
+                cmp.# 'a'
+                bcc dq_case_done        ; not lower case, too low
+                cmp.# { 'z' + 1 }
+                bcs dq_case_done        ; not lower case, too high
+
+                clc                     ; just right
+                adc.# e0                ; offset to uppercase (wraps)
+
+dq_case_done
+                ; Get rid of the gap between '9' and 'A' so we can treat the
+                ; whole range as one number
+                sec
+                sbc.# 07                ; fall through to dq_checkbase
+
+dq_checkbase
+                ; We have a number, now see if it inside the range given by BASE
+                sec
+                sbc.# '0'               ; This is also the actual conversion step
+                cmp.d base
+                bcc dq_success
+                
+dq_notdigit
+                ; not a digit, add a false flag
+                dex
+                dex
+                sty.dx 00       ; keep the offending character in NOS
+                ldy.# 0000
+        .a16
+                bra z_digitq
+
+dq_success
+                dex
+                dex
+        .a16
+                sta.dx 00       ; put the number in NOS
+                ldy.# 0ffff
+                
+z_digitq        rts
 
 
 ; -------------------------------------------------------------------
