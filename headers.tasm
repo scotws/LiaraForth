@@ -449,12 +449,12 @@ nt_true  .byte 4, { NC }
         .word nt_false, xt_true, z_true
         .byte "true"
 
-nt_gtnumber .byte 7, { NC }	; see if actually NC
-        .word nt_true, xt_gtnumber, z_gtnumber
+nt_tonumber .byte 7, { NC }	; see if actually NC
+        .word nt_true, xt_tonumber, z_tonumber
         .byte ">number"
 
 nt_number .byte 6, { NC }	; see if actually NC
-        .word nt_gtnumber, xt_number, z_number
+        .word nt_tonumber, xt_number, z_number
         .byte "number"
 
 nt_two  .byte 1, { NC }

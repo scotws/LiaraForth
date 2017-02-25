@@ -4,12 +4,12 @@ Copyright 2015-2017 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 
 Code listing for file liaraforth.tasm
-Generated on Wed Feb 22 01:24:09 2017
+Generated on Sat Feb 25 16:03:06 2017
 Target MPU: 65816
 External files loaded: 4
 Number of passes executed: 35
 Number of steps executed: 10
-Assembly time: 0.15262 seconds
+Assembly time: 0.15751 seconds
 Code origin: 006000
 Bytes of machine code: 6382
 
@@ -18,7 +18,7 @@ LISTING:
    1:000 | DONE cmt | em  8  8 |        |             | ; Liara Forth for the W65C265SXB
    2:000 | DONE cmt | em  8  8 |        |             | ; Scot W. Stevenson <scot.stevenson@gmail.com>
    3:000 | DONE cmt | em  8  8 |        |             | ; First version: 01. Apr 2016
-   4:000 | DONE cmt | em  8  8 |        |             | ; This version: 21. Feb 2017
+   4:000 | DONE cmt | em  8  8 |        |             | ; This version: 25. Feb 2017
    5:000 | DONE wsp | em  8  8 |        |             |
    6:000 | DONE cmt | em  8  8 |        |             | ; This code is written in Typist's Assembler Notation for the 65c02/65816
    7:000 | DONE cmt | em  8  8 |        |             | ; See docs/MANUAL.md for more information
@@ -628,7 +628,7 @@ LISTING:
  310:000 | DONE cmt | na 16 16 |        |             | ; that signalizes double - this should be a pure number string.
  311:000 | DONE cmt | na 16 16 |        |             | ; This routine calles UM*, which uses tmp1, tmp2 and tmp3, so we cannot access
  312:000 | DONE cmt | na 16 16 |        |             | ; any of those.
- 313:000 | DONE lbl | na 16 16 | 006125 |             | xt_gtnumber                          
+ 313:000 | DONE lbl | na 16 16 | 006125 |             | xt_tonumber                          
  314:000 | DONE dir | na 16 16 |        |             |         .!a16                        
  315:000 | DONE cmt | na 16 16 |        |             |                 ; For the math routine, we move the inputs to the scratchpad to
  316:000 | DONE cmt | na 16 16 |        |             |                 ; avoid having to fool around with the Data Stack.
@@ -665,7 +665,7 @@ LISTING:
  347:000 | DONE ins | na 16 16 | 00612e | ca          |                 dex                  
  348:000 | DONE ins | na 16 16 | 00612f | 94 00       |                 sty.dx 00            
  349:000 | DONE wsp | na 16 16 |        |             |
- 350:000 | DONE lbl | na 16 16 | 006131 |             | gtnumber_loop                        
+ 350:000 | DONE lbl | na 16 16 | 006131 |             | tonumber_loop                        
  351:000 | DONE cmt | na 16 16 |        |             |                 ; Get one character
  352:000 | DONE ins | na 16 16 | 006131 | a1 02       |                 lda.dxi 02           
  353:000 | DONE ins | na 16 16 | 006133 | a8          |                 tay                  ( ud-lo ud-hi addr u char )
@@ -686,7 +686,7 @@ LISTING:
  368:000 | DONE ins | na 16 16 | 00613d | e8          |                 inx                  
  369:000 | DONE ins | na 16 16 | 00613e | 80 35       |                 bra 006175           
  370:000 | DONE wsp | na 16 16 |        |             |
- 371:000 | DONE lbl | na 16 16 | 006140 |             | gtnumber_ok                          
+ 371:000 | DONE lbl | na 16 16 | 006140 |             | tonumber_ok                          
  372:000 | DONE cmt | na 16 16 |        |             |                 ; Conversion was successful, so we're here with
  373:000 | DONE cmt | na 16 16 |        |             |                 ; ( ud-lo ud-hi addr u n -1 ) and can start the math routine.
  374:000 | DONE wsp | na 16 16 |        |             |
@@ -738,7 +738,7 @@ LISTING:
  420:000 | DONE wsp | na 16 16 |        |             |
  421:000 | DONE ins | na 16 16 | 006173 | d0 bc       |                 bne 006131           
  422:000 | DONE wsp | na 16 16 |        |             |
- 423:000 | DONE lbl | na 16 16 | 006175 |             | gtnumber_done                        
+ 423:000 | DONE lbl | na 16 16 | 006175 |             | tonumber_done                        
  424:000 | DONE cmt | na 16 16 |        |             |                 ; Counter has reached zero or we have an error. In both cases,
  425:000 | DONE cmt | na 16 16 |        |             |                 ; we clean up the Data Stack and return. We arrive here with
  426:000 | DONE cmt | na 16 16 |        |             |                 ; ( ud-lo ud-hi addr u char ) if there was an error
@@ -753,7 +753,7 @@ LISTING:
  435:000 | DONE ins | na 16 16 | 00617d | a5 22       |                 lda.d 000222         
  436:000 | DONE ins | na 16 16 | 00617f | 95 02       |                 sta.dx 02            new ud-hi
  437:000 | DONE wsp | na 16 16 |        |             |
- 438:000 | DONE lbl | na 16 16 | 006181 |             | z_gtnumber                           
+ 438:000 | DONE lbl | na 16 16 | 006181 |             | z_tonumber                           
  438:001 | DONE ins | na 16 16 | 006181 | 60          |                 rts                  
  439:000 | DONE wsp | na 16 16 |        |             |
  440:000 | DONE wsp | na 16 16 |        |             |
@@ -5307,10 +5307,10 @@ LISTING:
 3968:549 | DONE dir | na 16 16 | 007009 | (4 bytes)   |         .byte 74, 72, 75, 65         
 3968:549 | DONE dir | na 16 16 |        |             |                 74 72 75 65              --  t r u e
 3968:550 | DONE wsp | na 16 16 |        |             |
-3968:551 | DONE lbl | na 16 16 | 00700d |             | nt_gtnumber                          
+3968:551 | DONE lbl | na 16 16 | 00700d |             | nt_tonumber                          
 3968:552 | DONE dir | na 16 16 | 00700d | (2 bytes)   |         .byte 7, { NC }              see if actually NC
 3968:552 | DONE dir | na 16 16 |        |             |                 07 01                    --  . .
-3968:553 | DONE dir | na 16 16 | 00700f | (6 bytes)   |         .word nt_true, xt_gtnumber, 006181 
+3968:553 | DONE dir | na 16 16 | 00700f | (6 bytes)   |         .word nt_true, xt_tonumber, 006181 
 3968:553 | DONE dir | na 16 16 |        |             |                 01 70 25 61 81 61        --  . p % a . a
 3968:554 | DONE dir | na 16 16 | 007015 | (7 bytes)   |         .byte 3e, 6e, 75, 6d, 62, 65, 72 
 3968:554 | DONE dir | na 16 16 |        |             |                 3e 6e 75 6d 62 65 72     --  > n u m b e r
@@ -5318,7 +5318,7 @@ LISTING:
 3968:556 | DONE lbl | na 16 16 | 00701c |             | nt_number                            
 3968:557 | DONE dir | na 16 16 | 00701c | (2 bytes)   |         .byte 6, { NC }              see if actually NC
 3968:557 | DONE dir | na 16 16 |        |             |                 06 01                    --  . .
-3968:558 | DONE dir | na 16 16 | 00701e | (6 bytes)   |         .word nt_gtnumber, xt_number, 006831 
+3968:558 | DONE dir | na 16 16 | 00701e | (6 bytes)   |         .word nt_tonumber, xt_number, 006831 
 3968:558 | DONE dir | na 16 16 |        |             |                 0d 70 ae 67 31 68        --   p . g 1 h
 3968:559 | DONE dir | na 16 16 | 007024 | (6 bytes)   |         .byte 6e, 75, 6d, 62, 65, 72 
 3968:559 | DONE dir | na 16 16 |        |             |                 6e 75 6d 62 65 72        --  n u m b e r
@@ -6388,9 +6388,6 @@ SYMBOL TABLE:
 - find-name_success           : 0066ef
 - get_chr                     : 006047
 - get_chr_wait                : 00604c
-- gtnumber_done               : 006175
-- gtnumber_loop               : 006131
-- gtnumber_ok                 : 006140
 - hashs_loop                  : 006284
 - have_chr?                   : 006056
 - hi-end                      : 007747
@@ -6523,7 +6520,6 @@ SYMBOL TABLE:
 - nt_find-name                : 007045
 - nt_fromr                    : 007107
 - nt_greater                  : 006fc5
-- nt_gtnumber                 : 00700d
 - nt_hash                     : 006ccb
 - nt_hashs                    : 006cb5
 - nt_here                     : 0070e4
@@ -6580,6 +6576,7 @@ SYMBOL TABLE:
 - nt_swap                     : 00714c
 - nt_tick                     : 006ee7
 - nt_to-in                    : 006ea1
+- nt_tonumber                 : 00700d
 - nt_tor                      : 007111
 - nt_true                     : 007001
 - nt_tuck                     : 0070a7
@@ -6654,6 +6651,9 @@ SYMBOL TABLE:
 - tmptos                      : 000206
 - tohold                      : 000228
 - toin                        : 000212
+- tonumber_done               : 006175
+- tonumber_loop               : 006131
+- tonumber_ok                 : 006140
 - type_done                   : 006a4a
 - type_loop                   : 006a3e
 - ummod_complete              : 006b13
@@ -6726,7 +6726,6 @@ SYMBOL TABLE:
 - xt_greater                  : 006109
 - xt_greater_nip              : 00611a
 - xt_greater_no_ov            : 006117
-- xt_gtnumber                 : 006125
 - xt_hash                     : 00625a
 - xt_hashs                    : 006284
 - xt_here                     : 00670a
@@ -6785,6 +6784,7 @@ SYMBOL TABLE:
 - xt_swap                     : 006a19
 - xt_tick                     : 006368
 - xt_to-in                    : 00611d
+- xt_tonumber                 : 006125
 - xt_tor                      : 006182
 - xt_true                     : 006a1f
 - xt_tuck                     : 006a27
@@ -6856,7 +6856,6 @@ SYMBOL TABLE:
 - z_find-name                 : 0066fa
 - z_fromr                     : 006913
 - z_greater                   : 00611c
-- z_gtnumber                  : 006181
 - z_hash                      : 006274
 - z_hashs                     : 00628c
 - z_here                      : 006710
@@ -6913,6 +6912,7 @@ SYMBOL TABLE:
 - z_swap                      : 006a1e
 - z_tick                      : 006383
 - z_to-in                     : 006124
+- z_tonumber                  : 006181
 - z_tor                       : 006189
 - z_true                      : 006a26
 - z_tuck                      : 006a2f
