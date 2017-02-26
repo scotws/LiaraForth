@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 25. Feb 2017
+; This version: 26. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -288,6 +288,21 @@ xt_greater_nip
 
 z_greater       rts
 
+
+; -------------------------------------------------------------------
+; >BODY "TOBODY" ( xt -- addr ) 3 bytes / 6 cycles
+; Given a word's execution token (xt), return the address of the start of that
+; word's parameter field (PFA). This is the address that HERE would return right
+; after CREATE
+xt_tobody        
+                ; In the header, xt already points to the CFA, which CREATE by
+                ; default fills with a JSR to DOVAR. We just need to move xt
+                ; down by three bytes
+                iny
+                iny
+                iny
+
+z_tobody        rts
 
 ; -------------------------------------------------------------------
 ; >IN "TOIN" ( -- addr ) 6 bytes / 12 cycles
@@ -1205,6 +1220,39 @@ tick_have_nt
                 
 z_tick          rts
 
+; -------------------------------------------------------------------
+; ABORT" "ABORTQ" ( "string" -- ) X bytes / X cycles
+; If flag on TOS is not false, print error message and abort. This a compile-only word
+xt_abortq        
+                jsr xt_squote           ; save string
+
+                phe.# abortq_rt         ; compile run-time aspect
+                jsr cmpl_subroutine
+
+                rts
+
+abortq_rt
+                ; we land here with ( f addr u ) 
+                lda.dx 02               ; get 3OS
+                beq abortq_done          ; if FALSE, we're done
+
+                ; nope, we print string and ABORT
+                jsr xt_type
+                jmp xt_abort            ; not JSR because we never come back
+                
+abortq_done
+                ; drop the three entries from the Data Stack
+                ldy.dx 04               ; fourth on the stack
+                
+                ; this is the same size, but three cycles faster than six INX
+                ; instructions
+                txa
+                sec
+                sbc.# 0006
+                tax
+                
+z_abortq        rts
+
 
 ; -------------------------------------------------------------------
 ; ABS ( n -- u ) 8 bytes / X cycles
@@ -1477,8 +1525,27 @@ z_bl            rts
 
 
 ; -------------------------------------------------------------------
+; BOUNDS ( addr u -- addr+u addr ) 9 bytes / X cycles
+; Given a string, return the correct Data Stack parameters for a DO/LOOP loop
+; over its characters. This is realized as OVER + SWAP in Forth, but we do it
+; a lot faster in assembler. Uses tmptos
+xt_bounds        
+        .!a16
+                sty.d tmptos
+                ldy.dx 00       ; addr now TOS
+
+                clc
+                adc.d tmptos
+                sta.dx 00       ; addr+u now NOS
+                
+z_bounds        rts
+
+
+; -------------------------------------------------------------------
 ; BRANCH ( -- ) X bytes / X cycles
-; Transfer control to given address. Uses tmp3 and tmptos
+; Transfer control to given address. Uses tmp3 and tmptos. This word was adapted
+; from Tali Forth and will be replaced by ANSI-conform words CS-PICK and CS-ROLL 
+; in the future
 xt_branch        
         .!a16
                 ; encode subroutine branch to runtime portion
@@ -2441,6 +2508,44 @@ xt_hold
                 inx
 
 z_hold          rts
+
+; -------------------------------------------------------------------
+; LATESTNT ( -- nt ) 7 bytes / X cycles
+; Return the name token (nt) of the last word in the Dictionary. The Gforth
+; version of this word is called LATEST. 
+xt_latestnt      
+        .!a16
+                dex             ; make room on Data Stack
+                dex
+                sty.dx 00
+
+                lda.d dp
+                tay
+
+z_latestnt      rts
+
+
+; -------------------------------------------------------------------
+; LATESTXT ( -- xt ) 11 bytes / X cycles
+; Return the name token (xt) of the last word in the Dictionary. This is simply
+; LATESTNT but four bytes down and with a FETCH
+xt_latestxt      
+        .!a16
+                dex             ; make room on Data Stack
+                dex
+                sty.dx 00
+
+                lda.d dp
+
+                clc             ; xt is stored four bytes below nt in header
+                adc.# 0004
+                tay
+
+                lda.y 0000      ; FETCH
+                tay
+
+z_latestxt      rts
+
 
 ; -------------------------------------------------------------------
 ; LITERAL ( n -- ) X bytes / X cycles
@@ -3904,13 +4009,30 @@ z_variable      rts
 
 
 ; -------------------------------------------------------------------
+; WORDS&SIZES ( -- ) X bytes / X cycles
+; Prints all words in the dictionary with the sizes of their code as returned by
+; WORDSIZE. Used to test different optimizations of the compiling routines,
+; specific to Liara Forth. Uses tmp3
+xt_wordsnsizes   
+        .!a16
+                lda.# 0ffff
+                sta.d tmp3      ; set flag that we want sizes, too
+
+                ; continue with WORDS
+                bra words_common
+
+; -------------------------------------------------------------------
 ; WORDS ( -- ) X bytes / X cycles
 ; Print list of all Forth words available. This only really makes sense in an
-; interactive setting, so we don't have to worry about speed.
+; interactive setting, so we don't have to worry about speed. WORDS&SIZES falls
+; through to here. Uses tmp3. Both WORDS and WORDS&SIZES might be better off as
+; high-level Forth words, but these routines are left over from early testing
 xt_words         
-        .!a16
-        .!xy16
-                jsr xt_cr        ; start on next line, this is a style choice
+                stz.d tmp3      ; store flag that we don't want to print sizes
+
+words_common
+                ; common routine for WORDS and WORDS&SIZES
+                jsr xt_cr       ; start on next line, this is a style choice
 
                 lda.d dp        ; nt of first entry in Dictionary (last added)
                 pha
@@ -3925,7 +4047,24 @@ words_loop
                 jsr xt_type              ; ( addr u -- ) 
                 jsr xt_space
 
-                pla                      ; get back first entry in Dictionary
+                ; If the user wants sizes as well, print them
+                lda.d tmp3
+                beq words_nosizes
+
+                ; For the moment, just print the size in bytes after the word's
+                ; name string. We can decide if we want to get all fancy later
+                dex
+                dex
+                sty.dx 00
+
+                ply             ; get nt back again
+                phy             
+                jsr xt_wordsize ; ( u ) 
+                jsr xt_dot
+                jsr xt_space
+
+words_nosizes
+                pla             ; get back first entry in Dictionary
 
                 ; The next nt is two bytes below the nt of the current one in
                 ; the Dictionary header
@@ -3948,7 +4087,34 @@ words_loop
                 inx
                 inx
 
-z_words         rts
+z_words         
+z_wordsnsizes   rts
+
+; -------------------------------------------------------------------
+; WORDSIZE ( nt -- u ) X bytes / X cycles
+; Given an word's name token (nt), return the size of the word's payload (CFA
+; plus PFA) in bytes. Does not count the final RTS. Specific to Liara Forth. 
+; Uses tmp2, note WORDS and WORDS&SIZES use tmp3
+xt_wordsize      
+                ; We get the beginning address of the code from the word's
+                ; header entry for the execution token (xt, 4 bytes down) and
+                ; the pointer to the end of the code (z_word, six bytes down). 
+                iny
+                iny
+                iny
+                iny             ; nt+4, location of xt
+                lda.y 0000      ; get xt
+                sta.d tmp2
+
+                iny
+                iny             ; nt+6, location of z_word
+                lda.y 0000
+                
+                sec             ; (z_word - xt_word) 
+                sbc.d tmp2
+                tay
+
+z_wordsize      rts
 
 
 ; -------------------------------------------------------------------
@@ -4311,7 +4477,9 @@ string_to_lowercase
 ; the end of the line if there is another line with code following it. No zero
 ; or CR/LF is required
 hi-start
-        ; High level definitions
+        ; High level definitions. Many of these are still defined with BRANCH
+        ; and 0BRANCH from Tali Forth, which will be replaced by the ANSI
+        ; standard CS-PICK and CS-ROLL words at a later date
         .byte ": ( [char] ) parse 2drop ; immediate " ; ( "parens"
         .byte ": .( [char] ) parse type ; immediate " ; .( "dotparens"
         .byte ": if postpone 0branch here 0 , ; immediate compile-only " ; IF 
@@ -4321,9 +4489,19 @@ hi-start
         .byte ": until postpone 0branch , ; immediate compile-only " ; UNTIL
         .byte ": while postpone 0branch here 0 , swap ; immediate compile-only "; WHILE
 
+        ; DEFER and friends. Code taken from ANSI Forth specifications. Many of
+        ; these will be moved to assembler code in due course
+        ; .byte ": defer create ['] abort , does> @ execute ; "
+        ; .byte ": defer! >body ! ; "     ; TODO rewrite in assembler
+        ; .byte ": defer@ >body @ ; "     ; TODO rewrite in assembler
+        ; .byte ": is state @ if postpone ['] postpone defer! else "
+        ; .byte "defer! then ; immediate "
+        ; .byte ": action-of state @ if postpone ['] postpone defer@ else "
+        ; .byte "defer@ then ; immediate "
+
         ; High level math definitions. The should be moved to actual 65816 code
         ; for speed at some point. Note we use SM/REM instead of FM/MOD for most
-        ; stuff anyway. Definitions for SM/REM and FM/MOD taken von Gforth
+        ; stuff. Definitions for SM/REM and FM/MOD taken von Gforth
         ; sources, see
         ; https://groups.google.com/forum/#!topic/comp.lang.forth/_bx4dJFb9R0
         .byte ": sm/rem over >r dup >r abs -rot dabs rot um/mod r> r@ xor "
@@ -4338,7 +4516,7 @@ hi-start
         ; Output definitions. Since these usually involve the user, and humans
         ; are slow, these can stay high-level for the moment. Based on
         ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
-        .byte ": u. 0 <# #s #> type space ; "   
+        .byte ": u. 0 <# #s #> type space ; "   ; TODO rewrite in assembler
         .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
         .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
         .byte ": ud. <# #s #> type space ; "
@@ -4351,7 +4529,7 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 21. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 26. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"

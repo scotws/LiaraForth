@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 21. Feb 2017
+; This version: 26. Feb 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -57,16 +57,24 @@ nt_cold .byte 4, 00
         .word nt_bye, xt_cold, z_cold
         .byte "cold"  
 
+nt_wordsnsizes .byte 0b, { NC }
+        .word nt_cold, xt_wordsnsizes, z_wordsnsizes
+        .byte "words&sizes"
+
 nt_words .byte 5, { NC }
-        .word nt_cold, xt_words, z_words
+        .word nt_wordsnsizes, xt_words, z_words
         .byte "words"
 
 nt_dump .byte 4, { NC }
         .word nt_words, xt_dump, z_dump
         .byte "dump"
 
+nt_wordsize .byte 8, { NC }
+        .word nt_dump, xt_wordsize, z_wordsize
+        .byte "wordsize"
+
 nt_bell .byte 4, { NC }
-        .word nt_dump, xt_bell, z_bell
+        .word nt_wordsize, xt_bell, z_bell
         .byte "bell"
 
 nt_decimal .byte 7, { NC }
@@ -129,8 +137,12 @@ nt_count .byte 5, { NC }
         .word nt_umstar, xt_count, z_count
         .byte "count"
 
+nt_abortq .byte 6, { CO + IM }
+        .word nt_count, xt_abortq, z_abortq
+        .byte "abort", &34	; ABORT"
+
 nt_abort .byte 5, 00 ; TODO check flags - NC possible?
-        .word nt_count, xt_abort, z_abort
+        .word nt_abortq, xt_abort, z_abort
         .byte "abort"
 
 nt_parse .byte 5, 00
@@ -261,8 +273,16 @@ nt_leftbracket .byte 1, { IM + CO }
         .word nt_rightbracket, xt_leftbracket, z_leftbracket
         .byte '['
 
+nt_latestnt .byte 8, { NC }
+        .word nt_leftbracket, xt_latestnt, z_latestnt
+        .byte "latestnt"
+
+nt_latestxt .byte 8, { NC }
+        .word nt_latestnt, xt_latestxt, z_latestxt
+        .byte "latestxt"
+
 nt_zbranch .byte 7, { IM + CO }
-        .word nt_leftbracket, xt_zbranch, z_zbranch
+        .word nt_latestxt, xt_zbranch, z_zbranch
         .byte "0branch"
 
 nt_branch .byte 6, { IM + CO }
@@ -293,8 +313,12 @@ nt_allot .byte 5, { NC }
         .word nt_colon, xt_allot, z_allot
         .byte "allot"
 
+nt_tobody .byte 5, { NC }
+        .word nt_allot, xt_tobody, z_tobody
+        .byte ">body"
+
 nt_does .byte 5, { IM + CO }
-        .word nt_allot, xt_does, z_does
+        .word nt_tobody, xt_does, z_does
         .byte "does>"
 
 nt_create .byte 6, { NC }
@@ -541,8 +565,12 @@ nt_digitq .byte 6, { NC }
         .word nt_tor, xt_digitq, z_digitq
         .byte "digit?"
 
+nt_bounds .byte 6, { NC }
+        .word nt_digitq, xt_bounds, z_bounds
+        .byte "bounds"
+
 nt_over .byte 4, { NC }
-        .word nt_digitq, xt_over, z_over
+        .word nt_bounds, xt_over, z_over
         .byte "over"
 
 nt_fetch .byte 1, { NC }

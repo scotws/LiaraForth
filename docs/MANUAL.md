@@ -135,16 +135,6 @@ Liara Forth does not distinguish between upper and lower case. Internally, all
 words are converted to lower case.
 
 
-## Liara Forth Internals
-
-(Included in the docs folder of this project is a file that describes the inner
-workings of Liara Forth in more detail. In future, that information will be
-included in this document.)
-
-Liara Forth is heavily based on [Tali Forth for the
-65c02](https://github.com/scotws/TaliForth) and shares the basic subroutine
-threaded structure. 
-
 
 ## Modifying and Assembling Liara Forth
 
@@ -253,6 +243,32 @@ to buy Flash memory chip and install it there.
 (https://github.com/scotws/LiaraForth/blob/master/images/memorymap_20160401.png
 "Liara Forth Memory Map")
 
+## Liara Forth Internals
+
+(Included in the docs folder of this project is a file that describes the inner
+workings of Liara Forth in more detail. In future, that information will be
+included in this document.)
+
+Liara Forth is heavily based on [Tali Forth for the
+65c02](https://github.com/scotws/TaliForth) and shares the basic subroutine
+threaded structure. 
+
+### Words specific to Liara Forth
+
+- LATESTNT ( -- nt ) 
+- NUMBER ( addr u -- nt | 0 ) 
+- WORDS&SIZES ( -- ) 
+- WORDSIZE ( nt -- u ) 
+
+### Differences to ANSI Forth
+
+- Liara uses FIND-NAME instead of FIND internally
+
+
+### Differences to Gforth
+
+- Liara uses LATESTNT to return the name token of the last defined word, Gforth
+  uses LATEST.
 
 ## Various Stuff
 

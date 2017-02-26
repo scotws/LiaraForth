@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: *22. February 2017*
+Last update: 26. February 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -14,7 +14,7 @@ Last update: *22. February 2017*
 | ." "dotquote"       | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
 | / "slash"           | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | /MOD "slashmod"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| .R                  | coded    | ANSI core ext |          | Forth |  Forth |
+| .R                  | coded    | ANSI core ext | NC       | Forth |  Forth |
 | .S                  | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
 | ,                   | coded    | ANSI core     | NC       | 11    |     29 |
 | :                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -44,23 +44,25 @@ Last update: *22. February 2017*
 | <>                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | <# "less-number"    | coded    | ANSI core     | NC       |     8 |  (TBA) |
 | >                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| >BODY               | coded    | ANSI core     | NC       | 3     |      6 |
 | >IN                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | >NUMBER             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | >R                  | coded    | ANSI core     | NC CO    | 7     |     22 |
-| 0                   | coded    | 265SXB        | NC       | 7     |     12 |
+| 0                   | coded    | Liara         | NC       | 7     |     12 |
 | 0=                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | 0<                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | 0>                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | 0<>                 | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
-| 0BRANCH             | coded    | 265SXB        | CO IM    | (TBA) |  (TBA) |
-| 1                   | coded    | 265SXB        | NC       | 7     |     12 |
+| 0BRANCH             | coded    | Liara         | CO IM    | (TBA) |  (TBA) |
+| 1                   | coded    | Liara         | NC       | 7     |     12 |
 | 1-                  | coded    | ANSI core     | NC       | 1     |      2 |
 | 1+                  | coded    | ANSI core     | NC       | 1     |      2 |
-| 2                   | coded    | 265SXB        | NC       | 7     |     12 |
+| 2                   | coded    | Liara         | NC       | 7     |     12 |
 | 2*                  | coded    | ANSI core     | NC       | 3     |  (TBA) |
 | 2DROP               | coded    | ANSI core     | NC       | 6     |     13 |
 | 2DUP                | coded    | ANSI core     | NC       | 10    |     23 |
 | ABORT               | coded    | ANSI core     | (TBA)    | 6+    |     6+ | 
+| ABORT"              | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | ABS                 | coded    | ANSI core     | NC       | 12    |  (TBA) |
 | ACCEPT              | fragment | ANSI core     | -        | (TBA) |  (TBA) |
 | AGAIN               | coded    | ANSI core ext | IM NC CO | 22    |     50 |
@@ -70,15 +72,15 @@ Last update: *22. February 2017*
 | BELL                | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | BEGIN               | coded    | ANSI core     | IM CO NC | 6     |     13 |
 | BL                  | coded    | ANSI core     | NC       | 7     |     12 |
-| BRANCH              | coded    | 265SXB        | IM CO NC | (TBA) |  (TBA) |
+| BOUNDS              | coded    | Gforth        | NC       | 9     |  (TBA) |
+| BRANCH              | coded    | Liara         | IM CO NC | (TBA) |  (TBA) |
 | BYE                 | coded    | ANSI tools    | NC       | 2     |    7-8 | 
 | C,                  | coded    | ANSI core     | NC       | 13    |     28 |
 | C!                  | coded    | ANSI core     | NC       | 11    |     29 |
 | C@                  | coded    | ANSI core     | NC       | 11    |     16 |
 | CELLS               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CHAR                | coded    | ANSI core     | NC       | 23    |  (TBA) |
-| CHAR>NUMBER         | coded    | 265SXB        | NC       | (TBA) |  (TBA) |
-| COLD                | coded    | 265SXB        |          | (TBA) |  (TBA) |
+| COLD                | coded    | Gforth        |          | (TBA) |  (TBA) |
 | COMPILE,            | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
 | COMPILE-ONLY        | coded    | Gforth        | NC       | 8     |  (TBA) |
 | CONSTANT            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -92,6 +94,7 @@ Last update: *22. February 2017*
 | DABS                | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | DECIMAL             | coded    | ANSI core     | NC       | 7     |  (TBA) |
 | DEPTH               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| DIGIT?              | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | DNEGATE             | coded    | ANSI double   | NC       | 19    |  (TBA) |
 | DOES>               | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | DROP                | coded    | ANSI core     | NC       | 4     |      9 |
@@ -109,6 +112,8 @@ Last update: *22. February 2017*
 | IF                  | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | IMMEDIATE           | coded    | ANSI core     | NC       | 8     |  (TBA) |
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
+| LATESTNT            | coded    | Liara         | NC       | 7     |  (TBA) |
+| LATESTXT            | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | LITERAL             | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | M*                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | MAX                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
@@ -117,7 +122,7 @@ Last update: *22. February 2017*
 | NAME>STRING         | coded    | Gforth        | NC       | 16    |  (TBA) |
 | NEGATE              | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | NIP                 | coded    | ANSI core ext | NC       | 2     |      4 |
-| NUMBER              | coded    | 265SXB        | NC       | (TBA) |  (TBA) |
+| NUMBER              | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | OR                  | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | OVER                | coded    | ANSI core     | NC       | 6     |     14 |
 | PAD                 | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
@@ -127,7 +132,7 @@ Last update: *22. February 2017*
 | POSTPONE            | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | QUIT                | fragment | ANSI core     |          | (TBA) |    n/a |
 | R@                  | coded    | ANSI core     |          | (TBA) |  (TBA) |
-| R>                  | coded    | ANSI core     | NC CO    | 7     |     23 |
+| R>                  | coded    | ANSI core     | CO       | 7     |     23 |
 | REFILL              | fragment | ANSI core ext |          | (TBA) |  (TBA) |
 | REPEAT              | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | ROT                 | coded    | ANSI core     | NC       | 8     |  (TBA) |
@@ -156,6 +161,8 @@ Last update: *22. February 2017*
 | UNUSED              | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VARIABLE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | WORDS               | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
+| WORDS&SIZES         | coded    | Liara         | NC       | (TBA) |  (TBA) |
+| WORDSIZE            | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | XOR                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
 
 
@@ -164,7 +171,7 @@ Last update: *22. February 2017*
 ***Status*** - State of development. Either **fragment** or **coded**.
 
 ***Group*** - Which word group the word belongs to, especially ANSI or non-ANSI.
-Words written especially for the board are marked with "265SXB", words that come
+Words written especially for the board are marked with "Liara", words that come
 from Gforth with "Gforth". See [the Forth Standard](https://forth-standard.org/)
 for basis.
 
