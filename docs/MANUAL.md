@@ -10,7 +10,7 @@ Scot W. Stevenson <scot.stevenson@gmail.com>
 Liara Forth is a bare-metal Forth written specifically for the W65C265SXB
 ("265SXB") single-board computer from WDC based on the 65816 8/16-bit hybrid
 CPU. It based on ANSI Forth and designed to be a "first Forth" that users can
-install immediately after buying the board. 
+install immediately after receiving the board. 
 
 Technically, Liara Forth based on the [Subroutine Threaded
 Model](http://www.bradrodriguez.com/papers/moving1.htm) (STC) with a 16 bit cell
@@ -95,10 +95,9 @@ At the beginning, you'll probably want to test Liara Forth by loading it to
 RAM. This is an option as long as the code base is small enough - it is expected
 that at some point, Liara will outgrow the available RAM.
 
-Included in the main directory is a file `liaraforth.s28` (or possibly
-`tink.s28` for PRE-ALPHA and ALPHA builds) which is a "S-record" of the code
-that minicom (and other programs) know how to upload. It is set up to be saved
-at 00:6000, which is also the starting address. 
+Included in the main directory is a file `liaraforth.s28` or `tink.s28` which is
+a "S-record" of the code that minicom (and other programs) know how to upload.
+It is set up to be saved at 00:6000, which is also the starting address. 
 
 From minicom connected to the Mensch Monitor as described above, type `s`. The
 265sxb will now wait for the transmission of data to start. Now, type `CONTROL-a
@@ -253,25 +252,47 @@ Liara Forth is heavily based on [Tali Forth for the
 65c02](https://github.com/scotws/TaliForth) and shares the basic subroutine
 threaded structure. 
 
-### Words specific to Liara Forth
 
-- LATESTNT ( -- nt ) 
-- NUMBER ( addr u -- nt | 0 ) 
-- WORDS&SIZES ( -- ) 
-- WORDSIZE ( nt -- u ) 
+## Discussion of various words
+
+Liara is based on ANSI Forth, while incorporating various words from Gforth and
+adding a small number of its own. In future, it will share its basic vocabulary
+with [Tali Forth for the 65c02](https://github.com/scotws/TaliForth). 
+
 
 ### Differences to ANSI Forth
 
-- Liara uses FIND-NAME instead of FIND internally
-
+- Liara uses **FIND-NAME ( addr u -- nt | 0 )** instead of FIND internally. FIND
+  is only provided for backwards compatibility because it appears in the older
+  literature. It's actually quite horrible. 
 
 ### Differences to Gforth
 
-- Liara uses LATESTNT to return the name token of the last defined word, Gforth
-  uses LATEST.
+- **INT>NAME ( xt -- nt )** is used instead of >NAME. Gforth itself uses
+  NAME>INT, so the reverse would seem to make more sense. >BODY is retained as
+  it is, because it is ANSI defined. 
+- **LATESTNT ( -- nt )** returns the name token of the last defined word, Gforth
+  uses LATEST. 
+
+### Word groups from other sources
+
+- (Multitasking words)
+- (vt100 words)
+- **NUMBER ( addr u -- nt | 0 )** and **DIGIT? ( char -- u f )** are common
+  words for number input with >NUMBER, though not part of any standard. 
+
+### Words specific to Liara Forth
+
+- **WORDS&SIZES ( -- )** Like WORDS, but prints the size in bytes of every words
+  code and parameter fields as well. Used to tweak the native compiling options.
+  Note that because Liara is a STC Forth, word size and speed may be inversely
+  correlated: A words with lots of subroutine jumps will seem small, but take
+  far more cycles than a native Forth words. Uses WORDSIZE.
+- **WORDSIZE ( nt -- u )** Given a word's name token (nt), return the size of
+  the code and parameters fields in bytes. See WORDS&SIZES for a discussion.
+
 
 ## Various Stuff
-
 
 ### License
 
@@ -289,7 +310,8 @@ jurisdiction. Put briefly, use this at your own risk.
 
 A big thanks to the crew at 6502.org, without whom none of this would have
 happend. Also, special thanks to Mike Barry for a steady stream of
-most very clever code optimizations. 
+most very clever code optimizations to Tali and Liara. Andrew Jacobs provided
+invaluable hardware help.
 
 
 ### About the Name
