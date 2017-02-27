@@ -3,142 +3,24 @@
 ; First version: 28. March 2016
 ; This version: 01. Sep 2016
 
-; DELETE THESE AS THEY ARE INCLUDED IN FINAL CODE
-
-
-; ===================================================
-; FORTH WORDS
-; All assume A is TOS, RTS not counted in byte/cycle count
-; ===================================================
-
-; ---------------------------------------------------
-; ALLOT ( n -- ) 19 bytes/ xx cycles
-; force testing of flags for TOS
-                tay
-
-; if n is zero, we're done
-                beq _done
-                bmi _minus
-
-; positive value, reserve space
-                clc
-                adc.d CP
-                bra _changed
-
-_minus
-                sec
-                sbc.d CP
-_changed        sta.d CP
-
-_done           lda.dx 0        ; DROP
-                inx
-                inx
-
-                rts
-                
-; ---------------------------------------------------
-; UNUSED ( -- n ) 10 bytes/ xx cycles
-
-                dex             ; PUSH
-                dex
-                sta.dx 0
-
-                lda.# RamEnd
-                sec
-                sbc.d CP
-
-                rts
-
-; ---------------------------------------------------
-; COMMA ( n -- )  12 bytes / xx cycles
-
-                sta.di CP       ; sta (CP)
-
-                ; update CP. This is faster by two cycles than 
-                ; INC.D CP twice because we discard A anyway
-                lda.d CP
-                inc.a
-                inc.a
-                sta.d CP 
-
-                lda.dx 0        ; DROP
-                inx
-                inx
-
-                rts
-
-; ---------------------------------------------------
-; FILL ( add u n -- ) xx bytes / xx cycles
-; TODO test this 
-
-        ; TODO check if enough parameters on stack
-
-        ; save addr to temp location
-        ldy.dx 2
-        sty.d scratch
-
-        ; get counter from NOS
-        ldy.dx 0
-
-        .a8
-@       sta.diy scratch
-        dey
-        bne -
-
-        ldy.dx 4        ; get next TOS
-
-        .a16
-        txa
-        sec
-        sbc.# 6
-        tax
-        tya
-
-        rts
-
-; ---------------------------------------------------
-; 
-
-; ON ( -- f) - links to TRUE; 265SXB specific
-; OFF ( -- f ) - links to code of FALSE; 265SXB specific
-
 
 ; LED ( f --) Turn 265SXB LED on or off. Flags: N, 15b, 22 cycles
 ; use: ON LED, OFF LED
 ; Note this code screws the other flags in LEDADDR (Port 7) if they are not
 ; supposed to be unset ("0"). Consider rewriting code to preserve them.
 
-h_led:          .a8
-                lda.dx 00       ; load TOS LSB
+xt_led:          
+        .a8
+                tya             ; load TOS LSB
                 eor.# ff        ; flip bits
                 and.# 04        ; mask bit 2 that triggers LED
-                sta LEDADDR
-                .a16
+                sta ledaddr
+       .a16
+                ldy.dx 00
                 inx
-e_led:          inx
+                inx
+
+z_led:
                 rts
-
-
-; BUFFER CODE
-
-; Two input buffers at 7d00 and 7c00, current buffer address is stored 
-; at CURBUF in DP. Use bit flip to switch buffers
-
-; Switch buffers. Assumes .A16
-;
-                lda.d curbuf
-                eor.# 0100
-                sta.d curbuf
-
-; Clear current buffer. Assumes .A16
-
-                sty.d tmptos
-                ldy.# 0000
-                tya
-*               sta.diy curbuf  ; STA (curbuf),Y
-                dey
-                dey
-                bne -
-                ldy.d tmptos
 
 

@@ -1,7 +1,7 @@
 # Word Template Generator for Liara Forth 
 # Scot W. Stevenson <scot.stevenson@gmail.com>
 # First version: 02. Dez 2016
-# This version: 18. Feb 2017
+# This version: 26. Feb 2017
 
 # Tool to create entries for the Dictionary and Code of a given Liara Forth
 # word. Prints template to screen. For copy and paste into the code.
@@ -47,8 +47,8 @@ while True:
     i_name_len = hex(len(i_name_lower))[2:]
 
     i_desc = input("Word description? ")
-    i_group = input("Code group (eg 'ANSI core')? ")
-    i_next = input("Next word in dictionary? ")
+    i_group = input("Code group (eg 'ANSI core' or 'Liara')? ")
+    i_next = input("Next word in dictionary (without 'nt_')? ")
 
     i_next = i_next.strip().lower()
 

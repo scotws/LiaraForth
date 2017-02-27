@@ -1,6 +1,6 @@
 # Internal Structure and Technical Notes for Liara Forth 
 
-(THIS TEXT IS UNDER DEVELOPMENT AND MERELY A COLLECTION OF NOTES)
+(THIS TEXT IS UNDER HEAVY DEVELOPMENT AND MERELY A COLLECTION OF NOTES)
 
 ## Design Principles
 
@@ -19,33 +19,77 @@ Liara Forth started with a bunch of general principles.
 
 ## Use of Registers
 
-The 65816 only has three registers that can be used for general coding. Of
-these, Liara Forth uses the Y register as the first element in the Data Stack
-("Top of Stack", TOS), the X register as the Data Stack Pointer (DSP), and A for
-various temporary use. All registers are assumed to be 16 bit wide unless
-declared otherwise. 
+The 65816 has three registers that can be used for general coding. Of these,
+Liara Forth uses the Y register as the first element in the Data Stack ("Top of
+Stack", TOS), the X register as the Data Stack Pointer (DSP), and A for various
+temporary use. All registers are assumed to be 16 bit wide unless declared
+otherwise. 
 
 
 ## The Data Stack
 
-The Data Stack (DS) is located in an area that starts at 00:02ff and grows
-downwards (towards 00:0000). The DS itself starts at 00:02f8, leaving some bytes
-as a "flood plain" in case of stack underflow. Except for special cases,
-underflow is only checked for after a word has been executed. We do not check
-for overflow. 
+The Data Stack (DS) is located on the Direct Page (the 65816's version of the
+6502's Zero Page), which is set to 00:0200 during Liara's startup. It grows
+"downwards" (towards 00:0000). The DS itself starts at 00:02F8, leaving the
+bytes inbetween as a "floodplain" in case of stack underflow. Except for
+special cases, underflow is only checked for after a word has been executed.
+Liara does not check for overflow at all. 
 
-The Data Stack Pointer (DSP) - the X register - points to the second element on
-the stack (Next On Stack, NOS). This means that when the DS is empty, X is equal
-to the initial value of the pointer (called `dsp0` in the code). The content of
-this cell is garbage.  When there is one element on the DS, X is `dsp0-2`, but
-the value at that location is also garbage, because TOS is in the Y register.
-When there are two elements on the DS, X is `dsp0-4`, and the value at that
-location is NOS. See Mike Barry's
-[discussion](http://forum.6502.org/viewtopic.php?p=50546#p50546) of this at
-6502.org for drawings of the various stack stages.
+Despite its name, the Data Stack Pointer (DSP) - the X register - points to the
+second_ element on the stack (Next On Stack, NOS), since the TOS is in the Y
+register.
+```
+                   LSB       MSB
+               +---------+---------+           
+   Y register  |        TOS        |  
+               +---------+---------+           
 
-The DS grows towards the system variables that begin at 00:200 in single-user
-mode. Currently (February 2017) there are 40 bytes used this way.
+               +---------+---------+           
+      00:02EE  |               ... |  
+               +-     (empty)     -+           
+      00:02F0  |                   |  
+               +=========+=========+           
+      00:02F2  |        NOS        |  00,X  <-- DSP (X register) 
+               +---------+---------+           
+      00:02F4  |        3OS        |  02,X
+               +=========+=========+           
+      00:02F6  |     (garbage)     |  04,X
+               +---------+---------+           
+      00:02F8  |     (garbage)     |  06,X  <-- DSP0
+               +---------+---------+           
+      00:02FA  |                   |  08,X
+               +-   (floodplain)  -+
+      00:02FC  |               ... |  0A,X  
+               +---------+---------+           
+```
+_Snapshot of the Data Stack with three entries._ 
+
+This means that for push and pop (pull) actions, Y must be copied to the main
+body of the stack. To push the number 0 on the stack (the **0** (ZERO) word), we
+use:
+```
+        dex
+        dex
+        sty.dx 00 
+        ldy.# 0000
+```
+
+This means that when the DS is empty, X is equal to the initial value of the
+pointer (called `dsp0` in the code). The actual content of this cell is always
+garbage.  When there is one element on the DS, the value at that location is
+also garbage, because TOS is in the Y register. When there are two elements on
+the DS, the value at that location is NOS. 
+
+See Mike Barry's
+[discussion](http://forum.6502.org/viewtopic.php?p=50546#p50546) of the stack
+behavior for more details. 
+
+**Double cell values:** The top cell is stored below (closer towards 00:0000)
+the single cell.  Note this places the sign bit at the beginning of the word in
+the Y register.
+
+The DS grows towards the **system variables** that begin at 00:200 in
+single-user mode. Currently (February 2017) there are 40 bytes used this way.
 
 
 ## The Return Stack
@@ -60,22 +104,23 @@ The Dictionary consists of two parts: The headers for each word, connected as a
 simple linked list, and the code itself. Headers and code are kept separately to
 enable various tricks in the code. 
 
-Each word has a "name token" (``nt_word`` in the code) that points to the first
-byte of the header, and an "execution token" (``xt_word``) that points to the
-start of the code. There is a third pointer that references the byte _after_ the
-end of the code (``z_word``) to enable native compilation of the word if
-appropriate. 
+Each word has a "name token" (nt, ``nt_word`` in the code) that points to the
+first byte of the header, and an "execution token" (xt, ``xt_word``) that points
+to the start of the code. There is a third pointer that references the byte
+_after_ the end of the code (``z_word``) to enable native compilation of the
+word if allowed. 
 
 Each header consists of one byte for the length of the word's string, a status
 byte (see below), a link to the next word in the Dictionary (``0000`` marks its
 end), the pointer to the beginning of the code (``xt_word``), the pointer to the
 end of the code (``z_word``), and then the word's name string in plain ASCII,
-without terminating space or zero.
+without any terminating space or zero.
 
-The Dictionary consists of hard-coded routines in assembly, and Forth-coded
-words that are generated when the system starts up (or after the COLD word). The
-first hard-coded word is always DROP, the last one always BYE - use WORDS to get
-a complete list. Any word that appears before DROP was automatically generated.
+The Dictionary consists of hard-coded routines in assembly and Forth-coded words
+that are generated when the system starts up (or after the COLD word). The first
+hard-coded word is always DROP, the last one always BYE (use WORDS to get a
+complete list and WORDS&SIZES for a list with the size of the code). Any word
+that appears before DROP was automatically generated at boot from the Forth code.
 
 (During development, a large number of words were first included as high-level
 Forth code or simple series of subroutine jumps, and then later optimized in
@@ -116,32 +161,26 @@ be
        inx
        jsr xt_execute     ; EXECUTE
 ```
-This way, the NIP instruction is a short as it can be, compensating for a lot of
-the problems with STC code.
+Note the RTS instruction is removed. This way, the NIP instruction is a short as it can be, 
+compensating for a lot of the problems with STC code.
 
 There are two levels involved in native coding. First, a word must have the
-Native Code Enabled flag (NC) set in the Dictionary header to enable the process
+Native Code enabled flag (NC) set in the Dictionary header to enable the process
 (not all words may be natively compiled, because some require the address of the
 calling word on the Return Stack to function). Second, the compiler (in the word
 ``COMPILE,``) calculates the size of the machine code on the fly by subtracting
-``xt_word`` from ``z_word`` and comparing it to a threshold value. If the size
-is below that value, the word is natively compiled. 
+``xt_word`` from ``z_word`` and comparing it to a threshold value ``nc-limit``.
+If the size is below that value, the word is natively compiled. 
 
 (Because we are focussed on speed, it would be more logical to compare the
 number of cycles used per word and then calculate the percentage of the JSR/RTS
 overhead. If the code base ever stabilizes, this might be worth the effort.) 
 
 
-## Aspects of Coding
-
-Liara Forth is focussed on being fast, not small. A list of the size and
-execution time of the most used instructions in 16 bit mode is included in the
-documentation folder. 
-
 ## Input of text
 
-Liara Forth follows ANSI Forth by discarding the traditional WORD and FIND for
-REFILL, PARSE-NAME and FIND-NAME. 
+Liara Forth follows ANSI Forth by discarding the traditional word WORD for
+REFILL and PARSE-NAME. FIND-NAME from Gforth is used instead of FIND. 
 (See http://forum.6502.org/viewtopic.php?f=9&t=4364 for a discussion)
 
 
