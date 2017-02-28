@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 26. February 2017
+Last update: 28. February 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -24,6 +24,7 @@ Last update: 26. February 2017
 | #S "number-s"       | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ! "store"           | coded    | ANSI core     | NC       | 9     |  (TBA) |
 | ? "question"        | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
+| ?DUP                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | @ "fetch"           | coded    | ANSI core     | NC       | 4     |  (TBA) |
 | (                   | coded    | ANSI core     | NC       | Forth |  Forth |
 | \[                  | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
@@ -80,6 +81,8 @@ Last update: 26. February 2017
 | C@                  | coded    | ANSI core     | NC       | 11    |     16 |
 | CELLS               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CHAR                | coded    | ANSI core     | NC       | 23    |  (TBA) |
+| CHAR+               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| CHARS               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | COLD                | coded    | Gforth        |          | (TBA) |  (TBA) |
 | COMPILE,            | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
 | COMPILE-ONLY        | coded    | Gforth        | NC       | 8     |  (TBA) |

@@ -823,6 +823,20 @@ z_question      rts
 
 
 ; -------------------------------------------------------------------
+; QDUP ( n -- 0 | n n ) X bytes / X cycles
+; If top element on Data Stack is not zero, duplicate it
+xt_qdup          
+                tya
+                beq z_qdup
+
+                dex
+                dex
+                sty.dx 00
+
+z_qdup          rts
+
+
+; -------------------------------------------------------------------
 ; ! "STORE" ( n addr -- ) 9 bytes / X cycles
 ; Save value at designated memory location
 xt_store         
@@ -987,7 +1001,7 @@ xt_zero-equal
                 tya             ; force flag check
                 bne ze_not_zero
 
-                ldy.# 0fff
+                ldy.# 0ffff
                 bra z_zero-equal
 ze_not_zero     
                 ldy.# 0000
@@ -1628,6 +1642,16 @@ z_c-store       rts
 
 
 ; -------------------------------------------------------------------
+; CELL+ ( u -- u+2 ) X bytes / X cycles
+; Add the size of one cell to the value on top of the stack. Since this is
+; a 16-bit cell size, we add two
+xt_cellplus         
+                iny
+                iny
+z_cellplus      rts
+
+
+; -------------------------------------------------------------------
 ; CELLS ( n -- n ) X bytes / X cycles
 ; Given a number of cells, return the number of bytes that they will require.
 ; This is 16 bit cell Forth, so the value returned by this word is the same as
@@ -1657,6 +1681,22 @@ char_got_char
                 inx
                 
 z_char          rts
+ 
+
+; -------------------------------------------------------------------
+; CHARPLUS ( u -- u+1 ) X bytes / X cycles
+; Adds the size of a character to the value on top of the stack. Since our
+; character size is one, this is the same code as 1+, see there
+
+
+; -------------------------------------------------------------------
+; CHARS ( u -- u ) X bytes / X cycles
+; Return the size in bytes of the number of characters on the top of the stack.
+; In this case, does nothing
+xt_chars         
+
+                nop
+z_chars         rts
 
 
 ; -------------------------------------------------------------------
@@ -4491,45 +4531,43 @@ hi-start
 
         ; DEFER and friends. Code taken from ANSI Forth specifications. Many of
         ; these will be moved to assembler code in due course
-        ; .byte ": defer create ['] abort , does> @ execute ; "
-        ; .byte ": defer! >body ! ; "     ; TODO rewrite in assembler
-        ; .byte ": defer@ >body @ ; "     ; TODO rewrite in assembler
-        ; .byte ": is state @ if postpone ['] postpone defer! else "
-        ; .byte "defer! then ; immediate "
-        ; .byte ": action-of state @ if postpone ['] postpone defer@ else "
-        ; .byte "defer@ then ; immediate "
+        .byte ": defer create ['] abort , does> @ execute ; "
+        .byte ": defer! >body ! ; "
+        .byte ": defer@ >body @ ; "
+        ; .byte ": is state @ if postpone ['] postpone defer! else defer! then ; immediate "
+        ; .byte ": action-of state @ if postpone ['] postpone defer@ else defer@ then ; immediate "
 
         ; High level math definitions. The should be moved to actual 65816 code
         ; for speed at some point. Note we use SM/REM instead of FM/MOD for most
         ; stuff. Definitions for SM/REM and FM/MOD taken von Gforth
         ; sources, see
         ; https://groups.google.com/forum/#!topic/comp.lang.forth/_bx4dJFb9R0
-        .byte ": sm/rem over >r dup >r abs -rot dabs rot um/mod r> r@ xor "
-        .byte "0< if negate then r> 0< if swap negate swap then ; "
-        .byte ": fm/mod dup >r dup 0< if negate >r dnegate r> then over " 
-        .byte "0< if tuck + swap then um/mod r> 0< if swap negate swap then ; "
-        .byte ": / >r s>d r> sm/rem swap drop ; "
-        .byte ": /mod >r s>d r> sm/rem ; "
-        .byte ": */ >r m* r> sm/rem swap drop ; "
-        .byte ": */mod >r m* r> sm/rem ; "
+        ; .byte ": sm/rem over >r dup >r abs -rot dabs rot um/mod r> r@ xor "
+        ; .byte "0< if negate then r> 0< if swap negate swap then ; "
+        ; .byte ": fm/mod dup >r dup 0< if negate >r dnegate r> then over " 
+        ; .byte "0< if tuck + swap then um/mod r> 0< if swap negate swap then ; "
+        ; .byte ": / >r s>d r> sm/rem swap drop ; "
+        ; .byte ": /mod >r s>d r> sm/rem ; "
+        ; .byte ": */ >r m* r> sm/rem swap drop ; "
+        ; .byte ": */mod >r m* r> sm/rem ; "
 
         ; Output definitions. Since these usually involve the user, and humans
         ; are slow, these can stay high-level for the moment. Based on
         ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
-        .byte ": u. 0 <# #s #> type space ; "   ; TODO rewrite in assembler
-        .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
-        .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
-        .byte ": ud. <# #s #> type space ; "
-        .byte ": ud.r >r <# #s #> r> over - spaces type ; "
-        .byte ": d. tuck dabs <# #s rot sign #> type space ; "
-        .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
+        .byte ": u. 0 <# #s #> type space ; "   ; TODO rewrite in assembler (1 OK) 
+        ; .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
+        ; .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
+        .byte ": ud. <# #s #> type space ; " ; (3 OK)
+        ; .byte ": ud.r >r <# #s #> r> over - spaces type ; "
+        .byte ": d. tuck dabs <# #s rot sign #> type space ; " ; (2 OK) 
+        ; .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
 ;       .byte ": . dup abs 0 <# #s rot sign #> type space ; "
 
         ; Splash strings. We leave these as high-level words because they are
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 26. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 28. Feb 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
