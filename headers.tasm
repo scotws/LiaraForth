@@ -125,8 +125,12 @@ nt_dplus .byte 2, { NC }
         .word nt_stod, xt_dplus, z_dplus
         .byte "d+"
 
+nt_smrem .byte 6, { NC }
+        .word nt_dplus, xt_smrem, z_smrem
+        .byte "sm/rem"
+
 nt_udmod .byte 6, { NC }
-        .word nt_dplus, xt_udmod, z_udmod
+        .word nt_smrem, xt_udmod, z_udmod
         .byte "ud/mod"
 
 nt_ummod .byte 6, { NC }

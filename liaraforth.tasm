@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 28. Feb 2017
+; This version: 01. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -1065,7 +1065,7 @@ z_zero-more     rts
 ; Branch if TOS is zero. This exects the next two bytes to be the address of
 ; where to branch to if the test fails. The code may not be natively compiled
 ; because we need the return address provided by JSR's push to the Return Stack
-; This routine uses tmp1
+; This routine uses tmpbranch
 xt_zbranch       
         .!a16
                 ; encode subroutine jump to run time code 
@@ -1075,11 +1075,6 @@ xt_zbranch
 z_zbranch       rts
 
 zbranch_rt
-                ; Compiled component. Use the address on the Return Stack to
-                ; decide where we want to return to
-                pla
-                sta.d tmp1
-
                 ; See if the flag is zero, which is the whole purpose of this
                 ; operation after all
                 tya                ; force flag check
@@ -1087,7 +1082,7 @@ zbranch_rt
 
                 ; Flag is TRUE, so we skip over the next two bytes. Put
                 ; differently, this is the part between IF and THEN
-                lda.d tmp1
+                pla
                 inc.a
                 inc.a
 
@@ -1097,8 +1092,10 @@ zb_zero
                 ; Flag is FALSE, so we take the dump to the address given in the
                 ; next two bytes. We don't need Y anymore, so we can use it for
                 ; indexing
+                pla
+                sta.d tmpbranch
                 ldy.# 0001
-                lda.diy tmp1
+                lda.diy tmpbranch
 
                 ; Subtract one from the address given becasue of the RTS
                 ; mechanics
@@ -1557,9 +1554,8 @@ z_bounds        rts
 
 ; -------------------------------------------------------------------
 ; BRANCH ( -- ) X bytes / X cycles
-; Transfer control to given address. Uses tmp3 and tmptos. This word was adapted
-; from Tali Forth and will be replaced by ANSI-conform words CS-PICK and CS-ROLL 
-; in the future
+; Transfer control to given address. This word was adapted from Tali Forth. It
+; uses tmpbranch 
 xt_branch        
         .!a16
                 ; encode subroutine branch to runtime portion
@@ -1569,17 +1565,17 @@ xt_branch
 z_branch        rts
 
 branch_rt
-                sty.d tmptos
-
                 ; The value on the Return Stack determines where we go to
                 pla
-                sta.d tmp3
+                sta.d tmpbranch
+
+                phy                     ; avoid using temp variables
                 ldy.# 0001
-                lda.diy tmp3    ; LDA (TMP1),Y ; get address we're pointing to
+                lda.diy tmpbranch       ; LDA (TMPBRANCH),Y 
+                ply
+
                 dec.a
                 pha             ; put target address back on Return Stack 
-
-                ldy.d tmptos
 
                 rts
 
@@ -1725,6 +1721,7 @@ z_compile-only  rts
 ; subroutine coding. 
 ; TODO currently just compiles subroutine jumps
 xt_compilecomma  
+        .!a16
 
 compile_as_code
                 ; Compile xt as native code
@@ -1734,12 +1731,11 @@ compile_as_code
                 ;  - Don't compile comments
 
 compile_as_jump
-                ; Compile xt as a subroutine jump. We don't have to switch A to
-                ; 8-bit register size because we only advance CP by one byte, so
-                ; the MSB of A is overwritten. Little endian machines for the
-                ; win!
-                lda.# 20        ; opcode for JSR
+                ; Compile xt as a subroutine jump. 
+        .a8
+                lda.# 20      ; opcode for JSR
                 sta.di cp       ; STA (CP)
+        .a16
                 inc.d cp
 
                 ; There is no "sty.di" instruction, so we have to do this the
@@ -3579,6 +3575,94 @@ sliteral_rt
 
                 rts
 
+; -------------------------------------------------------------------
+; SM/REM ( d n1 -- n2 n3) X bytes / X cycles
+; Symmetic signed division. Compare FM/MOD. Code from Gforth, see
+; https://groups.google.com/forum/#!topic/comp.lang.forth/_bx4dJFb9R0
+; and http://git.savannah.gnu.org/cgit/gforth.git/tree/prim ; see
+; http://www.figuk.plus.com/build/arith.htm for variants. Forth is
+; SM/REM OVER >R DUP >R ABS -ROT DABS ROT UM/MOD R> 
+; R@ XOR 0< IF NEGATE THEN R> 0< IF SWAP NEGATE SWAP THEN ;
+; TODO optimize in assembler
+xt_smrem         
+        .!a16
+		jsr xt_over
+        
+		phy		; >R
+                ldy.dx 00
+                inx
+                inx
+
+                dex             ; DUP
+                dex
+		sty.dx 00       
+
+                phy             ; >R
+                ldy.dx 00       
+                inx
+                inx
+
+                jsr xt_abs      ; ABS
+                jsr xt_mrot     ; -ROT
+                jsr xt_dabs     ; DABS
+                jsr xt_rot      ; ROT
+                jsr xt_ummod    ; UM/MOD
+
+                dex             ; R>
+                dex
+                sty.dx 00
+                ply
+
+                dex             ; R@
+                dex
+                sty.dx 00
+                ply             
+                phy
+
+                jsr xt_xor      ; XOR
+
+                tya             ; 0< IF
+                bpl smrem_1
+
+                ldy.dx 00       ; from IF 
+                inx
+                inx
+
+                jsr xt_negate   ; NEGATE
+                bra smrem_1_1
+smrem_1
+                ldy.dx 00       ; from IF 
+                inx
+                inx
+
+smrem_1_1
+                dex             ; R>
+                dex
+                sty.dx 00
+                ply
+
+                tya             ; 0< IF 
+                bpl smrem_2
+
+                ldy.dx 00       ; from IF 
+                inx
+                inx
+
+                jsr xt_swap
+                jsr xt_negate
+                jsr xt_swap
+                bra smrem_2_1
+
+smrem_2
+                ldy.dx 00
+                inx
+                inx 
+
+                
+smrem_2_1
+
+z_smrem         rts
+
 
 ; -------------------------------------------------------------------
 ; SOURCE ( -- addr u ) 12 bytes / X cycles
@@ -4310,7 +4394,7 @@ interpret_loop
 
 interpret_got_name_token
                 ; We have a known word's nt as TOS. We're going to need its xt
-                ; though, which is four byte father down. 
+                ; though, which is four bytes father down. 
                 
                 ; Arrive here with ( addr u nt ), so we NIP twice, which is
                 ; really fast if Y is TOS 
@@ -4322,7 +4406,7 @@ interpret_got_name_token
                 ; This is a quicker
                 ; version of NAME>INT. But first, save a version of nt for
                 ; error handling and compilation stuff.
-                sty.d tmp1
+                sty.d tmpbranch
                 iny
                 iny
                 iny
@@ -4337,7 +4421,7 @@ interpret_got_name_token
                 ; We are interpreting, so EXECUTE the xt that is TOS. First,
                 ; though, see if this isn't a compile-only word, which would be
                 ; illegal.
-                lda.di tmp1
+                lda.di tmpbranch
                 xba                     ; flags are MSB
                 and.# CO                ; mask everything but Compile Only bit
                 beq interpret_interpret
@@ -4362,14 +4446,13 @@ interpret_compile
                 ; IMMEDIATE word, which would mean we execute it right now even
                 ; during compilation mode. Fortunately, we saved the nt so life
                 ; is easier
-                lda.di tmp1
+                lda.di tmpbranch
                 xba                     ; flags are MSB
                 and.# IM                ; Mask all but IM bit
                 bne interpret_interpret ; IMMEDIATE word, execute right now
 
                 ; Compile the xt into the Dictionary with COMPILE,
                 jsr xt_compilecomma
-
                 jmp interpret_loop
 
 interpret_line_done
@@ -4517,11 +4600,11 @@ string_to_lowercase
 ; the end of the line if there is another line with code following it. No zero
 ; or CR/LF is required
 hi-start
-        ; High level definitions. Many of these are still defined with BRANCH
-        ; and 0BRANCH from Tali Forth, which will be replaced by the ANSI
-        ; standard CS-PICK and CS-ROLL words at a later date
         .byte ": ( [char] ) parse 2drop ; immediate "
         .byte ": .( [char] ) parse type ; immediate "
+
+        ; High flow control. Some of these can be realized with CS-ROLL and
+        ; CS-PICK instead
         .byte ": if postpone 0branch here 0 , ; immediate compile-only "
         .byte ": then here swap ! ; immediate compile-only "
         .byte ": else postpone branch here 0 , here rot ! ; immediate compile-only "
@@ -4539,14 +4622,9 @@ hi-start
 
         ; High level math definitions. The should be moved to actual 65816 code
         ; for speed at some point. Note we use SM/REM instead of FM/MOD for most
-        ; stuff. Definitions for SM/REM and FM/MOD taken from Gforth sources, see
-        ; https://groups.google.com/forum/#!topic/comp.lang.forth/_bx4dJFb9R0
-        ; and http://git.savannah.gnu.org/cgit/gforth.git/tree/prim
-        ; See http://www.figuk.plus.com/build/arith.htm for variants
-        .byte ": sm/rem over >r dup >r abs -rot dabs rot um/mod r> r@ xor 0< if negate then r> 0< if swap negate swap then ; "
-	.byte ".( Testing ) cr here . "
-        .byte ": fm/mod dup >r sm/rem dup 0< if swap r> + swap 1+ else r> drop then ; "
-	.byte ".( Testing ) cr here . "
+        ; stuff
+;       .byte ": fm/mod dup >r sm/rem dup 0< if swap r> + swap 1+ else r> drop "
+;       .byte "then ; "
         .byte ": / >r s>d r> sm/rem swap drop ; "
         .byte ": /mod >r s>d r> sm/rem ; "
         .byte ": */ >r m* r> sm/rem swap drop ; "
