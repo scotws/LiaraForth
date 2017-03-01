@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 26. Feb 2017
+; This version: 28. Feb 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -3214,7 +3214,7 @@ pp_got_nt
                 sty.d tmp1
 
                 ; We need the xt instead of the nt for the actual compiling
-                jsr xt_name-int         ; ( xt ) 
+                jsr xt_name-int         ; NAME>INT ( nt -- xt ) 
 
                 ; See if this is an immediate word. This is easier with nt than
                 ; with xt
@@ -3229,7 +3229,7 @@ pp_got_nt
                 jmp xt_compilecomma     ; JSR/RTS
 
 pp_not_immediate
-                ; This is not an immediate word, so we enact "deffered
+                ; This is not an immediate word, so we enact "deferred
                 ; compilation" by including ' <NAME> COMPILE, which we do by
                 ; compiling the run-time routine of LITERAL, the xt itself, and
                 ; a subroutine jump to COMPILE,
@@ -3243,9 +3243,9 @@ pp_not_immediate
 
                 ; compile COMPILE, - it's RTS takes us back to original caller
                 phe.# xt_compilecomma
-                jmp cmpl_subroutine     ; JSR/RTS
+                jsr cmpl_subroutine     ; JSR/RTS
 
-z_postpone      ; never reached
+z_postpone      rts
 
 
 ; -------------------------------------------------------------------
@@ -4520,47 +4520,48 @@ hi-start
         ; High level definitions. Many of these are still defined with BRANCH
         ; and 0BRANCH from Tali Forth, which will be replaced by the ANSI
         ; standard CS-PICK and CS-ROLL words at a later date
-        .byte ": ( [char] ) parse 2drop ; immediate " ; ( "parens"
-        .byte ": .( [char] ) parse type ; immediate " ; .( "dotparens"
-        .byte ": if postpone 0branch here 0 , ; immediate compile-only " ; IF 
-        .byte ": then here swap ! ; immediate compile-only " ; THEN
-        .byte ": else postpone branch here 0 , here rot ! ; immediate compile-only " ; ELSE
-        .byte ": repeat postpone again here swap ! ; immediate compile-only " ; REPEAT
-        .byte ": until postpone 0branch , ; immediate compile-only " ; UNTIL
-        .byte ": while postpone 0branch here 0 , swap ; immediate compile-only "; WHILE
+        .byte ": ( [char] ) parse 2drop ; immediate "
+        .byte ": .( [char] ) parse type ; immediate "
+        .byte ": if postpone 0branch here 0 , ; immediate compile-only "
+        .byte ": then here swap ! ; immediate compile-only "
+        .byte ": else postpone branch here 0 , here rot ! ; immediate compile-only "
+        .byte ": repeat postpone again here swap ! ; immediate compile-only "
+        .byte ": until postpone 0branch , ; immediate compile-only "
+        .byte ": while postpone 0branch here 0 , swap ; immediate compile-only "
 
         ; DEFER and friends. Code taken from ANSI Forth specifications. Many of
         ; these will be moved to assembler code in due course
         .byte ": defer create ['] abort , does> @ execute ; "
         .byte ": defer! >body ! ; "
         .byte ": defer@ >body @ ; "
-        ; .byte ": is state @ if postpone ['] postpone defer! else defer! then ; immediate "
-        ; .byte ": action-of state @ if postpone ['] postpone defer@ else defer@ then ; immediate "
+        .byte ": is state @ if postpone ['] postpone defer! else ' defer! then ; immediate "
+        .byte ": action-of state @ if postpone ['] postpone defer@ else ' defer@ then ; immediate "
 
         ; High level math definitions. The should be moved to actual 65816 code
         ; for speed at some point. Note we use SM/REM instead of FM/MOD for most
-        ; stuff. Definitions for SM/REM and FM/MOD taken von Gforth
-        ; sources, see
+        ; stuff. Definitions for SM/REM and FM/MOD taken from Gforth sources, see
         ; https://groups.google.com/forum/#!topic/comp.lang.forth/_bx4dJFb9R0
-        ; .byte ": sm/rem over >r dup >r abs -rot dabs rot um/mod r> r@ xor "
-        ; .byte "0< if negate then r> 0< if swap negate swap then ; "
-        ; .byte ": fm/mod dup >r dup 0< if negate >r dnegate r> then over " 
-        ; .byte "0< if tuck + swap then um/mod r> 0< if swap negate swap then ; "
-        ; .byte ": / >r s>d r> sm/rem swap drop ; "
-        ; .byte ": /mod >r s>d r> sm/rem ; "
-        ; .byte ": */ >r m* r> sm/rem swap drop ; "
-        ; .byte ": */mod >r m* r> sm/rem ; "
+        ; and http://git.savannah.gnu.org/cgit/gforth.git/tree/prim
+        ; See http://www.figuk.plus.com/build/arith.htm for variants
+        .byte ": sm/rem over >r dup >r abs -rot dabs rot um/mod r> r@ xor 0< if negate then r> 0< if swap negate swap then ; "
+	.byte ".( Testing ) cr here . "
+        .byte ": fm/mod dup >r sm/rem dup 0< if swap r> + swap 1+ else r> drop then ; "
+	.byte ".( Testing ) cr here . "
+        .byte ": / >r s>d r> sm/rem swap drop ; "
+        .byte ": /mod >r s>d r> sm/rem ; "
+        .byte ": */ >r m* r> sm/rem swap drop ; "
+        .byte ": */mod >r m* r> sm/rem ; "
 
         ; Output definitions. Since these usually involve the user, and humans
         ; are slow, these can stay high-level for the moment. Based on
         ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
-        .byte ": u. 0 <# #s #> type space ; "   ; TODO rewrite in assembler (1 OK) 
-        ; .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
-        ; .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
-        .byte ": ud. <# #s #> type space ; " ; (3 OK)
-        ; .byte ": ud.r >r <# #s #> r> over - spaces type ; "
-        .byte ": d. tuck dabs <# #s rot sign #> type space ; " ; (2 OK) 
-        ; .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
+        .byte ": u. 0 <# #s #> type space ; "
+        .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
+        .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
+        .byte ": ud. <# #s #> type space ; "
+        .byte ": ud.r >r <# #s #> r> over - spaces type ; "
+        .byte ": d. tuck dabs <# #s rot sign #> type space ; "
+        .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
 ;       .byte ": . dup abs 0 <# #s rot sign #> type space ; "
 
         ; Splash strings. We leave these as high-level words because they are

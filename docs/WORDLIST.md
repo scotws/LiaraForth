@@ -79,6 +79,7 @@ Last update: 28. February 2017
 | C,                  | coded    | ANSI core     | NC       | 13    |     28 |
 | C!                  | coded    | ANSI core     | NC       | 11    |     29 |
 | C@                  | coded    | ANSI core     | NC       | 11    |     16 |
+| CELL+               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CELLS               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CHAR                | coded    | ANSI core     | NC       | 23    |  (TBA) |
 | CHAR+               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |

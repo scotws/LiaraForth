@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 21. Feb 2017
+This version 28. Feb 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -13,9 +13,12 @@ From
 [https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Text-Interpreter.html](https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/The-Text-Interpreter.html):
 ```
 : lat ." <foo>" ;
-: flat ." <bar>" >in dup @ 3 - swap ! ; \ flat prints "<bar><foo>"
+: flat ." <bar>" >in dup @ 3 - swap ! ; 
+```
+With this, `flat` prints "<bar><foo>" if same input area is used.
 
-char & parse jack& type                 \ should print "jack"    
+```
+char & parse jack& type                 \ should print "jack" 
 ```
 
 ### LITERAL test
@@ -31,6 +34,18 @@ Based on https://www.forth.com/starting-forth/11-forth-compiler-defining-words/
 ```
 : say-hello ." Hello" ; immediate
 : greet postpone say-hello ." I speak Forth" ; \ won't print "Hello" right away
+```
+
+Basic uses (captured output): 
+```
+: ws ." normal" ;   ok
+: wsi ." immediate" ; immediate  ok
+: a postpone ws ;   ok
+a  ok
+: b postpone wsi ;   ok
+b immediate ok
+: c postpone wsi ; immediate  ok
+c immediate ok
 ```
 
 
