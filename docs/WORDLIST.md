@@ -5,15 +5,16 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 28. February 2017
+Last update: 01. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
-| . "dot"             | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
-| .( "dotparen"       | coded    | ANSI core ext | IM       | Forth | Forth  |
-| ." "dotquote"       | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
-| / "slash"           | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| /MOD "slashmod"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| .                   | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
+| .(                  | coded    | ANSI core ext | IM       | Forth | Forth  |
+| ."                  | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
+| /                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| /MOD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| /STRING             | coded    | ANSI string   | NC       | (TBA) |  (TBA) |
 | .R                  | coded    | ANSI core ext | NC       | Forth |  Forth |
 | .S                  | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
 | ,                   | coded    | ANSI core     | NC       | 11    |     29 |
@@ -105,9 +106,11 @@ Last update: 28. February 2017
 | DUMP                | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
 | DUP                 | coded    | ANSI core     | NC       | 4     |      9 |
 | ELSE                | coded    | ANSI core     | IM CO    | Forth |  Forth |
+| ERASE               | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | EVALUATE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | EXECUTE             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | FALSE               | coded    | ANSI core ext | NC       | 7     |     12 |
+| FILL                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | FIND-NAME           | coded    | Gforth        | NC       | (TBA) |    n/a |
 | FM/MOD              | coded    | ANSI core     | NC       | Forth |  Forth |
 | HERE                | coded    | ANSI core     | NC       | 6     |     13 |

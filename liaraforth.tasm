@@ -2260,7 +2260,6 @@ z_dump          rts
 ; -------------------------------------------------------------------
 ; DUP  ( n -- n n ) 4 bytes / 9 cycles
 ; Duplicate first entry on Data Stack
-
 xt_dup           
         .!xy16
                 dex
@@ -2268,6 +2267,46 @@ xt_dup
                 sty.dx 00
 
 z_dup           rts
+
+
+; -------------------------------------------------------------------
+; ERASE ( addr u -- ) X bytes / X cycles
+; Set a region of memory to zero. Uses tmp2
+xt_erase
+        .!a16
+                dex
+                dex
+                sty.dx 00
+
+                ldy.# 0000      ; falls through to FILL
+
+; -------------------------------------------------------------------
+; FILL ( addr u b -- ) X bytes / X cycles
+; Fill the given region of memory with the LSB of the TOS. Shares code with
+; ERASE
+xt_fill
+                lda.dx 02       ; address is 3OS
+                sta.d tmp2
+
+                tya
+                ldy.dx 00       ; don't bother with drop, to it later
+	.a8
+erase_loop
+                dey
+                bmi erase_done
+
+                sta.diy tmp2
+                bra erase_loop
+	
+erase_done
+        .a16
+                ldy.dx 02       ; dump three elements off the sack
+                txa
+                clc
+                adc.# 0006
+                tax
+z_fill
+z_erase         rts
 
 
 ; -------------------------------------------------------------------
@@ -4668,7 +4707,7 @@ hi-start
         .byte ": ( [char] ) parse 2drop ; immediate "
         .byte ": .( [char] ) parse type ; immediate "
 
-        ; High flow control. Some of these can be realized with CS-ROLL and
+        ; High flow control. Some of these could be realized with CS-ROLL and
         ; CS-PICK instead
         .byte ": if postpone 0branch here 0 , ; immediate compile-only "
         .byte ": then here swap ! ; immediate compile-only "
@@ -4709,7 +4748,7 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 28. Feb 2017)"
+        .byte "cr .( Version PRE-ALPHA 01. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"

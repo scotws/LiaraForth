@@ -185,8 +185,16 @@ nt_cr   .byte 2, { NC }
         .word nt_name-int, xt_cr, z_cr 
         .byte "cr"
 
+nt_fill .byte 4, { NC }
+        .word nt_cr, xt_fill, z_fill
+        .byte "fill"
+
+nt_erase .byte 5, { NC }
+        .word nt_fill, xt_erase, z_erase
+        .byte "erase"
+
 nt_numbermore .byte 2, { NC } ; "quoth the rumben"
-        .word nt_cr, xt_numbermore, z_numbermore
+        .word nt_erase, xt_numbermore, z_numbermore
         .byte "#>"
 
 nt_hold .byte 4, { NC }
