@@ -2476,6 +2476,71 @@ z_find-name     rts
 
 
 ; -------------------------------------------------------------------
+; FM/MOD ( d n1 -- n2 n3 ) X bytes / X cycles
+; Floored division, compare with SM/REM. We define FM/MOD in terms of UM/MOD,
+; see http://git.savannah.gnu.org/cgit/gforth.git/tree/prim We prefer to use
+; SM/REM for further words. You could also define FM/MOD in Terms of SM/REM, 
+; see http://www.figuk.plus.com/build/arith.htm
+; Original Forth: DUP >R DUP 0< IF NEGATE >R DNEGATE R> THEN >R DUP 0< R@ AND + 
+; R> UM/MOD R> 0< IF SWAP NEGATE SWAP THEN ;
+; TODO this is just a 1:1 list of jumps, optimize once it is working
+xt_fmmod
+                jsr xt_dup
+                jsr xt_tor
+                jsr xt_dup
+
+                tya             ; 0< IF
+                bpl fmmod_1
+
+                ldy.dx 00
+                inx
+                inx
+
+                jsr xt_negate
+                jsr xt_tor
+                jsr xt_dnegate
+                jsr xt_fromr
+
+                bra fmmod_1_1
+fmmod_1
+                ldy.dx 00
+                inx
+                inx
+fmmod_1_1
+                jsr xt_tor
+                jsr xt_dup
+                jsr xt_zero-less     
+                jsr xt_rfetch 
+                jsr xt_and
+                jsr xt_plus
+                jsr xt_fromr
+                jsr xt_ummod
+                jsr xt_fromr
+
+                tya
+                bpl fmmod_2
+
+                ldy.dx 00
+                inx
+                inx
+
+                jsr xt_swap
+                jsr xt_negate
+                jsr xt_swap
+
+                bra fmmod_2_1
+fmmod_2
+
+                ldy.dx 00
+                inx
+                inx
+
+fmmod_2_1
+
+z_fmmod         rts
+
+
+; -------------------------------------------------------------------
 ; IMMEDIATE ( -- ) X bytes / X cycles
 ; Mark the most recently defined word as IMMEDIATE. Will only affect the last
 ; word in the Dictionary. If the words is still in ROM for some reason, this
@@ -4623,8 +4688,6 @@ hi-start
         ; High level math definitions. The should be moved to actual 65816 code
         ; for speed at some point. Note we use SM/REM instead of FM/MOD for most
         ; stuff
-;       .byte ": fm/mod dup >r sm/rem dup 0< if swap r> + swap 1+ else r> drop "
-;       .byte "then ; "
         .byte ": / >r s>d r> sm/rem swap drop ; "
         .byte ": /mod >r s>d r> sm/rem ; "
         .byte ": */ >r m* r> sm/rem swap drop ; "
