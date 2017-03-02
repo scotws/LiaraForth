@@ -41,6 +41,7 @@ Last update: 01. March 2017
 | +!                  | coded    | ANSI core     | NC       | 15    |  (TBA) |
 | -                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | -ROT                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| -TRAILING           | coded    | ANSI string   | NC       | (TBA) |  (TBA) |
 | =                   | coded    | ANSI core     | NC       | 11    |  18-20 |
 | <                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | <>                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
@@ -63,6 +64,10 @@ Last update: 01. March 2017
 | 2*                  | coded    | ANSI core     | NC       | 3     |  (TBA) |
 | 2DROP               | coded    | ANSI core     | NC       | 6     |     13 |
 | 2DUP                | coded    | ANSI core     | NC       | 10    |     23 |
+| 2OVER               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| 2R@                 | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| 2SWAP               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| 2VARIABLE           | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | ABORT               | coded    | ANSI core     | (TBA)    | 6+    |     6+ | 
 | ABORT"              | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | ABS                 | coded    | ANSI core     | NC       | 12    |  (TBA) |
@@ -93,6 +98,7 @@ Last update: 01. March 2017
 | CR                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CREATE              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | D+                  | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
+| D-                  | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | D.                  | coded    | ANSI double   |          | Forth |  Forth |
 | D.R                 | coded    | ANSI double   |          | Forth |  Forth |
 | D>S                 | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
@@ -121,12 +127,15 @@ Last update: 01. March 2017
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
 | LATESTNT            | coded    | Liara         | NC       | 7     |  (TBA) |
 | LATESTXT            | coded    | Gforth        | NC       | (TBA) |  (TBA) |
+| LSHIFT              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | LITERAL             | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | M*                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | MAX                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
 | MIN                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
+| MOVE                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | NAME>INT            | coded    | Gforth        | NC       | 4     |      8 |
 | NAME>STRING         | coded    | Gforth        | NC       | 16    |  (TBA) |
+| NATIVE-COMPILE      | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | NEGATE              | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | NIP                 | coded    | ANSI core ext | NC       | 2     |      4 |
 | NUMBER              | coded    | Liara         | NC       | (TBA) |  (TBA) |
@@ -136,12 +145,14 @@ Last update: 01. March 2017
 | PAGE                | coded    | ANSI facility | NC       | (TBA) |  (TBA) |
 | PARSE               | coded    | ANSI core ext |          | 45    |    n/a |
 | PARSE-NAME          | coded    | ANSI core ext |          | 41+   |    n/a |
+| PICK                | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | POSTPONE            | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | QUIT                | fragment | ANSI core     |          | (TBA) |    n/a |
 | R@                  | coded    | ANSI core     |          | (TBA) |  (TBA) |
 | R>                  | coded    | ANSI core     | CO       | 7     |     23 |
 | REFILL              | fragment | ANSI core ext |          | (TBA) |  (TBA) |
 | REPEAT              | coded    | ANSI core     | IM CO    | Forth |  Forth |
+| RSHIFT              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ROT                 | coded    | ANSI core     | NC       | 8     |  (TBA) |
 | S"                  | coded    | ANSI core     | IM NC    | (TBA) |  (TBA) |
 | S>D                 | coded    | ANSI core     | NC       | 14    |  (TBA) |
@@ -155,6 +166,7 @@ Last update: 01. March 2017
 | STATE               | coded    | ANSI core     | NC       | 7     |     12 |
 | SWAP                | coded    | ANSI core     | NC       | 5     |     12 |
 | THEN                | coded    | ANSI core     | IM CO    | Forth |  Forth |
+| TO                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | TRUE                | coded    | ANSI core ext | NC       | 7     |     12 |
 | TUCK                | coded    | ANSI core ext | NC       | 8     |     19 |
 | TYPE                | fragment | ANSI core     | -        | 23+   |  (TBA) |
@@ -166,6 +178,7 @@ Last update: 01. March 2017
 | UD/MOD              | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | UM/MOD              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | UNUSED              | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
+| VALUE               | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VARIABLE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | WORDS               | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
 | WORDS&SIZES         | coded    | Liara         | NC       | (TBA) |  (TBA) |

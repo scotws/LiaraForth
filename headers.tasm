@@ -73,8 +73,12 @@ nt_wordsize .byte 8, { NC }
         .word nt_dump, xt_wordsize, z_wordsize
         .byte "wordsize"
 
+nt_pick .byte 4, { NC }
+        .word nt_wordsize, xt_pick, z_pick
+        .byte "pick"
+
 nt_bell .byte 4, { NC }
-        .word nt_wordsize, xt_bell, z_bell
+        .word nt_pick, xt_bell, z_bell
         .byte "bell"
 
 nt_chars .byte 5, { NC }
@@ -105,8 +109,16 @@ nt_page .byte 4, { NC }
         .word nt_unused, xt_page, z_page
         .byte "page"
 
+nt_tworfetch .byte 3, 00	; not natively compiled
+        .word nt_page, xt_tworfetch, z_tworfetch
+        .byte "2r@"
+
+nt_2variable .byte 9, { NC }
+        .word nt_tworfetch, xt_2variable, z_2variable
+        .byte "2variable"
+
 nt_dabs .byte 4, { NC }
-        .word nt_page, xt_dabs, z_dabs
+        .word nt_2variable, xt_dabs, z_dabs
         .byte "dabs"
 
 nt_dnegate .byte 7, { NC }
@@ -121,8 +133,12 @@ nt_stod .byte 3, { NC }
         .word nt_dtos, xt_stod, z_stod
         .byte "s>d"
 
+nt_dminus .byte 2, { NC }
+        .word nt_stod, xt_dminus, z_dminus
+        .byte "d-"
+
 nt_dplus .byte 2, { NC }
-        .word nt_stod, xt_dplus, z_dplus
+        .word nt_dminus, xt_dplus, z_dplus
         .byte "d+"
 
 nt_fmmod .byte 6, { NC }
@@ -281,8 +297,12 @@ nt_literal .byte 7, { IM + CO }
         .word nt_bracketchar, xt_literal, z_literal
         .byte "literal"
 
+nt_native-compile .byte 0e, { NC }
+        .word nt_literal, xt_native-compile, z_native-compile
+        .byte "native-compile"
+
 nt_compile-only .byte 0c, { NC }
-        .word nt_literal, xt_compile-only, z_compile-only
+        .word nt_native-compile, xt_compile-only, z_compile-only
         .byte "compile-only"
 
 nt_immediate .byte 9, { NC }
@@ -309,8 +329,16 @@ nt_latestxt .byte 8, { NC }
         .word nt_latestnt, xt_latestxt, z_latestxt
         .byte "latestxt"
 
+nt_dtrailing .byte 9, { NC }
+        .word nt_latestxt, xt_dtrailing, z_dtrailing
+        .byte "-trailing"
+
+nt_slashstring .byte 7, { NC }
+        .word nt_dtrailing, xt_slashstring, z_slashstring
+        .byte "/string"
+
 nt_zbranch .byte 7, { IM + CO }
-        .word nt_latestxt, xt_zbranch, z_zbranch
+        .word nt_slashstring, xt_zbranch, z_zbranch
         .byte "0branch"
 
 nt_branch .byte 6, { IM + CO }
@@ -381,8 +409,16 @@ nt_depth .byte 5, { NC }
         .word nt_source, xt_depth, z_depth
         .byte "depth"
 
+nt_to   .byte 2, { NC }
+        .word nt_depth, xt_to, z_to
+        .byte "to"
+
+nt_value .byte 5, { NC }  ; uses routines of CONSTANT
+        .word nt_to, xt_constant, z_constant
+        .byte "value"
+
 nt_constant .byte 8, { NC }
-        .word nt_depth, xt_constant, z_constant
+        .word nt_value, xt_constant, z_constant
         .byte "constant"
 
 nt_variable .byte 8, { NC }
@@ -393,8 +429,12 @@ nt_tick  .byte 1, { NC }
         .word nt_variable, xt_tick, z_tick
         .byte 27	; hex for "'"
 
+nt_move .byte 4, { NC }
+        .word nt_tick, xt_move, z_move
+        .byte "move"
+
 nt_min  .byte 3, { NC }
-        .word nt_tick, xt_min, z_min
+        .word nt_move, xt_min, z_min
         .byte "min"
 
 nt_max  .byte 3, { NC }
@@ -413,8 +453,12 @@ nt_char .byte 4, { NC }
         .word nt_invert, xt_char, z_char
         .byte "char"
 
+nt_rshift .byte 6, { NC }
+        .word nt_char, xt_rshift, z_rshift
+        .byte "rshift"
+
 nt_xor  .byte 3, { NC }
-        .word nt_char, xt_xor, z_xor
+        .word nt_rshift, xt_xor, z_xor
         .byte "xor"
 
 nt_or   .byte 2, { NC }
@@ -425,8 +469,12 @@ nt_and  .byte 3, { NC }
         .word nt_or, xt_and, z_and
         .byte "and"
 
+nt_lshift .byte 6, { NC }
+        .word nt_and, xt_lshift, z_lshift
+        .byte "lshift"
+
 nt_plusstore .byte 2, { NC }
-        .word nt_and, xt_plusstore, z_plusstore
+        .word nt_lshift, xt_plusstore, z_plusstore
         .byte "+!"
 
 nt_c-comma .byte 2, { NC }
@@ -569,8 +617,16 @@ nt_rot  .byte 3, { NC }
         .word nt_mrot, xt_rot, z_rot
         .byte "rot"
 
+nt_2over .byte 5, { NC }
+        .word nt_rot, xt_2over, z_2over
+        .byte "2over"
+
+nt_2swap .byte 5, { NC }
+        .word nt_2over, xt_2swap, z_2swap
+        .byte "2swap"
+
 nt_execute .byte 7, { NC }
-        .word nt_rot, xt_execute, z_execute
+        .word nt_2swap, xt_execute, z_execute
         .byte "execute"
 
 nt_here .byte 4, { NC }

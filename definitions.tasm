@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 01. Mar 2017
+; This version: 02. Mar 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -47,33 +47,36 @@
 ; Initial values
 
         .equ stack0 7fff  ; single task Stack (S) start (bottom)
-        .equ dsp0   02f8  ; initial Data Stack Pointer (X)
+        .equ dsp0   02f0  ; initial Data Stack Pointer (X)
 
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
 
-; All are one cell (two bytes) long to prevent weird errors
-; TODO move these to USER variables for multitasking
+; All are one cell (two bytes) long to prevent weird errors. We keep CP and DP
+; high in this list and put the most expendable values first in case the Data
+; Stack underflows hard and wraps. The DP is most important because it will let
+; us do a COLD if all else fails as long as we can access it
+; TODO rewrite with USER variables
 
-        .equ cp        { directpage + &0 }  ; Compiler Pointer, 2 bytes
-        .equ dp        { directpage + &2 }  ; Dictionary Pointer, 2 bytes
-        .equ tmpdsp    { directpage + &4 }  ; Temporary DSP (X) storage, 2 bytes
-        .equ tmptos    { directpage + &6 }  ; Temporary TOS (Y) storage, 2 bytes
-        .equ output    { directpage + &8 }  ; Address where output is constructed
-        .equ insrc     { directpage + &10 } ; Input Source for SOURCE-ID
-        .equ cib       { directpage + &12 } ; Current Input Buffer, 7c00 or 7d00
-        .equ ciblen    { directpage + &14 } ; Length of current input buffer
-        .equ piblen    { directpage + &16 } ; Length of previous input buffer
-        .equ toin      { directpage + &18 } ; Pointer to CIB (>IN in Forth)
-        .equ state     { directpage + &20 } ; STATE: -1 compile, 0 interpret
-        .equ tmp1      { directpage + &22 } ; Temporary storage
-        .equ tmp2      { directpage + &24 } ; Temporary storage
-        .equ tmp3      { directpage + &26 } ; Temporary storage
-        .equ base      { directpage + &28 } ; Radix for number conversion
-        .equ workword  { directpage + &30 } ; Currently compiliing word
-        .equ scratch   { directpage + &32 } ; 8 byte scratchpad (see UM/MOD)
-        .equ tohold    { directpage + &40 } ; Pointer for formatted output 
-        .equ tmpbranch { directpage + &42 } ; temp storage for 0BRANCH, BRANCH only
+        .equ scratch   { directpage + &00 } ; 8 byte scratchpad (see UM/MOD)
+        .equ tmpbranch { directpage + &08 } ; temp storage for 0BRANCH, BRANCH only
+        .equ tmp1      { directpage + &10 } ; Temporary storage
+        .equ tmp2      { directpage + &12 } ; Temporary storage
+        .equ tmp3      { directpage + &14 } ; Temporary storage
+        .equ tmpdsp    { directpage + &16 } ; Temporary DSP (X) storage, 2 bytes
+        .equ tmptos    { directpage + &18 } ; Temporary TOS (Y) storage, 2 bytes
+        .equ workword  { directpage + &20 } ; Currently compiliing word
+        .equ output    { directpage + &22 } ; Address where output is constructed
+        .equ insrc     { directpage + &24 } ; Input Source for SOURCE-ID
+        .equ cib       { directpage + &26 } ; Current Input Buffer, 7c00 or 7d00
+        .equ ciblen    { directpage + &28 } ; Length of current input buffer
+        .equ piblen    { directpage + &30 } ; Length of previous input buffer
+        .equ toin      { directpage + &32 } ; Pointer to CIB (>IN in Forth)
+        .equ state     { directpage + &34 } ; STATE: -1 compile, 0 interpret
+        .equ base      { directpage + &36 } ; Radix for number conversion
+        .equ tohold    { directpage + &38 } ; Pointer for formatted output 
+        .equ cp        { directpage + &40 } ; Compiler Pointer, 2 bytes
+        .equ dp        { directpage + &42 } ; Dictionary Pointer, 2 bytes
 
 
 ; ===================================================================

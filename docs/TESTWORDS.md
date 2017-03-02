@@ -126,6 +126,36 @@ See
 [https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs](https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs)
 
 
+### Stack Stuff
+
+For 2R@
+```
+: t 1 >r 2 >r 2r@ .s r> r> 2drop 2drop ;  ok
+t <2> 1 2  ok
+```
+
+### TEST MOVE, CMOVE and CMOVE>
+
+Move is based on MVP and MVN instructions of the 65816
+
+## Simple MOVE tests
+```
+hex
+1000 10 erase           \ clean area to test in
+800 8 00ff fill         \ bytes to test with, source lower (MVP)
+800 1001 8 move         \ actual MOVE instruction
+1000 10 dump            \ see what happened
+
+1000 10 erase           \ next test
+1100 8 00ee fill        \ bytes to test with, source higher (MVN)
+1100 1001 8 move        \ actual move instruction
+1000 10 dump            \ see what happened
+```
+
+### Overlapping MOVE tests 
+
+
+
 ### TEST MATH STUFF
 
 For examples of interger divsion, see

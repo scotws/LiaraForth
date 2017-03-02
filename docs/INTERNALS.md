@@ -30,7 +30,7 @@ otherwise.
 
 The Data Stack (DS) is located on the Direct Page (the 65816's version of the
 6502's Zero Page), which is set to 00:0200 during Liara's startup. It grows
-"downwards" (towards 00:0000). The DS itself starts at 00:02F8, leaving the
+"downwards" (towards 00:0000). The DS itself starts at 00:02F0, leaving the
 bytes inbetween as a "floodplain" in case of stack underflow. Except for
 special cases, underflow is only checked for after a word has been executed.
 Liara does not check for overflow at all. 
@@ -45,21 +45,21 @@ register.
                +---------+---------+           
 
                +---------+---------+           
-      00:02EE  |               ... |  
+      00:02E6  |               ... |  
                +-     (empty)     -+           
-      00:02F0  |                   |  
+      00:02E8  |                   |  
                +=========+=========+           
-      00:02F2  |        NOS        |  00,X  <-- DSP (X register) 
+      00:02EA  |        NOS        |  00,X  <-- DSP (X register) 
                +---------+---------+           
-      00:02F4  |        3OS        |  02,X
+      00:02EC  |        3OS        |  02,X
                +=========+=========+           
-      00:02F6  |     (garbage)     |  04,X
+      00:02EE  |     (garbage)     |  04,X
                +---------+---------+           
-      00:02F8  |     (garbage)     |  06,X  <-- DSP0
+      00:02F0  |     (garbage)     |  06,X  <-- DSP0
                +---------+---------+           
-      00:02FA  |                   |  08,X
+      00:02F2  |                   |  08,X
                +-   (floodplain)  -+
-      00:02FC  |               ... |  0A,X  
+      00:02F4  |               ... |  0A,X  
                +---------+---------+           
 ```
 _Snapshot of the Data Stack with three entries._ 
@@ -125,6 +125,12 @@ that appears before DROP was automatically generated at boot from the Forth code
 (During development, a large number of words were first included as high-level
 Forth code or simple series of subroutine jumps, and then later optimized in
 native code. The aim was to get the system up and running first.) 
+
+
+## System Variables
+
+System variables are kept on Direct Page. The most important two - DP and CP -
+are kept as far away from the top as possible in case of severe underflow. 
 
 
 ## Compiling
@@ -307,4 +313,6 @@ later followed by
 
 ## Notes (convert these later)
 
-We use SM/REM instad of FM/MOD where the difference is not apparent
+- We use SM/REM instad of FM/MOD where the difference is not apparent
+- Coding: Use MVN/MVP whenever possible. See
+  http://forum.6502.org/viewtopic.php?f=2&t=1685&p=50975#p50975 for details. 

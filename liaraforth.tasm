@@ -476,6 +476,31 @@ z_tor           rts
 
 
 ; -------------------------------------------------------------------
+; /STRING ( addr u n -- ) X bytes / X cycles
+; Remove characters from front of string. Uses tmp1
+; Forth version: ROT OVER + ROT ROT - ; 
+; TODO check for negative strings so 1 /STRING TYPE won't try to print the whole
+; address space; follow Gforth in failing gracefully
+xt_slashstring   
+                sty.d tmp1
+
+                lda.dx 00       ; length
+                sec
+                sbc.d tmp1
+                tay
+
+                lda.dx 02       ; address
+                clc
+                adc.d tmp1
+                sta.dx 02
+
+                inx
+                inx
+
+z_slashstring   rts
+
+
+; -------------------------------------------------------------------
 ; . "DOT" ( n -- ) X bytes / X cycles
 ; Print value that is TOS followed by a single space. Forth code is  
 ; DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE  Based on 
@@ -964,6 +989,33 @@ z_mrot          rts
 
 
 ; -------------------------------------------------------------------
+; -TRAILING ( addr u -- addr u ) X bytes / X cycles
+; Remove any trailing blanks. Uses tmp3
+xt_dtrailing     
+                ; if u is zero, just return string
+                tya             ; force flag check
+                beq z_dtrailing
+
+                lda.dx 00
+                sta.d tmp3
+                dey             ; convert length to index
+        .a8
+
+dtrailing_loop
+                lda.diy tmp3
+                cmp.# 20
+                bne dtrailing_done
+                dey
+                bpl dtrailing_loop      ; fall through when done
+
+dtrailing_done
+        .a16
+                iny             ; convert index to length
+
+z_dtrailing     rts
+
+
+; -------------------------------------------------------------------
 ; = "EQUAL" ( n m -- f ) 11 bytes / 18-20 cycles
 ; See if TOS and NOS are the same
 xt_equal         
@@ -1203,6 +1255,84 @@ z_2dup          rts
 
 
 ; -------------------------------------------------------------------
+; 2OVER ( d1 d2 -- d1 d2 d1 ) X bytes / X cycles
+; Copy cell pair that is NOS to TOS
+xt_2over         
+               	dex
+                dex
+                dex
+                dex
+                sty.dx 02
+                ldy.dx 06
+                lda.dx 08
+                sta.dx 00
+
+z_2over         rts
+
+
+; -------------------------------------------------------------------
+; 2R@ ( -- n1 n2 )(R: n1 n2 -- n1 n2 )  X bytes / X cycles
+; Copy two words off the Return Stack.  This is R> R> 2DUP >R >R SWAP but we
+; can do this a lot faster in assembler This routine may not be natively
+; compiled; because it accessed by a JSR, the first element on the Return Stack
+; (LDA.S 01) is the return address.
+xt_tworfetch     
+                ; make room on the Data Stack
+                dex
+                dex
+                dex
+                dex
+                sty.dx 02
+
+                lda.s 03        ; get top of Return Stack
+                tay
+                lda.s 05        ; get next on Return Stack 
+                sta.dx 00
+                
+z_tworfetch     rts
+
+
+; -------------------------------------------------------------------
+; 2SWAP ( d1 d2 -- d2 d1 ) X bytes / X cycles
+; Swap two double cell numbers on the Data Stack. 
+xt_2swap         
+                phy             ; hi word of TOS
+                ldy.dx 02       ; hi word of NOS
+                pla
+                sta.dx 02
+
+                lda.dx 00       ; lo word of TOS
+                pha
+                lda.dx 04       ; lo word of NOS
+                sta.dx 00
+                pla
+                sta.dx 04
+
+z_2swap         rts
+
+
+; -------------------------------------------------------------------
+; 2VARIABLE ( "name" -- ) X bytes / X cycles
+; Create a variable with space for a double celled word. This can be realized in
+; Forth as either CREATE 2 CELLS ALLOT or just CREATE 0 , 0 , 
+; We use the second variant, letting CREATE do the hard work
+; TODO see if it is faster to use Y as an index and increase by four
+xt_2variable     
+        .!a16
+                jsr xt_create
+
+                lda.# 0000
+                sta.di cp
+                inc.d cp
+                inc.d cp
+                sta.di cp
+                inc.d cp
+                inc.d cp
+                
+z_2variable     rts
+
+
+; -------------------------------------------------------------------
 ; ' "TICK" ( "string" -- xt ) X bytes / X cycles
 ; Given a string with the name of a word, return the word's execution token (xt)
 ; Abort if not found
@@ -1235,6 +1365,7 @@ z_tick          rts
 ; ABORT" "ABORTQ" ( "string" -- ) X bytes / X cycles
 ; If flag on TOS is not false, print error message and abort. This a compile-only word
 xt_abortq        
+        .!a16
                 jsr xt_squote           ; save string
 
                 phe.# abortq_rt         ; compile run-time aspect
@@ -1244,10 +1375,11 @@ xt_abortq
 
 abortq_rt
                 ; we land here with ( f addr u ) 
-                lda.dx 02               ; get 3OS
-                beq abortq_done          ; if FALSE, we're done
+                lda.dx 02               ; get flag as 3OS
+                beq abortq_done         ; if FALSE, we're done
 
-                ; nope, we print string and ABORT
+                ; if TRUE, we print string and ABORT
+                ; TODO see if we want to inform user we're aborting
                 jsr xt_type
                 jmp xt_abort            ; not JSR because we never come back
                 
@@ -1258,8 +1390,8 @@ abortq_done
                 ; this is the same size, but three cycles faster than six INX
                 ; instructions
                 txa
-                sec
-                sbc.# 0006
+                clc
+                adc.# 0006
                 tax
                 
 z_abortq        rts
@@ -2032,7 +2164,7 @@ z_digitq        rts
 
 ; -------------------------------------------------------------------
 ; DPLUS ( d d -- d ) X bytes / X cycles
-; Add two double cell numbers. 
+; Add two double cell numbers
 xt_dplus         
         .!a16
                 phy             ; save hi word of first number, frees Y
@@ -2053,6 +2185,32 @@ xt_dplus
                 tay             ; to result goes TOS
 
 z_dplus         rts
+
+; -------------------------------------------------------------------
+; DMINUS ( d d -- d ) X bytes / X cycles
+; Subtract two double cell numbers
+xt_dminus        
+        .!a16
+                lda.dx 04       ; lo word NOS
+                sec
+                sbc.dx 00       ; lo word TOS
+                pha
+
+                sty.dx 00       ; use as temp storage for hi word TOS
+                lda.dx 02       ; hi word, NOS
+                sbc.dx 00       ; hi word, TOS
+                tay             ; result hi word now TOS 
+
+                inx             
+                inx
+                inx
+                inx
+
+                pla             
+                sta.dx 00       ; result lo word now NOS
+                
+z_dminus        rts
+
 
 ; -------------------------------------------------------------------
 ; D>S ( ud -- u ) X bytes / X cycles
@@ -2736,6 +2894,34 @@ literal_rt
 
                 rts
 
+
+; -------------------------------------------------------------------
+; LSHIFT ( n u -- n ) X bytes / X cycles
+; Logically shift TOS u times to the left, adding zeros to the right
+xt_lshift        
+                ; We shift at most 16 bits, because anything above that will be
+                ; zeros anyway
+                tya
+                and.# 000f
+                beq lshift_done         ; if zero shifts, we're done
+
+                tay                     ; number of shifts is TOS
+                lda.dx 00               ; number is in NOS
+lshift_loop
+                asl.a
+                dey
+                bne lshift_loop
+
+                sta.dx 00               ; put NOS, which last step will pull up
+                
+lshift_done                
+                ldy.dx 00
+                inx
+                inx
+
+z_lshift        rts
+
+
 ; -------------------------------------------------------------------
 ; M* "MSTAR" ( n n -- d ) 16*16 -> 32  X bytes / X cycles
 ; Multiply two 16 bit numbers, producing a 32 bit result. All values are signed.
@@ -2847,6 +3033,76 @@ min_nip
                 
 z_min           rts
 
+; -------------------------------------------------------------------
+; MOVE ( addr1 addr2 u -- ) X bytes / X cycles
+; Move u bytes from addr1 to addr2, so that in the end, addr2 contains exactly
+; what was in addr1. This routine calls CMOVE or CMOVE>. Forth verison is
+; >R 2DUP U< IF R> CMOVE> ELSE  R> CMOVE THEN ; see 
+; https://groups.google.com/forum/#!topic/comp.lang.forth/-l2WlE7pEE0
+; We use the fast MVP/MVN instructions for MOVE and go byte-by-byte for CMOVE
+; and CMOVE> as required by ANSI. Uses tmp2.
+xt_move          
+       .!a16 
+                ; if u is zero, we just skip all of this 
+                tya 
+                beq move_done
+
+                ; if source and destination are the same, that would be silly as
+                ; well
+                lda.dx 00       ; addr2 (destination)
+                cmp.dx 04       ; addr1 (source) 
+                beq move_done
+                
+                ; So this is happening. Use tmp2 as a flag to see if source or
+                ; destination is larger. STZ does not affect any flag, so we can
+                ; reuse the comparison above later
+                stz.d tmp2
+
+                ; If the source is larger, we set a flag (default: Source is
+                ; smaller, that is, closer to 00:0000, use MVP) 
+                bpl +
+
+                ; The source is larger (higher up in memory), use MVN
+                inc.d tmp1
+@
+                ; Both MVN and MVP require the source address in X, the
+                ; destination address in Y and the number of bytes to transfer
+                ; minus 1 in A. The work is worth it, for the math see
+                ; http://forum.6502.org/viewtopic.php?f=2&t=1685
+                dey
+                phy             ; save number of bytes to transfer
+                ldy.dx 00       ; get destination address
+                stx.d tmpdsp    ; keep DSP safe
+                lda.dx 02       ; get source address
+                tax
+
+                lda.d tmp1      ; check flag
+                beq move_src_smaller
+
+                ; source is larger, use MVN
+                pla             ; retrieve number of bytes to transfer
+                mvn 0,0
+                bra move_restore
+
+move_src_smaller
+                ; source is smaller, use MVP
+                pla
+                mvp 0,0         ; fall through to move_retore
+
+move_restore
+                ldx.d tmpdsp
+
+move_done
+                ; adjust stack pointer
+                ldy.dx 04
+
+                txa
+                clc
+                adc.# 0006
+                tax
+
+z_move          rts
+
 
 ; -------------------------------------------------------------------
 ; NAME>INT ( nt -- xt ) 4 bytes / 8 cycles
@@ -2889,6 +3145,20 @@ xt_name-string
                 tay
                 
 z_name-string   rts
+
+
+; -------------------------------------------------------------------
+; NATIVE-COMPILE ( -- ) X bytes / X cycles
+; Enable native compilation for last word in Dictionary
+xt_native-compile
+        .!a16
+                lda.# NC
+                xba             ; flags are MSB
+                ora.di dp       ; ORA (DP)
+                sta.di dp
+
+z_native-compile
+		rts
 
 
 ; -------------------------------------------------------------------
@@ -3263,6 +3533,31 @@ z_parse         rts
 
 
 ; -------------------------------------------------------------------
+; PICK ( n n u -- n n n ) X bytes / X cycles
+; Take the u-th element out of the stack and put it on TOS, overwriting the
+; current TOS. 0 PICK is equivalent to DUP, 1 PICK to OVER. Note that using PICK
+; is considered poor coding form. Also note that FIG Forth has a different
+; behavior for PICK than ANS Forth.  
+; TODO use DEPTH to check for underflow 
+xt_pick          
+                stx.d tmpdsp
+
+                tya             ; Y is just an offset to the DSP
+                asl.a           ; double because of cell size two bytes
+
+                clc
+                adc.d tmpdsp
+
+                tax
+                lda.dx 00       ; LDA $00,X
+                tay             ; Is now TOS
+
+                ldx.d tmpdsp
+
+z_pick          rts
+
+
+; -------------------------------------------------------------------
 ; +! "PLUSSTORE" ( n addr -- ) 15 bytes / X cycles
 ; Add NOS to address in TOS
 xt_plusstore     
@@ -3485,6 +3780,33 @@ z_rot           rts
 
 
 ; -------------------------------------------------------------------
+; RSHIFT ( n u -- u ) X bytes / X cycles
+; Shift TOS right, filling vacant bits with zero
+xt_rshift        
+                ; We shift at most 16 bits, because anything above that will be
+                ; zeros anyway
+                tya
+                and.# 000f
+                beq rshift_done         ; if zero shifts, we're done
+
+                tay                     ; number of shifts is TOS
+                lda.dx 00               ; number is in NOS
+rshift_loop
+                lsr.a
+                dey
+                bne rshift_loop
+
+                sta.dx 00               ; put NOS, which last step will pull up
+                
+rshift_done                
+                ldy.dx 00
+                inx
+                inx
+
+z_rshift        rts
+
+
+; -------------------------------------------------------------------
 ; S" "SQUOTE" ( "string" -- addr u ) X bytes / X cycles
 ; Store address and length of string given, returning ( addr u ). ANSI core
 ; claims this is compile-only, but the file set expands it to be interpreted, so
@@ -3505,8 +3827,41 @@ xt_squote
                 ; include a subroutine jump to SLITERAL to save the string. If
                 ; we are interpreting, we're done
                 lda.d state
-                beq z_squote            ; if we're interpreting, we're done
+                bne squote_compile
+
+		; We copy our string to someplace safe because it lives
+                ; dangerously if we leave it in the input buffer. This might
+                ; seem like a lot of effort for a few bytes, but MVN is so fast
+                ; - 7 cycles per byte - that it is worth it. See 
+                ; http://forum.6502.org/viewtopic.php?f=2&t=1685&p=50975#p50975
+                ; and http://6502.org/tutorials/65c816opcodes.html#6.6
+                tya             ; A gets the number of bytes to move minus 1
+                dec.a   
+                phx             ; save DSP
+                phy             ; save TOS
+
+                ldy.dx 00       ; get source address
+                tyx
+                ldy.d cp        ; get destination address
+
+                mvn 00,00       ; do the actual work
+
+                ply             ; get length back
+                plx             ; get DSP back
+
+                ; change address
+                lda.d cp
+                sta.dx 00
+
+                ; update CP
+                tya
+                clc
+                adc.d cp
+                sta.d cp
                 
+                bra z_squote
+
+squote_compile             
                 ; We're compiling, so we need SLITERAL. We use it's RTS while
                 ; we're at it
                 jmp xt_sliteral         ; JSR/RTS
@@ -3876,6 +4231,22 @@ xt_swap
 
 z_swap          rts
 
+
+; -------------------------------------------------------------------
+; TO ( n "name" -- ) X bytes / X cycles
+; Change the value of a VALUE. Note that in theory this would work with CONSTANT
+; as well, but we frown on this behavior. Note that while it is in violation of
+; ANS Forth, we can change the number in a VALUE with <number> ' <value> >BODY
+; +!  just as you can with Gforth
+; TODO unroll this to assembler
+xt_to            
+                jsr xt_tick     ; '
+                jsr xt_tobody   ; >BODY
+                jsr xt_store    ; !
+
+z_to            rts
+
+
 ; -------------------------------------------------------------------
 ; TRUE ( -- f ) 7 bytes / 12 cycles
 ; Pushes value $FFFF for Forth true on Data Stack
@@ -4214,6 +4585,12 @@ xt_unused
                 tay
                 
 z_unused        rts
+
+
+; -------------------------------------------------------------------
+; VALUE ( n "name" -- ) X bytes / X cycles
+; Associate a name with a value (like a constant) that can be changed (like
+; a variable) with TO. We use the routines as CONSTANT, see there.
 
 
 ; -------------------------------------------------------------------

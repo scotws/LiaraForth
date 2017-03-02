@@ -1,7 +1,7 @@
 Size and Execution Speed of Commonly Used Instructions
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 05. Apr 2016
-This version: 18. Feb 2017
+This version: 01. March 2017
 
 This is a list of commonly used instructions and instruction combinations to make calculating the speed and size of Forth word implementations easier.
 
@@ -42,7 +42,7 @@ lda        3/5
 lda.#      3/3 
 lda.d      2/4  (8 bit: 2/3)
 lda.di     2/6  (+1 if crossing page boundary)
-lda.diy    2/6  (+1 if crossing page boundary)
+lda.diy    2/6  (8 bit: 2/5; +1 if crossing page boundary)
 lda.dx     2/5  
 lda.dxi    2/7
 lda.y      3/5-6
@@ -62,6 +62,7 @@ sep        2/3
 sta        3/5
 sta.d      2/4  ( 8 bit: 2/3)
 sta.di     2/6
+sta.diy    2/7  ( 8 bit: 2/6)
 sta.dx     2/5 
 sta.y      3/6
 sty.dx     2/5 
