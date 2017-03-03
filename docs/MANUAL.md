@@ -236,12 +236,6 @@ to buy Flash memory chip and install it there.
 (TBA, see https://github.com/scotws/265SXB-Guide/blob/master/flash.md )
 
 
-### Memory Map with Flash
-
-![Liara Forth Memory Map]
-(https://github.com/scotws/LiaraForth/blob/master/images/memorymap_20160401.png
-"Liara Forth Memory Map")
-
 ## Liara Forth Internals
 
 (Included in the docs folder of this project is a file that describes the inner
