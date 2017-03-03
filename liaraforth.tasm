@@ -9,7 +9,7 @@
         .mpu 65816
         .origin 6000    ; start of code to save to built-in RAM
 ;       .origin 8000    ; start of code to save to Flash memory
-code0
+code0                   ; used to calculated UNUSED etc
 
 ; ===================================================================
 ; TOP INCLUDES
@@ -17,8 +17,8 @@ code0
         .include definitions.tasm
 
 ; Hardware dependencies are isolated to a large degree in kernel files. Liara
-; Forth ships with two such files: One for the crude65816 emulator, and one for
-; the 265sxb board. Only use one.
+; Forth ships with two such files: One (very ALPHA) for the crude65816 emulator,
+; and one for the 265sxb board. Only use one.
 
         .include kernel_265sxb.tasm     ; routines for the W65C265SXB
 ;       .include kernel_emu.tasm        ; routines for crude65815 emulator
@@ -30,7 +30,6 @@ code0
 ; Word code routines are sorted alphabetically, except for the first three
 ; - COLD, ABORT, and QUIT - and a few others that flow into each other. The
 ; byte and cycle values are calculated without the RTS instruction.
-
 
 ; -------------------------------------------------------------------
 ; COLD ( -- ) X bytes / X Cycles
@@ -57,14 +56,13 @@ start
                 lda.# 000a
                 sta.d base 
                
-                ; The compiler pointer (CP) points to the first free cell 
+                ; The compiler pointer (CP) points to the first free byte
                 ; in the Dictionary
                 lda.# cp0
                 sta.d cp
 
-                ; CIB is the input buffer
-                lda.# buffer
-                sta.d cib
+                lda.# buffer    
+                sta.d cib       ; input buffer
                 stz.d ciblen    ; input buffer starts empty
                 stz.d insrc     ; SOURCE-ID is zero
                 stz.d state     ; STATE is zero (interpret)
@@ -250,9 +248,11 @@ z_not-equal     rts
 ; http://pforth.googlecode.com/svn/trunk/fth/numberio.fth pForth is in the pubic
 ; domain. Forth is : <# PAD HLD ! ; we use the internal variable tohold instead
 ; of HLD.
+; TODO consider using OUTPUT buffer as a location instead
 xt_lessnumber    
                 jsr xt_pad
                 sty.d tohold
+
                 ldy.dx 00
                 inx
                 inx
@@ -292,7 +292,8 @@ z_greater       rts
 ; >BODY "TOBODY" ( xt -- addr ) 3 bytes / 6 cycles
 ; Given a word's execution token (xt), return the address of the start of that
 ; word's parameter field (PFA). This is the address that HERE would return right
-; after CREATE
+; after CREATE. Returns garbage if the word was not created with CREATE
+; TODO think if it should return sensible value instead
 xt_tobody        
                 ; In the header, xt already points to the CFA, which CREATE by
                 ; default fills with a JSR to DOVAR. We just need to move xt
@@ -318,7 +319,7 @@ z_to-in         rts
 ; >NUMBER ( ud addr u -- ud addr u ) X bytes / X cycles
 ; Convert a string to a double number. Logic here is based on the routine by
 ; Phil Burk of the same name in pForth; see
-; https://github.com/philburk/pforth/blob/master/fth/numberio.fth the origional
+; https://github.com/philburk/pforth/blob/master/fth/numberio.fth the original
 ; Forth code. We arrive here from NUMBER which has made sure that we don't have
 ; to deal with a sign and we don't have to deal with a dot as a last character
 ; that signalizes double - this should be a pure number string.
