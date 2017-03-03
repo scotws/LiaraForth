@@ -134,11 +134,12 @@ For 2R@
 t <2> 1 2  ok
 ```
 
-### TEST MOVE, CMOVE and CMOVE>
+## TEST MOVE, CMOVE and CMOVE>
 
-Move is based on MVP and MVN instructions of the 65816
+MOVE is based on MVP and MVN instructions of the 65816. 
 
-## Simple MOVE tests
+
+### Simple MOVE tests
 ```
 hex
 1000 10 erase           \ clean area to test in
@@ -151,9 +152,6 @@ hex
 1100 1001 8 move        \ actual move instruction
 1000 10 dump            \ see what happened
 ```
-
-### Overlapping MOVE tests 
-
 
 
 ### TEST MATH STUFF

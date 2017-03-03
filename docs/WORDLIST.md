@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 01. March 2017
+Last update: 02. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -90,6 +90,8 @@ Last update: 01. March 2017
 | CHAR                | coded    | ANSI core     | NC       | 23    |  (TBA) |
 | CHAR+               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | CHARS               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| CMOVE               | coded    | ANSI string   | NC       | (TBA) |  (TBA) |
+| CMOVE>              | coded    | ANSI string   | NC       | (TBA) |  (TBA) |
 | COLD                | coded    | Gforth        |          | (TBA) |  (TBA) |
 | COMPILE,            | coded    | ANSI core ext | CO IM    | (TBA) |  (TBA) |
 | COMPILE-ONLY        | coded    | Gforth        | NC       | 8     |  (TBA) |

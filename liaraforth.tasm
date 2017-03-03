@@ -1,14 +1,15 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 01. Mar 2017
+; This version: 02. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
 
         .mpu 65816
-;       .origin 8000    ; start of code to save to Flash memory
         .origin 6000    ; start of code to save to built-in RAM
+;       .origin 8000    ; start of code to save to Flash memory
+code0
 
 ; ===================================================================
 ; TOP INCLUDES
@@ -19,8 +20,8 @@
 ; Forth ships with two such files: One for the crude65816 emulator, and one for
 ; the 265sxb board. Only use one.
 
-;       .include kernel_emu.tasm        ; routines for crude65815 emulator
         .include kernel_265sxb.tasm     ; routines for the W65C265SXB
+;       .include kernel_emu.tasm        ; routines for crude65815 emulator
 
 
 ; ===================================================================
@@ -43,37 +44,38 @@ start
         .!xy16
                 sei
 
-                ; TODO switch to Single Task mode
-                ; TODO set up Direct Page stuff
-                ; TODO initiate User variables
+                ; Initialize the Return Stack (65816 stack)
+                ldx.# stack0            ; 01ff
+                txs
 
-
+                ; Clear Data Stack. This is repeated in ABORT, but we have no
+                ; choice if we want to load high-level words via EVALUATE
+                ldy.# 0000
+                ldx.# dsp0
+                 
                 ; We start out in decimal mode
-                jsr xt_decimal
+                lda.# 000a
+                sta.d base 
+               
+                ; The compiler pointer (CP) points to the first free cell 
+                ; in the Dictionary
+                lda.# cp0
+                sta.d cp
+
+                ; CIB is the input buffer
+                lda.# buffer
+                sta.d cib
+                stz.d ciblen    ; input buffer starts empty
+                stz.d insrc     ; SOURCE-ID is zero
+                stz.d state     ; STATE is zero (interpret)
                 
                 ; The name token (nt) of DROP is always the first one in the
-                ; virgin Dictionary, so we start off the Dictionary Pointer (DP)
+                ; new Dictionary, so we start off the Dictionary Pointer (DP)
                 ; there. Anything that comes after that (with WORDS, before
                 ; that) is high-level
                 lda.# nt_drop
                 sta.d dp
-                
-                ; The compiler pointer (CP) points to the first free cell 
-                ; in RAM
-                lda.# cp0
-                sta.d cp
-
-                ; Prepare input buffers
-                lda.# ibuffer1  ; start with first input buffer
-                sta.d cib
-                stz.d piblen    ; previous input buffer is empty
-                stz.d insrc     ; SOURCE-ID is zero
-                stz.d state     ; STATE is zero (interpret)
-                
-                ; Clear Data Stack
-                ldy.# 0000
-                ldx.# dsp0
-
+ 
                 ; Clean the screen, assumes vt100 terminal
                 jsr xt_page
                 
@@ -97,7 +99,6 @@ start
 ; Reset the parameter (data) stack pointer and continue as QUIT 
 ; We can jump here via subroutine because we reset the stack pointer
 ; anyway. Flows into QUIT.
-; TODO see which parts of COLD we should integrate here
 xt_abort         
         .a16    
                 ; clear Data Stack
@@ -129,8 +130,7 @@ xt_quit
                 stz.d state
                
 quit_get_line
-                ; Empty current input buffer. Note the previous input line is
-                ; conserved even if we came here from an abort
+                ; Empty current input buffer
                 stz.d ciblen
                
                 ; Accept a line from the current input source
@@ -149,9 +149,8 @@ quit_get_line
 
 quit_refill_successful
                 ; Assume we have successfully accepted a string of input from
-                ; a source, with address of buffer in cib and length of input in
-                ; ciblen. We arrive here still with the TRUE flag from REFILL as
-                ; TOS (in Y)
+                ; a source, with address cib and length of input in ciblen. We
+                ; arrive here still with the TRUE flag from REFILL as TOS (in Y)
                 ldy.dx 00       ; drop TOS
                 inx
                 inx
@@ -1489,8 +1488,6 @@ accept_loop
                 ; TODO change to EMIT 
                 jsr put_chr     ; echo character
         .!a8
-                ; TODO multitasking: Add PAUSE here (or in EMIT)
-
                 sta.diy cib     ; STA (CIB),Y
                 iny
                 cpy.d tmp2      ; reached character limit?
@@ -1574,7 +1571,7 @@ xt_allot
                 tay                     ; save copy of new CP
 
                 sec
-                sbc.# maxram-single     
+                sbc.# cp-end
                 bmi allot_done          ; oops, fall thru if beyond max RAM
 
 allot_error
@@ -1825,6 +1822,84 @@ xt_chars
 
                 nop
 z_chars         rts
+
+; -------------------------------------------------------------------
+; CMOVE ( addr1 addr2 u -- ) X bytes / X cycles
+; Move characters from a lower to a higher address. Because of the danger of
+; overlap, we must start at the end of the source string (addr1+u) and copy
+; byte-by-byte to the end of the destination address (addr2+u). This is what the
+; MVP instruction is for. Use MOVE if you are not sure what to do.
+;       =====* source
+;          ====* destination
+xt_cmove         
+                ; We start at the end of the blocks, so we have to increase both
+                ; addr1 and addr2 by u
+                tya
+                clc
+                adc.dx 02       ; source, goes in X
+                dec.a           ; convert length to index
+                sta.dx 02
+
+                tya
+                clc
+                adc.dx 00       ; destination, goes in Y
+                dec.a           ; convert length to index
+                
+                stx.d tmpdsp    ; keep DSP safe
+
+                dey
+                phy             ; save number of bytes to transfer
+
+                tay             ; destination now in Y
+
+                lda.dx 02       ; get source address
+                tax
+
+                pla             ; retrieve number of bytes to transfer
+                mvp 0,0
+
+                ldx.d tmpdsp
+                ldy.dx 04
+
+                txa             ; It's worth addition for three cells dropped
+                clc
+                adc.# 0006
+                tax
+
+z_cmove         rts
+
+; -------------------------------------------------------------------
+; CMOVE> ( addr1 addr 2 u -- ) X bytes / X cycles
+; Move characters from a higher to a lower address. Because of the danger of
+; overlap, we must start at the beginning of the source (addr1) to copy it
+; byte-by-byte to the beginning of the destination (addr2). This is what the MVN
+; instruction is for. Use MOVE if you are not sure what to do.
+;          *==== source
+;       *===== destination
+xt_cmoveup       
+                stx.d tmpdsp    ; keep DSP safe
+
+                dey
+                phy             ; save number of bytes to transfer
+
+                lda.dx 00       ; get destination address
+                tay
+
+                lda.dx 02       ; get source address
+                tax
+
+                pla             ; retrieve number of bytes to transfer
+                mvn 0,0
+
+                ldx.d tmpdsp
+                ldy.dx 04
+
+                txa             ; It's worth addition for three cells dropped
+                clc
+                adc.# 0006
+                tax
+
+z_cmoveup       rts
 
 
 ; -------------------------------------------------------------------
@@ -3039,69 +3114,31 @@ z_min           rts
 ; what was in addr1. This routine calls CMOVE or CMOVE>. Forth verison is
 ; >R 2DUP U< IF R> CMOVE> ELSE  R> CMOVE THEN ; see 
 ; https://groups.google.com/forum/#!topic/comp.lang.forth/-l2WlE7pEE0
-; We use the fast MVP/MVN instructions for MOVE and go byte-by-byte for CMOVE
-; and CMOVE> as required by ANSI. Uses tmp2.
+; Also see CMOVE> and CMOVE and http://forum.6502.org/viewtopic.php?f=2&t=1685
 xt_move          
        .!a16 
                 ; if u is zero, we just skip all of this 
                 tya 
-                beq move_done
+                beq z_move
 
                 ; if source and destination are the same, that would be silly as
                 ; well
                 lda.dx 00       ; addr2 (destination)
                 cmp.dx 04       ; addr1 (source) 
-                beq move_done
-                
-                ; So this is happening. Use tmp2 as a flag to see if source or
-                ; destination is larger. STZ does not affect any flag, so we can
-                ; reuse the comparison above later
-                stz.d tmp2
+                beq z_move
 
-                ; If the source is larger, we set a flag (default: Source is
-                ; smaller, that is, closer to 00:0000, use MVP) 
-                bpl +
+                ; The destination is higher than the source, so use CMOVE, which
+                ; calls MVP
+                bpl move_cmoveup
 
-                ; The source is larger (higher up in memory), use MVN
-                inc.d tmp1
-@
-                ; Both MVN and MVP require the source address in X, the
-                ; destination address in Y and the number of bytes to transfer
-                ; minus 1 in A. The work is worth it, for the math see
-                ; http://forum.6502.org/viewtopic.php?f=2&t=1685
-                dey
-                phy             ; save number of bytes to transfer
-                ldy.dx 00       ; get destination address
-                stx.d tmpdsp    ; keep DSP safe
-                lda.dx 02       ; get source address
-                tax
+                jmp xt_cmove    ; JSR/RTS
 
-                lda.d tmp1      ; check flag
-                beq move_src_smaller
+                ; The source is higher than the destination, use CMOVE>,
+                ; which calls MVN
+move_cmoveup
+                jmp xt_cmoveup
 
-                ; source is larger, use MVN
-                pla             ; retrieve number of bytes to transfer
-                mvn 0,0
-                bra move_restore
-
-move_src_smaller
-                ; source is smaller, use MVP
-                pla
-                mvp 0,0         ; fall through to move_retore
-
-move_restore
-                ldx.d tmpdsp
-
-move_done
-                ; adjust stack pointer
-                ldy.dx 04
-
-                txa
-                clc
-                adc.# 0006
-                tax
-
-z_move          rts
+z_move          ; never reached
 
 
 ; -------------------------------------------------------------------
@@ -3497,7 +3534,7 @@ parse_loop
                 cpy.d ciblen    ; check for EOL first
                 beq parse_reached_eol
 
-                lda.diy cib     ; LDA (CIB),Y
+                lda.diy cib       ; LDA (CIB),Y
                 cmp.d tmp1      ; found delimiter?
                 beq parse_found_delimiter
                 iny
@@ -3703,16 +3740,6 @@ z_fromr         rts
 xt_refill        
         .!a16
         .!xy16
-                ; We handle buffer switches here so that regardless of input
-                ; source, we have access to the previous input. This is not in
-                ; the ANSI specification in any way.
-                lda.d cib
-                eor.# 0100      ; flip 07d00 / 07c00
-                sta.d cib
-                
-                lda.d ciblen    ; current length is now previous length
-                sta.d piblen
- 
                 ; Get input source from SOURCE-ID. We don't have blocks in this
                 ; version, or else we would have to check BLK first. This is an
                 ; optimized version of a subroutine jump to SOURCE-ID
@@ -3721,16 +3748,15 @@ xt_refill
 
                 ; SOURCE-ID of zero means we're getting stuff from the keyboard
                 ; with ACCEPT. 
-                dex                     ; push Data Stack down twice
+                dex 
                 dex
-                sty.dx 00
+                dex
+                dex
+                sty.dx 02
 
                 lda.d cib               ; address of current input buffer NOS
-                dex
-                dex
                 sta.dx 00
-
-                ldy.# buffersize 
+                ldy.# bsize             ; max number of chars to accept TOS
 
                 jsr xt_accept            ; ( addr n1 -- n2)
 
@@ -3835,29 +3861,36 @@ xt_squote
                 ; - 7 cycles per byte - that it is worth it. See 
                 ; http://forum.6502.org/viewtopic.php?f=2&t=1685&p=50975#p50975
                 ; and http://6502.org/tutorials/65c816opcodes.html#6.6
-                tya             ; A gets the number of bytes to move minus 1
-                dec.a   
-                phx             ; save DSP
-                phy             ; save TOS
+                dex
+                dex
+                sty.dx 00
+                ldy.d cp        ; HERE  ( addr-s u addr-d ) 
 
-                ldy.dx 00       ; get source address
-                tyx
-                ldy.d cp        ; get destination address
+                lda.dx 00       ; SWAP ( addr-s addr-d u ) 
+                sty.dx 00
+                tay 
 
-                mvn 00,00       ; do the actual work
+                phy             ; save copy of u
+                lda.dx 00       ; save copy of addr-d
+                pha             
 
-                ply             ; get length back
-                plx             ; get DSP back
+                jsr xt_move
 
-                ; change address
-                lda.d cp
-                sta.dx 00
+                dex
+                dex
+                dex
+                dex
+                sty.dx 02
+
+                pla             ; get addr-d back
+                sta.dx 00       ; put NOS
+                pla             ; get u back, put TOS
+                tay
 
                 ; update CP
-                tya
                 clc
                 adc.d cp
-                sta.d cp
+                sta.d cp 
                 
                 bra z_squote
 
@@ -4569,12 +4602,11 @@ z_ummod         rts
 
 ; -------------------------------------------------------------------
 ; UNUSED ( -- u ) 11 bytes / X cycles
-; Return amount of memory available for the Dictionary. Does not include 
-; memory for buffers, stacks etc. Does not exclude the space used by PAD
-; TODO rewrite for multitasking
+; Return amount of memory available for the Dictionary. Does not exclude the
+; space for PAD. 
 xt_unused        
         .!a16
-                lda.# maxram-single
+                lda.# cp-end
                 sec
                 sbc.d cp        ; current compile pointer 
                 
@@ -5125,11 +5157,12 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 01. March 2017)"
+        .byte "cr .( Version PRE-ALPHA 02. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
 hi-end
+
 
 
 ; ===================================================================

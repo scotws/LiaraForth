@@ -17,67 +17,86 @@
         ; NC_LIMIT gives the number of maximum bytes the code of a word may be
         ; long and still be compiled natively - see COMPILE, for details.
         ; A value of zero means a word is always compiled as a subroutine. 
-        ; TODO Decide if we want to expose this value to the user
+        ; TODO expose this to the user
         .equ nc_limit 0
 
 ; ===================================================================
-; MEMORY MAP (consider moving parts of these to kernel.tasm)
+; MEMORY MAP 
+; We reuse the memory that the Mensch Monitor had been using
 
-        .equ cp0              0300  ; start of available RAM for Dictionary
-        .equ physicalram     07fff  ; end of installed RAM
-        .equ maxram-single   07bff  ; end of available RAM (single task mode)
-        .equ maxram-multiple 06fff  ; end of available RAM (multitask mode)
-        .equ buffers  7c00   ; buffer area start
+        ; TODO add any extra RAM in other banks
+        ; TODO add stuff for multitasking
+        
+        ;  00:0000  +-------------------+  ram-start, dpage, user0
+        ;           |                   |
+        ;           |  ^  Data Stack    |  <-- dsp
+        ;           |  |                |
+        ;  00:0100  +-------------------+  dsp0, stack
+        ;           |                   |
+        ;           |  ^  Return Stack  |  <-- rsp 
+        ;           |  |                |
+        ;  00:0200  +-------------------+  rsp0, buffer, buffer0
+        ;           |  |                |
+        ;           |  v  Input Buffer  |
+        ;           |                   |
+        ;  00:0300  +-------------------+  cp0
+        ;           |  |                |
+        ;           |  v  Dictionary    |  <-- cp
+        ;           |                   |
+        ;   (...)   ~~~~~~~~~~~~~~~~~~~~~
+        ;           |                   |
+        ;           |                   |
+        ;  00:7fff  +-------------------+  ram-end
 
-; The two input buffers are currently switched in REFILL by bit flipping. If you
-; change their addresses, you'll probably have to rewrite the code there
+        ; Hard physical addresses
+        .equ ram-start  0000             ; start of installed RAM
+        .equ ram-end    { 8000 - 1 }     ; end of 32k installed RAM
+        
+        ; Soft physical addresses
+        .equ dpage      ram-start        ; direct page:       0000 - 00ff
+        .equ stack      { dpage + 0100 } ; return stack area: 0100 - 01ff
+        .equ buffer     { stack + 0100 } ; buffer areas:      0200 - 02ff
 
-        .equ buffersize  0ff ; maximum size for input buffers
-        .equ ibuffer1   7c00 ; start of 256 byte input buffer 1
-        .equ ibuffer2   7d00 ; start of 256 byte input buffer 2
-        .equ padsize     0ff ; size of PAD, must be > &84
-        .equ padoffset   07f ; distance from CP to PAD (holds number strings)
+        ; Defined locations
+        .equ user0      dpage            ; user and system variables 
+        .equ dsp0       { stack - 1 }    ; initial Data Stack Pointer:   00ff
+        .equ stack0     { buffer - 1 }   ; initial Return Stack Pointer: 01ff
 
-; RAM from 0000 to 01ff is left for the Mensch Monitor to use
+        ; Buffers
+        .equ bsize      0080               ; size of input/output buffers
+        .equ output     { buffer + bsize } ; output buffer 0280 (UNUSED)
 
-        .equ directpage          0200  ; single task Direct Page (DP) start
-        .equ stack-multiple      7000  ; multitask Stack (S) area start
-        .equ directpage-multiple 7400  ; multitask Direct Page (DP) area start
+        ; Dictionary RAM
+        .equ cp0        { output + bsize } ; Dictionary starts after last buffer
+        .equ cp-end     { code0 - 1 }      ; Last RAM byte available
 
-; Initial values
+        ; Other locations
+        .equ padoffset  0ff     ; offset from CP to PAD (holds number strings)
 
-        .equ stack0 7fff  ; single task Stack (S) start (bottom)
-        .equ dsp0   02f0  ; initial Data Stack Pointer (X)
 
 ; ===================================================================
 ; DIRECT PAGE ADDRESSES
 
-; All are one cell (two bytes) long to prevent weird errors. We keep CP and DP
-; high in this list and put the most expendable values first in case the Data
-; Stack underflows hard and wraps. The DP is most important because it will let
-; us do a COLD if all else fails as long as we can access it
+; All are one cell (two bytes) long to prevent weird errors
 ; TODO rewrite with USER variables
-
-        .equ scratch   { directpage + &00 } ; 8 byte scratchpad (see UM/MOD)
-        .equ tmpbranch { directpage + &08 } ; temp storage for 0BRANCH, BRANCH only
-        .equ tmp1      { directpage + &10 } ; Temporary storage
-        .equ tmp2      { directpage + &12 } ; Temporary storage
-        .equ tmp3      { directpage + &14 } ; Temporary storage
-        .equ tmpdsp    { directpage + &16 } ; Temporary DSP (X) storage, 2 bytes
-        .equ tmptos    { directpage + &18 } ; Temporary TOS (Y) storage, 2 bytes
-        .equ workword  { directpage + &20 } ; Currently compiliing word
-        .equ output    { directpage + &22 } ; Address where output is constructed
-        .equ insrc     { directpage + &24 } ; Input Source for SOURCE-ID
-        .equ cib       { directpage + &26 } ; Current Input Buffer, 7c00 or 7d00
-        .equ ciblen    { directpage + &28 } ; Length of current input buffer
-        .equ piblen    { directpage + &30 } ; Length of previous input buffer
-        .equ toin      { directpage + &32 } ; Pointer to CIB (>IN in Forth)
-        .equ state     { directpage + &34 } ; STATE: -1 compile, 0 interpret
-        .equ base      { directpage + &36 } ; Radix for number conversion
-        .equ tohold    { directpage + &38 } ; Pointer for formatted output 
-        .equ cp        { directpage + &40 } ; Compiler Pointer, 2 bytes
-        .equ dp        { directpage + &42 } ; Dictionary Pointer, 2 bytes
-
+        .equ cp        { user0 + &00 } ; Compiler Pointer, 2 bytes
+        .equ dp        { user0 + &02 } ; Dictionary Pointer, 2 bytes
+        .equ workword  { user0 + &04 } ; Currently compiliing word
+        .equ insrc     { user0 + &06 } ; Input Source for SOURCE-ID
+        .equ cib       { user0 + &08 } ; Address of current input buffer
+        .equ ciblen    { user0 + &10 } ; Length of current input buffer
+        .equ toin      { user0 + &12 } ; Pointer to CIB (>IN in Forth)
+        .equ state     { user0 + &14 } ; STATE: -1 compile, 0 interpret
+        .equ base      { user0 + &16 } ; Radix for number conversion
+        .equ tohold    { user0 + &18 } ; Pointer for formatted output 
+        .equ tmpbranch { user0 + &20 } ; temp storage for 0BRANCH, BRANCH only
+        .equ tmp1      { user0 + &22 } ; Temporary storage
+        .equ tmp2      { user0 + &24 } ; Temporary storage
+        .equ tmp3      { user0 + &26 } ; Temporary storage
+        .equ tmpdsp    { user0 + &28 } ; Temporary DSP (X) storage, 2 bytes
+        .equ tmptos    { user0 + &30 } ; Temporary TOS (Y) storage, 2 bytes
+        .equ scratch   { user0 + &32 } ; 8 byte scratchpad (see UM/MOD)
+ 
 
 ; ===================================================================
 ; HELPER DEFINITIONS
