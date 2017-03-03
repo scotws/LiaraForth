@@ -29,14 +29,13 @@ otherwise.
 ## The Data Stack
 
 The Data Stack (DS) is located on the Direct Page (the 65816's version of the
-6502's Zero Page), which is set to 00:0200 during Liara's startup. It grows
-"downwards" (towards 00:0000). The DS itself starts at 00:02F0, leaving the
-bytes inbetween as a "floodplain" in case of stack underflow. Except for
+6502's Zero Page), which is set to 00:0000 during Liara's startup. It grows
+"downwards" (towards 00:0000). The DS itself starts at 00:01FF. Except for
 special cases, underflow is only checked for after a word has been executed.
 Liara does not check for overflow at all. 
 
 Despite its name, the Data Stack Pointer (DSP) - the X register - points to the
-second_ element on the stack (Next On Stack, NOS), since the TOS is in the Y
+_second_ element on the stack (Next On Stack, NOS), since the TOS is in the Y
 register.
 ```
                    LSB       MSB
@@ -64,9 +63,8 @@ register.
 ```
 _Snapshot of the Data Stack with three entries._ 
 
-This means that for push and pop (pull) actions, Y must be copied to the main
-body of the stack. To push the number 0 on the stack (the **0** (ZERO) word), we
-use:
+For push and pop (pull) actions, Y must be copied to the main body of the stack.
+To push the number 0 on the stack (the **0** (ZERO) word), we use:
 ```
         dex
         dex
@@ -75,27 +73,25 @@ use:
 ```
 
 This means that when the DS is empty, X is equal to the initial value of the
-pointer (called `dsp0` in the code). The actual content of this cell is always
-garbage.  When there is one element on the DS, the value at that location is
-also garbage, because TOS is in the Y register. When there are two elements on
-the DS, the value at that location is NOS. 
-
-See Mike Barry's
+pointer (called `dsp0` in the code). The actual content of this cell is garbage.
+When there is one element on the DS, the value at that location is also garbage,
+because TOS is in the Y register. When there are two elements on the DS, the DSP
+points to NOS.  See Mike Barry's
 [discussion](http://forum.6502.org/viewtopic.php?p=50546#p50546) of the stack
 behavior for more details. 
 
 **Double cell values:** The top cell is stored below (closer towards 00:0000)
-the single cell.  Note this places the sign bit at the beginning of the word in
+the single cell. This places the sign bit at the beginning of the word in
 the Y register.
-
-The DS grows towards the **system variables** that begin at 00:200 in
-single-user mode. Currently (February 2017) there are 40 bytes used this way.
 
 
 ## The Return Stack
 
-The Return Stack (RS) is the 65816 system stack and starts at 00:07fff in
-single-user mode. It too grows downwards (towards 00:0000). 
+The Return Stack (RS) is the 65816 system stack and starts at 00:01ff in
+single-user mode. It too grows downwards (towards 00:0000). This way, an
+underflow of the Data Stack will land in unused parts of the Return Stack, as
+there is no page boundry wrapping in native mode (see
+[http://6502.org/tutorials/65c816opcodes.html#5.1.1](http://6502.org/tutorials/65c816opcodes.html#5.1.1).
 
 
 ## The Dictionary 
@@ -125,12 +121,6 @@ that appears before DROP was automatically generated at boot from the Forth code
 (During development, a large number of words were first included as high-level
 Forth code or simple series of subroutine jumps, and then later optimized in
 native code. The aim was to get the system up and running first.) 
-
-
-## System Variables
-
-System variables are kept on Direct Page. The most important two - DP and CP -
-are kept as far away from the top as possible in case of severe underflow. 
 
 
 ## Compiling
