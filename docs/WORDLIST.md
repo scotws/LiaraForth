@@ -5,18 +5,19 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 04. March 2017
+Last update: 05. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
 | .                   | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | .(                  | coded    | ANSI core ext | IM       | Forth | Forth  |
 | ."                  | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
+| .BYTE               | coded    | Liara         | NC       | (TBA) |  (TBA) |
+| .R                  | coded    | ANSI core ext | NC       | Forth |  Forth |
+| .S                  | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
 | /                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | /MOD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | /STRING             | coded    | ANSI string   | NC       | (TBA) |  (TBA) |
-| .R                  | coded    | ANSI core ext | NC       | Forth |  Forth |
-| .S                  | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
 | ,                   | coded    | ANSI core     | NC       | 11    |     29 |
 | :                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ;                   | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |

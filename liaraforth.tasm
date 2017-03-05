@@ -5435,6 +5435,11 @@ hi-start
         ; Output definitions. Since these usually involve the user, and humans
         ; are slow, these can stay high-level for the moment. Based on
         ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
+        
+        ; TODO becaues of Tinker bug, ".byte" is recognized as the directive
+        ; even though it is in a string. Until that is fixed, we start with the
+        ; ASCII code for a dot
+        .byte ": ", &46, "byte 0 <# # #s #> type space ; "
         .byte ": u. 0 <# #s #> type space ; "
         .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
         .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
