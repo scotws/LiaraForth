@@ -1,22 +1,22 @@
 ; Basic hardware routines for Liara Forth: 265SXB version
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 04. Jan 2017
-; This version: 02. Mar 2017
+; This version: 05. Mar 2017
 
-; This section provides basic hardware interface to the 265SXB, providing the
-; PUT_CHR and GET_CHR routines that Liara Forth uses. It is in its own section
-; to make porting Forth to other machines easier.
+; This section provides basic hardware interface to the 265SXB, providing at the
+; very least the the PUT_CHR, GET_CHR and HAVE_CHR routines that Liara Forth
+; uses. These MUST BE PRESENT. It is in its own section to make porting Forth
+; to other machines easier.
 
 ; The code here is based on Andrew Jacobs' Basic Vector Handling for the
 ; W65C265SXB Development Board as part of the w65c265sxb-hacker project
 ; (https://github.com/andrew-jacobs/w65c265sxb-hacker). It is released under the
 ; following license:
 ;
-; This work is made available under the terms of the Creative Commons
-; Attribution-NonCommercial-ShareAlike 4.0 International license. Open the
-; following URL to see the details.
-;
-; http://creativecommons.org/licenses/by-nc-sa/4.0/
+;     This work is made available under the terms of the Creative Commons
+;     Attribution-NonCommercial-ShareAlike 4.0 International license. Open the
+;     following URL to see the details.
+;     http://creativecommons.org/licenses/by-nc-sa/4.0/
 
 ; Original variable names from w65c256.inc are included in comments to make
 ; updates and changes easier
@@ -134,7 +134,9 @@ reset_hardware
 ; ===================================================================
 ; PUT_CHR
 ; Wait until the last transmission has been completed then send the character
-; in A. Destroys A. Does not have to be called with A8.
+; in A. Destroys A. This handles all the register size stuff, and does not need to be
+; called with a 8-bit Y register as TOS. This is only called directly by EMIT
+; through the OUTPUT variable. In Forth, this is refered to as UART0
 put_chr         
                 php             ; save register sizes
         .a8
@@ -153,7 +155,7 @@ put_chr_wait    bit hw_uifr     ; timer finished?
 ; ===================================================================
 ; GET_CHR
 ; Fetch the next character from the receive buffer waiting for some to arrive
-; if the buffer is empty.
+; if the buffer is empty. This is handled by KEY through the INPUT variable
 get_chr         
                 php  ; Save register sizes
         .a8
@@ -167,12 +169,12 @@ get_chr_wait    bit hw_uifr             ; Any data in RX buffer?
                 rts  
 
 ; ===================================================================
-; HAVE_CHR?
+; HAVE_CHR
 ; Check if the receive buffer contains any data and return C=1 if there is
-; some.
+; some. This should be handled by KEY? through the HAVEKEY variable
 ; TODO Test this
 
-have_chr?       pha                     ; save caller's A
+have_chr        pha                     ; save caller's A
                 php
         .a8
                 lda hw_uifr             ; read the status register

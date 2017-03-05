@@ -91,13 +91,13 @@ To set up **putty** (interface) :
 
 ### Uploading Liara Forth to RAM 
 
-At the beginning, you'll probably want to test Liara Forth by loading it to
+In the beginning, you'll probably want to test Liara Forth by loading it to
 RAM. This is an option as long as the code base is small enough - it is expected
 that at some point, Liara will outgrow the available RAM.
 
 Included in the main directory is a file `liaraforth.s28` or `tink.s28` which is
 a "S-record" of the code that minicom (and other programs) know how to upload.
-It is set up to be saved at 00:6000, which is also the starting address. 
+It is set up to be saved at 00:5000, which is also the starting address. 
 
 From minicom connected to the Mensch Monitor as described above, type `s`. The
 265sxb will now wait for the transmission of data to start. Now, type `CONTROL-a
@@ -111,7 +111,7 @@ ENTER. You should see an upload indicator.
 "Minicom S-record upload")
 
 The Mensch Monitor will offer the prompt again. To start Liara Forth, type `g`,
-and then enter `00:6000` as the starting address. This will start your Forth
+and then enter `00:5000` as the starting address. This will start your Forth
 session on the second `putty` interface line. 
 
 
@@ -127,11 +127,6 @@ are marked as such in the wordlist.
 
 Forth is a command-line based language. 
 
-
-### Command Line Basics
-
-Liara Forth does not distinguish between upper and lower case. Internally, all
-words are converted to lower case.
 
 
 
@@ -164,13 +159,13 @@ Assembler](https://github.com/scotws/tinkasm) which is coded in Python 3. Then,
 in Liara Forth's main directory, run
 
 ```
-python3 [PATH]/tinkasm -i liaraforth.tasm -v -d -l -x
+python3 [PATH]/tinkasm.py -i liaraforth.tasm -v -l -x -s28
 ```
 
 where `[PATH]` is the correct file to where you stored the assembler. This will
 produce lots of output, as well as a listing (because of `-l`), a binary file
-`(tink.bin)` and a hex dump (`-x`). By default, the code is assembled to start
-at 00:0000. 
+`(tink.bin)`, a hex dump (`-x`) and a S28 file (`-s28`). By default, the code is
+assembled to start at 00:5000. 
 
 
 ## Testing Liara Forth with an Emulator
@@ -200,7 +195,8 @@ run
 
 After working on Liara Forth in the emulator, you will probably want to test it
 on the real hardware. To start with RAM tests, you'll need to be able to convert
-the binary file you assembled to a S-record we can upload. 
+the binary file you assembled to a S-record we can upload. Tinkasm creates S28
+files (see above), but if for some reason you want to create your own file: 
 
 **For Ubuntu**, install
 [srec_cat](http://srecord.sourceforge.net/man/man1/srec_examples.html) via
@@ -210,8 +206,8 @@ sudo apt-get install srecord
 
 Convert the binary file (for example, ```tink.bin```) via
 ```
-srec_cat tink.bin -binary -offset 0x6000 -o tink.s28 -address-length=3
--execution-start-address=0x6000
+srec_cat tink.bin -binary -offset 0x5000 -o tink.s28 -address-length=3
+-execution-start-address=0x5000
 ```
 To make sure we have the correct format, use ```srec_info mensch.s28``` to
 inspect the contents:

@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  21. Feb 2017
+; This version:  04. Mar 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -22,7 +22,6 @@ s_compiled   .byte " compiled", 0
 ; All error strings must be zero-terminated, names start with "es_"
 
 es_allot      .byte "ALLOT out of bounds", 0
-es_channel    .byte "Accessing unknown channel", 0
 es_componly   .byte "Interpreting a compile-only word", 0
 es_defer      .byte "DEFERed word not defined yet", 0
 es_divzero    .byte "Division by zero", 0

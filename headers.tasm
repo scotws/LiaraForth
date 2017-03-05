@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 02. Mar 2017
+; This version: 04. Mar 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -57,8 +57,16 @@ nt_cold .byte 4, 00
         .word nt_bye, xt_cold, z_cold
         .byte "cold"  
 
+nt_aligned .byte 7, { NC }
+        .word nt_cold, xt_aligned, z_aligned
+        .byte "aligned"
+
+nt_align .byte 5, { NC }
+        .word nt_aligned, xt_align, z_align
+        .byte "align"
+
 nt_wordsnsizes .byte 0b, { NC }
-        .word nt_cold, xt_wordsnsizes, z_wordsnsizes
+        .word nt_align, xt_wordsnsizes, z_wordsnsizes
         .byte "words&sizes"
 
 nt_words .byte 5, { NC }
@@ -69,8 +77,12 @@ nt_dump .byte 4, { NC }
         .word nt_words, xt_dump, z_dump
         .byte "dump"
 
+nt_marker .byte 6, { IM + NC }
+        .word nt_dump, xt_marker, z_marker
+        .byte "marker"
+
 nt_wordsize .byte 8, { NC }
-        .word nt_dump, xt_wordsize, z_wordsize
+        .word nt_marker, xt_wordsize, z_wordsize
         .byte "wordsize"
 
 nt_pick .byte 4, { NC }
@@ -133,8 +145,16 @@ nt_stod .byte 3, { NC }
         .word nt_dtos, xt_stod, z_stod
         .byte "s>d"
 
+nt_twofromr .byte 3, { CO }
+        .word nt_stod, xt_twofromr, z_twofromr
+        .byte "2r>"
+
+nt_twotor .byte 3, { CO }
+        .word nt_twofromr, xt_twotor, z_twotor
+        .byte "2>r"
+
 nt_dminus .byte 2, { NC }
-        .word nt_stod, xt_dminus, z_dminus
+        .word nt_twotor, xt_dminus, z_dminus
         .byte "d-"
 
 nt_dplus .byte 2, { NC }
@@ -201,8 +221,12 @@ nt_question .byte 1, { NC }
         .word nt_quit, xt_question, z_question
         .byte '?'
 
+nt_int-name .byte 8, { NC }
+        .word nt_question, xt_int-name, z_int-name
+        .byte "int>name"
+
 nt_name-int .byte 8, { NC }
-        .word nt_question, xt_name-int, z_name-int
+        .word nt_int-name, xt_name-int, z_name-int
         .byte "name>int"
 
 nt_cr   .byte 2, { NC }
@@ -257,12 +281,16 @@ nt_dots .byte 2, { NC }
         .word nt_space, xt_dots, z_dots
         .byte ".s"
 
-nt_type .byte 4, 0
+nt_type .byte 4, { NC }
         .word nt_dots, xt_type, z_type
         .byte "type"
 
+nt_emit .byte 4, { NC }
+        .word nt_type, xt_emit, z_emit
+        .byte "emit"
+
 nt_dot  .byte 1, { NC }
-        .word nt_type, xt_dot, z_dot
+        .word nt_emit, xt_dot, z_dot
         .byte '.'
 
 nt_pad  .byte 3, { NC }
@@ -273,8 +301,16 @@ nt_base .byte 4, { NC }
         .word nt_pad, xt_base, z_base
         .byte "base"
 
+nt_input .byte 5, { NC }
+        .word nt_base, xt_input, z_input
+        .byte "input"
+
+nt_output .byte 6, { NC }
+        .word nt_input, xt_output, z_output
+        .byte "output"
+
 nt_evaluate .byte 8, { NC }
-        .word nt_base, xt_evaluate, z_evaluate
+        .word nt_output, xt_evaluate, z_evaluate
         .byte "evaluate"
 
 nt_cells .byte 5, { NC }	; 2* because we have 16 bit stack 
@@ -377,8 +413,12 @@ nt_allot .byte 5, { NC }
         .word nt_colon, xt_allot, z_allot
         .byte "allot"
 
+nt_defer .byte 5, { NC }
+        .word nt_allot, xt_defer, z_defer
+        .byte "defer"
+
 nt_tobody .byte 5, { NC }
-        .word nt_allot, xt_tobody, z_tobody
+        .word nt_defer, xt_tobody, z_tobody
         .byte ">body"
 
 nt_does .byte 5, { IM + CO }

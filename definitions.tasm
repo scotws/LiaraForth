@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 02. Mar 2017
+; This version: 05. Mar 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -64,10 +64,10 @@
 
         ; Buffers
         .equ bsize      0080               ; size of input/output buffers
-        .equ output     { buffer + bsize } ; output buffer 0280 (UNUSED)
+        .equ unused     { buffer + bsize } ; unused buffer 0280 (UNUSED)
 
         ; Dictionary RAM
-        .equ cp0        { output + bsize } ; Dictionary starts after last buffer
+        .equ cp0        { unused + bsize } ; Dictionary starts after last buffer
         .equ cp-end     { code0 - 1 }      ; Last RAM byte available
 
         ; Other locations
@@ -86,16 +86,19 @@
         .equ cib       { user0 + &08 } ; Address of current input buffer
         .equ ciblen    { user0 + &10 } ; Length of current input buffer
         .equ toin      { user0 + &12 } ; Pointer to CIB (>IN in Forth)
-        .equ state     { user0 + &14 } ; STATE: -1 compile, 0 interpret
-        .equ base      { user0 + &16 } ; Radix for number conversion
-        .equ tohold    { user0 + &18 } ; Pointer for formatted output 
-        .equ tmpbranch { user0 + &20 } ; temp storage for 0BRANCH, BRANCH only
-        .equ tmp1      { user0 + &22 } ; Temporary storage
-        .equ tmp2      { user0 + &24 } ; Temporary storage
-        .equ tmp3      { user0 + &26 } ; Temporary storage
-        .equ tmpdsp    { user0 + &28 } ; Temporary DSP (X) storage, 2 bytes
-        .equ tmptos    { user0 + &30 } ; Temporary TOS (Y) storage, 2 bytes
-        .equ scratch   { user0 + &32 } ; 8 byte scratchpad (see UM/MOD)
+        .equ output    { user0 + &14 } ; Jump target for EMIT
+        .equ input     { user0 + &16 } ; Jump target for KEY
+        .equ havekey   { user0 + &18 } ; Jump target for KEY?
+        .equ state     { user0 + &20 } ; STATE: -1 compile, 0 interpret
+        .equ base      { user0 + &22 } ; Radix for number conversion
+        .equ tohold    { user0 + &24 } ; Pointer for formatted output 
+        .equ tmpbranch { user0 + &26 } ; temp storage for 0BRANCH, BRANCH only
+        .equ tmp1      { user0 + &28 } ; Temporary storage
+        .equ tmp2      { user0 + &30 } ; Temporary storage
+        .equ tmp3      { user0 + &32 } ; Temporary storage
+        .equ tmpdsp    { user0 + &34 } ; Temporary DSP (X) storage, 2 bytes
+        .equ tmptos    { user0 + &36 } ; Temporary TOS (Y) storage, 2 bytes
+        .equ scratch   { user0 + &38 } ; 8 byte scratchpad (see UM/MOD)
  
 
 ; ===================================================================

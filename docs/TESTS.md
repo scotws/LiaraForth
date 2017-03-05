@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 28. Feb 2017
+This version 04. March 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -119,6 +119,21 @@ Test LEAVE
 should produce "1 2 3 4 5 6 7 Done" (note "Done" printed)
 
 The Data Stack should be empty after all of these words, check with .S
+
+
+Test RECURSE:
+example from
+From
+[http://galileo.phys.virginia.edu/classes/551.jvn.fall01/primer.htm](http://galileo.phys.virginia.edu/classes/551.jvn.fall01/primer.htm)
+
+
+```
+: gcd ( a b -- gcd) ?dup if tuck mod recurse then ;"
+```
+so that 
+```
+784 48 GCD . --> 16 
+```
 
 ## Mandelbrot Set (ex Martin-H1)
 

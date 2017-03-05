@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 02. March 2017
+Last update: 04. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -62,6 +62,8 @@ Last update: 02. March 2017
 | 1+                  | coded    | ANSI core     | NC       | 1     |      2 |
 | 2                   | coded    | Liara         | NC       | 7     |     12 |
 | 2*                  | coded    | ANSI core     | NC       | 3     |  (TBA) |
+| 2>R                 | coded    | ANSI core ext |    CO    | (TBA) |  (TBA) |
+| 2R>                 | coded    | ANSI core ext |    CO    | (TBA) |  (TBA) |
 | 2DROP               | coded    | ANSI core     | NC       | 6     |     13 |
 | 2DUP                | coded    | ANSI core     | NC       | 10    |     23 |
 | 2OVER               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -73,6 +75,8 @@ Last update: 02. March 2017
 | ABS                 | coded    | ANSI core     | NC       | 12    |  (TBA) |
 | ACCEPT              | fragment | ANSI core     | -        | (TBA) |  (TBA) |
 | AGAIN               | coded    | ANSI core ext | IM NC CO | 22    |     50 |
+| ALIGN               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| ALIGNED             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ALLOT               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | AND                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | BASE                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -106,6 +110,7 @@ Last update: 02. March 2017
 | D>S                 | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | DABS                | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | DECIMAL             | coded    | ANSI core     | NC       | 7     |  (TBA) |
+| DEFER               | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | DEPTH               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | DIGIT?              | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | DNEGATE             | coded    | ANSI double   | NC       | 19    |  (TBA) |
@@ -114,6 +119,7 @@ Last update: 02. March 2017
 | DUMP                | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
 | DUP                 | coded    | ANSI core     | NC       | 4     |      9 |
 | ELSE                | coded    | ANSI core     | IM CO    | Forth |  Forth |
+| EMIT                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ERASE               | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | EVALUATE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | EXECUTE             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -126,12 +132,15 @@ Last update: 02. March 2017
 | HOLD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | IF                  | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | IMMEDIATE           | coded    | ANSI core     | NC       | 8     |  (TBA) |
+| INPUT               | coded    | Liara         | NC       | (TBA) |  (TBA) |
+| INT>NAME            | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
 | LATESTNT            | coded    | Liara         | NC       | 7     |  (TBA) |
 | LATESTXT            | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | LSHIFT              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | LITERAL             | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | M*                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| MARKER              | coded    | ANSI core ext | IM NC    | (TBA) |  (TBA) |
 | MAX                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
 | MIN                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
 | MOVE                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -142,6 +151,7 @@ Last update: 02. March 2017
 | NIP                 | coded    | ANSI core ext | NC       | 2     |      4 |
 | NUMBER              | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | OR                  | coded    | ANSI core     | NC       | 6     |  (TBA) |
+| OUTPUT              | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | OVER                | coded    | ANSI core     | NC       | 6     |     14 |
 | PAD                 | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | PAGE                | coded    | ANSI facility | NC       | (TBA) |  (TBA) |
@@ -171,7 +181,7 @@ Last update: 02. March 2017
 | TO                  | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | TRUE                | coded    | ANSI core ext | NC       | 7     |     12 |
 | TUCK                | coded    | ANSI core ext | NC       | 8     |     19 |
-| TYPE                | fragment | ANSI core     | -        | 23+   |  (TBA) |
+| TYPE                | fragment | ANSI core     | -        | Forth |  Forth |
 | U.                  | coded    | ANSI core     |          | Forth |  Forth |
 | U.R                 | coded    | ANSI core ext |          | Forth |  Forth |
 | UD.                 | coded    | ANSI core     |          | Forth |  Forth |

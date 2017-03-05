@@ -1,13 +1,13 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 02. Mar 2017
+; This version: 05. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
 
         .mpu 65816
-        .origin 6000    ; start of code to save to built-in RAM
+        .origin 5000    ; start of code to save to built-in RAM
 ;       .origin 8000    ; start of code to save to Flash memory
 code0                   ; used to calculated UNUSED etc
 
@@ -56,6 +56,21 @@ start
                 lda.# 000a
                 sta.d base 
                
+                ; set the OUTPUT vector to the default, which is always put_chr,
+                ; but may have synonyms such as uart0
+                lda.# put_chr
+                sta.d output
+
+                ; set the INPUT vector to the default, which is always get_chr,
+                ; but may have synonyms such as uart0
+                lda.# get_chr
+                sta.d input
+               
+                ; set the HAVE_KEY vector to the default, which is always
+                ; have_chr, but may have synonyms such as uart0
+                lda.# have_chr
+                sta.d havekey
+
                 ; The compiler pointer (CP) points to the first free byte
                 ; in the Dictionary
                 lda.# cp0
@@ -187,7 +202,7 @@ quit_print
 
 z_cold
 z_abort         
-z_quit          nop  ; dummy for compilation, TODO test if required
+z_quit          ; empty, no RTS required
 
 ; -------------------------------------------------------------------
 ; < "LESS" ( n m -- f ) X bytes / X cycles
@@ -502,11 +517,11 @@ z_slashstring   rts
 
 ; -------------------------------------------------------------------
 ; . "DOT" ( n -- ) X bytes / X cycles
-; Print value that is TOS followed by a single space. Forth code is  
-; DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE  Based on 
-; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
-; Since this is used interactively, and humans are slow (just ask GlaDOS), we
-; focus on size.
+; Print value that is TOS followed by a single space. Forth code is  DUP ABS
+; 0 <# #S ROT SIGN #> TYPE SPACE, but we want to have one routine that is not
+; high-level. Based on
+; https://github.com/philburk/pforth/blob/master/fth/numberio.fth Since this is
+; used interactively, and humans are slow (just ask GlaDOS), we focus on size.
 ; TODO Once we know this works, move to assembler
 xt_dot           
                 jsr xt_dup              ; ( n n ) 
@@ -517,27 +532,10 @@ xt_dot
                 jsr xt_rot              ; ( ud n ) 
                 jsr xt_sign             ; ( ud ) 
                 jsr xt_numbermore       
-                jsr xt_type
+                jsr xt_type 
                 jsr xt_space
 
 z_dot           rts
-
-; -------------------------------------------------------------------
-; .( "DOTPAREN" ( "string" -- ) 13 bytes / X cycles
-; Display string delimited by ")" immediately, regardless if word is compiled or
-; interpreted. Forth definition is  .( [CHAR] ) PARSE TYPE ; IMMEDIATE
-; TODO Decide if this should be a high-level word
-xt_dotparen     
-               ; use PARSE to find the end of the string
-               dex
-               dex
-               sty.dx 00
-               ldy.# ')'
-
-               jsr xt_parse      ; ( -- addr u) 
-               jsr xt_type
-
-z_dotparen     rts
 
 
 ; -------------------------------------------------------------------
@@ -566,7 +564,8 @@ z_dotquote
 ; Print content of Data Stack non-distructively. Since this is for humans, we
 ; don't have to worry about speed. We follow the format of Gforth
 ; and print the number of elements first in brackets, followed by the Data Stack
-; content (if present).
+; content (if present). 
+; TODO rewrite in high Forth words
 xt_dots          
         .!a16
         .!xy16
@@ -1225,6 +1224,35 @@ z_two-star      rts
 
 
 ; -------------------------------------------------------------------
+; 2>R "TWOTOR" ( n1 n2 -- )(R: -- n1 n2)  X bytes / X cycles
+; Push top two entries to Return Stack. The same as SWAP >R >R except that if we
+; jumped here, the return address will be in the way. May not be natively
+; compiled
+; TODO not coded
+xt_twotor      	
+                ; get the return address out of the way
+                pla
+                sta.d tmp3
+                ; --- CUT HERE for native compile ---
+
+                lda.dx 00               ; NOS stays next on Return Stack
+                pha
+                phy                     ; TOS stays on top
+
+                ldy.dx 02               ; clean up data stack
+                inx     
+                inx
+                inx
+                inx
+ 
+                ; --- CUT HERE for native compile ---
+                lda.d tmp3
+                pha
+
+z_twotor        rts
+
+
+; -------------------------------------------------------------------
 ; 2DROP ( n m -- ) 6 bytes / 13 cycles
 ; Drop first two entries of Data Stack
 xt_2drop         
@@ -1268,6 +1296,36 @@ xt_2over
                 sta.dx 00
 
 z_2over         rts
+
+
+; -------------------------------------------------------------------
+; 2R> "TWOFROMR" ( -- n1 n2 ) ( R: n1 n2 ) X bytes / X cycles
+; Pull top two entries from Return Stack. Is the same as R> R> SWAP
+; As with R>, the problem with the is word is that the top value on the Return
+; Stack for a STC Forth is the return address, which we need to get out of the
+; way first. Uses tmp3
+xt_twofromr      
+                ; get the return address out of the way
+                pla
+                sta.d tmp3
+                ; --- CUT HERE for native compile ---
+                
+                dex             ; make room on Data Stack
+                dex
+                dex
+                dex
+                sty.dx 02
+
+                ply             ; top element stays on top
+                pla             ; next element stays below
+                sta.dx 00
+
+                ; --- CUT HERE for native compile ---
+                ; restore return address
+                lda.d tmp3
+                pha
+
+z_twofromr      rts
 
 
 ; -------------------------------------------------------------------
@@ -1485,11 +1543,12 @@ accept_loop
                 bra accept_loop
 
 @
-                ; That's quite enough, echo character
-                ; TODO change to EMIT 
-                jsr put_chr     ; echo character
+                ; That's quite enough, echo character. EMIT_A sidesteps all the
+                ; fooling around with the Data Stack
+                jsr emit_a
         .!a8
                 sta.diy cib     ; STA (CIB),Y
+                
                 iny
                 cpy.d tmp2      ; reached character limit?
                 bne accept_loop ; fall thru if buffer limit reached
@@ -1506,16 +1565,16 @@ accept_bs
                 bne +
 
                 lda.# AscBELL   ; complain and don't delete beyond the start of line
-                jsr put_chr
+                jsr emit_a
                 iny
 @
                 dey
                 lda.# AscBS     ; move back one
-                jsr put_chr    
+                jsr emit_a
                 lda.# AscSP     ; print a space (rubout) 
-                jsr put_chr
+                jsr emit_a
                 lda.# AscBS     ; move back over space
-                jsr put_chr
+                jsr emit_a
 
                 bra accept_loop
 
@@ -1547,6 +1606,22 @@ xt_again
                 inx
 
 z_again         rts
+
+
+; -------------------------------------------------------------------
+; ALIGN ( -- ) 1 bytes / X cycles
+; Make sure CP is aligned. This does nothing on the 65816
+xt_align         
+                nop                     ; removed during native compile
+z_align         rts
+
+
+; -------------------------------------------------------------------
+; ALIGNED ( addr -- a-addr ) X bytes / X cycles
+; Return the next aligned address. With the 65816, this does nothing
+xt_aligned       
+                nop                     ; removed during native compile
+z_aligned       rts
 
 
 ; -------------------------------------------------------------------
@@ -1632,9 +1707,9 @@ z_base          rts
 xt_bell          
         .!a16
                 lda.# AscBELL 
-                jsr put_chr
+                jmp.i output      ; JSR/RTS
 
-z_bell          rts
+z_bell          ; never reached
 
 ; -------------------------------------------------------------------
 ; BEGIN ( -- addr ) 6 bytes / 13 cycles
@@ -1712,12 +1787,13 @@ branch_rt
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
-; TODO make sure this actually calls the MM
 xt_bye           
-                cli
-                brk 00  ; status byte 00 required for assembler
+                sei
+                cld
+        .emulated 
+                jmp.i 0fffc
 
-z_bye           rts     ; dummy for compiling, never reached
+z_bye           ; never reached
 
 
 ; -------------------------------------------------------------------
@@ -1821,7 +1897,7 @@ z_char          rts
 ; In this case, does nothing
 xt_chars         
 
-                nop
+                nop             ; will be removed during native compile
 z_chars         rts
 
 ; -------------------------------------------------------------------
@@ -1935,7 +2011,9 @@ compile_as_code
                 ; Compile xt as native code
                 ; use nc_limit to decide if we want native compile
                 ; TODO consider special cases: 
-                ;  - >R R> R@ should strip PLA/PHA if native compiled
+                ;  - >R R> should strip PLA/PHA if native compiled
+                ;  - 2>R and 2R> should strip three first and last bytes
+                ;  - NOP should be removed if only instruction
                 ;  - Don't compile comments
 
 compile_as_jump
@@ -1989,6 +2067,28 @@ xt_constant
 
                 ldy.dx 00       ; DROP
                 inx
+                inx             ; drop through to adjust_z
+                
+                ; Now the length of the complete word (z_word) has increased by
+                ; two. We need to update that number or else words such as SEE
+                ; will ignore the PFA. We use this same routine for VARIABLE,
+                ; VALUE and DEFER
+adjust_z
+                jsr xt_latestnt         ; gives us ( nt ) 
+
+                ; z_word is kept six bytes further down
+                tya
+                clc
+                adc.# 0006
+                tay
+
+                lda.y 0000      ; LDA 0000,Y
+                inc.a
+                inc.a
+                sta.y 0000
+
+                ldy.dx 00       ; get rid of nt
+                inx
                 inx
 
 z_constant      rts
@@ -2024,9 +2124,9 @@ z_count         rts
 ; TODO replace with EMIT
 xt_cr            
                 lda.# AscLF     ; test with AscCR for emulators
-                jsr put_chr
+                jmp.i output    ; JSR/RTS
 
-z_cr            rts
+z_cr            ; never reached
 
 ; -------------------------------------------------------------------
 ; CREATE ( "name" -- ) X bytes / X cycles
@@ -2043,9 +2143,6 @@ xt_create
                 jmp error 
 
 create_got_name
-                ; all Dictionary entries are lowercase
-                jsr string_to_lowercase 
-
                 ; Remember the first free byte of memory as the start of the new
                 ; word
                 lda.d cp
@@ -2166,6 +2263,37 @@ create_got_name
                 inx
                 
 z_create        rts
+
+
+; -------------------------------------------------------------------
+; DEFER ( "name" -- ) X bytes / X cycles
+; Reserve an name that can be linked to various xt by IS. The ANSI reference
+; implementation is CREATE ['] ABORT , DOES> @ EXECUTE ; but we use this as
+; a low-level word so we can set stuff up earlier and faster
+xt_defer
+                jsr xt_create
+                
+                ; CREATE by default installs a subroutine jump to DOVAR, but we
+                ; actually want DODEFER this time. Go back two bytes and repace
+                ; the subroutine jump target
+                lda.d cp
+                dec.a
+                dec.a
+                sta.d tmp1
+
+                lda.# dodefer
+                sta.di tmp1     ; STA (TMP1)
+
+                ; DODEFER executes the next address it finds after its call. As
+                ; a default, we include the error "Defer not defined"
+                lda.# defer_error
+                sta.di cp
+                inc.d cp
+                inc.d cp
+
+                jmp adjust_z    ; adjust the header to the correct length
+                
+z_defer         ; never reached
 
 
 ; -------------------------------------------------------------------
@@ -2381,6 +2509,7 @@ z_dnegate       rts
 ; docs/create-does.txt and 
 ; http://www.bradrodriguez.com/papers/moving3.htm for a discussion of 
 ; DOES>'s internal workings. This uses tmp1 and tmp2
+; TODO see if this creates a correct z_word address
 xt_does
                 ; compile a subroutine jump to the runtime of DOES>
                 phe.# does_rt
@@ -2502,6 +2631,33 @@ xt_dup
 
 z_dup           rts
 
+; -------------------------------------------------------------------
+; EMIT ( char -- ) X bytes / X cycles
+; Run-time default for EMIT. The user can revector this by changing the value of
+; the OUTPUT variable. We ignore the MSB completely, and do not check to see if
+; we have been given a valid ASCII character. 
+xt_emit         
+        .!a16
+                ; we put the value in A so we don't have to switch the XY
+                ; register size
+                tya     
+
+                ; we DROP immediately so we can JMP.I to the output routine and
+                ; can use its RTS to take us back to the caller
+                ldy.dx 00
+                inx
+                inx
+emit_a
+                ; Lots of times we want to print the character in A without
+                ; fooling around with the Data Stack. EMIT_A assumes a 16 bit
+                ; wide A register with the character in LSB and does not touch
+                ; the Data Stack, but can still be vectored via OUTPUT. Call it
+                ; with JSR as you would XT_EMIT
+        .a8
+                jmp.i output    ; call to kernel, JSR/RTS
+
+z_emit         ; never reached 
+
 
 ; -------------------------------------------------------------------
 ; ERASE ( addr u -- ) X bytes / X cycles
@@ -2617,7 +2773,7 @@ xt_execute
                 ; about with the Return Stack. 
                 jmp.i execute_ip        ; JMP (EXECUTE_IP)
   
-z_execute       nop             ; Never reached, see if we need the NOP
+z_execute       ; empty, no RTS required
                 
 
 ; -------------------------------------------------------------------
@@ -2826,6 +2982,58 @@ xt_immediate
                 sta.di dp
                 
 z_immediate     rts
+
+
+; -------------------------------------------------------------------
+; INPUT ( -- addr ) X bytes / X cycles
+; Return the address where the jump targeet for KEY is stored
+xt_input         
+                dex
+                dex
+                sty.dx 00
+
+                ldy.# input
+
+z_input         rts
+
+
+; -------------------------------------------------------------------
+; INT>NAME ( xt -- nt ) X bytes / X cycles
+; Given an execution token (xt), return the name token (nt). This is called
+; >NAME in Gforth, but changed to INT>NAME for Liara to fit better with
+; NAME>INT.
+xt_int-name      
+                ; Unfortunately, to find the header, we have to walk through the
+                ; dictionary
+                lda.d dp        ; nt of first Dictionary word 
+                sta.d tmp1
+
+                sty.d tmptos    ; xt of mystery word
+                ldy.# 0004      ; xt in header is two bytes down
+
+xt_in_loop
+                lda.diy tmp1    ; LDA (TMP1),Y - get xt of current nt
+                cmp.d tmptos
+                beq xt_in_found
+
+                ; no joy, next header address is two bytes down
+                inc.d tmp1
+                inc.d tmp1
+                lda.di tmp1     ; LDA (TMP1) 
+
+                ; a zero entry marks the end of the Dictionary
+                beq xt_in_notfound
+
+                sta.d tmp1      ; new header 
+                bra xt_in_loop
+
+xt_in_notfound
+                lda.# es_syntax
+                jmp error       
+
+xt_in_found
+                ldy.d tmp1      ; replace xt by nt
+z_int-name      rts
 
 
 ; -------------------------------------------------------------------
@@ -3049,6 +3257,52 @@ z_mstar         rts
 
 
 ; -------------------------------------------------------------------
+; MARKER ( "name" -- ) X bytes / X cycles
+; Create a deletion boundry, restoring the Dictionary to an earlier state. This
+; replaces FORGET in earlier Forths. Old entries are not actually deleted, but
+; merely overwritten by restoring CP and DP.
+xt_marker        
+                ; This is a defining word
+                jsr xt_create
+
+                ; Add the current DP as a payload - the DP of the marker itself
+                ; TODO see if it doesn't make more sense to add nt_ of the previous
+                ; word
+                lda.d dp
+                sta.di cp               ; STA (CP) 
+                inc.d cp
+                inc.d cp
+
+                ; DOES> by hand: Add runtime behavior and DODOES routine
+                jsr does_rt
+                jsr dodoes
+
+                ; DOES> payload 
+                jsr xt_fetch            ; ( nt ) 
+
+                ; We now have the DP of the marker itself on the stack, but we
+                ; need the DP of the previous word. That is two bytes down
+                sty.d tmp3
+                ldy.# 0002              ; overwrite TOS, won't be needing it
+                lda.diy tmp3            ; LDA (TMP3),Y
+                sta.d dp
+                
+                ; Adjust the CP, which is one byte after the z_ address of the
+                ; word we just restored. That address is six bytes down
+                ldy.# 0006
+                lda.diy dp              ; LDA (DP),Y
+                inc.a                   ; first free byte is one byte further down
+                sta.d cp
+
+                ; clean up stack
+                ldy.dx 00
+                inx
+                inx
+
+z_marker        rts
+
+
+; -------------------------------------------------------------------
 ; MAX ( n m -- n ) 18 bytes / X cycles
 ; Compare TOS and NOS and keep which one is larger. Adapted from Lance A.
 ; Leventhal "6502 Assembly Language Subroutines". Negative Flag indicates which
@@ -3145,6 +3399,8 @@ z_move          ; never reached
 ; -------------------------------------------------------------------
 ; NAME>INT ( nt -- xt ) 4 bytes / 8 cycles
 ; Given the Name Token (nt) of a word, return its Execute Token (xt)
+; TODO deal with compile-only words, see 
+; https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Name-token.html
 xt_name-int      
         .!a16
         .!xy16
@@ -3162,7 +3418,8 @@ z_name-int      rts
 ; NAME>STRING ( nt -- addr u ) 16 bytes / X cycles
 ; Given a name token (nt) of a word, return its string. This is a Gforth word
 ; that works with the Dictionary header entries. It is not checked if nt is
-; a valid name token. 
+; a valid name token. There is no "STRING>NAME" - this is handled by the
+; combination of PARSE-NAME and FIND-NAME
 xt_name-string   
         .!a16
         .!xy16
@@ -3375,6 +3632,21 @@ xt_or
                 inx
 
 z_or            rts
+
+
+; -------------------------------------------------------------------
+; OUTPUT ( -- addr ) X bytes / X cycles
+; Return the address where the jump target for EMIT is stored. By default, this
+; will hold the value of put_chr from the kernel routine, but this can be
+; changed by the user
+xt_output        
+                dex
+                dex
+                sty.dx 00 
+
+                ldy.# output
+             
+z_output        rts
 
 
 ; -------------------------------------------------------------------
@@ -3632,10 +3904,6 @@ xt_postpone
                 jmp error
 
 pp_got_word
-                ; convert to lower
-                ; TODO move this to FIND-NAME
-                jsr string_to_lowercase
-
                 jsr xt_find-name        ; ( nt | 0 )
 
                 ; if word is not in Dictionary, complain and abort
@@ -4196,10 +4464,9 @@ z_source-id     rts
 ; TODO change to call EMIT
 xt_space         
                 lda.# AscSP
-                jsr put_chr
-        .!a16
+                jmp.i output    ; JSR/RTS
 
-z_space         rts
+z_space         ; never reached
 
 
 ; -------------------------------------------------------------------
@@ -4310,13 +4577,9 @@ xt_tuck
 z_tuck          rts
 
 ; -------------------------------------------------------------------
-; TYPE ( addr u -- ) 23+ bytes / X cycles
-; Print character string if u is not 0. We restrict all calls to put_chr and
-; get_chr to make porting easier.  We call put_chr here directly instead of
-; going through EMIT because EMIT will later have a PAUSE statement for
-; multitasking and we probably don't want to PAUSE after every character.
-; However, we'll make a final decision about that when multitasking is up and
-; running.
+; TYPE  ( addr u -- ) 23+ bytes / X cycles
+; Print character string if u is not 0. Works though EMIT and is affect by the
+; OUTPUT revectoring
 xt_type          
         .!a16
         .!xy16
@@ -4331,7 +4594,7 @@ xt_type
         .a8
 type_loop
                 lda.diy tmp1    ; LDA (TMP1),Y
-                jsr put_chr
+                jsr emit_a
                 iny
                 cpy.d tmp2
                 bne type_loop
@@ -4347,7 +4610,7 @@ type_done
 
                 ; TODO LATER add PAUSE here for multitasking
                 
-z_type          rts
+z_type         rts
 
 
 ; -------------------------------------------------------------------
@@ -4643,7 +4906,9 @@ xt_variable
                 inc.d cp        ; direct COMMA
                 inc.d cp
 
-z_variable      rts
+                jmp adjust_z    ; adjust the z_ value by adding 2 bytes
+
+z_variable      ; never reached
 
 
 ; -------------------------------------------------------------------
@@ -4682,7 +4947,7 @@ words_common
 words_loop
                 tay                      ; ( nt )
                 jsr xt_name-string       ; ( nt -- addr u ) 
-                jsr xt_type              ; ( addr u -- ) 
+                jsr xt_type
                 jsr xt_space
 
                 ; If the user wants sizes as well, print them
@@ -4803,6 +5068,30 @@ doconst
  
 
 ; ------------------------------------------------------------------- 
+; DODEFER 
+; Execute a DEFER statement at runtime: Execute the address we find after the
+; caller in the Data Field
+dodefer
+                ; the xt we need is stored in the two bytes after the JSR return
+                ; address, which is what is on top of the Retun Stack. So all we
+                ; have to do is replace our return jump with what we find there
+                pla             ; this is the address where we find the xt ...
+                inc.a           ; ... except one byte later
+                sta.d tmp1
+                lda.di tmp1     ; LDA (TMP1)
+                dec.a           ; Now we need to move one byte back 
+                pha             ; Return new address 
+
+                rts             ; This is actually a jump to the new target
+
+defer_error     
+                ; if the defer has not been defined with an IS word, we land
+                ; here by default
+                lda.# es_defer
+                jmp error
+
+
+; ------------------------------------------------------------------- 
 ; DODOES
 ; Used in combination with DOES>'s runtime portion to actually do the work of
 ; the new word. See DOES> and docs/create-does.txt for details. Uses tmp3
@@ -4880,10 +5169,6 @@ interpret_loop
                 tya                     ; force flag check
                 beq interpret_line_done
                 
-                ; We let the user input words in any case, but use lower case
-                ; internally (sorry, Garth).
-                jsr string_to_lowercase
-
                 ; Go to FIND-NAME to see if this is a word we know. We have to
                 ; make a copy of the address in case it isn't a word we know and
                 ; we have to go see if it is a number
@@ -4902,8 +5187,21 @@ interpret_loop
                 ; If the number conversion doesn't work, NUMBER will do the
                 ; complaining for us
                 jsr xt_number           ; ( addr u -- u | d ) 
+
+                ; If we're interpreting, we're done
+                lda.d state
+                beq interpret_loop
+
+                ; We're compiling, so there is a bit more work. Note this
+                ; doesn't work with double-cell numbers, only single-cell
+                phe.# literal_rt        ; LITERAL runtime
+                jsr cmpl_subroutine
+
+                ; compile our number
+                ; TODO convert this to assembler
+                jsr xt_comma
                 
-                ; That was so much fun we should do it again!
+                ; That was so much fun, let's do it again!
                 bra interpret_loop
 
 interpret_got_name_token
@@ -5042,7 +5340,6 @@ error
 ; the address of the string in 16-bit A register, calls put_chr.  A is
 ; destroyed. We could probably figure out some way to use TYPE instead, but zero
 ; terminated strings are easier for the 65816 to use.
-; TODO add version without final line feed
 print_string     
         .!a16
         .!xy16
@@ -5054,13 +5351,13 @@ print_string
         .a8
                 lda.x 0000      ; LDA $0000,X 
                 beq print_string_done
-                jsr put_chr
+                jsr emit_a
                 inx
                 bra -
 
 print_string_done
                 lda.# AscLF     ; should be CR on some systems
-                jsr put_chr
+                jsr emit_a
         .a16
                 plx
                 rts
@@ -5070,6 +5367,7 @@ print_string_done
 ; Convert byte in A to two ASCII hex digits and print them. Calls 
 ; nibble_to_ascii. Assumes A is 8 bit. 
 byte_to_ascii
+        .!a16
                 pha
                 ; convert high nibble first 
                 lsr.a
@@ -5088,24 +5386,16 @@ byte_to_ascii
 ; Converts the lower nibble of a number in A and returns the ASCII character
 ; number, then prints it. Assumes A is 8 bit
 nibble_to_ascii
+        .!a16
                 and.# 000f
                 ora.# '0'
-                cmp.# 003a       ; '9' + 1
+                cmp.# 003a      ; '9' + 1
                 bcc +
                 adc.# 0006
 @
                 jsr put_chr
-        .!a16
+                
                 rts
-
-; ------------------------------------------------------------------- 
-; Convert a string given by ( addr u ) to lowercase in place. Since we have to
-; treat the input buffer as read-only by ANS rules, we have to put the converted
-; string somewhere and then return the new address and length
-string_to_lowercase
-                ; TODO CODE THIS
-                rts
-
 
 ; ===================================================================
 ; HIGH-LEVEL WORDS 
@@ -5114,9 +5404,6 @@ string_to_lowercase
 ; the end of the line if there is another line with code following it. No zero
 ; or CR/LF is required
 hi-start
-        .byte ": ( [char] ) parse 2drop ; immediate "
-        .byte ": .( [char] ) parse type ; immediate "
-
         ; High flow control. Some of these could be realized with CS-ROLL and
         ; CS-PICK instead
         .byte ": if postpone 0branch here 0 , ; immediate compile-only "
@@ -5126,13 +5413,16 @@ hi-start
         .byte ": until postpone 0branch , ; immediate compile-only "
         .byte ": while postpone 0branch here 0 , swap ; immediate compile-only "
 
-        ; DEFER and friends. Code taken from ANSI Forth specifications. Many of
+        ; DEFER's friends. Code taken from ANSI Forth specifications. Many of
         ; these will be moved to assembler code in due course
-        .byte ": defer create ['] abort , does> @ execute ; "
         .byte ": defer! >body ! ; "
         .byte ": defer@ >body @ ; "
         .byte ": is state @ if postpone ['] postpone defer! else ' defer! then ; immediate "
         .byte ": action-of state @ if postpone ['] postpone defer@ else ' defer@ then ; immediate "
+
+        ; Output and comment words
+        .byte ": ( [char] ) parse 2drop ; immediate "
+        .byte ": .( [char] ) parse type ; immediate "
 
         ; High level math definitions. The should be moved to actual 65816 code
         ; for speed at some point. Note we use SM/REM instead of FM/MOD for most
@@ -5154,11 +5444,35 @@ hi-start
         .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
 ;       .byte ": . dup abs 0 <# #s rot sign #> type space ; "
 
+        ; LOOP constructs. See discussion at 
+	; https://blogs.msdn.microsoft.com/ashleyf/2011/02/06/loopty-do-i-loop/
+	; .byte ": do postpone (do) here ; immediate compile-only "
+	; .byte ": +loop postpone (+loop) , postpone unloop ; immediate compile-only "
+	; .byte ": loop postpone 1 postpone (+loop) , postpone unloop ; immediate compile-only "
+        ; .byte ": leave postpone branch here swap 0 , ; immediate compile-only "
+
+        ; .S was realized in assembler form during construction but is replaced
+        ; by a high-level word because it is easier to modify
+        ; TODO finish coding or put 
+        ; .byte ": .s .", &34, " <", &34, " depth u. .", &34, " >", &34, ' ' 
+        ; .byte " 0 <# # #s #> type ; "
+
+        ; SEE is a longish word we'll want to modify for a while until we are
+        ; happy with the format
+        .byte ": see parse-name find-name dup 0= abort", &34, " No such name", &34, ' '
+        .byte "base @ >r hex  dup cr space .", &34, " nt: ", &34, " . "
+        .byte "dup 4 + @ space .", &34, " xt: ", &34, " . "
+        .byte "dup 1+ c@ 1 and if space .", &34, " NC", &34, " then "
+        .byte "dup 1+ c@ 2 and if space .", &34, " IM", &34, " then "
+        .byte "dup 1+ c@ 4 and if space .", &34, " CO", &34, " then "
+        .byte "dup cr space .", &34, " size (decimal): ", &34, " decimal wordsize dup . "
+        .byte "swap name>int swap dump r> base ! ; "
+
         ; Splash strings. We leave these as high-level words because they are
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 02. March 2017)"
+        .byte "cr .( Version PRE-ALPHA 5. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
@@ -5171,32 +5485,6 @@ hi-end
 
         .include strings.tasm
 
-; ===================================================================
-; TESTING ROUTINES (UNCOMMENT FOR USE)
-              
-                ; --- TODO TESTING (PRINT ONE "A") ---
-                ; lda.# 61
-                ; jsr put_chr
-                ; .!a16
-                ; brk 00
-                ; --- TODO TESTING ---
-                 
-                ; --- TESTING SHOW WHAT IS TOS --- 
-                ; tya
-                ; and.# 0ff00
-                ; xba 
-                ; jsr byte_to_ascii
-                ; tya
-                ; and.# 00ff
-                ; jsr byte_to_ascii
-                ; jsr xt_cr
-                ; --------------------------------
-               
-                ; --- TODO TESTING (HALT CPU) ---
-                ; brk 00 ; BRK for 265sxb tests (drops back to Mensch Monitor)
-                ; stp    ; STP for crude65816 emulator tests
-                ; --- TODO TESTING ---
-                
 
 ; ===================================================================
 ; END
