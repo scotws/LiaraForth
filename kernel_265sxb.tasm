@@ -138,7 +138,6 @@ reset_hardware
 ; called with a 8-bit Y register as TOS. This is only called directly by EMIT
 ; through the OUTPUT variable. In Forth, this is refered to as UART0
 put_chr         
-                php             ; save register sizes
         .a8
                 pha
                 lda.# 02        ; (1<<1)
@@ -148,7 +147,7 @@ put_chr_wait    bit hw_uifr     ; timer finished?
 
                 pla
                 sta hw_artd0    ; transmit char
-                plp
+        .a16
 
                 rts
 
@@ -156,15 +155,17 @@ put_chr_wait    bit hw_uifr     ; timer finished?
 ; GET_CHR
 ; Fetch the next character from the receive buffer waiting for some to arrive
 ; if the buffer is empty. This is handled by KEY through the INPUT variable
+; Note the routine returns its value through A - getting it TOS is the caller's
+; problem
 get_chr         
-                php  ; Save register sizes
         .a8
                 lda.# 01                ; (1<<0)
 
 get_chr_wait    bit hw_uifr             ; Any data in RX buffer?
                 beq get_chr_wait        ; No, keep waiting
                 lda hw_artd0            ; Yes, read it
-                plp
+        .a16
+                and.# 00ff              ; paranoid
 
                 rts  
 

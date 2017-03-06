@@ -80,6 +80,7 @@ Last update: 05. March 2017
 | ALIGNED             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ALLOT               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | AND                 | coded    | ANSI core     | NC       | 6     |  (TBA) |
+| AT-XY               | fragment | ANSI facility | NC       | (TBA) |  (TBA) |
 | BASE                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | BELL                | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | BEGIN               | coded    | ANSI core     | IM CO NC | 6     |     13 |
@@ -136,6 +137,7 @@ Last update: 05. March 2017
 | INPUT               | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | INT>NAME            | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
+| KEY                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | LATESTNT            | coded    | Liara         | NC       | 7     |  (TBA) |
 | LATESTXT            | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | LSHIFT              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |

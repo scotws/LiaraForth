@@ -307,16 +307,46 @@ z_greater       rts
 ; >BODY "TOBODY" ( xt -- addr ) 3 bytes / 6 cycles
 ; Given a word's execution token (xt), return the address of the start of that
 ; word's parameter field (PFA). This is the address that HERE would return right
-; after CREATE. Returns garbage if the word was not created with CREATE
-; TODO think if it should return sensible value instead
+; after CREATE. This is a difficult word for STC Forths, because most words
+; don't have a Code Field Area (CFA) to skip. We solve this by testing if the
+; first three bytes of the body (that starts at xt) are subroutine jumps to
+; DOVAR, DOCONST or DODOES
 xt_tobody        
                 ; In the header, xt already points to the CFA, which CREATE by
-                ; default fills with a JSR to DOVAR. We just need to move xt
-                ; down by three bytes
-                iny
-                iny
-                iny
+                ; default fills with a JSR to DOVAR
+        .a8
+                lda.y 0000              ; see if we have a JSR instruction
+                cmp.# 20
+        .a16
+                bne tobody_nojsr
 
+                ; Okay, so we found a JSR instruction. But is it one of the
+                ; right ones?
+                iny
+                lda.y 0000
+
+                cmp.# dovar
+                beq tobody_have_cfa
+                cmp.# doconst
+                beq tobody_have_cfa
+                cmp.# dodoes
+                beq tobody_have_cfa
+                
+                ; This is some other jump, so we go back to beginning of word
+                dey                     ; restor original xt
+                bra tobody_nojsr
+
+tobody_have_cfa
+                ; Got the right kind of jump. We've already increased the index
+                ; by one, so we just have to add two
+                iny
+                iny             ; drops through to end
+                
+tobody_nojsr
+                ; If we don't have a jump instruction, the xt already points to
+                ; the PFA, because there is no CFA
+                ; body
+                
 z_tobody        rts
 
 ; -------------------------------------------------------------------
@@ -1476,7 +1506,12 @@ z_abs           rts
 ; Receive a string of at most n1 characters, placing them at addr. Return the
 ; actual number of characters as n2. Characters are echoed as they are received.
 ; ACCEPT is called by REFILL these days. 
+
+; Though we're dealing with individual characters, all these actions are
+; performed with a 16 bit A register. The only place we switch is in the kernel
+; routines themselves
 xt_accept        
+        .!a16
                 ; Set up loop
                 tya             ; force flag test
                 bne accept_nonzero
@@ -1495,14 +1530,18 @@ accept_nonzero
 
                 sty.d tmp2      ; Save max number of chars in tmp2
                 ldy.# 0000      ; Use Y as counter
-        .a8
 
 accept_loop
-                ; TODO rewrite with KEY so we can revector it
                 ; We don't need to check for CTRL-l, because a vt100 terminal
                 ; clears the screen automatically
-                jsr get_chr
-       .!a8 
+
+                ; This is a rolled-out version of KEY so we don't spend time
+                ; fooling around wit the stack
+                stx tmpdsp
+                ldx.# 0000
+                jsr.xi input    ; JSR (INPUT,X)
+                ldx.d tmpdsp
+  
                 ; we quit on both line feed and carriage return
                 cmp.# AscLF     
                 beq accept_eol
@@ -1527,26 +1566,26 @@ accept_loop
                 ; CTRL-p will be used for "previous cmd", TODO
                 cmp.# AscCP     
                 bne +
-        .a16
+
                 lda.# tests_prev_cmd
                 jsr print_string
-        .a8
+
                 bra accept_loop
 @
                 ; CTRL-n will be used for "next cmd", TODO 
                 cmp.# AscCN
                 bne +
-        .a16
+
                 lda.# tests_next_cmd
                 jsr print_string
-        .a8
+
                 bra accept_loop
 
 @
                 ; That's quite enough, echo character. EMIT_A sidesteps all the
                 ; fooling around with the Data Stack
                 jsr emit_a
-        .!a8
+
                 sta.diy cib     ; STA (CIB),Y
                 
                 iny
@@ -1555,12 +1594,11 @@ accept_loop
 
 accept_eol
                 sty.d ciblen    ; Y contains number of chars accepted already
-        .a16
+
                 jsr xt_space     ; print final space
                 rts             ; this is the actual return of the routine
 
 accept_bs
-        .!a8
                 cpy.# 0000      ; buffer empty?
                 bne +
 
@@ -1687,6 +1725,38 @@ xt_and
                 inx
 
 z_and           rts
+
+
+; -------------------------------------------------------------------
+; AT-XY ( nx ny -- ) X bytes / X cycles
+; Move cursor to coordinates given. ESC[<n>;<m>H Do not use U. to print the
+; numbers because the trailing space will not work with xterm (works fine with
+; Mac OS X Terminals, though)
+; TODO doesn't like hex values, need to get rid of byte_to_ascii
+; or call as word with 0 u.r and decimal
+xt_at-xy         
+       .!a16 
+                lda.# AscESC    ; ESC
+                jsr emit_a
+                lda.# 5b        ; [
+                jsr emit_a
+                lda.dx 00       ; x
+                jsr byte_to_ascii
+                lda.# 3b        ; semicolon
+                jsr emit_a
+                tya             ; y
+                jsr byte_to_ascii
+                lda.# 48        ; H 
+                jsr emit_a
+
+                ldy.dx 02
+                inx
+                inx
+                inx
+                inx
+
+z_at-xy         rts
+
 
 ; -------------------------------------------------------------------
 ; BASE ( -- addr ) X bytes / X cycles
@@ -2121,7 +2191,6 @@ z_count         rts
 ; -------------------------------------------------------------------
 ; CR ( -- ) X bytes / X cycles
 ; Cause following output to appear at beginning of next line
-; TODO replace with EMIT
 xt_cr            
                 lda.# AscLF     ; test with AscCR for emulators
                 jmp.i output    ; JSR/RTS
@@ -2635,7 +2704,9 @@ z_dup           rts
 ; EMIT ( char -- ) X bytes / X cycles
 ; Run-time default for EMIT. The user can revector this by changing the value of
 ; the OUTPUT variable. We ignore the MSB completely, and do not check to see if
-; we have been given a valid ASCII character. 
+; we have been given a valid ASCII character. Note that we keep the A register
+; in 16 bit mode all the time - it is up to the kernel routine stored at OUTPUT
+; to deal with that. 
 xt_emit         
         .!a16
                 ; we put the value in A so we don't have to switch the XY
@@ -2653,7 +2724,6 @@ emit_a
                 ; wide A register with the character in LSB and does not touch
                 ; the Data Stack, but can still be vectored via OUTPUT. Call it
                 ; with JSR as you would XT_EMIT
-        .a8
                 jmp.i output    ; call to kernel, JSR/RTS
 
 z_emit         ; never reached 
@@ -2967,6 +3037,28 @@ fmmod_2
 fmmod_2_1
 
 z_fmmod         rts
+
+
+; -------------------------------------------------------------------
+; KEY ( -- char ) X bytes / X cycles
+; Get one character from the input, without echoing. 
+xt_key           
+           .!a16
+
+		dex             ; make room on Data Stack
+                dex
+                ldy.dx 00
+                
+                ; There is no "jsr.i" instruction, so we have to do this the
+                ; hard way
+                stx.d tmpdsp
+                ldx.# 0000
+                jsr.xi input    ; JSR (INPUT,X) - returns char in A
+                ldx.d tmpdsp
+
+                tay
+
+z_key           ; never reached
 
 
 ; -------------------------------------------------------------------
@@ -5393,7 +5485,7 @@ nibble_to_ascii
                 bcc +
                 adc.# 0006
 @
-                jsr put_chr
+                jsr emit_a
                 
                 rts
 

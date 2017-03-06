@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  04. Mar 2017
+; This version:  05. Mar 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -9,8 +9,6 @@
 ; GENERAL
 
 ; All general strings must be zero-terminated, names start with "s_"
-; TODO see if "ok" needs trailing space. The printstring routine adds the EOL
-; character
 
 s_ok         .byte " ok", 0             ; note space at beginning
 s_compiled   .byte " compiled", 0
@@ -39,8 +37,8 @@ es_syntax     .byte "Undefined word", 0
 ; ===================================================================
 ; ANSI VT-100 SEQUENCES
 
-vt100_page .byte AscESC, "[2J", 0       ; clear screen
-vt100_home .byte AscESC, "[H", 0        ; cursor home
+vt100_page  .byte AscESC, "[2J", 0       ; clear screen
+vt100_home  .byte AscESC, "[H", 0        ; cursor home
 
 
 ; ===================================================================

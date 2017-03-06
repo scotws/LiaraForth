@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 04. Mar 2017
+; This version: 05. Mar 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -121,8 +121,12 @@ nt_page .byte 4, { NC }
         .word nt_unused, xt_page, z_page
         .byte "page"
 
-nt_tworfetch .byte 3, 00	; not natively compiled
-        .word nt_page, xt_tworfetch, z_tworfetch
+nt_at-xy .byte 5, { NC }
+        .word nt_page, xt_at-xy, z_at-xy
+        .byte "at-xy"
+
+nt_tworfetch .byte 3, 00	; not natively compiled (yet)
+        .word nt_at-xy, xt_tworfetch, z_tworfetch
         .byte "2r@"
 
 nt_2variable .byte 9, { NC }
@@ -641,8 +645,12 @@ nt_accept .byte 6, 00 ; TODO check flags
         .word nt_comma, xt_accept, z_accept 
         .byte "accept"
 
+nt_key  .byte 3, { NC }
+        .word nt_accept, xt_key, z_key
+        .byte "key"
+
 nt_backslash .byte 1, { NC }
-        .word nt_accept, xt_backslash, z_backslash
+        .word nt_key, xt_backslash, z_backslash
         .byte '\'
 
 nt_qdup .byte 4, { NC }
