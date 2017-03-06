@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 05. Mar 2017
+; This version: 06. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -9,7 +9,7 @@
         .mpu 65816
         .origin 5000    ; start of code to save to built-in RAM
 ;       .origin 8000    ; start of code to save to Flash memory
-code0                   ; used to calculated UNUSED etc
+code0                   ; used to calculate UNUSED 
 
 ; ===================================================================
 ; TOP INCLUDES
@@ -18,7 +18,9 @@ code0                   ; used to calculated UNUSED etc
 
 ; Hardware dependencies are isolated to a large degree in kernel files. Liara
 ; Forth ships with two such files: One (very ALPHA) for the crude65816 emulator,
-; and one for the 265sxb board. Only use one.
+; and one for the 265sxb board. Only use one. Which ever kernel file is used, it
+; must contain at least the routines put_chr, get_chr and have_chr, which work
+; on the A register
 
         .include kernel_265sxb.tasm     ; routines for the W65C265SXB
 ;       .include kernel_emu.tasm        ; routines for crude65815 emulator
@@ -33,12 +35,12 @@ code0                   ; used to calculated UNUSED etc
 
 ; -------------------------------------------------------------------
 ; COLD ( -- ) X bytes / X Cycles
-; Reboot the system
+; Reset the Forth system. Use BYE to return to the Mensch Monitor. 
 xt_cold  
 
                 jmp reset_hardware      ; don't use JSR, jump back to start
 start           
-        .!native        ; these should be handled by hardware reset
+        .!native        ; these should have been handled by hardware reset
         .!a16
         .!xy16
                 sei
@@ -215,17 +217,17 @@ xt_less
 
                 sec 
                 sbc.dx 00
-                beq xt_less_nip      ; the same is not greater
-                bvc xt_less_no_ov    ; no overflow, skip ahead
+                beq less_nip      ; the same is not greater
+                bvc less_no_ov    ; no overflow, skip ahead
 
                 ; Deal with oveflow because we use signed numbers
                 eor.# 8000      ; compliment negative flag
 
-xt_less_no_ov
+less_no_ov
                 ; if we're negative TOS > NOS
-                bmi xt_less_nip     
+                bmi less_nip     
                 dey             
-xt_less_nip
+less_nip
                 inx
                 inx
 
@@ -286,17 +288,17 @@ xt_greater
 
                 sec 
                 sbc.dx 00
-                beq xt_greater_nip      ; the same is not greater
-                bvc xt_greater_no_ov    ; no overflow, skip ahead
+                beq greater_nip      ; the same is not greater
+                bvc greater_no_ov    ; no overflow, skip ahead
 
                 ; Deal with oveflow because we use signed numbers
                 eor.# 8000      ; compliment negative flag
 
-xt_greater_no_ov
+greater_no_ov
                 ; if we're still positiv, TOS < NOS
-                bpl xt_greater_nip     
+                bpl greater_nip     
                 dey             
-xt_greater_nip
+greater_nip
                 inx
                 inx
 
@@ -3103,10 +3105,10 @@ xt_int-name
                 sty.d tmptos    ; xt of mystery word
                 ldy.# 0004      ; xt in header is two bytes down
 
-xt_in_loop
+in_loop
                 lda.diy tmp1    ; LDA (TMP1),Y - get xt of current nt
                 cmp.d tmptos
-                beq xt_in_found
+                beq in_found
 
                 ; no joy, next header address is two bytes down
                 inc.d tmp1
@@ -3114,16 +3116,16 @@ xt_in_loop
                 lda.di tmp1     ; LDA (TMP1) 
 
                 ; a zero entry marks the end of the Dictionary
-                beq xt_in_notfound
+                beq in_notfound
 
                 sta.d tmp1      ; new header 
-                bra xt_in_loop
+                bra in_loop
 
-xt_in_notfound
+in_notfound
                 lda.# es_syntax
                 jmp error       
 
-xt_in_found
+in_found
                 ldy.d tmp1      ; replace xt by nt
 z_int-name      rts
 
