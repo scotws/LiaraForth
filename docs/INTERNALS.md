@@ -6,13 +6,14 @@
 
 Liara Forth started with a bunch of general principles.
 
-1. **Speed over size (within reason).** Liara Forth aims to make up for the
-   relastively slow clock speed of the 65816 MPU in the 265SXB package. 
-2. **Run with scissors.** There is very little safety checking in the individual
+1. **Easy to install.** As a "first Forth" for the 265SXB, you should be able to
+   download, install and start Liara without much of a hassle.
+2. **Speed over size.** Liara Forth aims to make up for the relastively slow clock 
+   speed of the 65816 MPU in the 265SXB package. 
+3. **Run with scissors.** There is very little safety checking in the individual
    words. Liara Forth will rarely tell you if there is an under- or overflow,
-   for instance. During the design phase, these sort of checks were considered,
-   but they added so much code that the first principle was violated.
-3. **Use only the most basic hardware-dependent routines,** which are `put_chr` and
+   for instance. 
+4. **Use only the most basic hardware-dependent routines,** which are `put_chr` and
    `get_chr`. This is to make it easier for other people to port Liara Forth to
    other 65816 machines. 
 
@@ -178,6 +179,11 @@ overhead. If the code base ever stabilizes, this might be worth the effort.)
 Liara Forth follows ANSI Forth by discarding the traditional word WORD for
 REFILL and PARSE-NAME. FIND-NAME from Gforth is used instead of FIND. 
 (See http://forum.6502.org/viewtopic.php?f=9&t=4364 for a discussion)
+
+Low-level input is handled by the KEY word, which in turn calls the GET_CHR
+routine in the kernel file. 
+
+Liara words are case sensitive: `PYJACK` and `pyjack` are two separate words. 
 
 
 ## Conversion of input numbers
