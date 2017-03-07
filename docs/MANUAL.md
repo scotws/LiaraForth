@@ -281,6 +281,21 @@ with [Tali Forth for the 65c02](https://github.com/scotws/TaliForth).
 - **WORDSIZE ( nt -- u )** Given a word's name token (nt), return the size of
   the code and parameters fields in bytes. See WORDS&SIZES for a discussion.
 
+### Gotchas
+
+Liara has a 16-bit cell size (use `1 cells 8 * .` to get the cells size in bits
+with any Forth), which can trip up calculations when compared to the _de facto_
+standard Gforth with 64 bits. Take this example: 
+``` 
+( Gforth ) DECIMAL 1000 100 UM* HEX SWAP U. U.  186A0 0  OK
+( Liara )  DECIMAL 1000 100 UM* HEX SWAP U. U.  86A0 1  OK
+```
+Liara has to use the upper cell of a double-celled number to correctly report the
+result, while Gforth doesn't. If the conversion from double to single is only
+via a DROP instruction, this will produce different results.
+
+
+
 
 ## Various Stuff
 
