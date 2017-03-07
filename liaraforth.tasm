@@ -2854,6 +2854,20 @@ z_execute       ; empty, no RTS required
 ; ZERO, see there. Dictionary entry should have xt_zero/z_zero instead of
 ; xt_false/z_false
 
+
+; -------------------------------------------------------------------
+; FIND ( c-addr -- addr 0 | xt 1 | xt -1 ) X bytes / X cycles
+; Find word in Dictionary. Included for backwards compatibility, Liara Forth
+; follows Gforth by replacing this with FIND-NAME. Counted string either returns
+; address with a fail flag if not found in the Dictionary, or the xt with a flag
+; to indicate if this is immediate or not. FIND is a wrapper around FIND-NAME.
+; See https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Word-Lists.html
+; and https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Name-token.html
+; for better solutions.
+xt_find          
+                nop
+z_find          rts
+
 ; -------------------------------------------------------------------
 ; FIND-NAME ( addr u -- nt | 0 ) 91 bytes / X cycles
 ; Given a string, find the Name Token (nt) of a word or return zero if the word
@@ -5006,6 +5020,21 @@ z_variable      ; never reached
 
 
 ; -------------------------------------------------------------------
+; WORD ( char "name" -- c-addr ) X bytes / X cycles
+; Obsolete parsing word included for backwards compatibility. Do note use this,
+; use PARSE or PARSE-NAME. Skips leading delimiters and copies word to storage
+; area for a maximum size of 255 bytes. Returns the result as a counted string
+; (requires COUNT to convert to modern format), and inserts a space after the
+; string. See "Forth Programmer's Handbook" 3rd edition p.159 and 
+; http://www.forth200x.org/documents/html/rationale.html#rat:core:PARSE 
+; for discussions of why you shouldn't be using WORD anymore. 
+; TODO code this
+xt_word          
+                nop 
+z_word          rts
+
+
+; -------------------------------------------------------------------
 ; WORDS&SIZES ( -- ) X bytes / X cycles
 ; Prints all words in the dictionary with the sizes of their code as returned by
 ; WORDSIZE. Used to test different optimizations of the compiling routines,
@@ -5566,6 +5595,15 @@ hi-start
         .byte "dup 1+ c@ 4 and if space .", &34, " CO", &34, " then "
         .byte "dup cr space .", &34, " size (decimal): ", &34, " decimal wordsize dup . "
         .byte "swap name>int swap dump r> base ! ; "
+
+; ===================================================================
+; USER INCLUDES
+
+; Include any Forth words defined by the user in USER.TASM
+
+        .include user.tasm
+
+; ===================================================================
 
         ; Splash strings. We leave these as high-level words because they are
         ; generated at the end of the boot process and signal that the other

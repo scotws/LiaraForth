@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 05. Mar 2017
+; This version: 07. Mar 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -57,8 +57,16 @@ nt_cold .byte 4, 00
         .word nt_bye, xt_cold, z_cold
         .byte "cold"  
 
+nt_word .byte 4, { NC }
+        .word nt_cold, xt_word, z_word
+        .byte "word"
+
+nt_find .byte 4, { NC }
+        .word nt_word, xt_find, z_find
+        .byte "find"
+
 nt_aligned .byte 7, { NC }
-        .word nt_cold, xt_aligned, z_aligned
+        .word nt_find, xt_aligned, z_aligned
         .byte "aligned"
 
 nt_align .byte 5, { NC }
