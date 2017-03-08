@@ -55,20 +55,20 @@
         ; Soft physical addresses
         .equ dpage      ram-start        ; direct page:       0000 - 00ff
         .equ stack      { dpage + 0100 } ; return stack area: 0100 - 01ff
-        .equ buffer     { stack + 0100 } ; buffer areas:      0200 - 02ff
+        .equ buffer0    { stack + 0100 } ; buffer areas:      0200 - 02ff
 
         ; Defined locations
         .equ user0      dpage            ; user and system variables 
         .equ dsp0       { stack - 1 }    ; initial Data Stack Pointer:   00ff
-        .equ stack0     { buffer - 1 }   ; initial Return Stack Pointer: 01ff
+        .equ stack0     { buffer0 - 1 }  ; initial Return Stack Pointer: 01ff
 
         ; Buffers
-        .equ bsize      0080               ; size of input/output buffers
-        .equ unused     { buffer + bsize } ; unused buffer 0280 (UNUSED)
+        .equ bsize      0080                ; size of input/output buffers
+        .equ buffer1    { buffer0 + bsize } ; output buffer 0280 (UNUSED)
 
         ; Dictionary RAM
-        .equ cp0        { unused + bsize } ; Dictionary starts after last buffer
-        .equ cp-end     { code0 - 1 }      ; Last RAM byte available
+        .equ cp0        { buffer1 + bsize } ; Dictionary starts after last buffer
+        .equ cp-end     { code0 - 1 }       ; Last RAM byte available
 
         ; Other locations
         .equ padoffset  0ff     ; offset from CP to PAD (holds number strings)

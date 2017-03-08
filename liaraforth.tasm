@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 06. Mar 2017
+; This version: 08. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -78,7 +78,7 @@ start
                 lda.# cp0
                 sta.d cp
 
-                lda.# buffer    
+                lda.# buffer0
                 sta.d cib       ; input buffer
                 stz.d ciblen    ; input buffer starts empty
                 stz.d insrc     ; SOURCE-ID is zero
@@ -549,12 +549,13 @@ z_slashstring   rts
 
 ; -------------------------------------------------------------------
 ; . "DOT" ( n -- ) X bytes / X cycles
-; Print value that is TOS followed by a single space. Forth code is  DUP ABS
+; Print unsigned value that is TOS followed by a single space. Forth code is  DUP ABS
 ; 0 <# #S ROT SIGN #> TYPE SPACE, but we want to have one routine that is not
 ; high-level. Based on
 ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth Since this is
 ; used interactively, and humans are slow (just ask GlaDOS), we focus on size.
 ; TODO Once we know this works, move to assembler
+; TODO make a version "print_unsigned" without a trailing space for output
 xt_dot           
                 jsr xt_dup              ; ( n n ) 
                 jsr xt_abs              ; ( n n ) 
@@ -2856,7 +2857,7 @@ z_execute       ; empty, no RTS required
 
 
 ; -------------------------------------------------------------------
-; FIND ( c-addr -- addr 0 | xt 1 | xt -1 ) X bytes / X cycles
+; FIND ( cs-addr -- addr 0 | xt 1 | xt -1 ) X bytes / X cycles
 ; Find word in Dictionary. Included for backwards compatibility, Liara Forth
 ; follows Gforth by replacing this with FIND-NAME. Counted string either returns
 ; address with a fail flag if not found in the Dictionary, or the xt with a flag
@@ -2865,7 +2866,55 @@ z_execute       ; empty, no RTS required
 ; and https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Name-token.html
 ; for better solutions.
 xt_find          
-                nop
+                ; Convert counted string address to modern format
+                jsr xt_count            ; ( addr u ) 
+
+                ; Save address in case the conversion fails
+                lda.dx 00
+                pha
+
+                jsr xt_find-name        ; ( nt | 0 )
+
+                tya                     ; force flag check
+                bne find_found
+                
+                ; No word found. Return the address of the string, leaving 0 as
+                ; a false flag TOS
+                dex                     ; ( <?> 0 ) 
+                dex
+                ldy.# 0000
+                pla
+                sta.dx 00               ; ( addr 0 ) 
+                bra z_find
+
+find_found
+                ; We have a nt. Now we have to convert it to the format that
+                ; FIND wants to return Arrive here with ( nt ) 
+                pla                     ; we won't need the address after all
+
+                ; We will need the nt later
+                phy
+                
+                jsr xt_name-int         ; ( nt -- xt ) 
+                dex
+                dex
+                sty.dx 00               ; ( xt <?> ) 
+
+                ; If immediate, return 1 (not: zero), else return -1
+                ply                     ; get nt back 
+                lda.y 0000 
+                ldy.# 0000              ; prepare flag
+
+                xba                     ; flags are MSB
+                and.# IM                ; Mask all but IM bit
+
+                bne find_imm            ; IMMEDIATE word, return 1
+                dey                     ; not emmediate, return -1
+                bra z_find
+
+find_imm
+                iny
+
 z_find          rts
 
 ; -------------------------------------------------------------------
@@ -5027,10 +5076,29 @@ z_variable      ; never reached
 ; (requires COUNT to convert to modern format), and inserts a space after the
 ; string. See "Forth Programmer's Handbook" 3rd edition p.159 and 
 ; http://www.forth200x.org/documents/html/rationale.html#rat:core:PARSE 
-; for discussions of why you shouldn't be using WORD anymore. 
-; TODO code this
+; for discussions of why you shouldn't be using WORD anymore. Forth would be
+; PARSE DUP BUFFER1 C! OUTPUT 1+ SWAP MOVE BUFFER 1
+; TODO What about the space?
 xt_word          
-                nop 
+                ; The real work is done by PARSE
+                jsr xt_parse            ; ( addr u )
+
+                ; Now we have to convert the modern address to the old form
+                sty buffer1             ; overwrite MSB
+                dex
+                dex                     ; ( addr <?> u ) 
+                lda.# buffer1
+                inc.a
+                sta.dx 00               ; ( addr buffer1+1 u )
+
+                jsr xt_move
+
+                dex
+                dex
+                sty.dx 00
+
+                ldy.# buffer1
+
 z_word          rts
 
 
