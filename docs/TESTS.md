@@ -206,5 +206,19 @@ Should give you
 ```
 wt frog frog<-- ok
 ```
+```
+: ft bl word  dup count type  find .s ; 
+ft words drop execute   \ should print words
+```
 
+## TEST VARIOUS
+
+### TEST COUNT 
+```
+hex  ok
+here . 730  ok
+3 c, char a c, char a c, char a c,   ok
+730 count .s <0002> 0731 0003  ok
+type aaa ok
+```
 
