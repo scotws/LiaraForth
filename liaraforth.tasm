@@ -605,23 +605,19 @@ xt_dots
                 jsr xt_depth             ; ( -- u)
 
                 ; Print stack depth in brackets
-                ; TODO rewrite this to use EMIT
                 lda.# '<'
-                jsr put_chr
+                jsr emit_a
 
-                ; --- TEMP print routine ---
-                tya
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                tya
-                and.# 00ff
-                jsr byte_to_ascii
-                ; --- TEMP print routine ---
+                ; We keep a copy of the number of things on the stack to use as
+                ; a counter further down
+                dex                     ; DUP 
+                dex
+                sty.dx 00
 
-                ; TODO rewrite this to use EMIT
+                jsr print_number
+
                 lda.# '>'
-                jsr put_chr
+                jsr emit_a
                 jsr xt_space
 
 
@@ -636,12 +632,7 @@ dots_not_empty
                 ; the depth of the Data Stack is already in Y waiting to be used
                 ; as a counter. We use this to our advantage. 
                 
-                ; Normally we would go with STX.D tmptos / LDX.D tmptos with
-                ; 4 bytes and 8 cycles because we value speed over size.
-                ; However, .S is used interactively, and humans
-                ; won't notice the one cycle more of PHX/PLX (2 bytes,
-                ; 9 cycles), and we save the two bytes.
-                phx
+                stx.d tmpdsp
 
                 ; We print from the bottom up. Note that the Data Stack locations
                 ; dsp0 and dsp0+2 always contain garbage so they can be skipped.
@@ -654,22 +645,22 @@ dots_loop
                 dex             ; get next element on DS, initially dsp0-4
                 dex             
 
-                ; --- TEMP print routine ---
-                ; TODO call EMIT
-                lda.dx 00
-                and.# 0ff00
-                xba 
-                jsr byte_to_ascii
-                lda.dx 00
-                and.# 00ff
-                jsr byte_to_ascii
-                jsr xt_space
-                ; --- TEMP print routine ---
+# HIER HIER HIER 
 
+                phy             ; save our counter
+                phx
+
+                ldy.dx 00       
+                jsr xt_udot     ; U. 
+
+                plx
+
+                ply             ; get counter back 
                 dey
+
                 bne dots_loop
 
-                plx             ; restore original DSP
+                ldx.d tmpdsp    ; restore data stack pointer
 
 dots_done
                 ; Clean up. Again, we don't care about speed in this
@@ -4770,6 +4761,20 @@ z_type         rts
 
 
 ; -------------------------------------------------------------------
+; UDOT ( n -- ) X bytes / X cycles
+; Print unsigned number. This is based on the Forth word 
+; 0 <# #S #> TYPE SPACE but uses the general print_number routine 
+; that .S and DUMP etc use as well. 
+xt_udot          
+                jsr print_number        ; ( n -- ) 
+                lda.# 0020              ; SPACE
+                jmp emit_a              ; JSR/RTS
+                
+z_udot          ; not reached
+
+
+
+; -------------------------------------------------------------------
 ; UDMOD ( ud u -- u ud ) 32/16 --> 32  X bytes / X cycles
 ; Devide double-cell number by single-cell number, producing a double-cell
 ; result and a single-cell remainder. Based on 
@@ -5553,6 +5558,28 @@ print_string_done
                 plx
                 rts
 
+
+; ------------------------------------------------------------------- 
+; PRINT UNSIGNED NUMBER
+; Is the equivalent to Forth's 0 <# S# #> TYPE or U. without the SPACE at the
+; end. TODO convert this to more assembler for speed
+print_number
+                dex                     ; 0 
+                dex
+                sty.dx 00
+                ldy.# 0000
+
+                jsr xt_pad              ; <#
+                sty.d tohold
+                ldy.dx 00
+                inx
+                inx
+ 
+                jsr xt_hashs            ; #S
+                jsr xt_numbermore       ; #> 
+                jmp xt_type             ; TYPE - JSR/RTS
+
+
 ; ------------------------------------------------------------------- 
 ; CONVERT BYTE TO ASCII
 ; Convert byte in A to two ASCII hex digits and print them. Calls 
@@ -5630,8 +5657,8 @@ hi-start
         ; TODO becaues of Tinker bug, ".byte" is recognized as the directive
         ; even though it is in a string. Until that is fixed, we start with the
         ; ASCII code for a dot
-        .byte ": ", &46, "byte 0 <# # #s #> type space ; "
-        .byte ": u. 0 <# #s #> type space ; "
+;       .byte ": ", &46, "byte 0 <# # #s #> type space ; "
+;       .byte ": u. 0 <# #s #> type space ; "
         .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
         .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
         .byte ": ud. <# #s #> type space ; "
