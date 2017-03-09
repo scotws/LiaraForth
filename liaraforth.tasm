@@ -2184,7 +2184,6 @@ xt_count
                 sta.dx 00       ; NOS
                 
                 lda.y 0000      ; LDA $0000,Y  first byte is length
-                xba             ; move length to LSB
                 and.# 00ff      ; get rid of whatever was MSB
                 tay             ; TOS
                 
@@ -5077,7 +5076,7 @@ z_variable      ; never reached
 ; string. See "Forth Programmer's Handbook" 3rd edition p.159 and 
 ; http://www.forth200x.org/documents/html/rationale.html#rat:core:PARSE 
 ; for discussions of why you shouldn't be using WORD anymore. Forth would be
-; PARSE DUP BUFFER1 C! OUTPUT 1+ SWAP MOVE BUFFER 1
+; PARSE DUP BUFFER1 C! OUTPUT 1+ SWAP MOVE BUFFER1
 ; TODO What about the space?
 xt_word          
                 ; The real work is done by PARSE
@@ -5085,6 +5084,7 @@ xt_word
 
                 ; Now we have to convert the modern address to the old form
                 sty buffer1             ; overwrite MSB
+
                 dex
                 dex                     ; ( addr <?> u ) 
                 lda.# buffer1
@@ -5677,7 +5677,7 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 5. March 2017)"
+        .byte "cr .( Version PRE-ALPHA 9. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"

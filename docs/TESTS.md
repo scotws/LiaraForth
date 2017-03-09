@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 04. March 2017
+This version 09. March 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -169,7 +169,7 @@ hex
 ```
 
 
-### TEST MATH STUFF
+## TEST MATH STUFF
 
 For examples of interger divsion, see
 [http://www.forth200x.org/documents/html/usage.html#usage:div](http://www.forth200x.org/documents/html/usage.html#usage:div)
@@ -193,5 +193,18 @@ Should give you:
 -10 7 --> -3 -1 
 10 -7 --> 3 -1
 -10 -7 --> -3 1
+
+
+## TEST OLD STUFF
+
+### WORD and FIND 
+
+```
+: wt bl word count type s" <--" type ;
+```
+Should give you 
+```
+wt frog frog<-- ok
+```
 
 
