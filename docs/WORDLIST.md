@@ -158,6 +158,7 @@ Last update: 11. March 2017
 | NAME>INT            | coded    | Gforth        | NC       | 4     |      8 |
 | NAME>STRING         | coded    | Gforth        | NC       | 16    |  (TBA) |
 | NATIVE-COMPILE      | coded    | Liara         | NC       | (TBA) |  (TBA) |
+| NC-LIMIT            | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | NEGATE              | coded    | ANSI core     | NC       | 6     |  (TBA) |
 | NIP                 | coded    | ANSI core ext | NC       | 2     |      4 |
 | NUMBER              | coded    | Liara         | NC       | (TBA) |  (TBA) |

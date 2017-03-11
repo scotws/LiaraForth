@@ -334,8 +334,12 @@ nt_base .byte 4, { NC }
         .word nt_pad, xt_base, z_base
         .byte "base"
 
+nt_nc-limit .byte 8, { NC }
+        .word nt_base, xt_nc-limit, z_nc-limit
+        .byte "nc-limit"
+
 nt_input .byte 5, { NC }
-        .word nt_base, xt_input, z_input
+        .word nt_nc-limit, xt_input, z_input
         .byte "input"
 
 nt_output .byte 6, { NC }

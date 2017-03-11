@@ -57,6 +57,11 @@ start
                 ; We start out in decimal mode
                 lda.# 000a
                 sta.d base 
+
+                ; We start out with all words (except those with Forced Native
+                ; compile) being compiled to subroutine jumps
+                lda.# 0000
+                sta.d nc_limit
                
                 ; set the OUTPUT vector to the default, which is always put_chr,
                 ; but may have synonyms such as uart0
@@ -510,6 +515,7 @@ xt_tor
                 ; is a complete waste of nine cycles, but required for
                 ; subroutine coding
                 pla
+                ; --- cut for native coding ---
 
                 phy             ; the actual work
 
@@ -517,6 +523,7 @@ xt_tor
                 inx
                 inx
 
+                ; --- cut for native coding ---
                 pha             ; put return address back in place
 
 z_tor           rts
@@ -2136,30 +2143,135 @@ z_compile-only  rts
 
 ; -------------------------------------------------------------------
 ; COMPILE, ( xt -- ) X bytes / X cycles
+
 ; Compile a given xt in the current word definition. It is an error if we are
 ; not in the compile state. Because we are using subroutine threading, we can't
 ; use , (COMMA) to compile new words the traditional way. We use the NC (Native
 ; Compile) flag to decide if native compilation is allowed. If yes, we use the
 ; value NC_LIMIT (in definitions.tasm) to decide if the code is too large to be
-; natively coded: If the size is smaller than NC_LIMIT, we silently use
-; subroutine coding. 
+; natively coded: If the size is larger than NC_LIMIT, we silently use
+; subroutine coding. If the FN (Force Native) flag is set, the word is always
+; natively compiled
 ; TODO currently just compiles subroutine jumps
 xt_compilecomma  
         .!a16
+                ; First, see if this is Force Native compile word by checking
+                ; the FN flag. We need the nt for this
+                phy                     ; save copy of xt
+
+                jsr xt_int-name         ; ( xt -- nt ) 
+
+                lda.y 0000              ; Get content of nt
+                xba                     ; flags are MSB
+                and.# FN                ; mask everything but Compile Only bit
+                bne compile_as_code
+
+                ; Now see if native compile is even allowed by checking the NC
+                ; flag
+                lda.y 0000
+                xba
+                and.# NC
+                beq compile_as_jump
+
+                ; Native compile is legal, but we have to see what limit the
+                ; user set. WORDSIZE takes nt
+                jsr xt_wordsize         ; ( nt -- u ) 
+                tya
+                cmp.d nc_limit
+                bcs compile_as_jump     ; if too large, compile as a jump
 
 compile_as_code
-                ; Compile xt as native code
-                ; use nc_limit to decide if we want native compile
-                ; TODO consider special cases: 
-                ;  - >R R> should strip PLA/PHA if native compiled
-                ;  - 2>R and 2R> should strip three first and last bytes
-                ;  - NOP should be removed if only instruction
-                ;  - Don't compile comments
+                ; We arrive here with the length of the word TOS and xt on top
+                ; of the return stack. MOVE will need ( xt cp u ) on the Data
+                ; Stack
+                dex
+                dex
+                pla
+                sta.dx 00       ; ( xt u ) 
+
+                dex
+                dex
+                lda.d cp
+                sta.dx 00       ; ( xt cp u ) 
+                
+
+                ; --- SPECIAL CASES ---
+
+                ; 1. Don't compile NOP instructions: Length of code is 1, and
+                ; the instruction is $EA
+                tya
+                dec.a
+                bne compile_not_nop
+
+                lda.dxi 02
+                and.# 00ff
+                cmp.# 00ea      ; opcode for NOP
+                bne compile_not_nop
+
+                ; It's a single NOP. Clear the data stack and return
+                ldy.dx 04
+                txa
+                clc
+                adc.# 0006
+                tax
+
+                bra z_compilecomma
+
+compile_not_nop
+
+                ; 2. Strip PLA/PHA off >R and R>
+                lda.dx 02       ; get xt
+                cmp.# xt_tor
+                beq compile_r
+                cmp.# xt_fromr
+                beq compile_r
+
+                ; 3. Strip off stuff from 2>R and 2R>
+                cmp.# xt_twotor
+                beq compile_2r
+                cmp.# xt_twofromr
+                beq compile_2r
+
+                bra compile_move        ; not a special case
+                
+compile_r
+                ; We have either >R or R>. To simplify, drop the first and last
+                ; instruction (one byte). 
+                inc.dx 02       ; start one byte later
+                dey             ; transfer two bytes less
+                dey
+                bra compile_move
+                
+compile_2r
+                ; We have either 2>R or 2R>. To simplify, drop the first and
+                ; last three bytes 
+                inc.dx 02
+                inc.dx 02
+                inc.dx 02
+                tya
+                sec
+                sbc.# 0006
+                tay             ; fall through to compile_move
+
+compile_move
+                ; Enough of this, compile the word already
+
+                phy             ; we need a copy of length for the CP
+
+                jsr xt_move     ; ( xt cp u -- ) 
+
+                pla
+                clc             ; update CP
+                adc.d cp
+                sta.d cp 
+
+                bra z_compilecomma
 
 compile_as_jump
                 ; Compile xt as a subroutine jump. 
+                ply             ; get xt back 
         .a8
-                lda.# 20      ; opcode for JSR
+                lda.# 20        ; opcode for JSR
                 sta.di cp       ; STA (CP)
         .a16
                 inc.d cp
@@ -3663,6 +3775,17 @@ xt_native-compile
 z_native-compile
 		rts
 
+; -------------------------------------------------------------------
+; NC-LIMIT ( -- addr ) X bytes / X cycles
+; Address where the value of the Native Compile size limit is kept
+xt_nc-limit      
+                dex
+                dex
+                sty.dx 00
+                ldy.# nc_limit
+
+z_nc-limit      rts
+
 
 ; -------------------------------------------------------------------
 ; NEGATE ( n -- n ) 6 bytes / X cycles
@@ -4191,6 +4314,7 @@ xt_fromr
                 ; the Return Stack. If this word is natively compiled, this is
                 ; a waste of nine cycles
                 pla
+                ; --- cut for native coding ---
 
                 dex
                 dex
@@ -4198,6 +4322,7 @@ xt_fromr
 
                 ply             ; the actual work
 
+                ; --- cut for native coding ---
                 pha             ; get return address back
 
 z_fromr         rts
@@ -5703,6 +5828,10 @@ nibble_to_ascii
 ; the end of the line if there is another line with code following it. No zero
 ; or CR/LF is required
 hi-start
+        ; Output and comment words
+        .byte ": ( [char] ) parse 2drop ; immediate "
+        .byte ": .( [char] ) parse type ; immediate "
+
         ; High flow control. Some of these could be realized with CS-ROLL and
         ; CS-PICK instead
         .byte ": if postpone 0branch here 0 , ; immediate compile-only "
@@ -5718,10 +5847,6 @@ hi-start
         .byte ": defer@ >body @ ; "
         .byte ": is state @ if postpone ['] postpone defer! else ' defer! then ; immediate "
         .byte ": action-of state @ if postpone ['] postpone defer@ else ' defer@ then ; immediate "
-
-        ; Output and comment words
-        .byte ": ( [char] ) parse 2drop ; immediate "
-        .byte ": .( [char] ) parse type ; immediate "
 
         ; High level math definitions. The should be moved to actual 65816 code
         ; for speed at some point. Note we use SM/REM instead of FM/MOD for most

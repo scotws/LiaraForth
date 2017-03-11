@@ -11,15 +11,6 @@
 ; I/O facilities are handled in the separate kernel files. The definitions for
 ; multitasking are preliminary and will probably change
 
-; ===================================================================
-; CONTROL VALUES
-
-        ; NC_LIMIT gives the number of maximum bytes the code of a word may be
-        ; long and still be compiled natively - see COMPILE, for details.
-        ; A value of zero means a word is always compiled as a subroutine. 
-        ; Words that are marked FN (Force Native) ignore this
-        ; TODO expose this to the user
-        .equ nc_limit 0
 
 ; ===================================================================
 ; MEMORY MAP 
@@ -99,7 +90,8 @@
         .equ tmp3      { user0 + &32 } ; Temporary storage
         .equ tmpdsp    { user0 + &34 } ; Temporary DSP (X) storage, 2 bytes
         .equ tmptos    { user0 + &36 } ; Temporary TOS (Y) storage, 2 bytes
-        .equ scratch   { user0 + &38 } ; 8 byte scratchpad (see UM/MOD)
+        .equ nc_limit  { user0 + &38 } ; Holds limit for Native Compile size
+        .equ scratch   { user0 + &40 } ; 8 byte scratchpad (see UM/MOD)
  
 
 ; ===================================================================
