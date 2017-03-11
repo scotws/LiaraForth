@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 08. Mar 2017
+; This version: 11. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -549,13 +549,10 @@ z_slashstring   rts
 
 ; -------------------------------------------------------------------
 ; . "DOT" ( n -- ) X bytes / X cycles
-; Print unsigned value that is TOS followed by a single space. Forth code is  DUP ABS
-; 0 <# #S ROT SIGN #> TYPE SPACE, but we want to have one routine that is not
-; high-level. Based on
+; Print value that is TOS followed by a single space. Forth code is  
+; DUP ABS 0 <# #S ROT SIGN #> TYPE SPACE   Based on 
 ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth Since this is
 ; used interactively, and humans are slow (just ask GlaDOS), we focus on size.
-; TODO Once we know this works, move to assembler
-; TODO make a version "print_unsigned" without a trailing space for output
 xt_dot           
                 jsr xt_dup              ; ( n n ) 
                 jsr xt_abs              ; ( n n ) 
@@ -597,8 +594,7 @@ z_dotquote
 ; Print content of Data Stack non-distructively. Since this is for humans, we
 ; don't have to worry about speed. We follow the format of Gforth
 ; and print the number of elements first in brackets, followed by the Data Stack
-; content (if present). 
-; TODO rewrite in high Forth words
+; content (if present). Uses tmp3
 xt_dots          
         .!a16
         .!xy16
@@ -614,12 +610,11 @@ xt_dots
                 dex
                 sty.dx 00
 
-                jsr print_number
+                jsr print_u             ; print unsigned number
 
                 lda.# '>'
                 jsr emit_a
                 jsr xt_space
-
 
                 ; There will be a lot of cases where .S is used when the stack
                 ; is empty. Get them first and exit quickly
@@ -628,42 +623,31 @@ xt_dots
 
 dots_not_empty
                 ; We have at least one element on the stack, which used to be in
-                ; Y as TOS, but is now NOS and therefore accessable by X. Also,
-                ; the depth of the Data Stack is already in Y waiting to be used
-                ; as a counter. We use this to our advantage. 
-                
-                stx.d tmpdsp
+                ; Y as TOS, but is now NOS and therefore accessable by X. The
+                ; depth of the Data Stack is in Y waiting to be used as
+                ; a counter. We use this to our advantage. 
+                lda.# { dsp0 - 4 }      ; skip two garbage entries on stack
+                sta.d tmp3              ; use as pointer
 
-                ; We print from the bottom up. Note that the Data Stack locations
-                ; dsp0 and dsp0+2 always contain garbage so they can be skipped.
-                ; See docs/INTERNALS.md for details 
-                ldx.# dsp0      ; points to dsp0, which is garbage
-                dex
-                dex             ; points to dsp0-2, which is also garbage
-                
 dots_loop
-                dex             ; get next element on DS, initially dsp0-4
-                dex             
+                lda.di tmp3             ; LDA (TMP1)
+                phy                     ; save our counter
+                tay
+                jsr xt_dot              ; print one number, drops TOS
 
-# HIER HIER HIER 
+                dex                     ; restore counter
+                dex
+                sty.dx 00
+                ply
+                
+                dec.d tmp3              ; next stack entry
+                dec.d tmp3
 
-                phy             ; save our counter
-                phx
-
-                ldy.dx 00       
-                jsr xt_udot     ; U. 
-
-                plx
-
-                ply             ; get counter back 
                 dey
-
-                bne dots_loop
-
-                ldx.d tmpdsp    ; restore data stack pointer
+                bne dots_loop 
 
 dots_done
-                ; Clean up. Again, we don't care about speed in this
+                ; Clean up. We don't care about speed in this
                 ; word so we save one byte by doing DROP the slow way
                 jsr xt_drop
 
@@ -801,9 +785,10 @@ xt_hash
                 jsr xt_rot      ; ( ud rem ) 
  
                 ; Convert the number that is left over to an ASCII character. We
-                ; use a string lookup for speed
+                ; use a string lookup for speed. Use either abc_str_lower for
+                ; lower case or abc_str_upper for upper case (prefered)
         .a8
-                lda.y alphastring
+                lda.y abc_str_upper
         .a16
                 ; overwrite remainder with ASCII value
                 and.# 00ff
@@ -909,6 +894,97 @@ xt_fetch
                 tay
 
 z_fetch         rts
+
+
+; -------------------------------------------------------------------
+; (+LOOP) "PARENS-PLUSLOOP" ( n -- ) X bytes / X cycles
+; Runtime compile for counted loop control. This is used for both +LOOP and
+; LOOP which are defined at high level. Note we use a fudge factor for loop
+; control so we can test with the Overflow Flag. See (DO) for details. This is
+; Native Compile. The step value is TOS in the loop
+xt_pploop        
+        .!a16
+                ; add step to index
+                tya             ; step
+                clv             ; this is used for loop control
+                clc 
+                adc.s 03        ; add index from top of R
+                sta.s 03        ; store it back on top of R
+
+                ; dump step from TOS
+                ldy.dx 00
+                inx
+                inx
+
+                ; if the V flag is set, we're done looping and continue after
+                ; the +LOOP instruction
+                bvs { pploop_jmp + 3 } 
+
+pploop_jmp
+                ; This is why this routine must be natively compiled: We compile
+                ; the opcode for jump here without an address to go to, which is
+                ; added by the next instruction of LOOP (or +LOOP) during
+                ; compile time
+                .byte 20        
+
+z_pploop        rts
+
+
+; -------------------------------------------------------------------
+; (?DO) "PARENS-QUESTION-DO" ( -- ) X bytes / X cycles
+; Runtime routine for ?DO. This contains the parts required for the question
+; mark and then drops through to (DO). This must be native compile
+xt_pqdo          
+                ; See if TOS and NOS are equal
+                ; TODO move this to assembler for speed
+                jsr xt_2dup
+                jsr xt_equal            ; now ( n1 n2 f ) 
+
+                tay                     ; force flag check
+                beq pqdo_done
+
+pqdo_done
+                ; get ready to drop to (DO)
+                ldy.dx 00               ; drop flag from EQUAL
+                inx
+                inx                     ; drop through to (DO)
+
+
+; -------------------------------------------------------------------
+; (DO) "PARENS-DO" ( limit start -- ; R: -- limit start ) X bytes / X cycles
+; Runtime routine for DO loop. Note that ANSI loops quit when the boundry of
+; limit-1 and limit is reached, a different mechanism than the FIG Forth loop
+; (you can see which version you have by running a loop with start and limit as
+; the same value, for instance 0 0 DO -- these will walk through the complete
+; number space). This is why there is ?DO, which you should use. We use a "fudge
+; factor" for the limit that makes the Overflow Flag trip when it is reached;
+; see http://forum.6502.org/viewtopic.php?f=9&t=2> for further discussion of
+; this. The source given there for this idea is Laxen & Perry F83. This routine
+; must be native compile (and should be anyway for speed). 
+xt_pdo           
+        .!a16
+                ; Create fudge factor (fufa) by subtracting the limit from
+                ; $8000, the number that will trip the overflow flag 
+                sec
+                lda.# 8000
+                sbc.dx 00       ; limit is NOS
+                sta.dx 00       ; save fufa for later use as NOS
+                pha             ; we use fufa instead of limit on R
+
+                ; Index is fufa plus original index
+                clc
+                tya             ; index is TOS
+                adc.dx 00       ; add fufa
+                pha
+                
+                ; clean up
+                inx
+                inx
+                inx
+                inx
+              
+z_pqdo          
+z_pdo           rts
 
 
 ; -------------------------------------------------------------------
@@ -2627,7 +2703,6 @@ does_rt
 ; Drop first entry on Data Stack
 
 xt_drop          
-        .!xy16
                 ldy.dx 00 
                 inx
                 inx
@@ -2637,47 +2712,33 @@ z_drop          rts
 
 ; -------------------------------------------------------------------
 ; DUMP ( addr u -- ) X bytes / X cycles
-; Print region of memory in a pretty way. 
-; TODO This is a crude, temporary version for testing. Rewrite ASAP
+; Print a region of memory in a pretty way. This is used interactively, so we
+; don't care about speed (humans are slow) and concentrate on size instead,
+; using JSR where we can. This is a primtive version until we get loops ready
 xt_dump          
-                ; we use tmp1 as a counter because we need Y for other
-                ; stuff
-                sty.d tmp1
-
-dump_line_loop
-                jsr xt_cr
-                
-                ; start internal counter for 16 numbers per row
-                ldy.# 0010
-dump_byte_loop
-                ; if there are zero bytes left to display, we're done
-                lda.d tmp1
+		tya		; force flag test
+dump_loop
                 beq dump_done
 
-                ; otherwise, print contents pointed to by address in NOS
-                lda.dxi 00
-                jsr byte_to_ascii       ; TODO replace by EMIT
-                jsr xt_space
+                phy             ; save counter
+                lda.dxi 00      ; get byte from address 
+                and.# 00ff
+                tay
+                inc.dx 00       ; address modified in place
 
-                ; next character
-                inc.dx 00
+                jsr xt_udot     ; U.
 
-                ; loop counter
-                dec.d tmp1
+                dex
+                dex
+                sty.dx 00
+                ply             ; get counter back
+                
                 dey
-                bne dump_byte_loop
-                bra dump_line_loop
+                bra dump_loop 
                 
 dump_done
                 jsr xt_cr 
-
-                ; drop everything and return
-                ; TODO replace by call of 2DROP
-                ldy.dx 02
-                inx
-                inx
-                inx
-                inx
+                jsr xt_2drop
                 
 z_dump          rts
 
@@ -4727,6 +4788,7 @@ z_tuck          rts
 ; TYPE  ( addr u -- ) 23+ bytes / X cycles
 ; Print character string if u is not 0. Works though EMIT and is affect by the
 ; OUTPUT revectoring
+; TODO LATER add PAUSE here for multitasking
 xt_type          
         .!a16
         .!xy16
@@ -4755,7 +4817,6 @@ type_done
                 inx
                 inx
 
-                ; TODO LATER add PAUSE here for multitasking
                 
 z_type         rts
 
@@ -4763,10 +4824,11 @@ z_type         rts
 ; -------------------------------------------------------------------
 ; UDOT ( n -- ) X bytes / X cycles
 ; Print unsigned number. This is based on the Forth word 
-; 0 <# #S #> TYPE SPACE but uses the general print_number routine 
-; that .S and DUMP etc use as well. 
+; 0 <# #S #> TYPE SPACE but uses the general print_u routine 
+; that .S and DUMP use as well. 
 xt_udot          
-                jsr print_number        ; ( n -- ) 
+                jsr print_u             ; ( n -- ) 
+
                 lda.# 0020              ; SPACE
                 jmp emit_a              ; JSR/RTS
                 
@@ -5023,6 +5085,25 @@ ummod_complete
                 sta.dx 00       
 
 z_ummod         rts
+
+
+; -------------------------------------------------------------------
+; UNLOOP ( -- ; R: n n n -- ) X bytes / X cycles
+; Drop loop control stuff from Return Stack. 
+; TODO make this faster
+xt_unloop        
+                ; drop fudge number (limit/start) from DO/?DO off the Return
+                ; Stack 
+                pla
+                pla
+                pla
+                pla
+
+                ; Drop the LEAVE address that was below them as well
+                pla
+                pla
+
+z_unloop        rts
 
 
 ; -------------------------------------------------------------------
@@ -5563,7 +5644,7 @@ print_string_done
 ; PRINT UNSIGNED NUMBER
 ; Is the equivalent to Forth's 0 <# S# #> TYPE or U. without the SPACE at the
 ; end. TODO convert this to more assembler for speed
-print_number
+print_u
                 dex                     ; 0 
                 dex
                 sty.dx 00
@@ -5653,19 +5734,13 @@ hi-start
         ; Output definitions. Since these usually involve the user, and humans
         ; are slow, these can stay high-level for the moment. Based on
         ; https://github.com/philburk/pforth/blob/master/fth/numberio.fth
-        
-        ; TODO becaues of Tinker bug, ".byte" is recognized as the directive
-        ; even though it is in a string. Until that is fixed, we start with the
-        ; ASCII code for a dot
-;       .byte ": ", &46, "byte 0 <# # #s #> type space ; "
-;       .byte ": u. 0 <# #s #> type space ; "
+        ; . (DOT) and U. are hard-coded because there are used by other words
         .byte ": u.r >r 0 <# #s #> r> over - spaces type ; "
         .byte ": .r >r dup abs 0 <# #s rot sign #> r> over - spaces type ; "
         .byte ": ud. <# #s #> type space ; "
         .byte ": ud.r >r <# #s #> r> over - spaces type ; "
         .byte ": d. tuck dabs <# #s rot sign #> type space ; "
         .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
-;       .byte ": . dup abs 0 <# #s rot sign #> type space ; "
 
         ; LOOP constructs. See discussion at 
 	; https://blogs.msdn.microsoft.com/ashleyf/2011/02/06/loopty-do-i-loop/
@@ -5673,12 +5748,11 @@ hi-start
 	; .byte ": +loop postpone (+loop) , postpone unloop ; immediate compile-only "
 	; .byte ": loop postpone 1 postpone (+loop) , postpone unloop ; immediate compile-only "
         ; .byte ": leave postpone branch here swap 0 , ; immediate compile-only "
-
-        ; .S was realized in assembler form during construction but is replaced
-        ; by a high-level word because it is easier to modify
-        ; TODO finish coding or put 
-        ; .byte ": .s .", &34, " <", &34, " depth u. .", &34, " >", &34, ' ' 
-        ; .byte " 0 <# # #s #> type ; "
+        
+        ; DUMP is a longish word we'll want to modify for a while until we are
+        ; happy with the format
+        ; .byte ": dump bounds ?do cr i 4 u.r space"
+	; .byte "16 0 do i j + c@ 0 <# # #s #> type space loop 16 +loop ;"   
 
         ; SEE is a longish word we'll want to modify for a while until we are
         ; happy with the format
@@ -5689,7 +5763,7 @@ hi-start
         .byte "dup 1+ c@ 2 and if space .", &34, " IM", &34, " then "
         .byte "dup 1+ c@ 4 and if space .", &34, " CO", &34, " then "
         .byte "dup cr space .", &34, " size (decimal): ", &34, " decimal wordsize dup . "
-        .byte "swap name>int swap dump r> base ! ; "
+        .byte "swap name>int swap hex dump r> base ! ; "
 
 ; ===================================================================
 ; USER INCLUDES
@@ -5704,12 +5778,11 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 9. March 2017)"
+        .byte "cr .( Version PRE-ALPHA 11. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
 hi-end
-
 
 
 ; ===================================================================

@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 08. March 2017
+Last update: 11. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -29,6 +29,9 @@ Last update: 08. March 2017
 | ?DUP                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | @ "fetch"           | coded    | ANSI core     | NC       | 4     |  (TBA) |
 | (                   | coded    | ANSI core     | NC       | Forth |  Forth |
+| (+LOOP)             | coded    | Liara         | CO NC    | (TBA) |  (TBA) |
+| (?DO)               | coded    | Liara         | CO NC    | (TBA) |  (TBA) |
+| (DO)                | coded    | Liara         | CO NC    | (TBA) |  (TBA) |
 | \[                  | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | \['\] "brackettick" | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | \[CHAR\]            | coded    | ANSI core     | IM CO NC | (TBA) |  (TBA) |
@@ -40,6 +43,7 @@ Last update: 08. March 2017
 | */MOD               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | +                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | +!                  | coded    | ANSI core     | NC       | 15    |  (TBA) |
+| +LOOP               | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | -                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | -ROT                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | -TRAILING           | coded    | ANSI string   | NC       | (TBA) |  (TBA) |
@@ -116,6 +120,7 @@ Last update: 08. March 2017
 | DEPTH               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | DIGIT?              | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | DNEGATE             | coded    | ANSI double   | NC       | 19    |  (TBA) |
+| DO                  | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | DOES>               | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | DROP                | coded    | ANSI core     | NC       | 4     |      9 |
 | DUMP                | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
@@ -141,8 +146,10 @@ Last update: 08. March 2017
 | KEY                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | LATESTNT            | coded    | Liara         | NC       | 7     |  (TBA) |
 | LATESTXT            | coded    | Gforth        | NC       | (TBA) |  (TBA) |
-| LSHIFT              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| LEAVE               | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
 | LITERAL             | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
+| LOOP                | coded    | ANSI core     | NC IM CO | (TBA) |  (TBA) |
+| LSHIFT              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | M*                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | MARKER              | coded    | ANSI core ext | IM NC    | (TBA) |  (TBA) |
 | MAX                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
@@ -190,9 +197,10 @@ Last update: 08. March 2017
 | U.R                 | coded    | ANSI core ext |          | Forth |  Forth |
 | UD.                 | coded    | ANSI core     |          | Forth |  Forth |
 | UD.R                | coded    | ANSI core     |          | Forth |  Forth |
-| UM*                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | UD/MOD              | coded    | Gforth        | NC       | (TBA) |  (TBA) |
+| UM*                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | UM/MOD              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| UNLOOP              | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
 | UNUSED              | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VALUE               | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VARIABLE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |

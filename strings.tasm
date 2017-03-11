@@ -1,7 +1,7 @@
 ; List of Strings for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version:  05. Mar 2017
+; This version:  11. Mar 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -56,5 +56,8 @@ tests_next_cmd .byte "(next command)", 0
 
 ; Leave alphastr as the last entry in the source code to make it easier to
 ; see where this section ends. This cannot be a zero-terminated string
+; TODO see if we need lower
 
-alphastring .byte "0123456789abcdefghijklmnopqrstuvwyz"
+abc_str_lower .byte "0123456789abcdefghijklmnopqrstuvwyz"
+abc_str_upper .byte "0123456789ABCDEFGHIJKLMNOPQRSTUVWYZ"
+
