@@ -220,8 +220,9 @@ Words written especially for the board are marked with "Liara", words that come
 from Gforth with "Gforth". See [the Forth Standard](https://forth-standard.org/)
 for basis.
 
-***Flags*** - **CO** (compile only), **IM** (immediate word), 
-**NC** (Native Compile Allowed)
+***Flags*** - **CO** (Compile Only), **IM** (IMmediate word), 
+**NC** (Native Compile allowed), **FN** (Force Native, must be compiled
+natively)
 
 ***Size*** - If a native word, number of bytes the code uses (without the
 initial JSR call and final RTS, which together add 4 bytes and 12 cycles). If

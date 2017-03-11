@@ -38,6 +38,7 @@
 ;       CO - Compile Only
 ;       IM - Immediate Word
 ;       NC - Native Compile allowed (inline compile)
+;       FN - Force Native Compile (may not be called by JSR)
 
 ; Note there are currently five bits unused. The last word (top word in code)
 ; is always BYE. It is marked as the last word by its value of 0000 in its Next

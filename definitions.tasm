@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 05. Mar 2017
+; This version: 11. Mar 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -17,6 +17,7 @@
         ; NC_LIMIT gives the number of maximum bytes the code of a word may be
         ; long and still be compiled natively - see COMPILE, for details.
         ; A value of zero means a word is always compiled as a subroutine. 
+        ; Words that are marked FN (Force Native) ignore this
         ; TODO expose this to the user
         .equ nc_limit 0
 
@@ -116,7 +117,8 @@
         .equ AscSP   20  ; space ASCII character
         .equ AscDEL  7f  ; DEL ASCII character
 
-; Dictionary flags. The first four are currently unused
+; Dictionary flags. The first four bits are currently unused
+        .equ FN 0008 ; Force Native compile
         .equ CO 0004 ; Compile Only
         .equ IM 0002 ; Immediate Word
         .equ NC 0001 ; Native Compile allowed
