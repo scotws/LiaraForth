@@ -175,6 +175,21 @@ natively compiled.
 number of cycles used per word and then calculate the percentage of the JSR/RTS
 overhead. If the code base ever stabilizes, this might be worth the effort.) 
 
+There are some gotchas with native compile. Usually, a sequence such as 
+
+```
+        jsr emit_a
+        rts
+```
+can be abreviated to 
+```
+        jmp emit_a      ; JSR/RTS
+```
+
+This will _not_ work with native compile, because we probably didn't enter this
+word with a subroutine jump and would RTS back to the higher calling level,
+crashing the program.
+
 
 ## Input of text
 

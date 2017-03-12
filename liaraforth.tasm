@@ -590,10 +590,9 @@ xt_dotquote
                 jsr xt_sliteral
 
                 phe.# xt_type
-                jsr cmpl_subroutine     
+                jsr cmpl_subroutine     ; don't JSR/RTS
 
-                rts
-z_dotquote      
+z_dotquote      rts
 
 
 ; -------------------------------------------------------------------
@@ -654,7 +653,6 @@ dots_loop
                 bne dots_loop 
 
 dots_done
-                ; Clean up. We don't care about speed in this
                 ; word so we save one byte by doing DROP the slow way
                 jsr xt_drop
 
@@ -745,8 +743,6 @@ z_colon         rts
 ; previous word, and CP to the next free byte.  A Forth definition would be 
 ; (see "Starting Forth"):
 ;  : ;  POSTPONE EXIT  REVEAL POSTPONE ; [ ; IMMEDIATE
-;  TODO If the last instruction is a subroutine jump, replace it with a JMP and
-;  don't add a RTS (JSR/RTS --> JMP)
 xt_semicolon     
         .!a16
                 sty.d tmptos
@@ -803,7 +799,7 @@ xt_hash
                 and.# 00ff
                 tay             ; ( ud char ) 
 
-                jsr xt_hold     ; JSR/RTS
+                jsr xt_hold 
                 
 z_hash          rts 
 
@@ -1001,8 +997,9 @@ z_pdo           rts
 ; Store xt of following word during compilation
 xt_brackettick   
                 jsr xt_tick
-                jmp xt_literal  ; JSR/RTS
-z_brackettick   
+                jsr xt_literal
+
+z_brackettick   rts
 
 
 ; -------------------------------------------------------------------
@@ -1035,7 +1032,7 @@ xt_bracketchar
                 jsr xt_char
                 jsr xt_literal
              
-z_bracketchar  rts
+z_bracketchar   rts
 
 
 ; -------------------------------------------------------------------
@@ -1599,7 +1596,7 @@ xt_accept
                 inx             ; NIP, TOS is zero which is also FALSE
                 inx
 
-                rts
+                jmp z_accept    ; no RTS so we can native compile
 
 accept_nonzero
                 lda.dx 00       ; address of buffer is NOS
@@ -1674,8 +1671,8 @@ accept_loop
 accept_eol
                 sty.d ciblen    ; Y contains number of chars accepted already
 
-                jsr xt_space     ; print final space
-                rts             ; this is the actual return of the routine
+                jsr xt_space    ; print final space
+                bra z_accept    
 
 accept_bs
                 cpy.# 0000      ; buffer empty?
@@ -1852,13 +1849,12 @@ z_base          rts
 ; -------------------------------------------------------------------
 ; BELL ( -- ) X bytes / X cycles
 ; Trigger terminal bell on vt100 terminals
-; TODO replace with EMIT
 xt_bell          
         .!a16
                 lda.# AscBELL 
-                jmp.i output      ; JSR/RTS
+                jsr emit_a  
 
-z_bell          ; never reached
+z_bell          rts
 
 ; -------------------------------------------------------------------
 ; BEGIN ( -- addr ) 6 bytes / 13 cycles
@@ -1999,6 +1995,7 @@ z_c-store       rts
 xt_cellplus         
                 iny
                 iny
+
 z_cellplus      rts
 
 
@@ -2377,9 +2374,9 @@ z_count         rts
 ; Cause following output to appear at beginning of next line
 xt_cr            
                 lda.# AscLF     ; test with AscCR for emulators
-                jmp.i output    ; JSR/RTS
+                jsr emit_a 
 
-z_cr            ; never reached
+z_cr            rts
 
 ; -------------------------------------------------------------------
 ; CREATE ( "name" -- ) X bytes / X cycles
@@ -2544,9 +2541,9 @@ xt_defer
                 inc.d cp
                 inc.d cp
 
-                jmp adjust_z    ; adjust the header to the correct length
+                jsr adjust_z    ; adjust the header to the correct length
                 
-z_defer         ; never reached
+z_defer         rts
 
 
 ; -------------------------------------------------------------------
@@ -2874,7 +2871,7 @@ z_dup           rts
 ; the OUTPUT variable. We ignore the MSB completely, and do not check to see if
 ; we have been given a valid ASCII character. Note that we keep the A register
 ; in 16 bit mode all the time - it is up to the kernel routine stored at OUTPUT
-; to deal with that. 
+; to deal with that. Don't make this native compile
 xt_emit         
         .!a16
                 ; we put the value in A so we don't have to switch the XY
@@ -3288,7 +3285,7 @@ xt_key
 
                 tay
 
-z_key           ; never reached
+z_key           rts
 
 
 ; -------------------------------------------------------------------
@@ -3355,6 +3352,7 @@ in_notfound
 
 in_found
                 ldy.d tmp1      ; replace xt by nt
+
 z_int-name      rts
 
 
@@ -3708,14 +3706,15 @@ xt_move
                 ; calls MVP
                 bpl move_cmoveup
 
-                jmp xt_cmove    ; JSR/RTS
+                jsr xt_cmove
+                bra z_move      ; don't RTS because we might be natively compiling
 
                 ; The source is higher than the destination, use CMOVE>,
                 ; which calls MVN
 move_cmoveup
-                jmp xt_cmoveup
+                jsr xt_cmoveup
 
-z_move          ; never reached
+z_move          rts
 
 
 ; -------------------------------------------------------------------
@@ -3805,9 +3804,9 @@ z_negate        rts
 ; NIP ( n m -- m ) 2 bytes / 4 cycles
 ; Delete entry that is NOS
 xt_nip           
-        .!xy16
                 inx
                 inx
+
 z_nip           rts
 
 
@@ -4078,7 +4077,7 @@ parse-name_empty_line
 
                 ldy.# 0000              ; TOS 
 
-                rts                     ; don't have to go through PARSE
+                jmp z_parse-name        ; don't have to go through PARSE
 
 parse-name_found
         .!xy16
@@ -4260,7 +4259,8 @@ pp_got_nt
                 ; The word is immediate, so instead of executing it right now,
                 ; we compile it. xt is on the stack, so this is simple. The RTS
                 ; of COMPILE, takes us back to the original caller
-                jmp xt_compilecomma     ; JSR/RTS
+                jsr xt_compilecomma
+                rts
 
 pp_not_immediate
                 ; This is not an immediate word, so we enact "deferred
@@ -4275,9 +4275,9 @@ pp_not_immediate
                 ; and ruin everything
                 jsr xt_comma
 
-                ; compile COMPILE, - it's RTS takes us back to original caller
+                ; compile COMPILE, 
                 phe.# xt_compilecomma
-                jsr cmpl_subroutine     ; JSR/RTS
+                jsr cmpl_subroutine 
 
 z_postpone      rts
 
@@ -4368,7 +4368,7 @@ xt_refill
                 ; need them. We just overwrite TOS this with the flag
                 ldy.# 0ffff
 
-                rts
+                bra z_refill
 
 refill_src_not_kbd
                 ; If SOURCE-ID doesn't return a zero, it must be a string in
@@ -4382,7 +4382,7 @@ refill_src_not_kbd
                 sty.dx 00
                 tay
 
-                rts
+                bra z_refill
 
 refill_source_is_not_string
                 ; Since we don't have blocks, this must mean that we are trying
@@ -4400,7 +4400,6 @@ z_refill        rts     ; dummy for compiling
 ; Remember this with the "R" for "revolution": The bottom entry becomes the top.
 xt_rot           
         .!a16
-        .!xy16
                 lda.dx 00       ; save b
                 sty.dx 00       ; move c to NOS
                 ldy.dx 02       ; move a to TOS
@@ -4499,9 +4498,8 @@ xt_squote
                 bra z_squote
 
 squote_compile             
-                ; We're compiling, so we need SLITERAL. We use it's RTS while
-                ; we're at it
-                jmp xt_sliteral         ; JSR/RTS
+                ; We're compiling, so we need SLITERAL
+                jsr xt_sliteral
 
 z_squote        rts
 
@@ -4541,7 +4539,8 @@ xt_sign
                 ; We're negative, overwrite number TOS
                 ldy.# 002d      ; ASCII for '-'
 
-                jmp xt_hold     ; JSR/RTS, does not fall through
+                jsr xt_hold
+                bra z_sign
 
 sign_plus
                 ldy.dx 00       ; get rid of number and leave
@@ -4795,13 +4794,13 @@ z_source-id     rts
 
 ; -------------------------------------------------------------------
 ; SPACE ( -- ) X bytes / X cycles
-; Print one ASCII space character  
-; TODO change to call EMIT
+; Print one ASCII space character. We need to leave JSR EMIT_A as a subroutine
+; instead of JSR/RTS it to JMP to allow native compile  
 xt_space         
                 lda.# AscSP
-                jmp.i output    ; JSR/RTS
+                jsr emit_a
 
-z_space         ; never reached
+z_space         rts
 
 
 ; -------------------------------------------------------------------
@@ -4832,6 +4831,7 @@ z_spaces        rts
 ; more than UM* DROP
 xt_star          
                 jsr xt_umstar
+
                 ldy.dx 00       ; DROP
                 inx
                 inx
@@ -4945,22 +4945,22 @@ type_done
                 inx
                 inx
 
-                
-z_type         rts
+z_type          rts
 
 
 ; -------------------------------------------------------------------
 ; UDOT ( n -- ) X bytes / X cycles
 ; Print unsigned number. This is based on the Forth word 
 ; 0 <# #S #> TYPE SPACE but uses the general print_u routine 
-; that .S and DUMP use as well. 
+; that .S and DUMP use as well. We need to keep JSR EMIT_A instead of JSR/RTS it
+; to JMP to allow native compile
 xt_udot          
                 jsr print_u             ; ( n -- ) 
 
                 lda.# 0020              ; SPACE
-                jmp emit_a              ; JSR/RTS
+                jsr emit_a 
                 
-z_udot          ; not reached
+z_udot          rts
 
 
 
@@ -4982,8 +4982,8 @@ xt_udmod
                 jsr xt_rot
                 jsr xt_fromr
                 jsr xt_ummod
-                jmp xt_rot       ; JSR/RTS
-z_udmod         
+                jsr xt_rot
+z_udmod         rts
 
 
 ; -------------------------------------------------------------------
@@ -5276,9 +5276,9 @@ xt_variable
                 inc.d cp        ; direct COMMA
                 inc.d cp
 
-                jmp adjust_z    ; adjust the z_ value by adding 2 bytes
+                jsr adjust_z    ; adjust the z_ value by adding 2 bytes
 
-z_variable      ; never reached
+z_variable      rts
 
 
 ; -------------------------------------------------------------------
@@ -5437,7 +5437,7 @@ xt_xor
                 inx
                 inx
 
-z_xor            rts
+z_xor           rts
 
 
 ; ===================================================================
@@ -5765,6 +5765,7 @@ print_string_done
                 jsr emit_a
         .a16
                 plx
+
                 rts
 
 
@@ -5786,7 +5787,9 @@ print_u
  
                 jsr xt_hashs            ; #S
                 jsr xt_numbermore       ; #> 
-                jmp xt_type             ; TYPE - JSR/RTS
+                jsr xt_type 
+
+                rts
 
 
 ; ------------------------------------------------------------------- 
@@ -5885,13 +5888,13 @@ hi-start
         ; SEE is a longish word we'll want to modify for a while until we are
         ; happy with the format
         .byte ": see parse-name find-name dup 0= abort", &34, " No such name", &34, ' '
-        .byte "base @ >r hex  dup cr space .", &34, " nt: ", &34, " . "
+        .byte "base @ >r  hex  dup cr space .", &34, " nt: ", &34, " . "
         .byte "dup 4 + @ space .", &34, " xt: ", &34, " . "
         .byte "dup 1+ c@ 1 and if space .", &34, " NC", &34, " then "
         .byte "dup 1+ c@ 2 and if space .", &34, " IM", &34, " then "
         .byte "dup 1+ c@ 4 and if space .", &34, " CO", &34, " then "
         .byte "dup cr space .", &34, " size (decimal): ", &34, " decimal wordsize dup . "
-        .byte "swap name>int swap hex dump r> base ! ; "
+        .byte "swap name>int swap hex cr space dump  r> base ! ; "
 
 ; ===================================================================
 ; USER INCLUDES

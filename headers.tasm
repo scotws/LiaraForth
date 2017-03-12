@@ -318,7 +318,7 @@ nt_udot .byte 2, { NC }
         .word nt_type, xt_udot, z_udot
         .byte "u."
 
-nt_emit .byte 4, { NC }
+nt_emit .byte 4, 0      ; not native compile
         .word nt_udot, xt_emit, z_emit
         .byte "emit"
 
@@ -354,7 +354,7 @@ nt_cells .byte 5, { NC }	; 2* because we have 16 bit stack
         .word nt_evaluate, xt_two-star, z_two-star
         .byte "cells"
 
-nt_dotquote .byte 2, { CO + NC + IM }
+nt_dotquote .byte 2, { CO + IM }
         .word nt_cells, xt_dotquote, z_dotquote
         .byte '.', &34
 

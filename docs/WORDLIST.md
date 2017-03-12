@@ -11,7 +11,7 @@ Last update: 11. March 2017
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
 | .                   | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
 | .(                  | coded    | ANSI core ext | IM       | Forth | Forth  |
-| ."                  | coded    | ANSI core     | CO NC    | (TBA) |  (TBA) |
+| ."                  | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | .BYTE               | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | .R                  | coded    | ANSI core ext | NC       | Forth |  Forth |
 | .S                  | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
