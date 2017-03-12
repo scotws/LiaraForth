@@ -745,6 +745,8 @@ z_colon         rts
 ; previous word, and CP to the next free byte.  A Forth definition would be 
 ; (see "Starting Forth"):
 ;  : ;  POSTPONE EXIT  REVEAL POSTPONE ; [ ; IMMEDIATE
+;  TODO If the last instruction is a subroutine jump, replace it with a JMP and
+;  don't add a RTS (JSR/RTS --> JMP)
 xt_semicolon     
         .!a16
                 sty.d tmptos
@@ -763,7 +765,7 @@ xt_semicolon
                 lda.# 60                ; opcode for RTS
                 sta.di cp               ; STA (CP)
                 inc.d cp                ; MSB will be overwritten
-                
+
                 ; Word definition is complete. Make the new word the last one in
                 ; the Dictionary
                 lda.d workword
@@ -915,8 +917,8 @@ xt_pploop
                 tya             ; step
                 clv             ; this is used for loop control
                 clc 
-                adc.s 03        ; add index from top of R
-                sta.s 03        ; store it back on top of R
+                adc.s 01        ; add index from top of R
+                sta.s 01        ; store it back on top of R
 
                 ; dump step from TOS
                 ldy.dx 00
@@ -1449,9 +1451,9 @@ xt_tworfetch
                 dex
                 sty.dx 02
 
-                lda.s 03        ; get top of Return Stack
+                lda.s 03        ; get second element of Return Stack
                 tay
-                lda.s 05        ; get next on Return Stack 
+                lda.s 05        ; get third element on Return Stack 
                 sta.dx 00
                 
 z_tworfetch     rts
@@ -1861,8 +1863,8 @@ z_bell          ; never reached
 ; -------------------------------------------------------------------
 ; BEGIN ( -- addr ) 6 bytes / 13 cycles
 ; Mark entry point for a loop. This is just an immediate version of here which
-; could just as welle be coded as  : BEGIN HERE ; IMMEDIATE  but we code it here
-; differently for speed
+; could just as welle be coded as  : BEGIN HERE ; IMMEDIATE COMPILE-ONLY
+; but we code it here for speed
 xt_begin         
                 ; really just the same code as HERE
                 dex
@@ -2177,13 +2179,14 @@ xt_compilecomma
                 ; user set. WORDSIZE takes nt
                 jsr xt_wordsize         ; ( nt -- u ) 
                 tya
+                clc
                 cmp.d nc_limit
                 bcs compile_as_jump     ; if too large, compile as a jump
 
 compile_as_code
-                ; We arrive here with the length of the word TOS and xt on top
-                ; of the return stack. MOVE will need ( xt cp u ) on the Data
-                ; Stack
+                ; We arrive here with the length of the word TOS ( u ) and xt on
+                ; top of the return stack. MOVE will need ( xt cp u ) on the
+                ; Data Stack
                 dex
                 dex
                 pla
@@ -2859,7 +2862,6 @@ z_dump          rts
 ; DUP  ( n -- n n ) 4 bytes / 9 cycles
 ; Duplicate first entry on Data Stack
 xt_dup           
-        .!xy16
                 dex
                 dex
                 sty.dx 00
@@ -3699,7 +3701,7 @@ xt_move
                 ; if source and destination are the same, that would be silly as
                 ; well
                 lda.dx 00       ; addr2 (destination)
-                cmp.dx 04       ; addr1 (source) 
+                cmp.dx 02       ; addr1 (source) 
                 beq z_move
 
                 ; The destination is higher than the source, so use CMOVE, which
@@ -4804,17 +4806,18 @@ z_space         ; never reached
 
 ; -------------------------------------------------------------------
 ; SPACES ( u -- ) 12 bytes / X cycles
-; Print u spaces. Calls SPACE, because this is probably interactive and humans
-; are slow enough we don't have to care about speed.
+; Print u spaces
 xt_spaces        
         .!a16
-        .!xy16
-@
+
+spaces_loop 
                 dey             ; this also handles case u=0
                 bmi spaces_done
 
-                jsr xt_space
-                bra - 
+                lda.# 0020
+                jsr emit_a
+
+                bra spaces_loop
 
 spaces_done
                 ldy.dx 00       ; DROP
@@ -5585,7 +5588,6 @@ interpret_loop
                 ; We didn't get any nt we know of, so let's see if this is
                 ; a number. 
                 jsr xt_drop             ; TODO convert this to assembler
-
 
                 ; If the number conversion doesn't work, NUMBER will do the
                 ; complaining for us

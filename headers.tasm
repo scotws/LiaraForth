@@ -442,7 +442,7 @@ nt_semicolon .byte 1, { CO + IM }
         .word nt_compilecomma, xt_semicolon, z_semicolon
         .byte ';'
 
-nt_colon .byte 1, { NC }
+nt_colon .byte 1, 0
         .word nt_semicolon, xt_colon, z_colon
         .byte ':'
 
@@ -462,7 +462,7 @@ nt_does .byte 5, { IM + CO }
         .word nt_tobody, xt_does, z_does
         .byte "does>"
 
-nt_create .byte 6, { NC }
+nt_create .byte 6, 0
         .word nt_does, xt_create, z_create
         .byte "create"
 

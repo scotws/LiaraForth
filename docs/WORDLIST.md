@@ -19,7 +19,7 @@ Last update: 11. March 2017
 | /MOD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | /STRING             | coded    | ANSI string   | NC       | (TBA) |  (TBA) |
 | ,                   | coded    | ANSI core     | NC       | 11    |     29 |
-| :                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| :                   | coded    | ANSI core     |          | (TBA) |  (TBA) |
 | ;                   | coded    | ANSI core     | CO IM NC | (TBA) |  (TBA) |
 | # "number-sign"     | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | #> "number-greater" | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -108,7 +108,7 @@ Last update: 11. March 2017
 | CONSTANT            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | COUNT               | coded    | ANSI core     | NC       | 14    |  (TBA) |
 | CR                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| CREATE              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| CREATE              | coded    | ANSI core     |          | (TBA) |  (TBA) |
 | D+                  | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | D-                  | coded    | ANSI double   | NC       | (TBA) |  (TBA) |
 | D.                  | coded    | ANSI double   |          | Forth |  Forth |
