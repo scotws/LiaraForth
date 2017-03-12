@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 11. Mar 2017
+; This version: 12. Mar 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -174,11 +174,11 @@ nt_stod .byte 3, { NC }
         .word nt_dtos, xt_stod, z_stod
         .byte "s>d"
 
-nt_twofromr .byte 3, { CO }
+nt_twofromr .byte 3, { CO + NC }        ; NC is special case
         .word nt_stod, xt_twofromr, z_twofromr
         .byte "2r>"
 
-nt_twotor .byte 3, { CO }
+nt_twotor .byte 3, { CO + NC }          ; NC is special case
         .word nt_twofromr, xt_twotor, z_twotor
         .byte "2>r"
 
@@ -730,11 +730,11 @@ nt_rfetch .byte 2, 0 ; we follow Gforth in making this not CO
         .word nt_2drop, xt_rfetch, z_rfetch
         .byte "r@"
 
-nt_fromr .byte 2, { CO }
+nt_fromr .byte 2, { CO + NC }   ; NC is special case
         .word nt_rfetch, xt_fromr, z_fromr
         .byte "r>"
 
-nt_tor  .byte 2, { CO }
+nt_tor  .byte 2, { CO + NC }    ; NC is special case
         .word nt_fromr, xt_tor, z_tor
         .byte ">r"
 

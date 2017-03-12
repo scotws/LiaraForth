@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 11. Mar 2017
+; This version: 12. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -58,9 +58,9 @@ start
                 lda.# 000a
                 sta.d base 
 
-                ; We start out with all words (except those with Forced Native
-                ; compile) being compiled to subroutine jumps
-                lda.# 0000
+                ; We start out with smaller words with less than 20 bytes being
+                ; natively compiled, because this includes words like LSHIFT and MAX. 
+                lda.# &0020
                 sta.d nc_limit
                
                 ; set the OUTPUT vector to the default, which is always put_chr,
@@ -5400,6 +5400,7 @@ z_wordsnsizes   rts
 ; Given an word's name token (nt), return the size of the word's payload (CFA
 ; plus PFA) in bytes. Does not count the final RTS. Specific to Liara Forth. 
 ; Uses tmp2, note WORDS and WORDS&SIZES use tmp3
+; TODO rewrite so it takes xt and not nt
 xt_wordsize      
                 ; We get the beginning address of the code from the word's
                 ; header entry for the execution token (xt, 4 bytes down) and
@@ -5903,7 +5904,7 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 11. March 2017)"
+        .byte "cr .( Version PRE-ALPHA 12. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
