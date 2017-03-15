@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 11. March 2017
+Last update: 15. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -26,6 +26,7 @@ Last update: 11. March 2017
 | #S "number-s"       | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ! "store"           | coded    | ANSI core     | NC       | 9     |  (TBA) |
 | ? "question"        | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
+| ?DO                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | ?DUP                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | @ "fetch"           | coded    | ANSI core     | NC       | 4     |  (TBA) |
 | (                   | coded    | ANSI core     | NC       | Forth |  Forth |
@@ -120,7 +121,7 @@ Last update: 11. March 2017
 | DEPTH               | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | DIGIT?              | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | DNEGATE             | coded    | ANSI double   | NC       | 19    |  (TBA) |
-| DO                  | fragment | ANSI core     | NC       | (TBA) |  (TBA) |
+| DO                  | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | DOES>               | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | DROP                | coded    | ANSI core     | NC       | 4     |      9 |
 | DUMP                | fragment | ANSI tools    | NC       | (TBA) |  (TBA) |
@@ -138,6 +139,7 @@ Last update: 11. March 2017
 | HERE                | coded    | ANSI core     | NC       | 6     |     13 |
 | HEX                 | coded    | ANSI core     | NC       | 7     |  (TBA) |
 | HOLD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| I                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | IF                  | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | IMMEDIATE           | coded    | ANSI core     | NC       | 8     |  (TBA) |
 | INPUT               | coded    | Liara         | NC       | (TBA) |  (TBA) |

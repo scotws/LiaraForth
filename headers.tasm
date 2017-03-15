@@ -94,16 +94,36 @@ nt_pploop .byte 7, { NC + CO }
         .word nt_unloop, xt_pploop, z_pploop
         .byte "(+loop)"
 
+nt_ploop .byte 5, { IM + CO }
+        .word nt_pploop, xt_ploop, z_ploop
+        .byte "+loop"
+
+nt_loop .byte 4, { IM + CO }
+        .word nt_ploop, xt_loop, z_loop
+        .byte "loop"
+
+nt_i    .byte 1, { NC + CO }
+        .word nt_loop, xt_i, z_i
+        .byte 'i'
+
 nt_pqdo .byte 5, { NC + CO }
-        .word nt_pploop, xt_pqdo, z_pqdo
+        .word nt_i, xt_pqdo, z_pqdo
         .byte "(?do)"
 
 nt_pdo  .byte 4, { NC + CO }
         .word nt_pqdo, xt_pdo, z_pdo
         .byte "(do)"
 
+nt_qdo  .byte 3, { IM + CO }	; may not be Native Compile
+        .word nt_pdo, xt_qdo, z_qdo
+        .byte "?do"
+
+nt_do   .byte 2, { IM + CO }	; may not be Native Compile
+        .word nt_qdo, xt_do, z_do
+        .byte "do"
+
 nt_marker .byte 6, { IM + NC }
-        .word nt_pdo, xt_marker, z_marker
+        .word nt_do, xt_marker, z_marker
         .byte "marker"
 
 nt_wordsize .byte 8, { NC }

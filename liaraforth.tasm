@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 12. Mar 2017
+; This version: 14. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -270,7 +270,6 @@ z_not-equal     rts
 ; http://pforth.googlecode.com/svn/trunk/fth/numberio.fth pForth is in the pubic
 ; domain. Forth is : <# PAD HLD ! ; we use the internal variable tohold instead
 ; of HLD.
-; TODO consider using OUTPUT buffer as a location instead
 xt_lessnumber    
                 jsr xt_pad
                 sty.d tohold
@@ -930,9 +929,9 @@ pploop_jmp
                 ; the opcode for jump here without an address to go to, which is
                 ; added by the next instruction of LOOP (or +LOOP) during
                 ; compile time
-                .byte 20        
+                .byte 4C
 
-z_pploop        rts
+z_pploop        rts             ; never reached
 
 
 ; -------------------------------------------------------------------
@@ -1060,6 +1059,57 @@ xt_plus
                 inx 
 
 z_plus          rts
+
+
+; -------------------------------------------------------------------
+; LOOP ( -- ) X bytes / X cycles
+; Compile-time part of LOOP. This does nothing more but push
+; 01 on the stack and then call +LOOP. In Forth, this is 
+; POSTPONE 1 POSTPONE (+LOOP) , POSTPONE UNLOOP ; IMMEDIATE
+; COMPILE-ONLY  Drops through to +LOOP
+xt_loop          
+                ; have the finished word put 0001 on the Data Stack
+                phe.# xt_one
+                jsr cmpl_subroutine     ; drops through to +LOOP
+
+; -------------------------------------------------------------------
+; +LOOP ( addr -- ) X bytes / X cycles
+; Compile-time part of +LOOP, also used for LOOP. is usually realized in Forth
+; as  : +LOOP POSTPONE (+LOOP) , POSTPONE UNLOOP ; IMMEDIATE COMPILE-ONLY  Note
+; that LOOP uses this routine as well. We jump here with the address for looping
+; as TOS, and the address for aborting the loop (LEAVE) as the second
+; double-byte entry on the Return Stack (see DO and loops.txt for details).
+xt_ploop         
+                ; compile (+LOOP) - use COMPILE, because this has to be natively
+                ; compiled
+                dex
+                dex
+                sty.dx 00
+                ldy.# xt_pploop
+                jsr xt_compilecomma
+
+                ; The address we need to loop back to is TOS
+                jsr xt_comma
+
+                ; Now compile an UNLOOP for when we're all done
+                dex
+                dex
+                sty.dx 00
+                ldy.# xt_unloop
+                jsr xt_compilecomma
+
+                ; Complete the compile of DO (or ?DO) by filling the hole they
+                ; left with the current address. This is TOS
+                lda.d cp                ; we need CP-1 for RTS calculation
+                dec.a
+                sta.y 0000
+
+                ldy.dx 00
+                inx
+                inx
+
+z_loop   
+z_ploop         rts
 
 
 ; -------------------------------------------------------------------
@@ -2753,6 +2803,81 @@ xt_dnegate
 z_dnegate       rts
 
 
+
+; -------------------------------------------------------------------
+; ?DO ( limit start -- )  X bytes / X cycles
+; Compile-time part of ?DO. This may not be natively compiled. 
+xt_qdo           
+		; ?DO shares most of its code with DO. Use the tmp1 flag to
+                ; decide which is which
+                lda.# 0ffff
+                sta.d tmp1
+                bra do_common           ; continue with do_common
+
+; -------------------------------------------------------------------
+; DO ( limit start -- )  X bytes / X cycles
+; Compile-time part of DO. ": DO POSTPONE (DO) HERE ; IMMEDIATE COMPILE-ONLY ;"
+; To work with LEAVE, we compile a routine that pushes the end address to the
+; Return Stack at run time. This is based on a suggestion by Garth Wilson, see
+; loops.txt for details. This may not be native compile.
+xt_do            
+                ; DO and ?DO share most of their code, use tmp1 as a flag. 
+                stz.d tmp1              ; 0 is DO, drop through to DO_COMMON
+
+do_common
+                ; We start by compiling the opcode for LDA.# ($A9). Because
+                ; we're little endian, we don't have to switch registers sizes,
+                ; we just have to make sure the MSB will be overwritten
+                lda.# 00a9
+                sta.di cp
+                inc.d cp
+
+                ; We push HERE to the Data Stack so LOOP/+LOOP knows where to
+                ; compile the address we need to LDA.# at runtime
+                dex
+                dex
+                sty.dx 00
+                ldy.d cp
+                
+                ; Reserve two bytes for the address
+                inc.d cp
+                inc.d cp
+
+                ; Save the opcode for PHA ($48)
+                lda.# 0048
+                sta.di cp
+                inc.d cp
+
+                ; compile (?DO) or (DO) 
+                lda.d tmp1
+                beq do_do               ; childish, yes
+
+                ; compile (?DO) natively (Force Native)
+                dex
+                dex
+                sty.dx 00
+                ldy.# xt_pqdo
+                jsr xt_compilecomma     ; drops through to do_do
+                
+do_do
+                ; compile (DO) natively (Force Native)
+                dex
+                dex
+                sty.dx 00
+                ldy.# xt_pdo
+                jsr xt_compilecomma
+
+                ; HERE. We put this on the Data Stack for LOOP/+LOOP. Note this
+                ; has nothing to do with the HERE we've saved for LEAVE
+                dex
+                dex
+                sty.dx 00
+                ldy.d cp 
+
+z_qdo           
+z_do            
+                rts
+
 ; -------------------------------------------------------------------
 ; DOES> ( -- ) X bytes / X cycles
 ; Create the payload for defining new defining words. See the file
@@ -3286,6 +3411,26 @@ xt_key
                 tay
 
 z_key           rts
+
+
+; -------------------------------------------------------------------
+; I ( -- n )(R: n -- n )  X bytes / X cycles
+; Copy loop counter (top of Return Stack) to Data Stack. This is not the same as
+; R@ because we use a fudge factor for loop control; see (DO) for more details.
+; Native compile for speed. 
+xt_i             
+                dex
+                dex
+                sty.dx 00
+
+                ; get the fudged value of the Return Stack
+                sec
+                lda.s 01
+                sbc.s 03
+
+                tay
+
+z_i             rts
 
 
 ; -------------------------------------------------------------------
@@ -5224,11 +5369,8 @@ xt_unloop
                 ; Stack 
                 pla
                 pla
-                pla
-                pla
 
                 ; Drop the LEAVE address that was below them as well
-                pla
                 pla
 
 z_unloop        rts
@@ -5873,13 +6015,6 @@ hi-start
         .byte ": d. tuck dabs <# #s rot sign #> type space ; "
         .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
 
-        ; LOOP constructs. See discussion at 
-	; https://blogs.msdn.microsoft.com/ashleyf/2011/02/06/loopty-do-i-loop/
-	; .byte ": do postpone (do) here ; immediate compile-only "
-	; .byte ": +loop postpone (+loop) , postpone unloop ; immediate compile-only "
-	; .byte ": loop postpone 1 postpone (+loop) , postpone unloop ; immediate compile-only "
-        ; .byte ": leave postpone branch here swap 0 , ; immediate compile-only "
-        
         ; DUMP is a longish word we'll want to modify for a while until we are
         ; happy with the format
         ; .byte ": dump bounds ?do cr i 4 u.r space"
@@ -5887,6 +6022,7 @@ hi-start
 
         ; SEE is a longish word we'll want to modify for a while until we are
         ; happy with the format
+        ; TODO replace by code, this is far too long
         .byte ": see parse-name find-name dup 0= abort", &34, " No such name", &34, ' '
         .byte "base @ >r  hex  dup cr space .", &34, " nt: ", &34, " . "
         .byte "dup 4 + @ space .", &34, " xt: ", &34, " . "
@@ -5909,7 +6045,7 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 12. March 2017)"
+        .byte "cr .( Version PRE-ALPHA 15. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
