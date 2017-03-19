@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 12. Mar 2017
+; This version: 19. Mar 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -102,8 +102,24 @@ nt_loop .byte 4, { IM + CO }
         .word nt_ploop, xt_loop, z_loop
         .byte "loop"
 
+nt_leave .byte 5, { NC + CO }
+        .word nt_loop, xt_leave, z_leave
+        .byte "leave"
+
+nt_exit .byte 4, { NC + CO }
+        .word nt_leave, xt_exit, z_exit
+        .byte "exit"
+
+nt_recurse .byte 7, { IM + CO }
+        .word nt_exit, xt_recurse, z_recurse
+        .byte "recurse"
+
+nt_j    .byte 1, { NC + CO }
+        .word nt_recurse, xt_j, z_j
+        .byte 'j'
+
 nt_i    .byte 1, { NC + CO }
-        .word nt_loop, xt_i, z_i
+        .word nt_j, xt_i, z_i
         .byte 'i'
 
 nt_pqdo .byte 5, { NC + CO }

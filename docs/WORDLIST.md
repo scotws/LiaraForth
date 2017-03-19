@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 15. March 2017
+Last update: 16. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -131,6 +131,7 @@ Last update: 15. March 2017
 | ERASE               | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | EVALUATE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | EXECUTE             | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| EXIT                | coded    | ANSI core     | NC CO    | (TBA) |  (TBA) |
 | FALSE               | coded    | ANSI core ext | NC       | 7     |     12 |
 | FILL                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | FIND                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
@@ -139,12 +140,13 @@ Last update: 15. March 2017
 | HERE                | coded    | ANSI core     | NC       | 6     |     13 |
 | HEX                 | coded    | ANSI core     | NC       | 7     |  (TBA) |
 | HOLD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
-| I                   | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| I                   | coded    | ANSI core     | NC CO    | (TBA) |  (TBA) |
 | IF                  | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | IMMEDIATE           | coded    | ANSI core     | NC       | 8     |  (TBA) |
 | INPUT               | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | INT>NAME            | coded    | Liara         | NC       | (TBA) |  (TBA) |
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
+| J                   | coded    | ANSI core     | NC CO    | (TBA) |  (TBA) |
 | KEY                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | LATESTNT            | coded    | Liara         | NC       | 7     |  (TBA) |
 | LATESTXT            | coded    | Gforth        | NC       | (TBA) |  (TBA) |
@@ -156,6 +158,7 @@ Last update: 15. March 2017
 | MARKER              | coded    | ANSI core ext | IM NC    | (TBA) |  (TBA) |
 | MAX                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
 | MIN                 | coded    | ANSI core     | NC       | 18    |  (TBA) |
+| MOD                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | MOVE                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | NAME>INT            | coded    | Gforth        | NC       | 4     |      8 |
 | NAME>STRING         | coded    | Gforth        | NC       | 16    |  (TBA) |
@@ -176,6 +179,7 @@ Last update: 15. March 2017
 | QUIT                | fragment | ANSI core     |          | (TBA) |    n/a |
 | R@                  | coded    | ANSI core     |          | (TBA) |  (TBA) |
 | R>                  | coded    | ANSI core     | CO       | 7     |     23 |
+| RECURSE             | coded    | ANSI core     | CO IM    | (TBA) |  (TBA) |
 | REFILL              | fragment | ANSI core ext |          | (TBA) |  (TBA) |
 | REPEAT              | coded    | ANSI core     | IM CO    | Forth |  Forth |
 | RSHIFT              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |

@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 14. Mar 2017
+; This version: 19. Mar 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -9,6 +9,7 @@
         .mpu 65816
         .origin 5000    ; start of code to save to built-in RAM
 ;       .origin 8000    ; start of code to save to Flash memory
+
 code0                   ; used to calculate UNUSED 
 
 ; ===================================================================
@@ -64,17 +65,17 @@ start
                 sta.d nc_limit
                
                 ; set the OUTPUT vector to the default, which is always put_chr,
-                ; but may have synonyms such as uart0
+                ; but may have synonyms
                 lda.# put_chr
                 sta.d output
 
                 ; set the INPUT vector to the default, which is always get_chr,
-                ; but may have synonyms such as uart0
+                ; but may have synonyms
                 lda.# get_chr
                 sta.d input
                
                 ; set the HAVE_KEY vector to the default, which is always
-                ; have_chr, but may have synonyms such as uart0
+                ; have_chr, but may have synonyms
                 lda.# have_chr
                 sta.d havekey
 
@@ -87,7 +88,7 @@ start
                 sta.d cib       ; input buffer
                 stz.d ciblen    ; input buffer starts empty
                 stz.d insrc     ; SOURCE-ID is zero
-                stz.d state     ; STATE is zero (interpret)
+                stz.d state     ; STATE is zero (interpret mode)
                 
                 ; The name token (nt) of DROP is always the first one in the
                 ; new Dictionary, so we start off the Dictionary Pointer (DP)
@@ -96,7 +97,7 @@ start
                 lda.# nt_drop
                 sta.d dp
  
-                ; Clean the screen, assumes vt100 terminal
+                ; Clear the screen, assumes vt100 terminal
                 jsr xt_page
                 
                 ; Define high-level words via EVALUATE. At this point, whatever
@@ -120,20 +121,20 @@ start
 ; We can jump here via subroutine because we reset the stack pointer
 ; anyway. Flows into QUIT.
 xt_abort         
-        .a16    
+        .a16    ; paranoid 
                 ; clear Data Stack
                 ldy.# 0000
                 ldx.# dsp0
 
 
-; drops through to QUIT, z_abort is the same as z_quit.
+                ; drops through to QUIT, z_abort is the same as z_quit.
 
 ; -------------------------------------------------------------------
 ; QUIT ( -- ) X bytes / X cycles
 ; Reset the input, clearning Return Stack. Jumps to QUIT do not have to be
 ; subroutine jumps as the Return Stack is cleared anyway. Liara Forth follows
 ; the ANSI Forth recommendation to use REFILL. Note we don't display the "ok"
-; system prompt until after the first output. This follows Gforth.
+; system prompt until after the first output, this follows Gforth.
 xt_quit          
                 ; clear Return Stack
                 lda.# stack0
@@ -178,13 +179,11 @@ quit_refill_successful
                 ; make >IN point to begining of buffer
                 stz.d toin
  
-                ; Main compile/execute routine. Consider moving this inside QUIT
-                ; once we know everything works 
+                ; Main compile/execute routine
                 jsr interpret
 
                 ; Test for Data Stack underflow. Our stack is so large in single
-                ; user mode that we don't bother checking for overflow - if that
-                ; happens, we're screwed anyway
+                ; user mode that we don't bother checking for overflow
                 cpx.# { dsp0 + 1 }
                 bcc quit_ok     ; DSP must always be smaller (!) than DSP0
                 
@@ -204,7 +203,7 @@ quit_compiled
 quit_print
                 jsr print_string
 
-                ; Awesome line, everybody. Now get the next one
+                ; Awesome line, everybody! Now get the next one
                 jmp quit_get_line
 
 z_cold
@@ -716,8 +715,8 @@ xt_colon
 
                 jsr xt_create
 
-                ; Get the nt of the new word as described above. Only COLON,
-                ; SEMICOLON and RECURSE access WORKWORD
+                ; Get the nt (not the xt!) of the new word as described above.
+                ; Only COLON, SEMICOLON and RECURSE access WORKWORD
                 lda.d dp
                 sta.d workword
                 pla
@@ -3030,6 +3029,17 @@ xt_erase
 
                 ldy.# 0000      ; falls through to FILL
 
+
+; -------------------------------------------------------------------
+; EXIT ( -- ) X bytes / X cycles
+; Return control to the calling word immediately. If we're in a loop, we need to
+; unloop first, and get everything we we might have put on the Return Stack off
+; as well. This should be natively compiled
+xt_exit          
+                rts
+z_exit                          ; never reached
+
+
 ; -------------------------------------------------------------------
 ; FILL ( addr u b -- ) X bytes / X cycles
 ; Fill the given region of memory with the LSB of the TOS. Shares code with
@@ -3556,6 +3566,27 @@ xt_hold
 
 z_hold          rts
 
+
+; -------------------------------------------------------------------
+; J ( -- n )(R: n -- n )  X bytes / X cycles
+; Copy loop counter (top of Return Stack) to Data Stack. This is not the same as
+; R@ because we use a fudge factor for loop control; see (DO) for more details.
+; Native compile for speed. 
+xt_j             
+                dex
+                dex
+                sty.dx 00
+
+                ; get the fudged value of the Return Stack
+                sec
+                lda.s 07
+                sbc.s 09
+
+                tay
+
+z_j             rts
+
+
 ; -------------------------------------------------------------------
 ; LATESTNT ( -- nt ) 7 bytes / X cycles
 ; Return the name token (nt) of the last word in the Dictionary. The Gforth
@@ -3592,6 +3623,28 @@ xt_latestxt
                 tay
 
 z_latestxt      rts
+
+
+; -------------------------------------------------------------------
+; LEAVE ( -- ) X bytes / X cycles
+; Leave DO/LOOP construct. Note that this does not work with anything but
+; a DO/LOOP in contrast to other versions such as discussed at
+; http://blogs.msdn.com/b/ashleyf/archive/2011/02/06/loopty-do-i-loop.aspx 
+; ": LEAVE POSTPONE BRANCH HERE SWAP 0 , ; IMMEDIATE COMPILE-ONLY" 
+; See loops.txt on details of how this works. This must be native compile and not 
+; IMMEDIATE
+xt_leave         
+        .!a16
+                ; drop limit/start entries off the Return Stack
+                pla
+                pla
+
+                ; We now have the LEAVE special return address on the top of the
+                ; Return Stack. This RTS must come before z_leave so native
+                ; compiling doesn't ignore it
+                rts
+
+z_leave         ; not reached
 
 
 ; -------------------------------------------------------------------
@@ -4474,6 +4527,38 @@ xt_fromr
 
 z_fromr         rts
 
+
+; -------------------------------------------------------------------
+; RECURSE ( -- ) X bytes / X cycles
+; Get the current definition to call itself This may not be native compile. Test
+; with " : GCD ( a b -- gcd) ?DUP IF TUCK MOD RECURSE THEN ;" for instance with
+; "784 48 GCD ." --> 16 ; example from
+; http://galileo.phys.virginia.edu/classes/551.jvn.fall01/primer.htm
+xt_recurse       
+        .!a16
+                ; save JSR instruction
+                lda.# 0020
+                sta.di cp
+                inc.d cp
+
+                ; The temporary variable WORKWORD points to the nt of the word,
+                ; not it's xt, which is kept four bytes below
+                lda.d workword
+                inc.a
+                inc.a
+                inc.a
+                inc.a
+
+                phy
+                tay
+                lda.y 0000
+                ply
+
+                sta.di cp
+                inc.d cp
+                inc.d cp
+                
+z_recurse       rts
 
 ; ------------------------------------------------------------------- 
 ; REFILL ( -- f ) X bytes / X cycles
@@ -6001,6 +6086,7 @@ hi-start
         ; stuff
         .byte ": / >r s>d r> sm/rem swap drop ; "
         .byte ": /mod >r s>d r> sm/rem ; "
+        .byte ": mod /mod drop ; "
         .byte ": */ >r m* r> sm/rem swap drop ; "
         .byte ": */mod >r m* r> sm/rem ; "
 
@@ -6045,7 +6131,7 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version PRE-ALPHA 15. March 2017)"
+        .byte "cr .( Version PRE-ALPHA 19. March 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"
@@ -6056,7 +6142,6 @@ hi-end
 ; BOTTOM INCLUDES
 
         .include strings.tasm
-
 
 ; ===================================================================
 ; END
