@@ -3,7 +3,8 @@ Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
 This version 19. March 2017
 
-This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
+This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)  
+This is being moved to the Tali Forth Wiki at GitHub
 
 ## Text interpreter
 
@@ -205,22 +206,6 @@ Should give you:
 -10 7 --> -3 -1 
 10 -7 --> 3 -1
 -10 -7 --> -3 1
-
-## VARIOUS STUFF
-
-## KEY?
-
-```
-: kkk begin key? if ." Got " key emit space then again ;
-```
-
-## WITHIN
-
-2 1 3 --> true
-0 1 3 --> false
-4 1 3 --> false
-1 1 3 --> true
-3 1 3 --> false
 
 
 ## TEST OLD STUFF

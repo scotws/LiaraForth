@@ -7,12 +7,14 @@ This version: 19. Mar 2017
 TODO NEXT (next on top)
 
 - Rewrite Dictionary for Never Native Compile (NN) flag instead of NC flag
-- Test words with various NC-LIMIT values
 - Rewrite Dictionary so we have multiple Dictionaries, one for each word size
+- Test words with various NC-LIMIT values
 - Rewrite accept to check with KEY? first (prepare for multitasking)
-- Rewrite KEY to ABORT with CNTRL-C
 - Include KEY? in loops for aborting
-- CLI handling: Make sure BS doesn't end up on previous line, add CTRL-p, CTRL-n
+- Rewrite KEY to ABORT with CNTRL-C
+
+
+*** At this point, development will be put on hold while Tali Forth for the 65c02 is rewritten. Both versions will then be developed in lockstep. ***
 
 
 TODO LATER (after rewrite of Tali Forth) 
