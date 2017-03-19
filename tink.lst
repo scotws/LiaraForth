@@ -4,14 +4,14 @@ Copyright 2015-2017 Scot W. Stevenson <scot.stevenson@gmail.com>
 This program comes with ABSOLUTELY NO WARRANTY
 
 Code listing for file liaraforth.tasm
-Generated on Sun Mar 19 22:58:12 2017
+Generated on Sun Mar 19 23:13:32 2017
 Target MPU: 65816
 External files loaded: 5
 Number of passes executed: 35
 Number of steps executed: 10
-Assembly time: 0.20989 seconds
+Assembly time: 0.22565 seconds
 Code origin: 005000
-Bytes of machine code: 9061
+Bytes of machine code: 9057
 
 LISTING:
    Line  Status/Type State/Width Address     Bytes     Instruction
@@ -439,7 +439,7 @@ LISTING:
  109:000 | DONE ins | na 16 16 | 0050a3 | ca          |                 dex                  
  110:000 | DONE ins | na 16 16 | 0050a4 | a9 c4 6a    |                 lda.# 006ac4         
  111:000 | DONE ins | na 16 16 | 0050a7 | 95 00       |                 sta.dx 00            Start address goes in NOS
- 112:000 | DONE ins | na 16 16 | 0050a9 | a0 f1 06    |                 ldy.# 0006f1         length goes in TOS
+ 112:000 | DONE ins | na 16 16 | 0050a9 | a0 ed 06    |                 ldy.# 0006ed         length goes in TOS
  113:000 | DONE wsp | na 16 16 |        |             |
  114:000 | DONE ins | na 16 16 | 0050ac | 20 17 59    |                 jsr 005917           
  115:000 | DONE wsp | na 16 16 |        |             |
@@ -495,7 +495,7 @@ LISTING:
  164:000 | DONE cmt | na 16 16 |        |             |                 ; need to print an error message and reset the machine. We don't
  165:000 | DONE cmt | na 16 16 |        |             |                 ; need to save TOS because we're going to clobber it anyway when we
  166:000 | DONE cmt | na 16 16 |        |             |                 ; go back to ABORT.
- 167:000 | DONE ins | na 16 16 | 0050ca | a9 6f 72    |                 lda.# 00726f         
+ 167:000 | DONE ins | na 16 16 | 0050ca | a9 6b 72    |                 lda.# 00726b         
  168:000 | DONE ins | na 16 16 | 0050cd | 4c 71 6a    |                 jmp 006a71           
  169:000 | DONE wsp | na 16 16 |        |             |
  170:000 | DONE wsp | na 16 16 |        |             |
@@ -518,7 +518,7 @@ LISTING:
  187:000 | DONE ins | na 16 16 | 0050d9 | e0 00 01    |                 cpx.# 000100         
  188:000 | DONE ins | na 16 16 | 0050dc | 90 06       |                 bcc 0050e4           DSP must always be smaller (!) than DSP0
  189:000 | DONE wsp | na 16 16 |        |             |
- 190:000 | DONE ins | na 16 16 | 0050de | a9 d5 72    |                 lda.# 0072d5         
+ 190:000 | DONE ins | na 16 16 | 0050de | a9 d1 72    |                 lda.# 0072d1         
  191:000 | DONE ins | na 16 16 | 0050e1 | 4c 71 6a    |                 jmp 006a71           
  192:000 | DONE wsp | na 16 16 |        |             |
  193:000 | DONE lbl | na 16 16 | 0050e4 |             | quit_ok                              
@@ -527,10 +527,10 @@ LISTING:
  196:000 | DONE ins | na 16 16 | 0050e4 | a5 14       |                 lda.d 000014         
  197:000 | DONE ins | na 16 16 | 0050e6 | d0 05       |                 bne 0050ed           
  198:000 | DONE wsp | na 16 16 |        |             |
- 199:000 | DONE ins | na 16 16 | 0050e8 | a9 b5 71    |                 lda.# 0071b5         
+ 199:000 | DONE ins | na 16 16 | 0050e8 | a9 b1 71    |                 lda.# 0071b1         
  200:000 | DONE ins | na 16 16 | 0050eb | 80 03       |                 bra 0050f0           
  201:000 | DONE lbl | na 16 16 | 0050ed |             | quit_compiled                        
- 202:000 | DONE ins | na 16 16 | 0050ed | a9 b9 71    |                 lda.# 0071b9         fall through to quit_print
+ 202:000 | DONE ins | na 16 16 | 0050ed | a9 b5 71    |                 lda.# 0071b5         fall through to quit_print
  203:000 | DONE lbl | na 16 16 | 0050f0 |             | quit_print                           
  204:000 | DONE ins | na 16 16 | 0050f0 | 20 77 6a    |                 jsr 006a77           
  205:000 | DONE wsp | na 16 16 |        |             |
@@ -1043,7 +1043,7 @@ LISTING:
  697:000 | DONE ins | na 16 16 | 00524e | a5 14       |                 lda.d 000014         
  698:000 | DONE ins | na 16 16 | 005250 | f0 06       |                 beq 005258           
  699:000 | DONE wsp | na 16 16 |        |             |
- 700:000 | DONE ins | na 16 16 | 005252 | a9 bd 72    |                 lda.# 0072bd         
+ 700:000 | DONE ins | na 16 16 | 005252 | a9 b9 72    |                 lda.# 0072b9         
  701:000 | DONE ins | na 16 16 | 005255 | 4c 71 6a    |                 jmp 006a71           
  702:000 | DONE lbl | na 16 16 | 005258 |             | @                                    
  703:000 | DONE cmt | na 16 16 |        |             |                 ; Switch to compile state. From now on, everything goes in the
@@ -1140,7 +1140,7 @@ LISTING:
  792:000 | DONE cmt | na 16 16 |        |             |                 ; lower case or abc_str_upper for upper case (prefered)
  793:000 | DONE ins | na 16 16 | 005295 | e2 20       |                 sep 20               
  793:001 | DONE ctl | na  8 16 |        |             |         .!a8
- 794:000 | DONE ins | na  8 16 | 005297 | b9 42 73    |                 lda.y 007342         
+ 794:000 | DONE ins | na  8 16 | 005297 | b9 3e 73    |                 lda.y 00733e         
  795:000 | DONE ins | na  8 16 | 00529a | c2 20       |                 rep 20               
  795:001 | DONE ctl | na 16 16 |        |             |         .!a16
  796:000 | DONE cmt | na 16 16 |        |             |                 ; overwrite remainder with ASCII value
@@ -1961,7 +1961,7 @@ LISTING:
 1570:000 | DONE ins | na 16 16 | 00547b | 98          |                 tya                  force flag check
 1571:000 | DONE ins | na 16 16 | 00547c | d0 06       |                 bne 005484           
 1572:000 | DONE wsp | na 16 16 |        |             |
-1573:000 | DONE ins | na 16 16 | 00547e | a9 48 72    |                 lda.# 007248         
+1573:000 | DONE ins | na 16 16 | 00547e | a9 44 72    |                 lda.# 007244         
 1574:000 | DONE ins | na 16 16 | 005481 | 4c 71 6a    |                 jmp 006a71           
 1575:000 | DONE wsp | na 16 16 |        |             |
 1576:000 | DONE lbl | na 16 16 | 005484 |             | tick_have_word                       
@@ -1971,7 +1971,7 @@ LISTING:
 1580:000 | DONE cmt | na 16 16 |        |             |                 ; if we didn't find string in the dictionary, complain and abort
 1581:000 | DONE ins | na 16 16 | 005488 | d0 06       |                 bne 005490           
 1582:000 | DONE wsp | na 16 16 |        |             |
-1583:000 | DONE ins | na 16 16 | 00548a | a9 e5 72    |                 lda.# 0072e5         
+1583:000 | DONE ins | na 16 16 | 00548a | a9 e1 72    |                 lda.# 0072e1         
 1584:000 | DONE ins | na 16 16 | 00548d | 4c 71 6a    |                 jmp 006a71           
 1585:000 | DONE wsp | na 16 16 |        |             |
 1586:000 | DONE lbl | na 16 16 | 005490 |             | tick_have_nt                         
@@ -2100,7 +2100,7 @@ LISTING:
 1706:000 | DONE ins | na 16 16 | 0054fc | c9 10 00    |                 cmp.# AscCP          
 1707:000 | DONE ins | na 16 16 | 0054ff | d0 08       |                 bne 005509           
 1708:000 | DONE wsp | na 16 16 |        |             |
-1709:000 | DONE ins | na 16 16 | 005501 | a9 fd 72    |                 lda.# 0072fd         
+1709:000 | DONE ins | na 16 16 | 005501 | a9 f9 72    |                 lda.# 0072f9         
 1710:000 | DONE ins | na 16 16 | 005504 | 20 77 6a    |                 jsr 006a77           
 1711:000 | DONE wsp | na 16 16 |        |             |
 1712:000 | DONE ins | na 16 16 | 005507 | 80 c4       |                 bra 0054cd           
@@ -2109,7 +2109,7 @@ LISTING:
 1715:000 | DONE ins | na 16 16 | 005509 | c9 0e 00    |                 cmp.# AscCN          
 1716:000 | DONE ins | na 16 16 | 00550c | d0 08       |                 bne 005516           
 1717:000 | DONE wsp | na 16 16 |        |             |
-1718:000 | DONE ins | na 16 16 | 00550e | a9 10 73    |                 lda.# 007310         
+1718:000 | DONE ins | na 16 16 | 00550e | a9 0c 73    |                 lda.# 00730c         
 1719:000 | DONE ins | na 16 16 | 005511 | 20 77 6a    |                 jsr 006a77           
 1720:000 | DONE wsp | na 16 16 |        |             |
 1721:000 | DONE ins | na 16 16 | 005514 | 80 b7       |                 bra 0054cd           
@@ -2228,7 +2228,7 @@ LISTING:
 1828:000 | DONE ins | na 16 16 | 005572 | 30 11       |                 bmi 005585           oops, fall thru if beyond max RAM
 1829:000 | DONE wsp | na 16 16 |        |             |
 1830:000 | DONE lbl | na 16 16 | 005574 |             | allot_error                          
-1831:000 | DONE ins | na 16 16 | 005574 | a9 c3 71    |                 lda.# 0071c3         
+1831:000 | DONE ins | na 16 16 | 005574 | a9 bf 71    |                 lda.# 0071bf         
 1832:000 | DONE ins | na 16 16 | 005577 | 4c 71 6a    |                 jmp 006a71           
 1833:000 | DONE wsp | na 16 16 |        |             |
 1834:000 | DONE lbl | na 16 16 | 00557a |             | allot_minus                          
@@ -2501,7 +2501,7 @@ LISTING:
 2078:000 | DONE ins | em 16  8 | 00562d | 98          |                 tya                  force flag check
 2079:000 | DONE ins | em 16  8 | 00562e | d0 06       |                 bne 005636           
 2080:000 | DONE wsp | em 16  8 |        |             |
-2081:000 | DONE ins | em 16  8 | 005630 | a9 48 72    |                 lda.# 007248         
+2081:000 | DONE ins | em 16  8 | 005630 | a9 44 72    |                 lda.# 007244         
 2082:000 | DONE ins | em 16  8 | 005633 | 4c 71 6a    |                 jmp 006a71           
 2083:000 | DONE wsp | em 16  8 |        |             |
 2084:000 | DONE lbl | em 16  8 | 005636 |             | char_got_char                        
@@ -2892,7 +2892,7 @@ LISTING:
 2456:000 | DONE ins | em 16 16 | 005764 | d0 06       |                 bne 00576c           
 2457:000 | DONE wsp | em 16 16 |        |             |
 2458:000 | DONE cmt | em 16 16 |        |             |                 ; if we got a zero-length name string, complain and abort
-2459:000 | DONE ins | em 16 16 | 005766 | a9 48 72    |                 lda.# 007248         
+2459:000 | DONE ins | em 16 16 | 005766 | a9 44 72    |                 lda.# 007244         
 2460:000 | DONE ins | em 16 16 | 005769 | 4c 71 6a    |                 jmp 006a71           
 2461:000 | DONE wsp | em 16 16 |        |             |
 2462:000 | DONE lbl | em 16 16 | 00576c |             | create_got_name                      
@@ -3979,7 +3979,7 @@ LISTING:
 3506:000 | DONE ins | em 16 16 | 005a82 | 80 ee       |                 bra 005a72           
 3507:000 | DONE wsp | em 16 16 |        |             |
 3508:000 | DONE lbl | em 16 16 | 005a84 |             | in_notfound                          
-3509:000 | DONE ins | em 16 16 | 005a84 | a9 e5 72    |                 lda.# 0072e5         
+3509:000 | DONE ins | em 16 16 | 005a84 | a9 e1 72    |                 lda.# 0072e1         
 3510:000 | DONE ins | em 16 16 | 005a87 | 4c 71 6a    |                 jmp 006a71           
 3511:000 | DONE wsp | em 16 16 |        |             |
 3512:000 | DONE lbl | em 16 16 | 005a8a |             | in_found                             
@@ -4592,7 +4592,7 @@ LISTING:
 4093:000 | DONE cmt | em 16 16 |        |             |                 ; by INTERPRET, we've already checked for words, so we're in
 4094:000 | DONE cmt | em 16 16 |        |             |                 ; trouble one way or another
 4095:000 | DONE cmt | em 16 16 |        |             |                 ; TODO print offending string
-4096:000 | DONE ins | em 16 16 | 005c05 | a9 e5 72    |                 lda.# 0072e5         
+4096:000 | DONE ins | em 16 16 | 005c05 | a9 e1 72    |                 lda.# 0072e1         
 4097:000 | DONE ins | em 16 16 | 005c08 | 4c 71 6a    |                 jmp 006a71           
 4098:000 | DONE wsp | em 16 16 |        |             |
 4099:000 | DONE lbl | em 16 16 | 005c0b |             | number_ok                            
@@ -4725,13 +4725,13 @@ LISTING:
 4221:000 | DONE cmt | em 16 16 |        |             | ; only useful in interactive scenarios so we don't worry about speed
 4222:000 | DONE cmt | em 16 16 |        |             | ; TODO rewrite with EMIT
 4223:000 | DONE lbl | em 16 16 | 005c66 |             | xt_page                              
-4224:000 | DONE ins | em 16 16 | 005c66 | a9 f4 72    |                 lda.# 0072f4         
+4224:000 | DONE ins | em 16 16 | 005c66 | a9 f0 72    |                 lda.# 0072f0         
 4225:000 | DONE ins | em 16 16 | 005c69 | 20 77 6a    |                 jsr 006a77           
 4226:000 | DONE wsp | em 16 16 |        |             |
 4227:000 | DONE cmt | em 16 16 |        |             |                 ; In theory, this should have moved the cursor to the top left
 4228:000 | DONE cmt | em 16 16 |        |             |                 ; corner ("home"), but this doesn't seem to work in practice.
 4229:000 | DONE cmt | em 16 16 |        |             |                 ; So we send "ESC[H" as well.
-4230:000 | DONE ins | em 16 16 | 005c6c | a9 f9 72    |                 lda.# 0072f9         
+4230:000 | DONE ins | em 16 16 | 005c6c | a9 f5 72    |                 lda.# 0072f5         
 4231:000 | DONE ins | em 16 16 | 005c6f | 20 77 6a    |                 jsr 006a77           
 4232:000 | DONE wsp | em 16 16 |        |             |
 4233:000 | DONE lbl | em 16 16 | 005c72 |             | z_page                               
@@ -4948,7 +4948,7 @@ LISTING:
 4434:000 | DONE wsp | em 16 16 |        |             |
 4435:000 | DONE cmt | em 16 16 |        |             |                 ; if there is no word in stream, complain and abort
 4436:000 | DONE ins | em 16 16 | 005cfb | d0 06       |                 bne 005d03           
-4437:000 | DONE ins | em 16 16 | 005cfd | a9 48 72    |                 lda.# 007248         
+4437:000 | DONE ins | em 16 16 | 005cfd | a9 44 72    |                 lda.# 007244         
 4438:000 | DONE ins | em 16 16 | 005d00 | 4c 71 6a    |                 jmp 006a71           
 4439:000 | DONE wsp | em 16 16 |        |             |
 4440:000 | DONE lbl | em 16 16 | 005d03 |             | pp_got_word                          
@@ -4956,7 +4956,7 @@ LISTING:
 4442:000 | DONE wsp | em 16 16 |        |             |
 4443:000 | DONE cmt | em 16 16 |        |             |                 ; if word is not in Dictionary, complain and abort
 4444:000 | DONE ins | em 16 16 | 005d06 | d0 03       |                 bne 005d0b           
-4445:000 | DONE ins | em 16 16 | 005d08 | a9 e5 72    |                 lda.# 0072e5         
+4445:000 | DONE ins | em 16 16 | 005d08 | a9 e1 72    |                 lda.# 0072e1         
 4446:000 | DONE wsp | em 16 16 |        |             |
 4447:000 | DONE lbl | em 16 16 | 005d0b |             | pp_got_nt                            
 4448:000 | DONE cmt | em 16 16 |        |             |                 ; Keep nt safe for later use
@@ -5140,7 +5140,7 @@ LISTING:
 4622:000 | DONE cmt | em 16 16 |        |             |                 ; Since we don't have blocks, this must mean that we are trying
 4623:000 | DONE cmt | em 16 16 |        |             |                 ; to read from a file. However, we don't have files yet, so we
 4624:000 | DONE cmt | em 16 16 |        |             |                 ; report an error and jump to ABORT.
-4625:000 | DONE ins | em 16 16 | 005d7a | a9 9d 72    |                 lda.# 00729d         
+4625:000 | DONE ins | em 16 16 | 005d7a | a9 99 72    |                 lda.# 007299         
 4626:000 | DONE ins | em 16 16 | 005d7d | 4c 71 6a    |                 jmp 006a71           
 4627:000 | DONE wsp | em 16 16 |        |             |
 4628:000 | DONE lbl | em 16 16 | 005d80 |             | z_refill                             
@@ -5907,7 +5907,7 @@ LISTING:
 5361:000 | DONE ins | em 16 16 | 005fb1 | 98          |                 tya                  force flag test
 5362:000 | DONE ins | em 16 16 | 005fb2 | d0 06       |                 bne 005fba           
 5363:000 | DONE wsp | em 16 16 |        |             |
-5364:000 | DONE ins | em 16 16 | 005fb4 | a9 15 72    |                 lda.# 007215         
+5364:000 | DONE ins | em 16 16 | 005fb4 | a9 11 72    |                 lda.# 007211         
 5365:000 | DONE ins | em 16 16 | 005fb7 | 4c 71 6a    |                 jmp 006a71           
 5366:000 | DONE wsp | em 16 16 |        |             |
 5367:000 | DONE lbl | em 16 16 | 005fba |             | ummod_notzero                        
@@ -7873,7 +7873,7 @@ LISTING:
 5724:000 | DONE lbl | em 16 16 | 0069d2 |             | defer_error                          
 5725:000 | DONE cmt | em 16 16 |        |             |                 ; if the defer has not been defined with an IS word, we land
 5726:000 | DONE cmt | em 16 16 |        |             |                 ; here by default
-5727:000 | DONE ins | em 16 16 | 0069d2 | a9 f8 71    |                 lda.# 0071f8         
+5727:000 | DONE ins | em 16 16 | 0069d2 | a9 f4 71    |                 lda.# 0071f4         
 5728:000 | DONE ins | em 16 16 | 0069d5 | 4c 71 6a    |                 jmp 006a71           
 5729:000 | DONE wsp | em 16 16 |        |             |
 5730:000 | DONE wsp | em 16 16 |        |             |
@@ -8024,7 +8024,7 @@ LISTING:
 5875:000 | DONE ins | em 16 16 | 006a28 | f0 06       |                 beq 006a30           
 5876:000 | DONE wsp | em 16 16 |        |             |
 5877:000 | DONE cmt | em 16 16 |        |             |                 ; TODO see if we can print offending word first
-5878:000 | DONE ins | em 16 16 | 006a2a | a9 d7 71    |                 lda.# 0071d7         
+5878:000 | DONE ins | em 16 16 | 006a2a | a9 d3 71    |                 lda.# 0071d3         
 5879:000 | DONE ins | em 16 16 | 006a2d | 4c 71 6a    |                 jmp 006a71           
 5880:000 | DONE wsp | em 16 16 |        |             |
 5881:000 | DONE lbl | em 16 16 | 006a30 |             | interpret_interpret                  
@@ -8513,13 +8513,13 @@ LISTING:
 6141:000 | DONE dir | em 16 16 |        |             |                 6f 72 20 74 68 65 20 57  --  o r   t h e   W
 6141:000 | DONE dir | em 16 16 |        |             |                 36 35 43 32 36 35 53 58  --  6 5 C 2 6 5 S X
 6141:000 | DONE dir | em 16 16 |        |             |                 42 20 29                 --  B   )
-6142:000 | DONE dir | em 16 16 | 00710b | (39 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 56, 65, 72, 73, 69, 6f, 6e, (...) 
+6142:000 | DONE dir | em 16 16 | 00710b | (35 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 56, 65, 72, 73, 69, 6f, 6e, (...) 
 6142:000 | DONE dir | em 16 16 |        |             |                 63 72 20 2e 28 20 56 65  --  c r   . (   V e
-6142:000 | DONE dir | em 16 16 |        |             |                 72 73 69 6f 6e 20 50 52  --  r s i o n   P R
-6142:000 | DONE dir | em 16 16 |        |             |                 45 2d 41 4c 50 48 41 20  --  E - A L P H A  
-6142:000 | DONE dir | em 16 16 |        |             |                 31 39 2e 20 4d 61 72 63  --  1 9 .   M a r c
-6142:000 | DONE dir | em 16 16 |        |             |                 68 20 32 30 31 37 29     --  h   2 0 1 7 )
-6143:000 | DONE dir | em 16 16 | 007132 | (51 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 53, 63, 6f, 74, 20, 57, 2e, (...) 
+6142:000 | DONE dir | em 16 16 |        |             |                 72 73 69 6f 6e 20 41 4c  --  r s i o n   A L
+6142:000 | DONE dir | em 16 16 |        |             |                 50 48 41 20 31 39 2e 20  --  P H A   1 9 .  
+6142:000 | DONE dir | em 16 16 |        |             |                 4d 61 72 63 68 20 32 30  --  M a r c h   2 0
+6142:000 | DONE dir | em 16 16 |        |             |                 31 37 29                 --  1 7 )
+6143:000 | DONE dir | em 16 16 | 00712e | (51 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 53, 63, 6f, 74, 20, 57, 2e, (...) 
 6143:000 | DONE dir | em 16 16 |        |             |                 63 72 20 2e 28 20 53 63  --  c r   . (   S c
 6143:000 | DONE dir | em 16 16 |        |             |                 6f 74 20 57 2e 20 53 74  --  o t   W .   S t
 6143:000 | DONE dir | em 16 16 |        |             |                 65 76 65 6e 73 6f 6e 20  --  e v e n s o n  
@@ -8527,7 +8527,7 @@ LISTING:
 6143:000 | DONE dir | em 16 16 |        |             |                 65 76 65 6e 73 6f 6e 40  --  e v e n s o n @
 6143:000 | DONE dir | em 16 16 |        |             |                 67 6d 61 69 6c 2e 63 6f  --  g m a i l . c o
 6143:000 | DONE dir | em 16 16 |        |             |                 6d 3e 29                 --  m > )
-6144:000 | DONE dir | em 16 16 | 007165 | (52 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 4c, 69, 61, 72, 61, 20, 46, (...) 
+6144:000 | DONE dir | em 16 16 | 007161 | (52 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 4c, 69, 61, 72, 61, 20, 46, (...) 
 6144:000 | DONE dir | em 16 16 |        |             |                 63 72 20 2e 28 20 4c 69  --  c r   . (   L i
 6144:000 | DONE dir | em 16 16 |        |             |                 61 72 61 20 46 6f 72 74  --  a r a   F o r t
 6144:000 | DONE dir | em 16 16 |        |             |                 68 20 63 6f 6d 65 73 20  --  h   c o m e s  
@@ -8535,12 +8535,12 @@ LISTING:
 6144:000 | DONE dir | em 16 16 |        |             |                 6f 6c 75 74 65 6c 79 20  --  o l u t e l y  
 6144:000 | DONE dir | em 16 16 |        |             |                 4e 4f 20 57 41 52 52 41  --  N O   W A R R A
 6144:000 | DONE dir | em 16 16 |        |             |                 4e 54 59 29              --  N T Y )
-6145:000 | DONE dir | em 16 16 | 007199 | (28 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 54, 79, 70, 65, 20, 27, 62, (...) 
+6145:000 | DONE dir | em 16 16 | 007195 | (28 bytes)  |         .byte 63, 72, 20, 2e, 28, 20, 54, 79, 70, 65, 20, 27, 62, (...) 
 6145:000 | DONE dir | em 16 16 |        |             |                 63 72 20 2e 28 20 54 79  --  c r   . (   T y
 6145:000 | DONE dir | em 16 16 |        |             |                 70 65 20 27 62 79 65 27  --  p e   ' b y e '
 6145:000 | DONE dir | em 16 16 |        |             |                 20 74 6f 20 65 78 69 74  --    t o   e x i t
 6145:000 | DONE dir | em 16 16 |        |             |                 29 20 63 72              --  )   c r
-6146:000 | DONE lbl | em 16 16 | 0071b5 |             | hi-end                               
+6146:000 | DONE lbl | em 16 16 | 0071b1 |             | hi-end                               
 6147:000 | DONE wsp | em 16 16 |        |             |
 6148:000 | DONE wsp | em 16 16 |        |             |
 6149:000 | DONE cmt | em 16 16 |        |             | ; ===================================================================
@@ -8558,11 +8558,11 @@ LISTING:
 6152:009 | DONE wsp | em 16 16 |        |             |
 6152:010 | DONE cmt | em 16 16 |        |             | ; All general strings must be zero-terminated, names start with "s_"
 6152:011 | DONE wsp | em 16 16 |        |             |
-6152:012 | DONE lbl | em 16 16 | 0071b5 |             | s_ok                                 
-6152:013 | DONE dir | em 16 16 | 0071b5 | (4 bytes)   |         .byte 20, 6f, 6b, 0          note space at beginning
+6152:012 | DONE lbl | em 16 16 | 0071b1 |             | s_ok                                 
+6152:013 | DONE dir | em 16 16 | 0071b1 | (4 bytes)   |         .byte 20, 6f, 6b, 0          note space at beginning
 6152:013 | DONE dir | em 16 16 |        |             |                 20 6f 6b 00              --    o k .
-6152:014 | DONE lbl | em 16 16 | 0071b9 |             | s_compiled                           
-6152:015 | DONE dir | em 16 16 | 0071b9 | (10 bytes)  |         .byte 20, 63, 6f, 6d, 70, 69, 6c, 65, 64, 0 
+6152:014 | DONE lbl | em 16 16 | 0071b5 |             | s_compiled                           
+6152:015 | DONE dir | em 16 16 | 0071b5 | (10 bytes)  |         .byte 20, 63, 6f, 6d, 70, 69, 6c, 65, 64, 0 
 6152:015 | DONE dir | em 16 16 |        |             |                 20 63 6f 6d 70 69 6c 65  --    c o m p i l e
 6152:015 | DONE dir | em 16 16 |        |             |                 64 00                    --  d .
 6152:016 | DONE wsp | em 16 16 |        |             |
@@ -8572,76 +8572,76 @@ LISTING:
 6152:020 | DONE wsp | em 16 16 |        |             |
 6152:021 | DONE cmt | em 16 16 |        |             | ; All error strings must be zero-terminated, names start with "es_"
 6152:022 | DONE wsp | em 16 16 |        |             |
-6152:023 | DONE lbl | em 16 16 | 0071c3 |             | es_allot                             
-6152:024 | DONE dir | em 16 16 | 0071c3 | (20 bytes)  |         .byte 41, 4c, 4c, 4f, 54, 20, 6f, 75, 74, 20, 6f, 66, 20, (...) 
+6152:023 | DONE lbl | em 16 16 | 0071bf |             | es_allot                             
+6152:024 | DONE dir | em 16 16 | 0071bf | (20 bytes)  |         .byte 41, 4c, 4c, 4f, 54, 20, 6f, 75, 74, 20, 6f, 66, 20, (...) 
 6152:024 | DONE dir | em 16 16 |        |             |                 41 4c 4c 4f 54 20 6f 75  --  A L L O T   o u
 6152:024 | DONE dir | em 16 16 |        |             |                 74 20 6f 66 20 62 6f 75  --  t   o f   b o u
 6152:024 | DONE dir | em 16 16 |        |             |                 6e 64 73 00              --  n d s .
-6152:025 | DONE lbl | em 16 16 | 0071d7 |             | es_componly                          
-6152:026 | DONE dir | em 16 16 | 0071d7 | (33 bytes)  |         .byte 49, 6e, 74, 65, 72, 70, 72, 65, 74, 69, 6e, 67, 20, (...) 
+6152:025 | DONE lbl | em 16 16 | 0071d3 |             | es_componly                          
+6152:026 | DONE dir | em 16 16 | 0071d3 | (33 bytes)  |         .byte 49, 6e, 74, 65, 72, 70, 72, 65, 74, 69, 6e, 67, 20, (...) 
 6152:026 | DONE dir | em 16 16 |        |             |                 49 6e 74 65 72 70 72 65  --  I n t e r p r e
 6152:026 | DONE dir | em 16 16 |        |             |                 74 69 6e 67 20 61 20 63  --  t i n g   a   c
 6152:026 | DONE dir | em 16 16 |        |             |                 6f 6d 70 69 6c 65 2d 6f  --  o m p i l e - o
 6152:026 | DONE dir | em 16 16 |        |             |                 6e 6c 79 20 77 6f 72 64  --  n l y   w o r d
 6152:026 | DONE dir | em 16 16 |        |             |                 00                       --  .
-6152:027 | DONE lbl | em 16 16 | 0071f8 |             | es_defer                             
-6152:028 | DONE dir | em 16 16 | 0071f8 | (29 bytes)  |         .byte 44, 45, 46, 45, 52, 65, 64, 20, 77, 6f, 72, 64, 20, (...) 
+6152:027 | DONE lbl | em 16 16 | 0071f4 |             | es_defer                             
+6152:028 | DONE dir | em 16 16 | 0071f4 | (29 bytes)  |         .byte 44, 45, 46, 45, 52, 65, 64, 20, 77, 6f, 72, 64, 20, (...) 
 6152:028 | DONE dir | em 16 16 |        |             |                 44 45 46 45 52 65 64 20  --  D E F E R e d  
 6152:028 | DONE dir | em 16 16 |        |             |                 77 6f 72 64 20 6e 6f 74  --  w o r d   n o t
 6152:028 | DONE dir | em 16 16 |        |             |                 20 64 65 66 69 6e 65 64  --    d e f i n e d
 6152:028 | DONE dir | em 16 16 |        |             |                 20 79 65 74 00           --    y e t .
-6152:029 | DONE lbl | em 16 16 | 007215 |             | es_divzero                           
-6152:030 | DONE dir | em 16 16 | 007215 | (17 bytes)  |         .byte 44, 69, 76, 69, 73, 69, 6f, 6e, 20, 62, 79, 20, 7a, (...) 
+6152:029 | DONE lbl | em 16 16 | 007211 |             | es_divzero                           
+6152:030 | DONE dir | em 16 16 | 007211 | (17 bytes)  |         .byte 44, 69, 76, 69, 73, 69, 6f, 6e, 20, 62, 79, 20, 7a, (...) 
 6152:030 | DONE dir | em 16 16 |        |             |                 44 69 76 69 73 69 6f 6e  --  D i v i s i o n
 6152:030 | DONE dir | em 16 16 |        |             |                 20 62 79 20 7a 65 72 6f  --    b y   z e r o
 6152:030 | DONE dir | em 16 16 |        |             |                 00                       --  .
-6152:031 | DONE lbl | em 16 16 | 007226 |             | es_error                             
-6152:032 | DONE dir | em 16 16 | 007226 | (12 bytes)  |         .byte 3e, 3e, 3e, 45, 72, 72, 6f, 72, 3c, 3c, 3c, 0 
+6152:031 | DONE lbl | em 16 16 | 007222 |             | es_error                             
+6152:032 | DONE dir | em 16 16 | 007222 | (12 bytes)  |         .byte 3e, 3e, 3e, 45, 72, 72, 6f, 72, 3c, 3c, 3c, 0 
 6152:032 | DONE dir | em 16 16 |        |             |                 3e 3e 3e 45 72 72 6f 72  --  > > > E r r o r
 6152:032 | DONE dir | em 16 16 |        |             |                 3c 3c 3c 00              --  < < < .
-6152:033 | DONE lbl | em 16 16 | 007232 |             | es_intonly                           
-6152:034 | DONE dir | em 16 16 | 007232 | (22 bytes)  |         .byte 4e, 6f, 74, 20, 69, 6e, 20, 69, 6e, 74, 65, 72, 70, (...) 
+6152:033 | DONE lbl | em 16 16 | 00722e |             | es_intonly                           
+6152:034 | DONE dir | em 16 16 | 00722e | (22 bytes)  |         .byte 4e, 6f, 74, 20, 69, 6e, 20, 69, 6e, 74, 65, 72, 70, (...) 
 6152:034 | DONE dir | em 16 16 |        |             |                 4e 6f 74 20 69 6e 20 69  --  N o t   i n   i
 6152:034 | DONE dir | em 16 16 |        |             |                 6e 74 65 72 70 72 65 74  --  n t e r p r e t
 6152:034 | DONE dir | em 16 16 |        |             |                 20 6d 6f 64 65 00        --    m o d e .
-6152:035 | DONE lbl | em 16 16 | 007248 |             | es_noname                            
-6152:036 | DONE dir | em 16 16 | 007248 | (16 bytes)  |         .byte 50, 61, 72, 73, 69, 6e, 67, 20, 66, 61, 69, 6c, 75, (...) 
+6152:035 | DONE lbl | em 16 16 | 007244 |             | es_noname                            
+6152:036 | DONE dir | em 16 16 | 007244 | (16 bytes)  |         .byte 50, 61, 72, 73, 69, 6e, 67, 20, 66, 61, 69, 6c, 75, (...) 
 6152:036 | DONE dir | em 16 16 |        |             |                 50 61 72 73 69 6e 67 20  --  P a r s i n g  
 6152:036 | DONE dir | em 16 16 |        |             |                 66 61 69 6c 75 72 65 00  --  f a i l u r e .
 6152:036 | DONE dir | em 16 16 |        |             |                                          -- 
-6152:037 | DONE lbl | em 16 16 | 007258 |             | es_radix                             
-6152:038 | DONE dir | em 16 16 | 007258 | (23 bytes)  |         .byte 44, 69, 67, 69, 74, 20, 6c, 61, 72, 67, 65, 72, 20, (...) 
+6152:037 | DONE lbl | em 16 16 | 007254 |             | es_radix                             
+6152:038 | DONE dir | em 16 16 | 007254 | (23 bytes)  |         .byte 44, 69, 67, 69, 74, 20, 6c, 61, 72, 67, 65, 72, 20, (...) 
 6152:038 | DONE dir | em 16 16 |        |             |                 44 69 67 69 74 20 6c 61  --  D i g i t   l a
 6152:038 | DONE dir | em 16 16 |        |             |                 72 67 65 72 20 74 68 61  --  r g e r   t h a
 6152:038 | DONE dir | em 16 16 |        |             |                 6e 20 62 61 73 65 00     --  n   b a s e .
-6152:039 | DONE lbl | em 16 16 | 00726f |             | es_refill1                           
-6152:040 | DONE dir | em 16 16 | 00726f | (46 bytes)  |         .byte 51, 55, 49, 54, 20, 63, 6f, 75, 6c, 64, 20, 6e, 6f, (...) 
+6152:039 | DONE lbl | em 16 16 | 00726b |             | es_refill1                           
+6152:040 | DONE dir | em 16 16 | 00726b | (46 bytes)  |         .byte 51, 55, 49, 54, 20, 63, 6f, 75, 6c, 64, 20, 6e, 6f, (...) 
 6152:040 | DONE dir | em 16 16 |        |             |                 51 55 49 54 20 63 6f 75  --  Q U I T   c o u
 6152:040 | DONE dir | em 16 16 |        |             |                 6c 64 20 6e 6f 74 20 67  --  l d   n o t   g
 6152:040 | DONE dir | em 16 16 |        |             |                 65 74 20 69 6e 70 75 74  --  e t   i n p u t
 6152:040 | DONE dir | em 16 16 |        |             |                 20 28 52 45 46 49 4c 4c  --    ( R E F I L L
 6152:040 | DONE dir | em 16 16 |        |             |                 20 72 65 74 75 72 6e 65  --    r e t u r n e
 6152:040 | DONE dir | em 16 16 |        |             |                 64 20 2d 31 29 00        --  d   - 1 ) .
-6152:041 | DONE lbl | em 16 16 | 00729d |             | es_refill2                           
-6152:042 | DONE dir | em 16 16 | 00729d | (32 bytes)  |         .byte 49, 6c, 6c, 65, 67, 61, 6c, 20, 53, 4f, 55, 52, 43, (...) 
+6152:041 | DONE lbl | em 16 16 | 007299 |             | es_refill2                           
+6152:042 | DONE dir | em 16 16 | 007299 | (32 bytes)  |         .byte 49, 6c, 6c, 65, 67, 61, 6c, 20, 53, 4f, 55, 52, 43, (...) 
 6152:042 | DONE dir | em 16 16 |        |             |                 49 6c 6c 65 67 61 6c 20  --  I l l e g a l  
 6152:042 | DONE dir | em 16 16 |        |             |                 53 4f 55 52 43 45 2d 49  --  S O U R C E - I
 6152:042 | DONE dir | em 16 16 |        |             |                 44 20 64 75 72 69 6e 67  --  D   d u r i n g
 6152:042 | DONE dir | em 16 16 |        |             |                 20 52 45 46 49 4c 4c 00  --    R E F I L L .
 6152:042 | DONE dir | em 16 16 |        |             |                                          -- 
-6152:043 | DONE lbl | em 16 16 | 0072bd |             | es_state                             
-6152:044 | DONE dir | em 16 16 | 0072bd | (24 bytes)  |         .byte 41, 6c, 72, 65, 61, 64, 79, 20, 69, 6e, 20, 63, 6f, (...) 
+6152:043 | DONE lbl | em 16 16 | 0072b9 |             | es_state                             
+6152:044 | DONE dir | em 16 16 | 0072b9 | (24 bytes)  |         .byte 41, 6c, 72, 65, 61, 64, 79, 20, 69, 6e, 20, 63, 6f, (...) 
 6152:044 | DONE dir | em 16 16 |        |             |                 41 6c 72 65 61 64 79 20  --  A l r e a d y  
 6152:044 | DONE dir | em 16 16 |        |             |                 69 6e 20 63 6f 6d 70 69  --  i n   c o m p i
 6152:044 | DONE dir | em 16 16 |        |             |                 6c 65 20 6d 6f 64 65 00  --  l e   m o d e .
 6152:044 | DONE dir | em 16 16 |        |             |                                          -- 
-6152:045 | DONE lbl | em 16 16 | 0072d5 |             | es_underflow                         
-6152:046 | DONE dir | em 16 16 | 0072d5 | (16 bytes)  |         .byte 53, 74, 61, 63, 6b, 20, 75, 6e, 64, 65, 72, 66, 6c, (...) 
+6152:045 | DONE lbl | em 16 16 | 0072d1 |             | es_underflow                         
+6152:046 | DONE dir | em 16 16 | 0072d1 | (16 bytes)  |         .byte 53, 74, 61, 63, 6b, 20, 75, 6e, 64, 65, 72, 66, 6c, (...) 
 6152:046 | DONE dir | em 16 16 |        |             |                 53 74 61 63 6b 20 75 6e  --  S t a c k   u n
 6152:046 | DONE dir | em 16 16 |        |             |                 64 65 72 66 6c 6f 77 00  --  d e r f l o w .
 6152:046 | DONE dir | em 16 16 |        |             |                                          -- 
-6152:047 | DONE lbl | em 16 16 | 0072e5 |             | es_syntax                            
-6152:048 | DONE dir | em 16 16 | 0072e5 | (15 bytes)  |         .byte 55, 6e, 64, 65, 66, 69, 6e, 65, 64, 20, 77, 6f, 72, (...) 
+6152:047 | DONE lbl | em 16 16 | 0072e1 |             | es_syntax                            
+6152:048 | DONE dir | em 16 16 | 0072e1 | (15 bytes)  |         .byte 55, 6e, 64, 65, 66, 69, 6e, 65, 64, 20, 77, 6f, 72, (...) 
 6152:048 | DONE dir | em 16 16 |        |             |                 55 6e 64 65 66 69 6e 65  --  U n d e f i n e
 6152:048 | DONE dir | em 16 16 |        |             |                 64 20 77 6f 72 64 00     --  d   w o r d .
 6152:049 | DONE wsp | em 16 16 |        |             |
@@ -8649,11 +8649,11 @@ LISTING:
 6152:051 | DONE cmt | em 16 16 |        |             | ; ===================================================================
 6152:052 | DONE cmt | em 16 16 |        |             | ; ANSI VT-100 SEQUENCES
 6152:053 | DONE wsp | em 16 16 |        |             |
-6152:054 | DONE lbl | em 16 16 | 0072f4 |             | vt100_page                           
-6152:055 | DONE dir | em 16 16 | 0072f4 | (5 bytes)   |         .byte AscESC, 5b, 32, 4a, 0  clear screen
+6152:054 | DONE lbl | em 16 16 | 0072f0 |             | vt100_page                           
+6152:055 | DONE dir | em 16 16 | 0072f0 | (5 bytes)   |         .byte AscESC, 5b, 32, 4a, 0  clear screen
 6152:055 | DONE dir | em 16 16 |        |             |                 1b 5b 32 4a 00           --  . [ 2 J .
-6152:056 | DONE lbl | em 16 16 | 0072f9 |             | vt100_home                           
-6152:057 | DONE dir | em 16 16 | 0072f9 | (4 bytes)   |         .byte AscESC, 5b, 48, 0      cursor home
+6152:056 | DONE lbl | em 16 16 | 0072f5 |             | vt100_home                           
+6152:057 | DONE dir | em 16 16 | 0072f5 | (4 bytes)   |         .byte AscESC, 5b, 48, 0      cursor home
 6152:057 | DONE dir | em 16 16 |        |             |                 1b 5b 48 00              --  . [ H .
 6152:058 | DONE wsp | em 16 16 |        |             |
 6152:059 | DONE wsp | em 16 16 |        |             |
@@ -8663,13 +8663,13 @@ LISTING:
 6152:063 | DONE cmt | em 16 16 |        |             | ; These strings are only used during testing and are removed as Liara Forth is
 6152:064 | DONE cmt | em 16 16 |        |             | ; developed. All start with "tests_"
 6152:065 | DONE wsp | em 16 16 |        |             |
-6152:066 | DONE lbl | em 16 16 | 0072fd |             | tests_prev_cmd                       
-6152:067 | DONE dir | em 16 16 | 0072fd | (19 bytes)  |         .byte 28, 70, 72, 65, 76, 69, 6f, 75, 73, 20, 63, 6f, 6d, (...) 
+6152:066 | DONE lbl | em 16 16 | 0072f9 |             | tests_prev_cmd                       
+6152:067 | DONE dir | em 16 16 | 0072f9 | (19 bytes)  |         .byte 28, 70, 72, 65, 76, 69, 6f, 75, 73, 20, 63, 6f, 6d, (...) 
 6152:067 | DONE dir | em 16 16 |        |             |                 28 70 72 65 76 69 6f 75  --  ( p r e v i o u
 6152:067 | DONE dir | em 16 16 |        |             |                 73 20 63 6f 6d 6d 61 6e  --  s   c o m m a n
 6152:067 | DONE dir | em 16 16 |        |             |                 64 29 00                 --  d ) .
-6152:068 | DONE lbl | em 16 16 | 007310 |             | tests_next_cmd                       
-6152:069 | DONE dir | em 16 16 | 007310 | (15 bytes)  |         .byte 28, 6e, 65, 78, 74, 20, 63, 6f, 6d, 6d, 61, 6e, 64, (...) 
+6152:068 | DONE lbl | em 16 16 | 00730c |             | tests_next_cmd                       
+6152:069 | DONE dir | em 16 16 | 00730c | (15 bytes)  |         .byte 28, 6e, 65, 78, 74, 20, 63, 6f, 6d, 6d, 61, 6e, 64, (...) 
 6152:069 | DONE dir | em 16 16 |        |             |                 28 6e 65 78 74 20 63 6f  --  ( n e x t   c o
 6152:069 | DONE dir | em 16 16 |        |             |                 6d 6d 61 6e 64 29 00     --  m m a n d ) .
 6152:070 | DONE wsp | em 16 16 |        |             |
@@ -8681,15 +8681,15 @@ LISTING:
 6152:076 | DONE cmt | em 16 16 |        |             | ; see where this section ends. This cannot be a zero-terminated string
 6152:077 | DONE cmt | em 16 16 |        |             | ; TODO see if we need lower
 6152:078 | DONE wsp | em 16 16 |        |             |
-6152:079 | DONE lbl | em 16 16 | 00731f |             | abc_str_lower                        
-6152:080 | DONE dir | em 16 16 | 00731f | (35 bytes)  |         .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, (...) 
+6152:079 | DONE lbl | em 16 16 | 00731b |             | abc_str_lower                        
+6152:080 | DONE dir | em 16 16 | 00731b | (35 bytes)  |         .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, (...) 
 6152:080 | DONE dir | em 16 16 |        |             |                 30 31 32 33 34 35 36 37  --  0 1 2 3 4 5 6 7
 6152:080 | DONE dir | em 16 16 |        |             |                 38 39 61 62 63 64 65 66  --  8 9 a b c d e f
 6152:080 | DONE dir | em 16 16 |        |             |                 67 68 69 6a 6b 6c 6d 6e  --  g h i j k l m n
 6152:080 | DONE dir | em 16 16 |        |             |                 6f 70 71 72 73 74 75 76  --  o p q r s t u v
 6152:080 | DONE dir | em 16 16 |        |             |                 77 79 7a                 --  w y z
-6152:081 | DONE lbl | em 16 16 | 007342 |             | abc_str_upper                        
-6152:082 | DONE dir | em 16 16 | 007342 | (35 bytes)  |         .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, (...) 
+6152:081 | DONE lbl | em 16 16 | 00733e |             | abc_str_upper                        
+6152:082 | DONE dir | em 16 16 | 00733e | (35 bytes)  |         .byte 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, (...) 
 6152:082 | DONE dir | em 16 16 |        |             |                 30 31 32 33 34 35 36 37  --  0 1 2 3 4 5 6 7
 6152:082 | DONE dir | em 16 16 |        |             |                 38 39 41 42 43 44 45 46  --  8 9 A B C D E F
 6152:082 | DONE dir | em 16 16 |        |             |                 47 48 49 4a 4b 4c 4d 4e  --  G H I J K L M N
@@ -8705,8 +8705,8 @@ MACROS:
         (none)
 
 SYMBOL TABLE:
-- abc_str_lower               : 00731f
-- abc_str_upper               : 007342
+- abc_str_lower               : 00731b
+- abc_str_upper               : 00733e
 - abortq_done                 : 0054a8
 - abortq_rt                   : 00549e
 - accept_bs                   : 005527
@@ -8782,19 +8782,19 @@ SYMBOL TABLE:
 - erase_done                  : 00590c
 - erase_loop                  : 005905
 - error                       : 006a71
-- es_allot                    : 0071c3
-- es_componly                 : 0071d7
-- es_defer                    : 0071f8
-- es_divzero                  : 007215
-- es_error                    : 007226
-- es_intonly                  : 007232
-- es_noname                   : 007248
-- es_radix                    : 007258
-- es_refill1                  : 00726f
-- es_refill2                  : 00729d
-- es_state                    : 0072bd
-- es_syntax                   : 0072e5
-- es_underflow                : 0072d5
+- es_allot                    : 0071bf
+- es_componly                 : 0071d3
+- es_defer                    : 0071f4
+- es_divzero                  : 007211
+- es_error                    : 007222
+- es_intonly                  : 00722e
+- es_noname                   : 007244
+- es_radix                    : 007254
+- es_refill1                  : 00726b
+- es_refill2                  : 007299
+- es_state                    : 0072b9
+- es_syntax                   : 0072e1
+- es_underflow                : 0072d1
 - execute_ip                  : 005946
 - find-name_all_chars         : 0059b2
 - find-name_char_nomatcnt_8   : 0059ae
@@ -8818,7 +8818,7 @@ SYMBOL TABLE:
 - hashs_loop                  : 0052b3
 - have_chr                    : 005057
 - havekey                     : 000012
-- hi-end                      : 0071b5
+- hi-end                      : 0071b1
 - hi-start                    : 006ac4
 - hw_acsr0                    : 00df70
 - hw_acsr1                    : 00df72
@@ -9124,8 +9124,8 @@ SYMBOL TABLE:
 - reset_hardware              : 005000
 - rshift_done                 : 005d99
 - rshift_loop                 : 005d93
-- s_compiled                  : 0071b9
-- s_ok                        : 0071b5
+- s_compiled                  : 0071b5
+- s_ok                        : 0071b1
 - scratch                     : 000028
 - sign_plus                   : 005def
 - sl_loop                     : 005e14
@@ -9142,8 +9142,8 @@ SYMBOL TABLE:
 - start                       : 005064
 - state                       : 000014
 - stod_pos                    : 005de0
-- tests_next_cmd              : 007310
-- tests_prev_cmd              : 0072fd
+- tests_next_cmd              : 00730c
+- tests_prev_cmd              : 0072f9
 - tick_have_nt                : 005490
 - tick_have_word              : 005484
 - tmp1                        : 00001c
@@ -9174,8 +9174,8 @@ SYMBOL TABLE:
 - umstar_two_tos              : 005fa3
 - umstar_zero                 : 005f92
 - user0                       : 000000
-- vt100_home                  : 0072f9
-- vt100_page                  : 0072f4
+- vt100_home                  : 0072f5
+- vt100_page                  : 0072f0
 - words_common                : 006044
 - words_loop                  : 00604e
 - words_nosizes               : 00606b
