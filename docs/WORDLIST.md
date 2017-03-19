@@ -5,7 +5,7 @@ their status and other information - because only things that get measured get
 optimized. Words here are upper case to make reading easier, but are lower case in 
 Liara Forth itself.
 
-Last update: 16. March 2017
+Last update: 19. March 2017
 
 | Word                | Status   | Group         | Flags    | Size  | Cycles |
 | :----------------   | -------- | ------------- | -------- | ----: | -----: | 
@@ -148,6 +148,7 @@ Last update: 16. March 2017
 | INVERT              | coded    | ANSI core     | NC       | 5     |  (TBA) |
 | J                   | coded    | ANSI core     | NC CO    | (TBA) |  (TBA) |
 | KEY                 | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| KEY?                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | LATESTNT            | coded    | Liara         | NC       | 7     |  (TBA) |
 | LATESTXT            | coded    | Gforth        | NC       | (TBA) |  (TBA) |
 | LEAVE               | coded    | ANSI core     | IM CO    | (TBA) |  (TBA) |
@@ -211,6 +212,7 @@ Last update: 16. March 2017
 | UNUSED              | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VALUE               | coded    | ANSI core ext | NC       | (TBA) |  (TBA) |
 | VARIABLE            | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
+| WITHIN              | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | WORD                | coded    | ANSI core     | NC       | (TBA) |  (TBA) |
 | WORDS               | coded    | ANSI tools    | NC       | (TBA) |  (TBA) |
 | WORDS&SIZES         | coded    | Liara         | NC       | (TBA) |  (TBA) |

@@ -122,11 +122,11 @@ nt_i    .byte 1, { NC + CO }
         .word nt_j, xt_i, z_i
         .byte 'i'
 
-nt_pqdo .byte 5, { NC + CO }
+nt_pqdo .byte 5, { CO + NC + FN }
         .word nt_i, xt_pqdo, z_pqdo
         .byte "(?do)"
 
-nt_pdo  .byte 4, { NC + CO }
+nt_pdo  .byte 4, { CO + NC + FN }
         .word nt_pqdo, xt_pdo, z_pdo
         .byte "(do)"
 
@@ -714,8 +714,12 @@ nt_accept .byte 6, 00 ; TODO check flags
         .word nt_comma, xt_accept, z_accept 
         .byte "accept"
 
+nt_keyq .byte 4, { NC }
+        .word nt_accept, xt_keyq, z_keyq
+        .byte "key?"
+
 nt_key  .byte 3, { NC }
-        .word nt_accept, xt_key, z_key
+        .word nt_keyq, xt_key, z_key
         .byte "key"
 
 nt_backslash .byte 1, { NC }

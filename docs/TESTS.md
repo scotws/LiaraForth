@@ -72,11 +72,23 @@ and abort, then throw an error because ABC will not be found in the dictionary.
 
 ## LOOP testing
 
+> TODO add negative loop indices etc
+
 Test normal loop:
 ```
-: aaa 11 1 do i . loop ;        
+: aaa1 11 1 do i . loop ;        
 ```
 Should produce numbers 1 - 10
+
+Test `?DO` loop: 
+```
+: aaa2 11 1 ?do i . loop ;        
+```
+Should produce same list as before. Next, try
+```
+: aaa3 10 10 ?do i . loop ;        
+```
+Should just return with nothing left on Data Stack
 
 Then, try this as multi-line loop because that can be tricky:
 ```
@@ -138,7 +150,7 @@ so that
 ## Mandelbrot Set (ex Martin-H1)
 
 See
-[https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs](https://github.com/Martin-H1/Forth-CS-101/blob/master/mandlebrot.fs)
+[https://github.com/Martin-H1/Forth-CS-101/blob/master/mandelbrot.fs](https://github.com/Martin-H1/Forth-CS-101/blob/master/mandelbrot.fs)
 
 
 ### Stack Stuff
@@ -193,6 +205,14 @@ Should give you:
 -10 7 --> -3 -1 
 10 -7 --> 3 -1
 -10 -7 --> -3 1
+
+### WITHIN
+
+2 1 3 --> true
+0 1 3 --> false
+4 1 3 --> false
+1 1 3 --> true
+3 1 3 --> false
 
 
 ## TEST OLD STUFF

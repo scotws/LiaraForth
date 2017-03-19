@@ -912,25 +912,25 @@ xt_pploop
                 clv             ; this is used for loop control
                 clc 
                 adc.s 01        ; add index from top of R
-                sta.s 01        ; store it back on top of R
+        sta.s 01        ; store it back on top of R
 
-                ; dump step from TOS
-                ldy.dx 00
-                inx
-                inx
+        ; dump step from TOS
+        ldy.dx 00
+        inx
+        inx
 
-                ; if the V flag is set, we're done looping and continue after
-                ; the +LOOP instruction
-                bvs { pploop_jmp + 3 } 
+        ; if the V flag is set, we're done looping and continue after
+        ; the +LOOP instruction
+        bvs { pploop_jmp + 3 } 
 
 pploop_jmp
-                ; This is why this routine must be natively compiled: We compile
-                ; the opcode for jump here without an address to go to, which is
-                ; added by the next instruction of LOOP (or +LOOP) during
-                ; compile time
-                .byte 4C
+        ; This is why this routine must be natively compiled: We compile
+        ; the opcode for jump here without an address to go to, which is
+        ; added by the next instruction of LOOP (or +LOOP) during
+        ; compile time
+        .byte 4C
 
-z_pploop        rts             ; never reached
+z_pploop        rts             ; never reached (TODO remove)
 
 
 ; -------------------------------------------------------------------
@@ -938,20 +938,35 @@ z_pploop        rts             ; never reached
 ; Runtime routine for ?DO. This contains the parts required for the question
 ; mark and then drops through to (DO). This must be native compile
 xt_pqdo          
-                ; See if TOS and NOS are equal
-                ; TODO move this to assembler for speed
-                jsr xt_2dup
-                jsr xt_equal            ; now ( n1 n2 f ) 
+        ; See if TOS and NOS are equal
+        ; TODO move this to assembler for speed
+        jsr xt_2dup
+        jsr xt_equal            ; now ( n1 n2 f ) 
 
-                tay                     ; force flag check
-                beq pqdo_done
+        tay                     ; force flag check
+        beq pqdo_done
+
+        ; the two numbers are equal, so we get out of there
+        ; first, dump three entries off the Data Stack
+        ldy.dx 04
+        txa
+        clc
+        adc.# 0006
+        tax
+
+        ; Abort the whole loop. Since the limit/start parameters are not
+        ; on the Return stack yet, we only have the address that points
+        ; to the end of the loop. Dump the RTS of ?DO and just use that
+        ; RTS
+        pla
+        rts
 
 pqdo_done
-                ; get ready to drop to (DO)
-                ldy.dx 00               ; drop flag from EQUAL
-                inx
-                inx                     ; drop through to (DO)
-
+        ; get ready to drop to (DO)
+        ldy.dx 00               ; drop flag from EQUAL
+        inx
+        inx
+        
 
 ; -------------------------------------------------------------------
 ; (DO) "PARENS-DO" ( limit start -- ; R: -- limit start ) X bytes / X cycles
@@ -965,28 +980,28 @@ pqdo_done
 ; this. The source given there for this idea is Laxen & Perry F83. This routine
 ; must be native compile (and should be anyway for speed). 
 xt_pdo           
-        .!a16
-                ; Create fudge factor (fufa) by subtracting the limit from
-                ; $8000, the number that will trip the overflow flag 
-                sec
-                lda.# 8000
-                sbc.dx 00       ; limit is NOS
-                sta.dx 00       ; save fufa for later use as NOS
-                pha             ; we use fufa instead of limit on R
+.!a16
+        ; Create fudge factor (fufa) by subtracting the limit from
+        ; $8000, the number that will trip the overflow flag 
+        sec
+        lda.# 8000
+        sbc.dx 00       ; limit is NOS
+        sta.dx 00       ; save fufa for later use as NOS
+        pha             ; we use fufa instead of limit on R
 
-                ; Index is fufa plus original index
-                clc
-                tya             ; index is TOS
-                adc.dx 00       ; add fufa
-                pha
-                
-                ; clean up
-                inx
-                inx
-                inx
-                inx
-              
-z_pqdo          
+        ; Index is fufa plus original index
+        clc
+        tya             ; index is TOS
+        adc.dx 00       ; add fufa
+        pha
+        
+        ; clean up
+        inx
+        inx
+        inx
+        inx
+      
+z_pqdo           
 z_pdo           rts
 
 
@@ -994,8 +1009,8 @@ z_pdo           rts
 ; ['] "BRACKET-TICK" ( -- ) X bytes / X cycles
 ; Store xt of following word during compilation
 xt_brackettick   
-                jsr xt_tick
-                jsr xt_literal
+        jsr xt_tick
+        jsr xt_literal
 
 z_brackettick   rts
 
@@ -1004,7 +1019,7 @@ z_brackettick   rts
 ; [ "LEFTBRACKET" ( -- ) X bytes / X cycles
 ; Enter the interpretation state. This is an immediate, compile-only word
 xt_leftbracket   
-                stz.d state
+        stz.d state
 z_leftbracket   rts
 
 
@@ -1014,9 +1029,9 @@ z_leftbracket   rts
 ; a simple INC.A, but this is more error tolerant. For obvious reasons, this
 ; cannot be COMPILE-ONLY, and native compile doesn't make much sense either
 xt_rightbracket  
-                lda.# 0001
-                sta.d state
-                
+        lda.# 0001
+        sta.d state
+        
 z_rightbracket  rts
 
 ; -------------------------------------------------------------------
@@ -1027,9 +1042,9 @@ z_rightbracket  rts
 ; : [CHAR] CHAR POSTPONE LITERAL ; IMMEDIATE
 ; TODO decide if this is worth unrolling
 xt_bracketchar  
-                jsr xt_char
-                jsr xt_literal
-             
+        jsr xt_char
+        jsr xt_literal
+     
 z_bracketchar   rts
 
 
@@ -1037,10 +1052,10 @@ z_bracketchar   rts
 ; \ "BACKSLASH" ( -- ) 4 bytes / X cycles
 ; Ignore rest of line as comment
 xt_backslash     
-        .!a16
-                ; Advance >IN to end of the line 
-                lda.d ciblen
-                sta.d toin
+.!a16
+        ; Advance >IN to end of the line 
+        lda.d ciblen
+        sta.d toin
 
 z_backslash     rts
 
@@ -1049,13 +1064,13 @@ z_backslash     rts
 ; + "PLUS" ( n m -- n+m ) 7 bytes / X cycles
 ; Add TOS and NOS
 xt_plus          
-        .!a16
-                tya
-                clc
-                adc.dx 00
-                tay
-                inx
-                inx 
+.!a16
+        tya
+        clc
+        adc.dx 00
+        tay
+        inx
+        inx 
 
 z_plus          rts
 
@@ -1067,9 +1082,9 @@ z_plus          rts
 ; POSTPONE 1 POSTPONE (+LOOP) , POSTPONE UNLOOP ; IMMEDIATE
 ; COMPILE-ONLY  Drops through to +LOOP
 xt_loop          
-                ; have the finished word put 0001 on the Data Stack
-                phe.# xt_one
-                jsr cmpl_subroutine     ; drops through to +LOOP
+        ; have the finished word put 0001 on the Data Stack
+        phe.# xt_one
+        jsr cmpl_subroutine     ; drops through to +LOOP
 
 ; -------------------------------------------------------------------
 ; +LOOP ( addr -- ) X bytes / X cycles
@@ -1079,33 +1094,33 @@ xt_loop
 ; as TOS, and the address for aborting the loop (LEAVE) as the second
 ; double-byte entry on the Return Stack (see DO and loops.txt for details).
 xt_ploop         
-                ; compile (+LOOP) - use COMPILE, because this has to be natively
-                ; compiled
-                dex
-                dex
-                sty.dx 00
-                ldy.# xt_pploop
-                jsr xt_compilecomma
+        ; compile (+LOOP) - use COMPILE, because this has to be natively
+        ; compiled
+        dex
+        dex
+        sty.dx 00
+        ldy.# xt_pploop
+        jsr xt_compilecomma
 
-                ; The address we need to loop back to is TOS
-                jsr xt_comma
+        ; The address we need to loop back to is TOS
+        jsr xt_comma
 
-                ; Now compile an UNLOOP for when we're all done
-                dex
-                dex
-                sty.dx 00
-                ldy.# xt_unloop
-                jsr xt_compilecomma
+        ; Now compile an UNLOOP for when we're all done
+        dex
+        dex
+        sty.dx 00
+        ldy.# xt_unloop
+        jsr xt_compilecomma
 
-                ; Complete the compile of DO (or ?DO) by filling the hole they
-                ; left with the current address. This is TOS
-                lda.d cp                ; we need CP-1 for RTS calculation
-                dec.a
-                sta.y 0000
+        ; Complete the compile of DO (or ?DO) by filling the hole they
+        ; left with the current address. This is TOS
+        lda.d cp                ; we need CP-1 for RTS calculation
+        dec.a
+        sta.y 0000
 
-                ldy.dx 00
-                inx
-                inx
+        ldy.dx 00
+        inx
+        inx
 
 z_loop   
 z_ploop         rts
@@ -1115,30 +1130,30 @@ z_ploop         rts
 ; - "MINUS" ( n m -- n-m ) 10 bytes / X cycles
 ; Subtract NOS from TOS
 xt_minus         
-        .!a16
-                tya
-                eor.# 0ffff
+.!a16
+        tya
+        eor.# 0ffff
 
-                sec             ; not CLC
-                adc.dx 00 
+        sec             ; not CLC
+        adc.dx 00 
 
-                tay
-                inx
-                inx
-                
+        tay
+        inx
+        inx
+        
 z_minus         rts
 
 ; -------------------------------------------------------------------
 ; -ROT ( a b c -- c a b )  X bytes / X cycles
 ; Rotate top three entries of Data Stack upwards
 xt_mrot          
-        .!a16
-        .!xy16
-                lda.dx 02       ; save a
-                sty.dx 02       ; move c to 3OS
-                ldy.dx 00       ; move b to TOS
-                sta.dx 00       ; save a as NOS
-             
+.!a16
+.!xy16
+        lda.dx 02       ; save a
+        sty.dx 02       ; move c to 3OS
+        ldy.dx 00       ; move b to TOS
+        sta.dx 00       ; save a as NOS
+     
 z_mrot          rts
 
 
@@ -1146,25 +1161,25 @@ z_mrot          rts
 ; -TRAILING ( addr u -- addr u ) X bytes / X cycles
 ; Remove any trailing blanks. Uses tmp3
 xt_dtrailing     
-                ; if u is zero, just return string
-                tya             ; force flag check
-                beq z_dtrailing
+        ; if u is zero, just return string
+        tya             ; force flag check
+        beq z_dtrailing
 
-                lda.dx 00
-                sta.d tmp3
-                dey             ; convert length to index
-        .a8
+        lda.dx 00
+        sta.d tmp3
+        dey             ; convert length to index
+.a8
 
 dtrailing_loop
-                lda.diy tmp3
-                cmp.# 20
-                bne dtrailing_done
-                dey
-                bpl dtrailing_loop      ; fall through when done
+        lda.diy tmp3
+        cmp.# 20
+        bne dtrailing_done
+        dey
+        bpl dtrailing_loop      ; fall through when done
 
 dtrailing_done
-        .a16
-                iny             ; convert index to length
+.a16
+        iny             ; convert index to length
 
 z_dtrailing     rts
 
@@ -1173,16 +1188,16 @@ z_dtrailing     rts
 ; = "EQUAL" ( n m -- f ) 11 bytes / 18-20 cycles
 ; See if TOS and NOS are the same
 xt_equal         
-                tya
-                ldy.# 0000      ; default value is false
+        tya
+        ldy.# 0000      ; default value is false
 
-                cmp.dx 00
-                bne equal_not
-                dey             ; wraps to 0FFFF (true) 
+        cmp.dx 00
+        bne equal_not
+        dey             ; wraps to 0FFFF (true) 
 
 equal_not
-                inx
-                inx
+        inx
+        inx
 
 z_equal         rts
 
@@ -1191,26 +1206,26 @@ z_equal         rts
 ; 0 "ZERO" ( -- 0 ) 7 bytes / 12 cycles
 ; Pushes the number 0000 on the Data Stack
 xt_zero          
-        .!xy16
-                dex
-                dex
-                sty.dx 00 
-                ldy.# 0000
+.!xy16
+        dex
+        dex
+        sty.dx 00 
+        ldy.# 0000
 
 z_zero          rts
-               
+       
 ; -------------------------------------------------------------------
 ; 0= "ZERO-EQUAL" ( n -- f ) X bytes / X cycles
 ; Return the true flag if TOS is zero
 xt_zero-equal    
-        .!a16
-                tya             ; force flag check
-                bne ze_not_zero
+.!a16
+        tya             ; force flag check
+        bne ze_not_zero
 
-                ldy.# 0ffff
-                bra z_zero-equal
+        ldy.# 0ffff
+        bra z_zero-equal
 ze_not_zero     
-                ldy.# 0000
+        ldy.# 0000
 
 z_zero-equal    rts
 
@@ -1219,15 +1234,15 @@ z_zero-equal    rts
 ; 0< "ZERO-LESS" ( n -- f ) 11 bytes / X cycles
 ; Return the true flag if TOS is less than zero
 xt_zero-less     
-	.!a16
-                tya	; force flag check
-		bmi zero-less-is-less
+.!a16
+        tya	; force flag check
+        bmi zero-less-is-less
 
-                ldy.# 0000
-                bra z_zero-less
+        ldy.# 0000
+        bra z_zero-less
 
 zero-less-is-less
-                ldy.# 0ffff
+        ldy.# 0ffff
 
 z_zero-less     rts
 
@@ -1235,33 +1250,33 @@ z_zero-less     rts
 ; 0<> "ZERO-NOTEQUAL" ( n -- f ) 11 bytes / X cycles
 ; Return the true flag if TOS is not zero
 xt_zero-notequal
-	.!a16
-		tya     ; force flag check
-                beq zne_is_zero
-                ldy.# 0ffff
-                bra z_zero-notequal
+.!a16
+        tya     ; force flag check
+        beq zne_is_zero
+        ldy.# 0ffff
+        bra z_zero-notequal
 zne_is_zero
-                ldy.# 0000
+        ldy.# 0000
 z_zero-notequal
-                rts
+        rts
 
 
 ; -------------------------------------------------------------------
 ; 0> "ZERO-MORE" ( n -- f ) X bytes / X cycles
 ; Return the true flag if TOS is more than zero
 xt_zero-more     
-        .!a16
-                lda.# 0000              ; default is false
+.!a16
+        lda.# 0000              ; default is false
 
-                dey
-                bpl zero-more_true      ; was at least 1
+        dey
+        bpl zero-more_true      ; was at least 1
 
-                bra zero-more_done      ; nope, stays false
+        bra zero-more_done      ; nope, stays false
 
 zero-more_true
-                dec.a   ; wraps to 0ffff, true
+        dec.a   ; wraps to 0ffff, true
 zero-more_done
-                tay
+        tay
 
 z_zero-more     rts
 
@@ -1273,61 +1288,61 @@ z_zero-more     rts
 ; because we need the return address provided by JSR's push to the Return Stack
 ; This routine uses tmpbranch
 xt_zbranch       
-        .!a16
-                ; encode subroutine jump to run time code 
-                phe.# zbranch_rt
-                jsr cmpl_subroutine
+.!a16
+        ; encode subroutine jump to run time code 
+        phe.# zbranch_rt
+        jsr cmpl_subroutine
 
 z_zbranch       rts
 
 zbranch_rt
-                ; See if the flag is zero, which is the whole purpose of this
-                ; operation after all
-                tya                ; force flag check
-                beq zb_zero        ; flag is false (zero), so we branch
+        ; See if the flag is zero, which is the whole purpose of this
+        ; operation after all
+        tya                ; force flag check
+        beq zb_zero        ; flag is false (zero), so we branch
 
-                ; Flag is TRUE, so we skip over the next two bytes. Put
-                ; differently, this is the part between IF and THEN
-                pla
-                inc.a
-                inc.a
+        ; Flag is TRUE, so we skip over the next two bytes. Put
+        ; differently, this is the part between IF and THEN
+        pla
+        inc.a
+        inc.a
 
-                bra zb_done
+        bra zb_done
 
 zb_zero
-                ; Flag is FALSE, so we take the dump to the address given in the
-                ; next two bytes. We don't need Y anymore, so we can use it for
-                ; indexing
-                pla
-                sta.d tmpbranch
-                ldy.# 0001
-                lda.diy tmpbranch
+        ; Flag is FALSE, so we take the dump to the address given in the
+        ; next two bytes. We don't need Y anymore, so we can use it for
+        ; indexing
+        pla
+        sta.d tmpbranch
+        ldy.# 0001
+        lda.diy tmpbranch
 
-                ; Subtract one from the address given becasue of the RTS
-                ; mechanics
-                dec.a
+        ; Subtract one from the address given becasue of the RTS
+        ; mechanics
+        dec.a
 
 zb_done
-                ; One we or another, this is where we're going to jump to
-                pha
+        ; One we or another, this is where we're going to jump to
+        pha
 
-                ; Clean up the Data Stack and jump
-                ldy.dx 00
-                inx
-                inx
+        ; Clean up the Data Stack and jump
+        ldy.dx 00
+        inx
+        inx
 
-                rts
+        rts
 
 ; -------------------------------------------------------------------
 ; 1 "ONE" ( -- 1 ) 7 bytes / 12 cycles
 ; Pushes the number 1 on the Data Stack
 xt_one  
-        .!xy16
-                dex
-                dex
-                sty.dx 00
-                ldy.# 0001 
-   
+.!xy16
+        dex
+        dex
+        sty.dx 00
+        ldy.# 0001 
+
 z_one           rts
 
 
@@ -1337,8 +1352,8 @@ z_one           rts
 ; actually anything on the Data Stack, this routine will fail silently if the
 ; stack is empty
 xt_one-minus      
-        .!xy16
-                dey
+.!xy16
+        dey
 z_one-minus     rts
 
 
@@ -1347,8 +1362,8 @@ z_one-minus     rts
 ; Add 1 to TOS. Because there is no checking if there is actually anything on
 ; the Data Stack, this routine will fail silently if the stack is empty
 xt_one-plus      
-        .!xy16
-                iny
+.!xy16
+        iny
 z_one-plus      rts
 
 
@@ -1356,12 +1371,12 @@ z_one-plus      rts
 ; 2 "TWO" ( -- 2 ) 7 bytes / 12 cycles
 ; Pushes the number 2 on the Data Stack
 xt_two           
-        .!xy16
-                dex
-                dex
-                sty.dx 00
-                ldy.# 0002 
-   
+.!xy16
+        dex
+        dex
+        sty.dx 00
+        ldy.# 0002 
+
 z_two           rts
 
 
@@ -1369,12 +1384,12 @@ z_two           rts
 ; 2* "TWO-STAR" ( n -- 2*n ) 3 bytes / 6 cycles
 ; Multiply Top of Stack (TOS) by 2. This is also used by CELLS
 xt_two-star      
-        .!a16
-        .!xy16
-                tya
-                asl.a
-                tay
-                
+.!a16
+.!xy16
+        tya
+        asl.a
+        tay
+        
 z_two-star      rts
 
 
@@ -1385,24 +1400,24 @@ z_two-star      rts
 ; compiled
 ; TODO not coded
 xt_twotor      	
-                ; get the return address out of the way
-                pla
-                sta.d tmp3
-                ; --- CUT HERE for native compile ---
+        ; get the return address out of the way
+        pla
+        sta.d tmp3
+        ; --- CUT HERE for native compile ---
 
-                lda.dx 00               ; NOS stays next on Return Stack
-                pha
-                phy                     ; TOS stays on top
+        lda.dx 00               ; NOS stays next on Return Stack
+        pha
+        phy                     ; TOS stays on top
 
-                ldy.dx 02               ; clean up data stack
-                inx     
-                inx
-                inx
-                inx
- 
-                ; --- CUT HERE for native compile ---
-                lda.d tmp3
-                pha
+        ldy.dx 02               ; clean up data stack
+        inx     
+        inx
+        inx
+        inx
+
+        ; --- CUT HERE for native compile ---
+        lda.d tmp3
+        pha
 
 z_twotor        rts
 
@@ -1411,11 +1426,11 @@ z_twotor        rts
 ; 2DROP ( n m -- ) 6 bytes / 13 cycles
 ; Drop first two entries of Data Stack
 xt_2drop         
-                ldy.dx 02
-                inx
-                inx
-                inx
-                inx
+        ldy.dx 02
+        inx
+        inx
+        inx
+        inx
 
 z_2drop         rts
 
@@ -1425,14 +1440,14 @@ z_2drop         rts
 ; Duplicated the top two data stack entries
 
 xt_2dup          
-        .!xy16
-                dex
-                dex
-                dex
-                dex
-                sty.dx 02
-                lda.dx 04
-                sta.dx 00
+.!xy16
+        dex
+        dex
+        dex
+        dex
+        sty.dx 02
+        lda.dx 04
+        sta.dx 00
 
 z_2dup          rts
 
@@ -1441,14 +1456,14 @@ z_2dup          rts
 ; 2OVER ( d1 d2 -- d1 d2 d1 ) X bytes / X cycles
 ; Copy cell pair that is NOS to TOS
 xt_2over         
-               	dex
-                dex
-                dex
-                dex
-                sty.dx 02
-                ldy.dx 06
-                lda.dx 08
-                sta.dx 00
+        dex
+        dex
+        dex
+        dex
+        sty.dx 02
+        ldy.dx 06
+        lda.dx 08
+        sta.dx 00
 
 z_2over         rts
 
@@ -1460,25 +1475,25 @@ z_2over         rts
 ; Stack for a STC Forth is the return address, which we need to get out of the
 ; way first. Uses tmp3
 xt_twofromr      
-                ; get the return address out of the way
-                pla
-                sta.d tmp3
-                ; --- CUT HERE for native compile ---
-                
-                dex             ; make room on Data Stack
-                dex
-                dex
-                dex
-                sty.dx 02
+        ; get the return address out of the way
+        pla
+        sta.d tmp3
+        ; --- CUT HERE for native compile ---
+        
+        dex             ; make room on Data Stack
+        dex
+        dex
+        dex
+        sty.dx 02
 
-                ply             ; top element stays on top
-                pla             ; next element stays below
-                sta.dx 00
+        ply             ; top element stays on top
+        pla             ; next element stays below
+        sta.dx 00
 
-                ; --- CUT HERE for native compile ---
-                ; restore return address
-                lda.d tmp3
-                pha
+        ; --- CUT HERE for native compile ---
+        ; restore return address
+        lda.d tmp3
+        pha
 
 z_twofromr      rts
 
@@ -1490,18 +1505,18 @@ z_twofromr      rts
 ; compiled; because it accessed by a JSR, the first element on the Return Stack
 ; (LDA.S 01) is the return address.
 xt_tworfetch     
-                ; make room on the Data Stack
-                dex
-                dex
-                dex
-                dex
-                sty.dx 02
+        ; make room on the Data Stack
+        dex
+        dex
+        dex
+        dex
+        sty.dx 02
 
-                lda.s 03        ; get second element of Return Stack
-                tay
-                lda.s 05        ; get third element on Return Stack 
-                sta.dx 00
-                
+        lda.s 03        ; get second element of Return Stack
+        tay
+        lda.s 05        ; get third element on Return Stack 
+        sta.dx 00
+        
 z_tworfetch     rts
 
 
@@ -1509,17 +1524,17 @@ z_tworfetch     rts
 ; 2SWAP ( d1 d2 -- d2 d1 ) X bytes / X cycles
 ; Swap two double cell numbers on the Data Stack. 
 xt_2swap         
-                phy             ; hi word of TOS
-                ldy.dx 02       ; hi word of NOS
-                pla
-                sta.dx 02
+        phy             ; hi word of TOS
+        ldy.dx 02       ; hi word of NOS
+        pla
+        sta.dx 02
 
-                lda.dx 00       ; lo word of TOS
-                pha
-                lda.dx 04       ; lo word of NOS
-                sta.dx 00
-                pla
-                sta.dx 04
+        lda.dx 00       ; lo word of TOS
+        pha
+        lda.dx 04       ; lo word of NOS
+        sta.dx 00
+        pla
+        sta.dx 04
 
 z_2swap         rts
 
@@ -1531,17 +1546,17 @@ z_2swap         rts
 ; We use the second variant, letting CREATE do the hard work
 ; TODO see if it is faster to use Y as an index and increase by four
 xt_2variable     
-        .!a16
-                jsr xt_create
+.!a16
+        jsr xt_create
 
-                lda.# 0000
-                sta.di cp
-                inc.d cp
-                inc.d cp
-                sta.di cp
-                inc.d cp
-                inc.d cp
-                
+        lda.# 0000
+        sta.di cp
+        inc.d cp
+        inc.d cp
+        sta.di cp
+        inc.d cp
+        inc.d cp
+        
 z_2variable     rts
 
 
@@ -1550,63 +1565,63 @@ z_2variable     rts
 ; Given a string with the name of a word, return the word's execution token (xt)
 ; Abort if not found
 xt_tick          
-                jsr xt_parse-name       ; ( -- addr u ) 
+        jsr xt_parse-name       ; ( -- addr u ) 
 
-                ; if we got a zero, complain and abort
-                tya                     ; force flag check
-                bne tick_have_word
+        ; if we got a zero, complain and abort
+        tya                     ; force flag check
+        bne tick_have_word
 
-                lda.# es_noname
-                jmp error
+        lda.# es_noname
+        jmp error
 
 tick_have_word
-                jsr xt_find-name        ; ( addr u -- nt)
-                tya                     ; force flag check
+        jsr xt_find-name        ; ( addr u -- nt)
+        tya                     ; force flag check
 
-                ; if we didn't find string in the dictionary, complain and abort
-                bne tick_have_nt
+        ; if we didn't find string in the dictionary, complain and abort
+        bne tick_have_nt
 
-                lda.# es_syntax
-                jmp error
-                
+        lda.# es_syntax
+        jmp error
+        
 tick_have_nt
-                jsr xt_name-int            ; ( nt -- xt ) 
-                
+        jsr xt_name-int            ; ( nt -- xt ) 
+        
 z_tick          rts
 
 ; -------------------------------------------------------------------
 ; ABORT" "ABORTQ" ( "string" -- ) X bytes / X cycles
 ; If flag on TOS is not false, print error message and abort. This a compile-only word
 xt_abortq        
-        .!a16
-                jsr xt_squote           ; save string
+.!a16
+        jsr xt_squote           ; save string
 
-                phe.# abortq_rt         ; compile run-time aspect
-                jsr cmpl_subroutine
+        phe.# abortq_rt         ; compile run-time aspect
+        jsr cmpl_subroutine
 
-                rts
+        rts
 
 abortq_rt
-                ; we land here with ( f addr u ) 
-                lda.dx 02               ; get flag as 3OS
-                beq abortq_done         ; if FALSE, we're done
+        ; we land here with ( f addr u ) 
+        lda.dx 02               ; get flag as 3OS
+        beq abortq_done         ; if FALSE, we're done
 
-                ; if TRUE, we print string and ABORT
-                ; TODO see if we want to inform user we're aborting
-                jsr xt_type
-                jmp xt_abort            ; not JSR because we never come back
-                
+        ; if TRUE, we print string and ABORT
+        ; TODO see if we want to inform user we're aborting
+        jsr xt_type
+        jmp xt_abort            ; not JSR because we never come back
+        
 abortq_done
-                ; drop the three entries from the Data Stack
-                ldy.dx 04               ; fourth on the stack
-                
-                ; this is the same size, but three cycles faster than six INX
-                ; instructions
-                txa
-                clc
-                adc.# 0006
-                tax
-                
+        ; drop the three entries from the Data Stack
+        ldy.dx 04               ; fourth on the stack
+        
+        ; this is the same size, but three cycles faster than six INX
+        ; instructions
+        txa
+        clc
+        adc.# 0006
+        tax
+        
 z_abortq        rts
 
 
@@ -1614,16 +1629,16 @@ z_abortq        rts
 ; ABS ( n -- u ) 8 bytes / X cycles
 ; Return the absolute value of a single number
 xt_abs           
-        .!a16
-        .!xy16
-                tya             ; force flag test
-                bpl z_abs       ; positive number is easy
+.!a16
+.!xy16
+        tya             ; force flag test
+        bpl z_abs       ; positive number is easy
 
-                ; negative: Calculate 0-n
-                eor.# 0ffff 
-                inc.a
-                tay
-                
+        ; negative: Calculate 0-n
+        eor.# 0ffff 
+        inc.a
+        tay
+        
 z_abs           rts
 
 ; -------------------------------------------------------------------
@@ -1636,110 +1651,110 @@ z_abs           rts
 ; performed with a 16 bit A register. The only place we switch is in the kernel
 ; routines themselves
 xt_accept        
-        .!a16
-                ; Set up loop
-                tya             ; force flag test
-                bne accept_nonzero
-                                
-                ; if we were told to get zero chars, just quit
-                inx             ; NIP, TOS is zero which is also FALSE
-                inx
+.!a16
+        ; Set up loop
+        tya             ; force flag test
+        bne accept_nonzero
+                        
+        ; if we were told to get zero chars, just quit
+        inx             ; NIP, TOS is zero which is also FALSE
+        inx
 
-                jmp z_accept    ; no RTS so we can native compile
+        jmp z_accept    ; no RTS so we can native compile
 
 accept_nonzero
-                lda.dx 00       ; address of buffer is NOS
-                sta.d tmp1
-                inx             ; NIP 
-                inx
+        lda.dx 00       ; address of buffer is NOS
+        sta.d tmp1
+        inx             ; NIP 
+        inx
 
-                sty.d tmp2      ; Save max number of chars in tmp2
-                ldy.# 0000      ; Use Y as counter
+        sty.d tmp2      ; Save max number of chars in tmp2
+        ldy.# 0000      ; Use Y as counter
 
 accept_loop
-                ; We don't need to check for CTRL-l, because a vt100 terminal
-                ; clears the screen automatically
+        ; We don't need to check for CTRL-l, because a vt100 terminal
+        ; clears the screen automatically
 
-                ; This is a rolled-out version of KEY so we don't spend time
-                ; fooling around wit the stack
-                stx tmpdsp
-                ldx.# 0000
-                jsr.xi input    ; JSR (INPUT,X)
-                ldx.d tmpdsp
-  
-                ; we quit on both line feed and carriage return
-                cmp.# AscLF     
-                beq accept_eol
-                cmp.# AscCR
-                beq accept_eol
+        ; This is a rolled-out version of KEY so we don't spend time
+        ; fooling around wit the stack
+        stx tmpdsp
+        ldx.# 0000
+        jsr.xi input    ; JSR (INPUT,X)
+        ldx.d tmpdsp
 
-                ; BS and DEL do the same thing for the moment
-                cmp.# AscBS     
-                beq accept_bs
-                cmp.# AscDEL
-                beq accept_bs
-  
-                ; CTRL-c and ESC abort (see if this is too harsh)
-                cmp.# AscCC     
-                bne + 
-                jmp xt_abort
+        ; we quit on both line feed and carriage return
+        cmp.# AscLF     
+        beq accept_eol
+        cmp.# AscCR
+        beq accept_eol
+
+        ; BS and DEL do the same thing for the moment
+        cmp.# AscBS     
+        beq accept_bs
+        cmp.# AscDEL
+        beq accept_bs
+
+        ; CTRL-c and ESC abort (see if this is too harsh)
+        cmp.# AscCC     
+        bne + 
+        jmp xt_abort
 @
-                cmp.# AscESC
-                bne + 
-                jmp xt_abort
+        cmp.# AscESC
+        bne + 
+        jmp xt_abort
 @
-                ; CTRL-p will be used for "previous cmd", TODO
-                cmp.# AscCP     
-                bne +
+        ; CTRL-p will be used for "previous cmd", TODO
+        cmp.# AscCP     
+        bne +
 
-                lda.# tests_prev_cmd
-                jsr print_string
+        lda.# tests_prev_cmd
+        jsr print_string
 
-                bra accept_loop
+        bra accept_loop
 @
-                ; CTRL-n will be used for "next cmd", TODO 
-                cmp.# AscCN
-                bne +
+        ; CTRL-n will be used for "next cmd", TODO 
+        cmp.# AscCN
+        bne +
 
-                lda.# tests_next_cmd
-                jsr print_string
+        lda.# tests_next_cmd
+        jsr print_string
 
-                bra accept_loop
+        bra accept_loop
 
 @
-                ; That's quite enough, echo character. EMIT_A sidesteps all the
-                ; fooling around with the Data Stack
-                jsr emit_a
+        ; That's quite enough, echo character. EMIT_A sidesteps all the
+        ; fooling around with the Data Stack
+        jsr emit_a
 
-                sta.diy cib     ; STA (CIB),Y
-                
-                iny
-                cpy.d tmp2      ; reached character limit?
-                bne accept_loop ; fall thru if buffer limit reached
+        sta.diy cib     ; STA (CIB),Y
+        
+        iny
+        cpy.d tmp2      ; reached character limit?
+        bne accept_loop ; fall thru if buffer limit reached
 
 accept_eol
-                sty.d ciblen    ; Y contains number of chars accepted already
+        sty.d ciblen    ; Y contains number of chars accepted already
 
-                jsr xt_space    ; print final space
-                bra z_accept    
+        jsr xt_space    ; print final space
+        bra z_accept    
 
 accept_bs
-                cpy.# 0000      ; buffer empty?
-                bne +
+        cpy.# 0000      ; buffer empty?
+        bne +
 
-                lda.# AscBELL   ; complain and don't delete beyond the start of line
-                jsr emit_a
-                iny
+        lda.# AscBELL   ; complain and don't delete beyond the start of line
+        jsr emit_a
+        iny
 @
-                dey
-                lda.# AscBS     ; move back one
-                jsr emit_a
-                lda.# AscSP     ; print a space (rubout) 
-                jsr emit_a
-                lda.# AscBS     ; move back over space
-                jsr emit_a
+        dey
+        lda.# AscBS     ; move back one
+        jsr emit_a
+        lda.# AscSP     ; print a space (rubout) 
+        jsr emit_a
+        lda.# AscBS     ; move back over space
+        jsr emit_a
 
-                bra accept_loop
+        bra accept_loop
 
 z_accept        rts
 
@@ -1750,23 +1765,23 @@ z_accept        rts
 ; TODO see if we should insert a KEY? to make sure we can abort and/or a PAUSE
 xt_again         
 
-                ; Add the opcode for a JMP 
-        .a8
-                lda.# 4c
-                sta.di cp       ; STA (CP)
-        .a16
-                inc.d cp        
+        ; Add the opcode for a JMP 
+.a8
+        lda.# 4c
+        sta.di cp       ; STA (CP)
+.a16
+        inc.d cp        
 
-                ; Add the address which should be TOS
-                tya
-                sta.di cp
-                inc.d cp
-                inc.d cp
+        ; Add the address which should be TOS
+        tya
+        sta.di cp
+        inc.d cp
+        inc.d cp
 
-                ; drop the address
-                ldy.dx 00
-                inx
-                inx
+        ; drop the address
+        ldy.dx 00
+        inx
+        inx
 
 z_again         rts
 
@@ -1775,7 +1790,7 @@ z_again         rts
 ; ALIGN ( -- ) 1 bytes / X cycles
 ; Make sure CP is aligned. This does nothing on the 65816
 xt_align         
-                nop                     ; removed during native compile
+        nop                     ; removed during native compile
 z_align         rts
 
 
@@ -1783,7 +1798,7 @@ z_align         rts
 ; ALIGNED ( addr -- a-addr ) X bytes / X cycles
 ; Return the next aligned address. With the 65816, this does nothing
 xt_aligned       
-                nop                     ; removed during native compile
+        nop                     ; removed during native compile
 z_aligned       rts
 
 
@@ -1796,45 +1811,45 @@ z_aligned       rts
 ; See http://forth-standard.org/standard/core/ALLOT
 ; TODO test negative values
 xt_allot         
-        .!a16
-                tya                     ; force flag check
-                beq allot_real_gone     ; zero bytes, don't do anything 
-                bmi allot_minus         ; free memory instead of reserving it
+.!a16
+        tya                     ; force flag check
+        beq allot_real_gone     ; zero bytes, don't do anything 
+        bmi allot_minus         ; free memory instead of reserving it
 
-                ; most common case: reserve n bytes. We've already transfered
-                ; TOS to A, so we just have to add the current compile pointer
-                clc
-                adc.d cp                ; create new CP
-                bcs allot_error         ; oops, we've wrapped
+        ; most common case: reserve n bytes. We've already transfered
+        ; TOS to A, so we just have to add the current compile pointer
+        clc
+        adc.d cp                ; create new CP
+        bcs allot_error         ; oops, we've wrapped
 
-                tay                     ; save copy of new CP
+        tay                     ; save copy of new CP
 
-                sec
-                sbc.# cp-end
-                bmi allot_done          ; oops, fall thru if beyond max RAM
+        sec
+        sbc.# cp-end
+        bmi allot_done          ; oops, fall thru if beyond max RAM
 
 allot_error
-                lda.# es_allot
-                jmp error
+        lda.# es_allot
+        jmp error
 
 allot_minus
-                ; negative value means we're freeing memory 
-                sec
-                sbc.d cp
-                bcc allot_error         ; oops, we've wrapped
+        ; negative value means we're freeing memory 
+        sec
+        sbc.d cp
+        bcc allot_error         ; oops, we've wrapped
 
-                tay
+        tay
 
-                sbc.# cp0               ; Carry Flag must still be set
-                bmi allot_error         ; oops, gone too far back
-                
-                ; fall through to allot_done
+        sbc.# cp0               ; Carry Flag must still be set
+        bmi allot_error         ; oops, gone too far back
+        
+        ; fall through to allot_done
 allot_done      
-                sty.d cp        ; new compiler pointer
+        sty.d cp        ; new compiler pointer
 allot_real_gone
-                ldy.dx 00       ; DROP
-                inx
-                inx
+        ldy.dx 00       ; DROP
+        inx
+        inx
 
 z_allot         rts
 
@@ -1842,12 +1857,12 @@ z_allot         rts
 ; AND ( n m -- n ) 6 bytes / X cycles
 ; Logical AND
 xt_and           
-                tya
-                and.dx 00
-                tay
+        tya
+        and.dx 00
+        tay
 
-                inx     ; NIP
-                inx
+        inx     ; NIP
+        inx
 
 z_and           rts
 
@@ -1860,25 +1875,25 @@ z_and           rts
 ; TODO doesn't like hex values, need to get rid of byte_to_ascii
 ; or call as word with 0 u.r and decimal
 xt_at-xy         
-       .!a16 
-                lda.# AscESC    ; ESC
-                jsr emit_a
-                lda.# 5b        ; [
-                jsr emit_a
-                lda.dx 00       ; x
-                jsr byte_to_ascii
-                lda.# 3b        ; semicolon
-                jsr emit_a
-                tya             ; y
-                jsr byte_to_ascii
-                lda.# 48        ; H 
-                jsr emit_a
+.!a16 
+        lda.# AscESC    ; ESC
+        jsr emit_a
+        lda.# 5b        ; [
+        jsr emit_a
+        lda.dx 00       ; x
+        jsr byte_to_ascii
+        lda.# 3b        ; semicolon
+        jsr emit_a
+        tya             ; y
+        jsr byte_to_ascii
+        lda.# 48        ; H 
+        jsr emit_a
 
-                ldy.dx 02
-                inx
-                inx
-                inx
-                inx
+        ldy.dx 02
+        inx
+        inx
+        inx
+        inx
 
 z_at-xy         rts
 
@@ -1887,11 +1902,11 @@ z_at-xy         rts
 ; BASE ( -- addr ) X bytes / X cycles
 ; Get the address of where the radix for number conversion is stored
 xt_base          
-                dex
-                dex
-                sty.dx 00 
+        dex
+        dex
+        sty.dx 00 
 
-                ldy.# base
+        ldy.# base
 
 z_base          rts
 
@@ -1899,9 +1914,9 @@ z_base          rts
 ; BELL ( -- ) X bytes / X cycles
 ; Trigger terminal bell on vt100 terminals
 xt_bell          
-        .!a16
-                lda.# AscBELL 
-                jsr emit_a  
+.!a16
+        lda.# AscBELL 
+        jsr emit_a  
 
 z_bell          rts
 
@@ -1911,12 +1926,12 @@ z_bell          rts
 ; could just as welle be coded as  : BEGIN HERE ; IMMEDIATE COMPILE-ONLY
 ; but we code it here for speed
 xt_begin         
-                ; really just the same code as HERE
-                dex
-                dex
-                sty.dx 00
+        ; really just the same code as HERE
+        dex
+        dex
+        sty.dx 00
 
-                ldy.d cp
+        ldy.d cp
 
 z_begin         rts
 
@@ -1925,11 +1940,11 @@ z_begin         rts
 ; BL ( -- u ) 7 bytes / 12 cycles
 ; Put ASCII char for SPACE on Data Stack
 xt_bl            
-        .!xy16
-                dex
-                dex
-                sty.dx 00
-                ldy.# AscSP
+.!xy16
+        dex
+        dex
+        sty.dx 00
+        ldy.# AscSP
 
 z_bl            rts
 
@@ -1940,14 +1955,14 @@ z_bl            rts
 ; over its characters. This is realized as OVER + SWAP in Forth, but we do it
 ; a lot faster in assembler. Uses tmptos
 xt_bounds        
-        .!a16
-                sty.d tmptos
-                ldy.dx 00       ; addr now TOS
+.!a16
+        sty.d tmptos
+        ldy.dx 00       ; addr now TOS
 
-                clc
-                adc.d tmptos
-                sta.dx 00       ; addr+u now NOS
-                
+        clc
+        adc.d tmptos
+        sta.dx 00       ; addr+u now NOS
+        
 z_bounds        rts
 
 
@@ -1956,36 +1971,36 @@ z_bounds        rts
 ; Transfer control to given address. This word was adapted from Tali Forth. It
 ; uses tmpbranch 
 xt_branch        
-        .!a16
-                ; encode subroutine branch to runtime portion
-                phe.# branch_rt
-                jsr cmpl_subroutine
+.!a16
+        ; encode subroutine branch to runtime portion
+        phe.# branch_rt
+        jsr cmpl_subroutine
 
 z_branch        rts
 
 branch_rt
-                ; The value on the Return Stack determines where we go to
-                pla
-                sta.d tmpbranch
+        ; The value on the Return Stack determines where we go to
+        pla
+        sta.d tmpbranch
 
-                phy                     ; avoid using temp variables
-                ldy.# 0001
-                lda.diy tmpbranch       ; LDA (TMPBRANCH),Y 
-                ply
+        phy                     ; avoid using temp variables
+        ldy.# 0001
+        lda.diy tmpbranch       ; LDA (TMPBRANCH),Y 
+        ply
 
-                dec.a
-                pha             ; put target address back on Return Stack 
+        dec.a
+        pha             ; put target address back on Return Stack 
 
-                rts
+        rts
 
 ; -------------------------------------------------------------------
 ; BYE ( -- ) 2 bytes / 7-8 cycles
 ; Leave Liara Forth, returning to Mensch Monitor
 xt_bye           
-                sei
-                cld
-        .emulated 
-                jmp.i 0fffc
+        sei
+        cld
+.emulated 
+        jmp.i 0fffc
 
 z_bye           ; never reached
 
@@ -1994,15 +2009,15 @@ z_bye           ; never reached
 ; C, "C-COMMA" ( char -- ) 13 bytes / 28 cycles
 ; Store one character in the Dictionary
 xt_c-comma       
-                tya
-        .a8
-                sta.di cp       ; STA (CP)
-        .a16
-                inc.d cp        ; quick version of 1 ALLOT
+        tya
+.a8
+        sta.di cp       ; STA (CP)
+.a16
+        inc.d cp        ; quick version of 1 ALLOT
 
-                ldy.dx 00
-                inx
-                inx
+        ldy.dx 00
+        inx
+        inx
 
 z_c-comma       rts
 
@@ -2011,11 +2026,11 @@ z_c-comma       rts
 ; C@ "C-FETCH" ( addr -- n ) 11 bytes / 16 cycles
 ; Get a single byte from the given address
 xt_c-fetch       
-        .a8
-                lda.y 0000
-        .a16
-                and.# 00ff
-                tay
+.a8
+        lda.y 0000
+.a16
+        and.# 00ff
+        tay
 
 z_c-fetch       rts
 
@@ -2024,16 +2039,16 @@ z_c-fetch       rts
 ; C! "C-STORE" ( n addr -- ) 15 bytes / 29 cycles
 ; Store LSB of NOS at location given as TOS
 xt_c-store       
-                lda.dx 00
-        .a8
-                sta.y 0000
-        .a16
-                ldy.dx 02
-                inx
-                inx
-                inx
-                inx
-                
+        lda.dx 00
+.a8
+        sta.y 0000
+.a16
+        ldy.dx 02
+        inx
+        inx
+        inx
+        inx
+        
 z_c-store       rts
 
 
@@ -2042,8 +2057,8 @@ z_c-store       rts
 ; Add the size of one cell to the value on top of the stack. Since this is
 ; a 16-bit cell size, we add two
 xt_cellplus         
-                iny
-                iny
+        iny
+        iny
 
 z_cellplus      rts
 
@@ -2058,27 +2073,27 @@ z_cellplus      rts
 ; CHAR ( "c" -- u ) 23 bytes / X cycles
 ; Convert a character to its ASCII value
 xt_char          
-        .!a16
-                jsr xt_parse-name       ; ( -- addr u ) 
+.!a16
+        jsr xt_parse-name       ; ( -- addr u ) 
 
-                ; if we got back a zero, we have a problem
-                tya                     ; force flag check
-                bne char_got_char
+        ; if we got back a zero, we have a problem
+        tya                     ; force flag check
+        bne char_got_char
 
-                lda.# es_noname
-                jmp error
+        lda.# es_noname
+        jmp error
 
 char_got_char
-                ldy.dx 00               ; get addr from NOS
-                lda.y 0000              ; LDA 0000,Y - could be C@
-                and.# 00ff
-                tay
-                
-                inx
-                inx
-                
+        ldy.dx 00               ; get addr from NOS
+        lda.y 0000              ; LDA 0000,Y - could be C@
+        and.# 00ff
+        tay
+        
+        inx
+        inx
+        
 z_char          rts
- 
+
 
 ; -------------------------------------------------------------------
 ; CHARPLUS ( u -- u+1 ) X bytes / X cycles
@@ -2092,7 +2107,7 @@ z_char          rts
 ; In this case, does nothing
 xt_chars         
 
-                nop             ; will be removed during native compile
+        nop             ; will be removed during native compile
 z_chars         rts
 
 ; -------------------------------------------------------------------
@@ -2104,39 +2119,39 @@ z_chars         rts
 ;       =====* source
 ;          ====* destination
 xt_cmove         
-                ; We start at the end of the blocks, so we have to increase both
-                ; addr1 and addr2 by u
-                tya
-                clc
-                adc.dx 02       ; source, goes in X
-                dec.a           ; convert length to index
-                sta.dx 02
+        ; We start at the end of the blocks, so we have to increase both
+        ; addr1 and addr2 by u
+        tya
+        clc
+        adc.dx 02       ; source, goes in X
+        dec.a           ; convert length to index
+        sta.dx 02
 
-                tya
-                clc
-                adc.dx 00       ; destination, goes in Y
-                dec.a           ; convert length to index
-                
-                stx.d tmpdsp    ; keep DSP safe
+        tya
+        clc
+        adc.dx 00       ; destination, goes in Y
+        dec.a           ; convert length to index
+        
+        stx.d tmpdsp    ; keep DSP safe
 
-                dey
-                phy             ; save number of bytes to transfer
+        dey
+        phy             ; save number of bytes to transfer
 
-                tay             ; destination now in Y
+        tay             ; destination now in Y
 
-                lda.dx 02       ; get source address
-                tax
+        lda.dx 02       ; get source address
+        tax
 
-                pla             ; retrieve number of bytes to transfer
-                mvp 0,0
+        pla             ; retrieve number of bytes to transfer
+        mvp 0,0
 
-                ldx.d tmpdsp
-                ldy.dx 04
+        ldx.d tmpdsp
+        ldy.dx 04
 
-                txa             ; It's worth addition for three cells dropped
-                clc
-                adc.# 0006
-                tax
+        txa             ; It's worth addition for three cells dropped
+        clc
+        adc.# 0006
+        tax
 
 z_cmove         rts
 
@@ -2149,27 +2164,27 @@ z_cmove         rts
 ;          *==== source
 ;       *===== destination
 xt_cmoveup       
-                stx.d tmpdsp    ; keep DSP safe
+        stx.d tmpdsp    ; keep DSP safe
 
-                dey
-                phy             ; save number of bytes to transfer
+        dey
+        phy             ; save number of bytes to transfer
 
-                lda.dx 00       ; get destination address
-                tay
+        lda.dx 00       ; get destination address
+        tay
 
-                lda.dx 02       ; get source address
-                tax
+        lda.dx 02       ; get source address
+        tax
 
-                pla             ; retrieve number of bytes to transfer
-                mvn 0,0
+        pla             ; retrieve number of bytes to transfer
+        mvn 0,0
 
-                ldx.d tmpdsp
-                ldy.dx 04
+        ldx.d tmpdsp
+        ldy.dx 04
 
-                txa             ; It's worth addition for three cells dropped
-                clc
-                adc.# 0006
-                tax
+        txa             ; It's worth addition for three cells dropped
+        clc
+        adc.# 0006
+        tax
 
 z_cmoveup       rts
 
@@ -2180,18 +2195,17 @@ z_cmoveup       rts
 ; traditional) way to do this is to include a word ?COMPILE that makes sure
 ; we're in compile mode
 xt_compile-only  
-        .!a16
-                lda.# CO
-                xba             ; flags are MSB
-                ora.di dp       ; ORA (DP)
-                sta.di dp
+.!a16
+        lda.# CO
+        xba             ; flags are MSB
+        ora.di dp       ; ORA (DP)
+        sta.di dp
 
 z_compile-only  rts
 
 
 ; -------------------------------------------------------------------
 ; COMPILE, ( xt -- ) X bytes / X cycles
-
 ; Compile a given xt in the current word definition. It is an error if we are
 ; not in the compile state. Because we are using subroutine threading, we can't
 ; use , (COMMA) to compile new words the traditional way. We use the NC (Native
@@ -2212,8 +2226,14 @@ xt_compilecomma
                 lda.y 0000              ; Get content of nt
                 xba                     ; flags are MSB
                 and.# FN                ; mask everything but Compile Only bit
-                bne compile_as_code
+                beq compile_check
 
+                ; We're natively compiling no matter what. Get the length and
+                ; compile as code
+                jsr xt_wordsize         ; ( nt -- u ) 
+                bra compile_as_code
+
+compile_check
                 ; Now see if native compile is even allowed by checking the NC
                 ; flag
                 lda.y 0000
@@ -2847,24 +2867,23 @@ do_common
                 sta.di cp
                 inc.d cp
 
+                ; Make space to compile either (?DO) or (DO)
+                dex
+                dex
+                sty.dx 00
+
                 ; compile (?DO) or (DO) 
                 lda.d tmp1
                 beq do_do               ; childish, yes
 
-                ; compile (?DO) natively (Force Native)
-                dex
-                dex
-                sty.dx 00
                 ldy.# xt_pqdo
-                jsr xt_compilecomma     ; drops through to do_do
-                
+                bra do_compile
+
 do_do
-                ; compile (DO) natively (Force Native)
-                dex
-                dex
-                sty.dx 00
                 ldy.# xt_pdo
-                jsr xt_compilecomma
+
+do_compile
+                jsr xt_compilecomma     
 
                 ; HERE. We put this on the Data Stack for LOOP/+LOOP. Note this
                 ; has nothing to do with the HERE we've saved for LEAVE
@@ -3422,6 +3441,13 @@ xt_key
 
 z_key           rts
 
+
+; -------------------------------------------------------------------
+; KEYQ ( -- f ) X bytes / X cycles
+; See if there is a character waiting in the input buffer.
+xt_keyq          
+                nop
+z_keyq          rts
 
 ; -------------------------------------------------------------------
 ; I ( -- n )(R: n -- n )  X bytes / X cycles
@@ -6101,10 +6127,13 @@ hi-start
         .byte ": d. tuck dabs <# #s rot sign #> type space ; "
         .byte ": d.r >r tuck dabs <# #s rot sign #> r> over - spaces type ; "
 
+        ; Various words. Convert these to assembler
+        .byte ": within ( n1 n2 n3 -- f ) rot tuck > -rot > invert and ; "
+
         ; DUMP is a longish word we'll want to modify for a while until we are
         ; happy with the format
-        ; .byte ": dump bounds ?do cr i 4 u.r space"
-	; .byte "16 0 do i j + c@ 0 <# # #s #> type space loop 16 +loop ;"   
+        ; .byte ": dump ( addr u -- ) bounds ?do cr i 4 u.r space "
+	; .byte "16 0 do i j + c@ 0 <# # #s #> type space loop 16 +loop ; "   
 
         ; SEE is a longish word we'll want to modify for a while until we are
         ; happy with the format
