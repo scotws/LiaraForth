@@ -82,12 +82,8 @@ nt_words .byte 5, { NC }
         .word nt_wordsnsizes, xt_words, z_words
         .byte "words"
 
-nt_dump .byte 4, { NC }
-        .word nt_words, xt_dump, z_dump
-        .byte "dump"
-
 nt_unloop .byte 6, { NC + CO }
-        .word nt_dump, xt_unloop, z_unloop
+        .word nt_words, xt_unloop, z_unloop
         .byte "unloop"
 
 nt_pploop .byte 7, { NC + CO }
