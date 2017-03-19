@@ -1,7 +1,7 @@
 # Words to Test Liara Forth with
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version 15. March 2014
-This version 09. March 2017
+This version 19. March 2017
 
 This list is adapted from [Tali Forth](https://github.com/scotws/TaliForth)
 
@@ -206,7 +206,15 @@ Should give you:
 10 -7 --> 3 -1
 -10 -7 --> -3 1
 
-### WITHIN
+## VARIOUS STUFF
+
+## KEY?
+
+```
+: kkk begin key? if ." Got " key emit space then again ;
+```
+
+## WITHIN
 
 2 1 3 --> true
 0 1 3 --> false

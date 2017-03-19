@@ -3443,10 +3443,23 @@ z_key           rts
 
 
 ; -------------------------------------------------------------------
-; KEYQ ( -- f ) X bytes / X cycles
+; KEY? ( -- f ) X bytes / X cycles
 ; See if there is a character waiting in the input buffer.
 xt_keyq          
-                nop
+        .!a16
+                dex
+                dex
+                sty.dx 00
+
+                ldy.# 0000      ; default FALSE
+
+                ; have_chr sets the Carry Flag to 1 if there is a character
+                ; waiting, else to 0. A is destroyed
+                jsr have_chr
+                bcc z_keyq
+
+                dey             ; wrap for TRUE
+                
 z_keyq          rts
 
 ; -------------------------------------------------------------------

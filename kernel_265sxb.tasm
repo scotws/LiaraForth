@@ -1,7 +1,7 @@
 ; Basic hardware routines for Liara Forth: 265SXB version
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 04. Jan 2017
-; This version: 05. Mar 2017
+; This version: 19. Mar 2017
 
 ; This section provides basic hardware interface to the 265SXB, providing at the
 ; very least the the PUT_CHR, GET_CHR and HAVE_CHR routines that Liara Forth
@@ -173,16 +173,13 @@ get_chr_wait    bit hw_uifr             ; Any data in RX buffer?
 ; HAVE_CHR
 ; Check if the receive buffer contains any data and return C=1 if there is
 ; some. This should be handled by KEY? through the HAVEKEY variable
-; TODO Test this
-
-have_chr        pha                     ; save caller's A
-                php
+have_chr        
+                clc 
         .a8
                 lda hw_uifr             ; read the status register
-                plp
                 ror.a                   ; shift hw_uart0r bit into carry
         .a16 
-                pla                     ; restore A
+
                 rts 
 
 ; END
