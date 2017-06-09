@@ -1,7 +1,7 @@
 ; Definitions for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 20. Mar 2017
+; This version: 09. June 2017
 
 ; This file is included by liaraforth.tasm
 
@@ -109,8 +109,8 @@
         .equ AscDEL  7f  ; DEL ASCII character
 
 ; Dictionary flags. The first four bits are currently unused
-        .equ NN 0008 ; Not Native Compile
-        .equ IM 0004 ; Immediate
-        .equ FN 0002 ; Force Native Compile
         .equ CO 0001 ; Compile Only
+        .equ AN 0002 ; Always Native Compile
+        .equ IM 0004 ; Immediate Word
+        .equ NN 0008 ; Never Native Compile
 
