@@ -1,7 +1,7 @@
 ; Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 01. Apr 2016
-; This version: 09. June 2017
+; This version: 18. Sep 2017
 
 ; This code is written in Typist's Assembler Notation for the 65c02/65816
 ; See docs/MANUAL.md for more information
@@ -2206,24 +2206,23 @@ z_compile-only  rts
 ; COMPILE, ( xt -- ) X bytes / X cycles
 ; Compile a given xt in the current word definition. It is an error if we are
 ; not in the compile state. Because we are using subroutine threading, we can't
-; use , (COMMA) to compile new words the traditional way. We use the NC (Native
-; Compile) flag to decide if native compilation is allowed. If yes, we use the
-; value NC_LIMIT (in definitions.tasm) to decide if the code is too large to be
-; natively coded: If the size is larger than NC_LIMIT, we silently use
-; subroutine coding. If the FN (Force Native) flag is set, the word is always
+; use , (COMMA) to compile new words the traditional way. By default, native
+; compiled is allowed, unless there is a NN (Never Native) flag associated. 
+; If not, we use the value NC_LIMIT (from definitions.tasm) to decide if the code 
+; is too large to be natively coded: If the size is larger than NC_LIMIT, we silently 
+; use subroutine coding. If the AN (Always Native) flag is set, the word is always
 ; natively compiled
-; TODO currently just compiles subroutine jumps
 xt_compilecomma  
         .!a16
-                ; First, see if this is Force Native compile word by checking
-                ; the FN flag. We need the nt for this
+                ; First, see if this is Always Native compile word by checking
+                ; the AN flag. We need the nt for this
                 phy                     ; save copy of xt
 
                 jsr xt_int-name         ; ( xt -- nt ) 
 
                 lda.y 0000              ; Get content of nt
                 xba                     ; flags are MSB
-                and.# FN                ; mask everything but Compile Only bit
+                and.# AN                ; mask everything but Compile Only bit
                 beq compile_check
 
                 ; We're natively compiling no matter what. Get the length and
@@ -2232,12 +2231,12 @@ xt_compilecomma
                 bra compile_as_code
 
 compile_check
-                ; Now see if native compile is even allowed by checking the NC
+                ; Now see if native compile is even allowed by checking the NN
                 ; flag
                 lda.y 0000
                 xba
-                and.# NC
-                beq compile_as_jump
+                and.# NN
+                bne compile_as_jump
 
                 ; Native compile is legal, but we have to see what limit the
                 ; user set. WORDSIZE takes nt
@@ -3966,19 +3965,6 @@ z_name-string   rts
 
 
 ; -------------------------------------------------------------------
-; NATIVE-COMPILE ( -- ) X bytes / X cycles
-; Enable native compilation for last word in Dictionary
-xt_native-compile
-        .!a16
-                lda.# NC
-                xba             ; flags are MSB
-                ora.di dp       ; ORA (DP)
-                sta.di dp
-
-z_native-compile
-		rts
-
-; -------------------------------------------------------------------
 ; NC-LIMIT ( -- addr ) X bytes / X cycles
 ; Address where the value of the Native Compile size limit is kept
 xt_nc-limit      
@@ -3988,7 +3974,6 @@ xt_nc-limit
                 ldy.# nc_limit
 
 z_nc-limit      rts
-
 
 ; -------------------------------------------------------------------
 ; NEGATE ( n -- n ) 6 bytes / X cycles
@@ -4001,6 +3986,17 @@ xt_negate
 
 z_negate        rts
 
+; -------------------------------------------------------------------
+; NEVER-COMPILE ( -- ) X bytes / X cycles
+; Forbid native compilation for last word in Dictionary
+xt_never-compile
+        .!a16
+                lda.# NN
+                xba             ; flags are MSB
+                ora.di dp       ; ORA (DP)
+                sta.di dp
+
+z_never-compile rts
 
 ; -------------------------------------------------------------------
 ; NIP ( n m -- m ) 2 bytes / 4 cycles
@@ -4023,7 +4019,7 @@ z_nip           rts
 ; Another difference to Gforth is that we follow ANSI Forth that the dot to
 ; signal a double cell number is required to be the last character of the
 ; string. Number calls >NUMBER which in turn calls UM*, which uses tmp1, tmp2,
-; and tmp3, so we can't use them here, which is pain. 
+; and tmp3, so we can't use them here, which is a pain. 
 xt_number        
         .!a16
                 ; The flags for sign and double are kept on the stack because
@@ -4297,7 +4293,7 @@ parse-name_found
                 
 ; -------------------------------------------------------------------
 ; PARSE ( c "name" -- addr u ) 45 bytes / X+ cycles
-; Find word in input string delimited by character given Do not skip leading
+; Find word in input string delimited by character given. Do not skip leading
 ; delimiters, this is an important difference to PARSE-NAME. PARSE and
 ; PARSE-NAME replace WORD in modern systems. See the ANSI documentation at
 ; http://www.forth200x.org/documents/html3/rationale.html#rat:core:PARSE 
@@ -4631,7 +4627,7 @@ z_refill        rts     ; dummy for compiling
 ; -------------------------------------------------------------------
 ; ROT ( a b c -- b c a ) X bytes / X cycles
 ; Rotate the top three entries downwards (third entry becomes first)
-; Remember this with the "R" for "revolution": The bottom entry becomes the top.
+; Remember this with the "R" for "revolution": The bottom entry comes up on top! 
 xt_rot           
         .!a16
                 lda.dx 00       ; save b
@@ -4912,7 +4908,7 @@ sliteral_rt
 ; http://www.figuk.plus.com/build/arith.htm for variants. Forth is
 ; SM/REM OVER >R DUP >R ABS -ROT DABS ROT UM/MOD R> 
 ; R@ XOR 0< IF NEGATE THEN R> 0< IF SWAP NEGATE SWAP THEN ;
-; TODO optimize in assembler
+; TODO optimize further in assembler
 xt_smrem         
         .!a16
 		jsr xt_over
@@ -5030,6 +5026,7 @@ z_source-id     rts
 ; SPACE ( -- ) X bytes / X cycles
 ; Print one ASCII space character. We need to leave JSR EMIT_A as a subroutine
 ; instead of JSR/RTS it to JMP to allow native compile  
+; TODO add PAUSE for multitasking
 xt_space         
                 lda.# AscSP
                 jsr emit_a
@@ -5040,6 +5037,7 @@ z_space         rts
 ; -------------------------------------------------------------------
 ; SPACES ( u -- ) 12 bytes / X cycles
 ; Print u spaces
+; TODO add PAUSE for multitasking
 xt_spaces        
         .!a16
 
@@ -5343,7 +5341,7 @@ xt_ummod
                 ; Move the inputs to the scratchpad to avoid having to fool
                 ; around with the Data Stack and for speed. Garth's original
                 ; code uses the MVN instruction for this, but our TOS is Y which
-                ; makes that harder. When we're done, the setup will look likes
+                ; makes that harder. When we're done, the setup will look like
                 ; this: (S is start of the scratchpad in Direct Page)
                 ;
                 ;     +-----+-----+-----+-----+-----+-----+-----+-----+
@@ -5514,7 +5512,7 @@ z_variable      rts
 
 ; -------------------------------------------------------------------
 ; WORD ( char "name" -- c-addr ) X bytes / X cycles
-; Obsolete parsing word included for backwards compatibility. Do note use this,
+; Obsolete parsing word included for backwards compatibility. Do not use this,
 ; use PARSE or PARSE-NAME. Skips leading delimiters and copies word to storage
 ; area for a maximum size of 255 bytes. Returns the result as a counted string
 ; (requires COUNT to convert to modern format), and inserts a space after the
@@ -5921,7 +5919,7 @@ interpret_line_done
 ;
 ;       phe.# <WORD>    ; PEA <WORD>
 ;
-; Followed by a jump to which ever versions we need. Words that use this routine
+; Followed by a jump to whichever versions we need. Words that use this routine
 ; may not be natively compiled. We use "cmpl" as not to confuse these routines
 ; with the COMPILE, word. This routine uses tmptos. Always call this with
 ; a subroutine jump, which means no combining JSR/RTS to JMP.
@@ -6119,10 +6117,10 @@ hi-start
         .byte ": see parse-name find-name dup 0= abort", &34, " No such name", &34, ' '
         .byte "base @ >r  hex  dup cr space .", &34, " nt: ", &34, " . "
         .byte "dup 4 + @ space .", &34, " xt: ", &34, " . "
-        .byte "dup 1+ c@ 1 and if space .", &34, " NC", &34, " then "
-        .byte "dup 1+ c@ 2 and if space .", &34, " IM", &34, " then "
-        .byte "dup 1+ c@ 4 and if space .", &34, " CO", &34, " then "
-        .byte "dup 1+ c@ 8 and if space .", &34, " FN", &34, " then "
+        .byte "dup 1+ c@ 1 and if space .", &34, " CO", &34, " then "
+        .byte "dup 1+ c@ 2 and if space .", &34, " AN", &34, " then "
+        .byte "dup 1+ c@ 4 and if space .", &34, " IM", &34, " then "
+        .byte "dup 1+ c@ 8 and if space .", &34, " NN", &34, " then "
         .byte "dup cr space .", &34, " size (decimal): ", &34, " decimal wordsize dup . "
         .byte "swap name>int swap hex cr space dump  r> base ! ; "
 
@@ -6139,7 +6137,7 @@ hi-start
         ; generated at the end of the boot process and signal that the other
         ; high-level definitions worked (or at least didn't crash)
         .byte ".( Liara Forth for the W65C265SXB )"
-        .byte "cr .( Version ALPHA  19. March 2017)"
+        .byte "cr .( Version ALPHA  18. September 2017)"
         .byte "cr .( Scot W. Stevenson <scot.stevenson@gmail.com>)"
         .byte "cr .( Liara Forth comes with absolutely NO WARRANTY)"
         .byte "cr .( Type 'bye' to exit) cr"

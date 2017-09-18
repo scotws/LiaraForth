@@ -1,36 +1,28 @@
 Roadmap for Liara Forth 
 Scot W. Stevenson <scot.stevenson@gmail.com>
 First version: 02. Dez 2016
-This version: 19. Mar 2017
+This version: 18. Sep 2017
 
 
 TODO NEXT (next on top)
 
-- Rewrite Dictionary for Never Native Compile (NN) flag instead of NC flag
-- Rewrite Dictionary so we have multiple Dictionaries, one for each word size
 - Test words with various NC-LIMIT values
-- Rewrite accept to check with KEY? first (prepare for multitasking)
+- Rewrite ACCEPT to check with KEY? first (prepare for multitasking)
 - Include KEY? in loops for aborting
-- Rewrite KEY to ABORT with CNTRL-C
-
-
-*** At this point, development will be put on hold while Tali Forth for the 65c02 is rewritten. Both versions will then be developed in lockstep. ***
-
-
-TODO LATER (after rewrite of Tali Forth) 
-
-- Add real multi-line history
-- Code vt100 support
+- Rewrite KEY to ABORT with CTRL-C
 - Code multitasking support with PAUSE etc
+- Code vt100 support
+- Add real multi-line history if compatible with multitasking
 - Create drawings of data stack antics in INTERNALS.md 
-- Add better version of UM* and other multiple/division routines based on tables
 - Code further words, especially :NONAME
-- Consider morse code output because that would be awesome
+- Add better version of UM* and other multiple/division routines based on tables
+- Consider morse code output just because that would be awesome
 - Figure out timer words such as MS
 
 
 FINISHED (newest on top, with date if possible)
  
+- Rewrite Dictionary for Never Native Compile (NN) flag instead of NC flag
 - Moved all single PUT_CHR calls to EMIT (allows PAUSE later)
 - Moved all single GET_CHR calls to vectored KEY (allows PAUSE later)
 - Coded DO/LOOP and friends

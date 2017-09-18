@@ -1,7 +1,7 @@
 ; Dictionary Headers for Liara Forth for the W65C265SXB
 ; Scot W. Stevenson <scot.stevenson@gmail.com>
 ; First version: 05. Dec 2016
-; This version: 09. June 2017
+; This version: 18. September 2017
 
 ; Dictionary headers are kept separately from the code, which allows various
 ; tricks in the code. We roughly follow the Gforth terminology: The Execution
@@ -413,12 +413,12 @@ nt_literal .byte 7, { IM + CO }
         .word nt_bracketchar, xt_literal, z_literal
         .byte "literal"
 
-nt_native-compile .byte 0e, 00
-        .word nt_literal, xt_native-compile, z_native-compile
-        .byte "native-compile"
+nt_never-compile .byte 0d, 00
+        .word nt_literal, xt_never-compile, z_never-compile
+        .byte "never-compile"
 
 nt_compile-only .byte 0c, 00
-        .word nt_native-compile, xt_compile-only, z_compile-only
+        .word nt_never-compile, xt_compile-only, z_compile-only
         .byte "compile-only"
 
 nt_immediate .byte 9, 00

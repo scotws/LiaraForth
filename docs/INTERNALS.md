@@ -161,15 +161,15 @@ be
 Note the RTS instruction is removed. This way, the NIP instruction is a short as it can be, 
 compensating for a lot of the problems with STC code.
 
-There are two levels involved in native coding. First, a word must have the
-Native Code enabled flag (NC) set in the Dictionary header to enable the process
-(not all words may be natively compiled, because some require the address of the
-calling word on the Return Stack to function). Note that some words _must_ be
-natively compiled - they receive the Force Native (FN) flag. Second, the
-compiler (in the word ``COMPILE,``) calculates the size of the machine code on
-the fly by subtracting ``xt_word`` from ``z_word`` and comparing it to a
-threshold value ``nc-limit``.  If the size is below that value, the word is
-natively compiled. 
+By default, all words can be natively compiled or assembled as series of
+subroutine jumps. However, some words may not be natively compiled - they
+receive the Never Native (NN) flag. Others _must_ be natively compiled and are
+marked with the Always Native flag (AN). 
+
+If the word isn't flagged as AN or NN, the compiler (in the word ``COMPILE,``)
+calculates the size of the machine code on the fly by subtracting ``xt_word``
+from ``z_word`` and comparing it to a threshold value ``nc-limit``.  If the size
+is below that value, the word is natively compiled. 
 
 (Because we are focussed on speed, it would be more logical to compare the
 number of cycles used per word and then calculate the percentage of the JSR/RTS
